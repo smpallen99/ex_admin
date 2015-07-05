@@ -26,10 +26,13 @@ defmodule ExAdmin.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:phoenix, github: "smpallen99/phoenix", branch: "v10_warnings_fix", override: true},
+      {:phoenix, "~> 0.14"},
+      {:ecto, "~> 0.12", override: true },
+      {:phoenix_ecto, "~> 0.5"},
       {:cowboy, "~> 1.0"},
-      {:mariaex, github: "xerions/mariaex", override: true },
-      {:phoenix_ecto, "~> 0.1.0"},
+      {:mariaex, ">= 0.0.0"},
+      {:phoenix_html, "~> 1.1"},
+      {:phoenix_live_reload, "~> 0.4", only: :dev},
       {:factory_girl_elixir, "~> 0.1.1"},
       {:pavlov, "~> 0.1.2", only: :test},
       {:inflex, "~> 1.0"},

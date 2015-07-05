@@ -223,7 +223,7 @@ defmodule ExAdmin.Index do
       Link.link("Delete", to: get_route_path(conn, :delete, id), 
           class: base_class <> " delete_link", "data-confirm": confirm_message, 
           "data-method": :delete, rel: :nofollow ) ] 
-    |> safe_concat
+    |> html_escape
     # a("View", href: get_route_path(conn, :show, id), class: base_class <> " view_link")
     # a("Edit", href: get_route_path(conn, :edit, id), class: base_class <> " edit_link")
     # a("Delete", href: get_route_path(conn, :delete, id), 

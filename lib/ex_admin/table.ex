@@ -1,5 +1,4 @@
 defmodule ExAdmin.Table do
-  require Logger
   require Integer
   use Xain
   import ExAdmin.Helpers

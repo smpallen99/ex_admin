@@ -5,17 +5,7 @@ defmodule ExAdmin do
   import ExAdmin.Utils, only: [base_name: 1, titleize: 1, humanize: 1]
   require ExAdmin.Register
 
-  @modules [
-    Elixir.UcxCallout.ExAdmin.Dashboard,
-    Elixir.UcxCallout.ExAdmin.Callout,
-    Elixir.UcxCallout.ExAdmin.Role,
-    Elixir.UcxCallout.ExAdmin.MultipartyNotification,
-    Elixir.UcxCallout.ExAdmin.Category,
-    Elixir.UcxCallout.ExAdmin.User,
-    Elixir.UcxCallout.ExAdmin.Group,
-    Elixir.UcxCallout.ExAdmin.Contact,
-    Elixir.UcxCallout.ExAdmin.BackupRestore,
-  ]
+  @modules Application.get_env(:ex_admin, :modules, [])
 
   @filename "/tmp/ex_admin_registered" 
   Code.ensure_compiled ExAdmin.Register

@@ -31,6 +31,10 @@ defmodule ExAdmin.Helpers do
     Map.get(resource, :__struct__, "") |> ExAdmin.Utils.base_name |> Inflex.parameterize("_")
   end
 
+  def build_link_for({:safe, contents}, a, b, c) when is_list(contents) do 
+    safe_contents("", contents)
+    |> build_link_for(a, b, c)
+  end
   def build_link_for({:safe, contents}, a, b, c), do: build_link_for(contents, a, b, c)
   def build_link_for("", _, _, _), do: ""
   def build_link_for(nil, _, _, _), do: ""
@@ -41,6 +45,15 @@ defmodule ExAdmin.Helpers do
   end
   def build_link_for(contents, _, _, _), do: contents
   
+
+  def safe_contents(acc, []), do: acc
+  def safe_contents(acc, [h|t]) when is_list(h) do
+    safe_contents(acc, h)
+    |> safe_contents(t)
+  end
+  def safe_contents(acc, [h|t]) when is_binary(h) do
+    safe_contents(acc <> h, t)
+  end
 
   def build_header_field(field, fun) do
     case field do
