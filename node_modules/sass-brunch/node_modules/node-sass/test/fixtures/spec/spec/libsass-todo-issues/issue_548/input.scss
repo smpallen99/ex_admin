@@ -1,0 +1,9 @@
+.parent-sel-value {
+  font-family: &;
+  .parent-sel-interpolation {
+    font-family: #{&};
+     .parent-sel-value-concat {
+        font-family: "Current parent: " + &;
+     }
+  }
+}

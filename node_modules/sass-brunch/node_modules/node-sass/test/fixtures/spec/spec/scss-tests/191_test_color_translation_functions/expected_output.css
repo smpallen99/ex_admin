@@ -1,0 +1,27 @@
+.bar {
+  color1: rgba(192, 152, 83, 0.5);
+  color2: #c09853; }
+
+.darken {
+  color1: #a47e3c;
+  color2: #7f612e;
+  color3: #594521;
+  color4: #342813;
+  color5: #0f0b05;
+  color6: black;
+  color7: black;
+  color8: black;
+  color9: black;
+  color10: black; }
+
+.lighten {
+  color1: #ceae78;
+  color2: #dbc59e;
+  color3: #e9dbc3;
+  color4: #f7f1e8;
+  color5: white;
+  color6: white;
+  color7: white;
+  color8: white;
+  color9: white;
+  color10: white; }

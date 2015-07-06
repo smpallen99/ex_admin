@@ -1,0 +1,2 @@
+%-a :not([a=b]).baz {a: b}
+:not([a = b]) {@extend .baz} -a {@extend %-a}

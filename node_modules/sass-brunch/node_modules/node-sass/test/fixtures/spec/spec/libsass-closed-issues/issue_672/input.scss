@@ -1,0 +1,14 @@
+@mixin test($arglist...) {
+    $map: keywords($arglist);
+    answer: if($map, "Yep", "Nope");
+}
+
+with-keyword-args{
+    @include test($arg1: one, $arg2: two, $arg3: three);
+}
+with-no-args {
+    @include test();
+}
+without-keyword-args {
+    @include test(not-a-keyword-arg-1 , not-a-keyword-arg-2);
+}

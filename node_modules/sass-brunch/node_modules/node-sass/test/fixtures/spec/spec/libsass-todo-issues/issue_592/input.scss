@@ -1,0 +1,13 @@
+%a::-webkit-scrollbar {
+    color: green;
+}
+
+.a {
+    .b {
+        @extend %a;
+    }
+
+    .c .b {
+        @extend %a;
+    }
+}

@@ -1,0 +1,11 @@
+.foo {
+  content: foo;
+
+  @media only screen and (min-width: 1337px) {
+    content: bar;
+
+    @media only screen and (max-width: 42em) {
+      content: baz;
+    }
+  }
+}

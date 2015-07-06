@@ -1,0 +1,10 @@
+{
+	"version": 3,
+	"file": "index.css",
+	"sources": [
+		"index.scss"
+	],
+	"sourcesContent": [],
+	"mappings": "AAAA;EACE,AAAO;EACP,AAAQ;;AAGV,AAAQ;EACN,AAAiB;;AAGnB,AAAQ;EACN,AAAO;EAET,AAAQ,AAAG;IACP,AAAa",
+	"names": []
+}

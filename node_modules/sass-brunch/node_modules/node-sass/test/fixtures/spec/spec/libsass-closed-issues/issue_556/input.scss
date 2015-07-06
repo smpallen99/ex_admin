@@ -1,0 +1,13 @@
+$test: (
+  one: 1,
+  two: 2,
+);
+
+$expect: (
+  two: 2,
+  one: 1,
+);
+
+.test {
+  equal: $test == $expect;
+}

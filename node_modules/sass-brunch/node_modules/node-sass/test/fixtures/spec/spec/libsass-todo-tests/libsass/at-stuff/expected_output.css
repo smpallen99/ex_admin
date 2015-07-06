@@ -1,0 +1,35 @@
+@fudge hux bloo;
+div {
+  color: red;
+  height: 20px; }
+@fudge {
+  div span {
+    width: 10px; }
+    div span a {
+      font: whatever; } }
+@-webkit-keyframes SOMETHING {
+  0% {
+    opacity: 0; }
+  50% {
+    opacity: 0.5; }
+  100% {
+    opacity: 1.0; } }
+@-webkit-keyframes BOUNCE {
+  from {
+    left: 0px; }
+  to {
+    left: 200px; } }
+div {
+  border-upper-left: 10px;
+  border-upper-right: 9px;
+  border-lower-left: 8px;
+  border-lower-right: 7px;
+  background: gray; }
+  div span {
+    font: whatever; }
+
+@fudge HEY, HOO, HA:first-child {
+  color: blue; }
+@mudge div span, a:visited;
+@fu dge foo {
+  color: red; }

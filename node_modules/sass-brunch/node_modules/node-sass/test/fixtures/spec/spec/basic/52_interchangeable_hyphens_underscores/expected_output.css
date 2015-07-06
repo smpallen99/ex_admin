@@ -1,0 +1,47 @@
+div {
+  blah: blah;
+  hi: "hi";
+  blah: blah;
+  hi: "hello";
+  foo: "boop";
+  foo: "hello";
+  bar: "hello"; }
+
+div {
+  color: a; }
+
+div {
+  color: b; }
+
+div {
+  color: c; }
+
+div {
+  color: 1; }
+
+div {
+  color: 2; }
+
+div {
+  color: 3; }
+
+div {
+  color: 4; }
+
+div {
+  color: 5; }
+
+div {
+  color: 6; }
+
+div {
+  color: 7; }
+
+div {
+  color: 8; }
+
+div {
+  color: 9; }
+
+div {
+  foo: blah; }

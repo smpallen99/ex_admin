@@ -1,0 +1,8 @@
+$list: ("a", "b", "c");
+
+test {
+    content: nth($list, -1);
+    content: nth($list, -2);
+    content: nth($list, -3);
+    content: nth($list, -1) == nth($list, length($list));
+}

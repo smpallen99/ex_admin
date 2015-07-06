@@ -1,0 +1,15 @@
+div {
+  a: 3;
+  d: null;
+  e: true;
+  f: -null;
+  g: -fudge;
+  i: froo(, 4);
+  j: 3, 4;
+  k: 4;
+  a2: 3;
+  e2: true;
+  f2: -;
+  i2: froo(, 4);
+  j2: 3, 4;
+  k2: 4; }

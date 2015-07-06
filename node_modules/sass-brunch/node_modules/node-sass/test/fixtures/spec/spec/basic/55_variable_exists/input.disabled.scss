@@ -1,0 +1,40 @@
+@function exists($name) {
+  @return variable-exists($name);
+}
+
+@function f() {
+  $foo: hi;
+  @return g();
+}
+
+@function g() {
+  @return variable-exists(foo);
+}
+
+div {
+  foo: variable-exists(x);
+  foo: variable-exists("x");
+
+  span {
+    $x: false;
+
+    foo: variable-exists(x);
+    foo: variable-exists("x");
+    foo: variable-exists(y);
+    foo: variable-exists("y");
+    foo: exists(x);
+    foo: exists("x");
+
+    p {
+      foo: variable-exists(x);
+      foo: variable-exists("x");
+      foo: exists(x);
+      foo: exists("x");
+      foo: variable-exists(y);
+      foo: variable-exists("y");
+      foo: f();
+      $y: blah;
+    }
+  }
+
+}

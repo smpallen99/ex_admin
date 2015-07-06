@@ -1,0 +1,65 @@
+@function exists($name) {
+  @return function-exists($name);
+}
+
+@function f() {
+  $foo: hi;
+  @return g();
+}
+
+@function g() {
+  @return function-exists(foo);
+}
+
+@function h() {
+  @return function-exists(lighten);
+}
+
+div {
+  foo: function-exists(lighten); 
+  foo: function-exists("lighten"); 
+  foo: function-exists(exists);
+  foo: function-exists("exists"); 
+  foo: function-exists(f);
+  foo: function-exists("f"); 
+  foo: function-exists(g);
+  foo: function-exists("g"); 
+  foo: function-exists(nope);
+  foo: function-exists("nope"); 
+  foo: g();
+  foo: f();
+  foo: h();
+
+
+  span {
+    foo: function-exists(lighten); 
+    foo: function-exists("lighten"); 
+    foo: function-exists(exists);
+    foo: function-exists("exists"); 
+    foo: function-exists(f);
+    foo: function-exists("f"); 
+    foo: function-exists(g);
+    foo: function-exists("g"); 
+    foo: function-exists(nope);
+    foo: function-exists("nope"); 
+    foo: g();
+    foo: f();
+    foo: h();
+    p {
+      foo: function-exists(lighten); 
+      foo: function-exists("lighten"); 
+      foo: function-exists(exists);
+      foo: function-exists("exists"); 
+      foo: function-exists(f);
+      foo: function-exists("f"); 
+      foo: function-exists(g);
+      foo: function-exists("g"); 
+      foo: function-exists(nope);
+      foo: function-exists("nope"); 
+      foo: g();
+      foo: f();
+      foo: h();
+    }
+  }
+
+}

@@ -1,0 +1,15 @@
+%foo %bar {
+a: b;
+}
+
+.parent1 {
+@extend %foo;
+
+.child {
+  @extend %bar;
+}
+}
+
+.parent2 {
+@extend %foo;
+}

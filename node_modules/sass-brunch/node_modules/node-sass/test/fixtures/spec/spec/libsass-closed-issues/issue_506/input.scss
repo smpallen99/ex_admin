@@ -1,0 +1,9 @@
+$list: foo bar baz;
+$list--comma: foo, bar, baz;
+$single: foo;
+
+div {
+  _list-space: list-separator($list);
+  _list-comma: list-separator($list--comma);
+  _single-item: list-separator($single);
+}

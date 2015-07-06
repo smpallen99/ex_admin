@@ -1,0 +1,17 @@
+// libsass issue 736:  @return does not cause function exit
+// https://github.com/sass/libsass/issues/736
+
+@function contains-true($list) {
+  @each $bool in $list {
+    @if $bool {
+      @return "found true";
+    }
+  }
+  @return "nothing found";
+}
+
+.test {
+  out: contains-true(true false false);
+  out: contains-true(false true false);
+  out: contains-true(false false true);
+}

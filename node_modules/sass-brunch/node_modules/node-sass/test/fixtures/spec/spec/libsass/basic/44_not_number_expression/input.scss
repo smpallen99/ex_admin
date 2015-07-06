@@ -1,0 +1,15 @@
+@if 2 {
+  div {
+    background: green;
+  }
+}
+@if not 2 {
+  div {
+    background: red;
+  }
+}
+@if not not 2 {
+  div {
+    background: blue;
+  }
+}

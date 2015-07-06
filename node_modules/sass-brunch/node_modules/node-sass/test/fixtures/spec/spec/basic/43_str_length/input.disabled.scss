@@ -1,0 +1,9 @@
+div {
+  foo: str-length("protégé");
+  foo: str-length(protégé);
+  foo: str-length("");
+  foo: str-length("hello there");
+  foo: str-length("Façade");
+  foo: str-length("Tromsø");
+  foo: str-length("Ãlso");
+}

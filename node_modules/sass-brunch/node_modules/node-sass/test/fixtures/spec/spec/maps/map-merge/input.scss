@@ -1,0 +1,16 @@
+$before-1: map-merge((foo: 1, bar: 2), (baz: 3));
+$before-2: map-merge((), (foo: 1, bar: 2));
+$before-3: map-merge((foo: 1, bar: 2), ());
+$before-4: map-merge((foo: 1, bar: 2), (foo: 3));
+
+$after-1: (foo: 1, bar: 2, baz: 3);
+$after-2: (foo: 1, bar: 2);
+$after-3: (foo: 1, bar: 2);
+$after-4: (foo: 3, bar: 2);
+
+div {
+  foo-1: $before-1 == $after-1;
+  foo-2: $before-2 == $after-2;
+  foo-3: $before-3 == $after-3;
+  foo-4: $before-4 == $after-4;
+}

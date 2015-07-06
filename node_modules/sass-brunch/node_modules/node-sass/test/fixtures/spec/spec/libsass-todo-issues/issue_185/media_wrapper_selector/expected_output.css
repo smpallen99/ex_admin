@@ -1,0 +1,15 @@
+@media all {
+  .bar {
+    content: baz; } }
+@media all and (min-width: 1337px) {
+  .foo {
+    content: bar; } }
+@media all {
+  .bar {
+    content: baz; } }
+@media all and (min-width: 1337px) {
+  .baz {
+    content: foo; } }
+@media all and (min-width: 1337px) and (max-width: 42em) {
+  .foo {
+    content: bar; } }

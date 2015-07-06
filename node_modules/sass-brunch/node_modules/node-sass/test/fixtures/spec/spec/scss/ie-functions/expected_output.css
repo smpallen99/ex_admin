@@ -1,0 +1,24 @@
+foo {
+  filter: progid:Microsoft.foo.bar.Baz(flip=foobar, bang=#00ff00cc);
+  something: blah(hux=mumble);
+  blah: progid:something.something(flip=foobar, bang=#abc);
+  blah: progid:bar.hux();
+  blah: string;
+  opacity: 0.005;
+  filter: alpha(opacity=0.5);
+  bilter: alpha(opacity=0.5);
+  kilter: string;
+  left: expression(document.body.clientWidth/2-oDiv.offsetWidth/2);
+  flop: expression(document.body.clientHeight/2-oDiv.offsetHeight/2);
+  left: expression(document.body.clientWidth/4);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFF0000', endColorstr='#FF008000', GradientType=1); }
+
+.parser {
+  filter: progid:DXImageTransform.Microsoft.Alpha(opacity=20);
+  filter: progid:DXImageTransform.Microsoft.MotionBlur(strength=50) progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#550000FF, endColorstr=#55FFFF00);
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1) progid:DXImageTransform.Microsoft.Alpha(opacity=50) progid:DXImageTransform.Microsoft.Blur(strength=10);
+  filter: progid:DXImageTransform.Microsoft.Wave(strength=100) progid:DXImageTransform.Microsoft.CheckerBoard(duration=4);
+  filter: progid:DXImageTransform.Microsoft.Wave(strength=100) progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1) progid:DXImageTransform.Microsoft.Iris(irisstyle='STAR', duration=4);
+  filter: progid:DXImageTransform.Microsoft.MotionBlur(strength=13, direction=310) progid:DXImageTransform.Microsoft.Blur(pixelradius=2) progid:DXImageTransform.Microsoft.Wheel(duration=3);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled='false', startColorstr=#550000FF, endColorstr=#55FFFF00); }

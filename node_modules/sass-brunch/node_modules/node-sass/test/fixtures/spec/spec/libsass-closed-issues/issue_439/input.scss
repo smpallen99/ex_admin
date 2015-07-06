@@ -1,0 +1,9 @@
+@mixin odd( $selector, $n) {
+    $local-uniq: unique_id();
+    #{$selector}:nth-child(odd) { @content }
+    %#{$local-uniq} { @content; }
+}
+
+ul > {
+  @include odd( li, 5 ) { background: #ccc;  }
+}

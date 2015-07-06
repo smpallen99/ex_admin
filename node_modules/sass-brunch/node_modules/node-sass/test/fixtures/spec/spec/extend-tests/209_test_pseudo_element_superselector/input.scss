@@ -1,0 +1,3 @@
+%x#bar {a: b} // Add an id to make the results have high specificity
+%y, %y::fblthp {@extend %x}
+a {@extend %y}

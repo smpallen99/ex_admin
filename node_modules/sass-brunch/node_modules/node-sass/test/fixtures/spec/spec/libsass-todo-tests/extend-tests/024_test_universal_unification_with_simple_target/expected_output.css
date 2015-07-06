@@ -1,0 +1,2 @@
+-a .foo.bar, -a ns|*.bar {
+  a: b; }

@@ -1,0 +1,8 @@
+$lhs: (100/10)#{rem};
+$rhs: 10rem;
+
+foo {
+  a: $lhs;
+  a: $rhs;
+  a: $lhs == $rhs;
+}

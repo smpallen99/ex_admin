@@ -1,0 +1,3 @@
+%x#bar {a: b}
+%y, %y:first-line {@extend %x}
+a {@extend %y}

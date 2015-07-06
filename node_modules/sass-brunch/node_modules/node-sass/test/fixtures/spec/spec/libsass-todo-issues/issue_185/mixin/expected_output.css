@@ -1,0 +1,7 @@
+@media only screen and (color) and (orientation: portrait) {
+  .foo {
+    content: bar; } }
+
+@media all and (min-width: 42em) {
+  .foo {
+    content: bar; } }

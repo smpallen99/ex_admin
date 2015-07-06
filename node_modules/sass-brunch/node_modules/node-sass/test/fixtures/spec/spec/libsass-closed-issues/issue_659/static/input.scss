@@ -1,0 +1,26 @@
+
+%bam { bam: null; }
+
+@mixin bar() {
+   bar: null;
+}
+
+@mixin baz() {
+   baz: null !important;
+}
+
+foo {
+  foo: null;
+}
+
+bar {
+  @include bar;
+}
+
+baz {
+  @include baz;
+}
+
+bam {
+  @extend %bam;
+}

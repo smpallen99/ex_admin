@@ -1,0 +1,6 @@
+%foo {a: b}
+
+a {
+:b {@extend %foo}
+:b:c {@extend %foo}
+}

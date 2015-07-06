@@ -1,0 +1,13 @@
+.foo {
+  @media (pointer: none) {
+    content: foo;
+
+    @media (scripting) {
+      content: baz;
+
+      @media (light-level: dim) {
+        content: bar;
+      }
+    }
+  }
+}

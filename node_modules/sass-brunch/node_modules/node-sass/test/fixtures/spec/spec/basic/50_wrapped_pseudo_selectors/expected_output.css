@@ -1,0 +1,8 @@
+div :-moz-any(ol p.blah, ul, menu, dir) :-moz-any(ol span + h1, ul, menu, dir) ul {
+  list-style-type: square; }
+div :-moz-any(ol span + h1, ul, menu, dir) ul {
+  list-style-type: square; }
+div :foo(p div, ul) {
+  hi: hi; }
+div :foo(ol) {
+  hi: hi; }

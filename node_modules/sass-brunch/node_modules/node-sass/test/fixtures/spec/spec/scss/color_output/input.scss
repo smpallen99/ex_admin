@@ -1,0 +1,59 @@
+$green: green;
+$green-hex: #00FF00;
+$green-hex-add: #00FF00 + 0;
+$green-hex-min: #0f0;
+$green-rgb: rgb(0, 255, 0);
+$green-rgba-t: rgba(0, 255, 0, 0.5);
+$green-rgba-s: rgba(0, 255, 0, 1);
+$offgreen: #00ff01;
+$silver: silver;
+$silver-hex: #ddd;
+
+a {
+	q: silver;
+	r: #ddd;
+	s: green;
+	t: #00FF00;
+	u: #00FF00 + 0;
+	v: #0f0;
+	w: rgb(0, 255, 0);
+	x: rgba(0, 255, 0, 0.5);
+	y: rgba(0, 255, 0, 1);
+	z: #00ff01; }
+
+b {
+	q: 1px solid silver;
+	r: 1px solid #ddd;
+	s: 1px solid green;
+	t: 1px solid #00FF00;
+	u: 1px solid #00FF00 + 0;
+	v: 1px solid #0f0;
+	w: 1px solid rgb(0, 255, 0);
+	x: 1px solid rgba(0, 255, 0, 0.5);
+	y: 1px solid rgba(0, 255, 0, 1);
+	z: 1px solid #00ff01; }
+
+c {
+	q: $silver;
+	r: $silver-hex;
+	s: $green;
+	t: $green-hex;
+	u: $green-hex-add;
+	v: $green-hex-min;
+	w: $green-rgb;
+	x: $green-rgba-t;
+	y: $green-rgba-s;
+	z: $offgreen; }
+
+d {
+	q: 1px solid $silver;
+	r: 1px solid $silver-hex;
+	s: 1px solid $green;
+	t: 1px solid $green-hex;
+	u: 1px solid $green-hex-add;
+	v: 1px solid $green-hex-min;
+	w: 1px solid $green-rgb;
+	x: 1px solid $green-rgba-t;
+	y: 1px solid $green-rgba-s;
+	z: 1px solid $offgreen; }
+

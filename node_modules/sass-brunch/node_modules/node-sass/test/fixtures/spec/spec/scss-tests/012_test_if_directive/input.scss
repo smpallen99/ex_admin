@@ -1,0 +1,3 @@
+@if "foo" != "foo" {foo {a: b}}
+@else if "foo" == "foo" {bar {a: b}}
+@else if true {baz {a: b}}

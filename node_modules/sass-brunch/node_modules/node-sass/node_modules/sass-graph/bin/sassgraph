@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+
+var path = require("path");
+var fs = require("fs");
+var program = require("commander");
+
+var sassGraph = require("../sass-graph");
+var package = require("../package.json");
+
+program.version("Sass Graph Version " + package.version);
+
+program
+  .usage([
+      "[OPTIONS] DIR FILE",
+      program._version,
+      "DIR is a directory containing scss files. FILE is a scss file to analyze."
+    ].join("\n\n  "))
+  .option("-I <dir>", "Add dir to the sass load path. Multiple dirs can be comma delimited.")
+  .option("-a", "Print ancestors")
+  .option("-d", "Print descendents")
+  .option("--json", "Prints the index in json")
+  .option("-v, --version", "Display version information")
+  .parse(process.argv);
+
+if ( ! program.args.length) {
+  program.help();
+}
+
+var loadPaths = [];
+
+// load paths are comma delimited
+if(program.I) {
+  loadPaths = program.I.split(/,/).map(function(f){
+    return path.resolve(f);
+  });
+}
+
+// SASS_PATH can contain a colon delimited list of paths
+if(process.env.SASS_PATH) {
+  loadPaths = loadPaths.concat(process.env.SASS_PATH.split(/:/).map(function(f){
+    return path.resolve(f);
+  }));
+}
+
+var sassDir = program.args[0];
+var sassFile = program.args[1];
+
+try {
+  if(!fs.lstatSync(sassDir).isDirectory()) {
+    console.error("%s must be a directory", sassDir);
+    process.exit(1);
+  }
+
+  var graph = sassGraph.parseDir(sassDir, { loadPaths: loadPaths });
+
+  if(program.json) {
+    console.log(JSON.stringify(graph.index, null, 4));
+    process.exit(0);
+  }
+
+  if (program.A) {
+    graph.visitAncestors(path.resolve(sassFile), function(f) {
+      console.log(f);
+    });
+  }
+  if (program.D) {
+    graph.visitDescendents(path.resolve(sassFile), function(f) {
+      console.log(f);
+    });
+  }
+  if (program.B) {
+    graph.visitDescendents(path.resolve(sassFile), function(f) {
+      console.log(f);
+    });
+  }
+} catch(e) {
+  console.log(e);
+  // console.log(e.stack);
+  process.exit(1);
+}

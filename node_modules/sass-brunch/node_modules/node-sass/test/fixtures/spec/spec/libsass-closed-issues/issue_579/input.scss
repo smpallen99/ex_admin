@@ -1,0 +1,13 @@
+$map: (
+  foo: fump,
+  bar: bump,
+);
+
+@mixin vararg-test($foo, $bar) {
+  foo: $foo;
+  bar: $bar;
+}
+
+.test {
+  @include vararg-test($map...);
+}

@@ -1,0 +1,4 @@
+.e %z {a: b}
+%x .c %y {@extend %z}
+.a, .b {@extend %x}
+.a .d {@extend %y}

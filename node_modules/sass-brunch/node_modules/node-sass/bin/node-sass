@@ -1,0 +1,268 @@
+#!/usr/bin/env node
+var Emitter = require('events').EventEmitter,
+    path = require('path'),
+    Gaze = require('gaze'),
+    meow = require('meow'),
+    replaceExt = require('replace-ext'),
+    stdin = require('get-stdin'),
+    grapher = require('sass-graph'),
+    render = require('../lib/render');
+
+/**
+ * Initialize CLI
+ */
+
+var cli = meow({
+  pkg: '../package.json',
+  help: [
+    require('../lib/').info(),
+    '',
+    'Usage',
+    '  node-sass [options] <input.scss> [output.css]',
+    '  cat <input.scss> | node-sass > output.css',
+    '',
+    'Example',
+    '  node-sass --output-style compressed foobar.scss foobar.css',
+    '  cat foobar.scss | node-sass --output-style compressed > foobar.css',
+    '',
+    'Options',
+    '  -w, --watch                Watch a directory or file',
+    '  -r, --recursive            Recursively watch directories or files',
+    '  -o, --output               Output directory',
+    '  -x, --omit-source-map-url  Omit source map URL comment from output',
+    '  -i, --indented-syntax      Treat data from stdin as sass code (versus scss)',
+    '  --output-style             CSS output style (nested|expanded|compact|compressed)',
+    '  --source-comments          Include debug info in output',
+    '  --source-map               Emit source map',
+    '  --source-map-embed         Embed sourceMappingUrl as data URI',
+    '  --source-map-contents      Embed include contents in map',
+    '  --include-path             Path to look for imported files',
+    '  --image-path               Path to prepend when using the `image-url()` helper',
+    '  --precision                The amount of precision allowed in decimal numbers',
+    '  --stdout                   Print the resulting CSS to stdout',
+    '  --importer                 Path to custom importer',
+    '  --help                     Print usage info'
+  ].join('\n')
+}, {
+  boolean: [
+    'indented-syntax',
+    'omit-source-map-url',
+    'recursive',
+    'stdout',
+    'source-map-embed',
+    'source-map-contents',
+    'source-comments'
+  ],
+  string: [
+    'image-path',
+    'include-path',
+    'output',
+    'output-style',
+    'precision'
+  ],
+  alias: {
+    i: 'indented-syntax',
+    o: 'output',
+    w: 'watch',
+    x: 'omit-source-map-url',
+    c: 'source-comments',
+    r: 'recursive'
+  },
+  default: {
+    'image-path': '',
+    'include-path': process.cwd(),
+    'output-style': 'nested',
+    precision: 5
+  }
+});
+
+/**
+ * Check if file is a Sass file
+ *
+ * @param {String} file
+ * @api private
+ */
+
+function isSassFile(file) {
+  return file.match(/\.(sass|scss)/);
+}
+
+/**
+ * Create emitter
+ *
+ * @api private
+ */
+
+function getEmitter() {
+  var emitter = new Emitter();
+
+  emitter.on('error', function(err) {
+    console.error(err);
+    if (!options.watch) {
+      process.exit(1);
+    }
+  });
+
+  emitter.on('warn', function(data){
+    console.warn(data);
+  });
+
+  emitter.on('log', function(data){
+    console.log(data);
+  });
+
+  emitter.on('done', function() {
+    if (!options.watch) {
+      process.exit;
+    }
+  });
+
+  return emitter;
+}
+
+/**
+ * Construct options
+ *
+ * @param {Array} arguments
+ * @param {Object} options
+ * @api private
+ */
+
+function getOptions(args, options) {
+  var dir = options.output ? path.resolve(process.cwd(), options.output) : process.cwd();
+
+  options.src = args[0];
+  options.dest = args[1] ? path.resolve(dir, args[1]) : undefined;
+
+  if (!options.dest && !options.stdout) {
+    var ext = path.extname(options.src);
+    var out = path.basename(options.src);
+    var suffix = '.css';
+
+    if (ext !== suffix) {
+      out = replaceExt(out, suffix);
+    }
+
+    options.dest = path.join(dir, out);
+  }
+
+  return options;
+}
+
+/**
+ * Watch
+ *
+ * @param {Object} options
+ * @param {Object} emitter
+ * @api private
+ */
+
+function watch(options, emitter) {
+  var dir = options.watch;
+  var gaze = new Gaze();
+
+  if (dir === true) {
+    dir = [];
+  } else if (!Array.isArray(dir)) {
+    dir = [dir];
+  }
+
+  dir.push(options.src);
+  dir = dir.map(function(d) {
+    var glob = options.recursive ? '**/*.{sass,scss}' : '*.{sass,scss}';
+    return isSassFile(d) ? d : path.join(d, glob);
+  });
+
+  gaze.add(dir);
+  gaze.on('error', emitter.emit.bind(emitter, 'error'));
+
+  var graph = grapher.parseDir(options.src, { loadPaths: options.includePath });
+
+  gaze.on('changed', function(file) {
+    var files = [file];
+    graph.visitAncestors(file, function(parent) {
+      files.push(parent);
+    });
+
+    files.forEach(function(file) {
+      if (path.basename(file)[0] === '_') return;
+      options = getOptions([path.resolve(file)], options);
+      emitter.emit('warn', '=> changed: ' + file);
+      render(options, emitter);
+    });
+  });
+}
+
+/**
+ * Run
+ *
+ * @param {Object} options
+ * @param {Object} emitter
+ * @api private
+ */
+
+function run(options, emitter) {
+  if (!Array.isArray(options.includePath)) {
+    options.includePath = [options.includePath];
+  }
+
+  if (options.sourceMap) {
+    if (options.sourceMap === 'true') {
+      options.sourceMap = options.dest + '.map';
+    } else {
+      options.sourceMap = path.resolve(process.cwd(), options.sourceMap);
+    }
+  }
+
+  if (options.importer) {
+    if ((path.resolve(options.importer) === path.normalize(options.importer).replace(/(.+)([\/|\\])$/, '$1'))) {
+      options.importer = require(options.importer);
+    } else {
+      options.importer = require(path.resolve(process.cwd(), options.importer));
+    }
+  }
+
+  if (options.watch) {
+    watch(options, emitter);
+  } else {
+    render(options, emitter);
+  }
+}
+
+/**
+ * Arguments and options
+ */
+
+var input = cli.input;
+var options = getOptions(input, cli.flags);
+var emitter = getEmitter();
+
+/**
+ * Show usage if no arguments are supplied
+ */
+
+if (!input.length && process.stdin.isTTY) {
+  emitter.emit('error', [
+    'Provide a Sass file to render',
+    '',
+    '  Example',
+    '    node-sass --output-style compressed foobar.scss foobar.css',
+    '    cat foobar.scss | node-sass --output-style compressed > foobar.css'
+  ].join('\n'));
+}
+
+/**
+ * Apply arguments
+ */
+
+if (options.src) {
+  run(options, emitter);
+} else if (!process.stdin.isTTY) {
+  stdin(function(data) {
+    options.data = data;
+    options.stdin = true;
+    run(options, emitter);
+  });
+}
+
+return emitter;

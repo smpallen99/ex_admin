@@ -1,0 +1,63 @@
+@function exists($name) {
+  @return mixin-exists($name);
+}
+
+@function f() {
+  $foo: hi;
+  @return g();
+}
+
+@function g() {
+  @return mixin-exists(foo);
+}
+
+@function h() {
+  @return mixin-exists(lighten);
+}
+
+@mixin red-text { color: red; }
+@mixin blue-text { color: red; }
+@mixin green-text { color: red; }
+
+div {
+  foo: mixin-exists(red-text); 
+  foo: mixin-exists("red-text"); 
+  foo: mixin-exists(blue-text); 
+  foo: mixin-exists("blue-text"); 
+  foo: mixin-exists(green-text);   
+  foo: mixin-exists("green-text"); 
+  foo: mixin-exists(nope);
+  foo: mixin-exists("nope");
+  foo: g();
+  foo: f();
+  foo: h();
+
+
+  span {
+    foo: mixin-exists(red-text); 
+    foo: mixin-exists("red-text"); 
+    foo: mixin-exists(blue-text); 
+    foo: mixin-exists("blue-text"); 
+    foo: mixin-exists(green-text);   
+    foo: mixin-exists("green-text"); 
+    foo: mixin-exists(nope);
+    foo: mixin-exists("nope");
+    foo: g();
+    foo: f();
+    foo: h();
+    p {
+      foo: mixin-exists(red-text); 
+      foo: mixin-exists("red-text"); 
+      foo: mixin-exists(blue-text); 
+      foo: mixin-exists("blue-text"); 
+      foo: mixin-exists(green-text);   
+      foo: mixin-exists("green-text"); 
+      foo: mixin-exists(nope);
+      foo: mixin-exists("nope");
+      foo: g();
+      foo: f();
+      foo: h();
+    }
+  }
+
+}

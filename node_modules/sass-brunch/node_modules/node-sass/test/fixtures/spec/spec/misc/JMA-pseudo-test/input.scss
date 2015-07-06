@@ -1,0 +1,12 @@
+.foo {
+        h1 {
+                color:red;
+        }
+}
+
+.bar {
+        &:hover h3,
+        h3 {
+                @extend h1;
+        }
+}

@@ -1,0 +1,19 @@
+foo {
+  color: red;
+
+  @at-root {
+    @keyframes animation {
+      to { color: red; }
+    }
+  }
+
+  bar {
+    color: blue;
+
+    @at-root {
+      @keyframes other-animation {
+        to { color: blue; }
+      }
+    }
+  }
+}

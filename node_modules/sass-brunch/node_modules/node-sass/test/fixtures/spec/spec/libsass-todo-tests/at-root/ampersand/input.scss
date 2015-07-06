@@ -1,0 +1,11 @@
+foo {
+  @at-root {
+    & {
+      color: blue;
+    }
+
+    &--modifier {
+      color: red;
+    }
+  }
+}

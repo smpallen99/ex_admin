@@ -1,0 +1,10 @@
+%btn-style-default {
+  background: green;
+  &:hover{
+    background: black;
+  }
+}
+
+button {
+  @extend %btn-style-default;
+}

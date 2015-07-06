@@ -1,0 +1,7 @@
+.test-hello {
+  color: red;
+}
+
+.test-world {
+  @extend .test-hello;
+}

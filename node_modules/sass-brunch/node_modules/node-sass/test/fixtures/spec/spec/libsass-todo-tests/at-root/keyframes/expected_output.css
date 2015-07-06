@@ -1,0 +1,10 @@
+foo {
+  color: red; }
+@keyframes animation {
+  to {
+    color: red; } }
+  foo bar {
+    color: blue; }
+@keyframes other-animation {
+  to {
+    color: blue; } }

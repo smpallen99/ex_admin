@@ -1,0 +1,15 @@
+div {
+
+  bar: a str-index("abcde", "bc");
+  bar: a str-index("abcde", "a");
+  bar: a str-index("abcde", "e");
+  bar: a str-index("abcde", "xyz");
+  bar: a str-index("", "abc");
+  bar: a str-index("abcde", "abcdefg");
+  bar: a str-index("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", "Ɋ"); // 15
+  bar: a str-index("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", "úüñ"); // 6
+  bar: a str-index("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", "abcde");
+  bar: a str-index("abcde", "");
+  bar: a str-index("", "");
+
+}

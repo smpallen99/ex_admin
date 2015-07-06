@@ -1,0 +1,16 @@
+
+foo {
+    $num: random();
+    $is-number: type-of($num) == number;
+    $is-within-range: $num >= 0 and $num < 1;
+
+    @for $i from 1 through 1000 {
+      $num: random();
+      $is-number: $is-number and type-of($num) == number;
+      $is-within-range: $is-within-range and $num >= 0 and $num < 1;
+    }
+
+    is-defined: $num != "random()";
+    is-number: $is-number;
+    is-within-range: $is-within-range;
+}

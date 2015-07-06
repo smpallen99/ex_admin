@@ -1,0 +1,2 @@
+%-a ::foo(2n+1).baz {a: b}
+::foo(2n+1) {@extend .baz} -a {@extend %-a}

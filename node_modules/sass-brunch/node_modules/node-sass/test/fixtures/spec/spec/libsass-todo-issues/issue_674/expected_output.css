@@ -1,0 +1,10 @@
+div {
+  background: url(../images/image.png);
+  background: url(../images/img/image.png);
+  background: url(../images/img/image.png); }
+  div:after {
+    content: attr(data-value);
+    content: attr(data-value-extra);
+    content: url(../images/icon.png);
+    content: url(../images/gfx/icon.png);
+    content: url(../images/gfx/icon.png); }

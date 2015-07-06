@@ -1,0 +1,67 @@
+{
+  "name": "cross-spawn",
+  "version": "0.2.9",
+  "description": "Cross platform child_process#spawn",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --bail -R spec"
+  },
+  "bugs": {
+    "url": "https://github.com/IndigoUnited/node-cross-spawn/issues/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/IndigoUnited/node-cross-spawn.git"
+  },
+  "keywords": [
+    "spawn",
+    "windows",
+    "cross",
+    "platform",
+    "path",
+    "ext",
+    "path-ext",
+    "path_ext",
+    "shebang",
+    "hashbang",
+    "cmd",
+    "execute"
+  ],
+  "author": {
+    "name": "IndigoUnited",
+    "email": "hello@indigounited.com",
+    "url": "http://indigounited.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "lru-cache": "^2.5.0"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.0",
+    "mocha": "^1.20.1"
+  },
+  "gitHead": "6fececcbd8331f98b4cfd6560b925bc4d8e77f47",
+  "homepage": "https://github.com/IndigoUnited/node-cross-spawn",
+  "_id": "cross-spawn@0.2.9",
+  "_shasum": "bd67f96c07efb6303b7fe94c1e979f88478e0a39",
+  "_from": "cross-spawn@>=0.2.6 <0.3.0",
+  "_npmVersion": "2.6.1",
+  "_nodeVersion": "0.10.36",
+  "_npmUser": {
+    "name": "satazor",
+    "email": "andremiguelcruz@msn.com"
+  },
+  "maintainers": [
+    {
+      "name": "satazor",
+      "email": "andremiguelcruz@msn.com"
+    }
+  ],
+  "dist": {
+    "shasum": "bd67f96c07efb6303b7fe94c1e979f88478e0a39",
+    "tarball": "http://registry.npmjs.org/cross-spawn/-/cross-spawn-0.2.9.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/cross-spawn/-/cross-spawn-0.2.9.tgz",
+  "readme": "ERROR: No README data found!"
+}

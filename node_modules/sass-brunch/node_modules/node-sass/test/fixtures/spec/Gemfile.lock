@@ -1,0 +1,12 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    minitest (5.2.0)
+    sass (3.4.9)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  minitest (= 5.2.0)
+  sass

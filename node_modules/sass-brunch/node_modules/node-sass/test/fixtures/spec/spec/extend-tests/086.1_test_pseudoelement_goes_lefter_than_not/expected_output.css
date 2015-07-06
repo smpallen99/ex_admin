@@ -1,0 +1,2 @@
+b:not(:first-child):after, c:s, d:s::e {
+  x: y; }

@@ -1,0 +1,9 @@
+@function getter() {
+  @return 42px;
+}
+
+test {
+  content: getter()-1;
+  content: getter()- 1;
+  content: getter() -1;
+}

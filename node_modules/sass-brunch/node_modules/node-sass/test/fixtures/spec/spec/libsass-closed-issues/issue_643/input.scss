@@ -1,0 +1,5 @@
+$map: (foo: bar, bar: baz);
+
+foo {
+  a: nth($map, 2);
+}

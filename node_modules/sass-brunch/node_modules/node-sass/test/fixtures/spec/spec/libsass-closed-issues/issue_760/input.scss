@@ -1,0 +1,4 @@
+foo {
+  quoted: str-slice("abcd", 1, 0);
+  unquoted: str-slice(abcd, 1, 0);
+}

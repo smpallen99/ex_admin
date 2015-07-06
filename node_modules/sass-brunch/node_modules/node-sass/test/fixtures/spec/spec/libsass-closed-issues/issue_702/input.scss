@@ -1,0 +1,4 @@
+.foo {
+  content: function-exists("feature-exists");
+  content: feature-exists("foo");
+}

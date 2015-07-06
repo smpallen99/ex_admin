@@ -1,0 +1,5 @@
+$value: 10;
+
+foo {
+  filter: foo(opacity=$value*100);
+}

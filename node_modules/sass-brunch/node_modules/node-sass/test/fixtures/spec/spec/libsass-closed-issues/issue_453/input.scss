@@ -1,0 +1,4 @@
+div {
+    --a: 2px;
+    top: var(--a);
+}

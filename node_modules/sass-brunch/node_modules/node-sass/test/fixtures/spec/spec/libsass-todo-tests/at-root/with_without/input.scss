@@ -1,0 +1,127 @@
+@media (min-width: 1337px) {
+  .foo {
+    content: baz;
+  }
+
+  @at-root (without: media) {
+    .foo {
+      content: bar;
+    }
+  }
+}
+
+@media (min-width: 1337px) {
+  .foo {
+    content: baz;
+  }
+
+  @at-root (without: all) {
+    .foo {
+      content: bar;
+    }
+  }
+}
+
+@supports (color: red) {
+  .foo {
+    content: baz;
+  }
+
+  @at-root (without: supports) {
+    .foo {
+      content: bar;
+    }
+  }
+}
+
+@supports (color: red) {
+  .foo {
+    content: baz;
+  }
+
+  @at-root (without: all) {
+    .foo {
+      content: bar;
+    }
+  }
+}
+
+@media (min-width: 1337px) {
+  @supports (color: red) {
+    @at-root {
+      .foo {
+        content: bar;
+      }
+    }
+  }
+}
+
+@media (min-width: 1337px) {
+  @supports (color: red) {
+    @at-root (without: all) {
+      .foo {
+        content: bar;
+      }
+    }
+  }
+}
+
+@media (min-width: 1337px) {
+  @supports (color: red) {
+    @at-root (without: media) {
+      .foo {
+        content: bar;
+      }
+    }
+  }
+}
+
+@media (min-width: 1337px) {
+  @supports (color: red) {
+    @at-root (without: supports) {
+      .foo {
+        content: bar;
+      }
+    }
+  }
+}
+
+@media (min-width: 1337px) {
+  @supports (color: red) {
+    @at-root {
+      .foo {
+        content: bar;
+      }
+    }
+  }
+}
+
+@media (min-width: 1337px) {
+  @supports (color: red) {
+    @at-root (with: all) {
+      .foo {
+        content: bar;
+      }
+    }
+  }
+}
+
+@media (min-width: 1337px) {
+  @supports (color: red) {
+    @at-root (with: media) {
+      .foo {
+        content: bar;
+      }
+    }
+  }
+}
+
+@media (min-width: 1337px) {
+  @supports (color: red) {
+    @at-root (with: supports) {
+      .foo {
+        content: bar;
+      }
+    }
+  }
+}

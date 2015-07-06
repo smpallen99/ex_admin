@@ -1,0 +1,4 @@
+foo {
+  is-defined: true;
+  is-number: true;
+  is-within-range: true; }

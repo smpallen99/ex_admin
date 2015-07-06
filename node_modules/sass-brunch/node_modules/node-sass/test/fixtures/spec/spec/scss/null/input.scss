@@ -1,0 +1,24 @@
+$x: 2;
+
+div {
+  $x: null;
+  a: length(null null null);
+  b: #{null};
+  d: type-of($x);
+  e: null == null;
+  f: -null;
+  g: -fudge;
+  h: (null null null);
+  i: froo(null, 4);
+  j: (null), (null), 3, 4;
+  k: length(((null), (null), 3, 4));
+  
+  a2: length($x $x $x);
+  b2: #{$x};
+  e2: $x == null;
+  f2: -$x;
+  h2: ($x $x $x);
+  i2: froo($x, 4);
+  j2: ($x), ($x), 3, 4;
+  k2: length((($x), ($x), 3, 4));
+}

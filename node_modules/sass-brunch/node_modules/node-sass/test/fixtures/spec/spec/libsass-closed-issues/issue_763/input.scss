@@ -1,0 +1,10 @@
+foo {
+  a: str-slice("abcd", 1, 1);
+  b: str-slice('abcd', 1, 1);
+  c: str-slice(abcd, 1, 1);
+
+  d: str-insert("abcd", "X", 1);
+  e: str-insert("abcd", 'X', 1);
+  f: str-insert('abcd', "X", 1);
+  g: str-insert('abcd', 'X', 1);
+}

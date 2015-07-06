@@ -1,0 +1,20 @@
+@if true {
+  div {
+    background: green;
+  }
+}
+@if not true {
+  div {
+    background: red;
+  }
+}
+@if not not true {
+  div {
+    background: blue;
+  }
+}
+@if not (true or false) {
+  div {
+    background: black;
+  }
+}

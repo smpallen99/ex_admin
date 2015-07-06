@@ -1,0 +1,6 @@
+div {
+  foo: map-get((foo: 1, bar: 2), foo);
+  foo: map-get((foo: 1, bar: 2), bar);
+  foo: map-get((foo: 1, bar: 2), baz);
+  foo: map-get((), foo);
+}

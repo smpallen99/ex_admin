@@ -1,0 +1,2 @@
+[baz^="blip12px"] {a: b}
+.bar {@extend [baz^="blip#{12px}"]}

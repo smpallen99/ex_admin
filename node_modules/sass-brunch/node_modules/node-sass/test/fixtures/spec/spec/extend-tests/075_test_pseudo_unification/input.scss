@@ -1,0 +1,2 @@
+%-a .baz:foo {a: b}
+:after {@extend .baz} -a {@extend %-a}

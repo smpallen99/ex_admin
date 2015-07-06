@@ -1,0 +1,18 @@
+div {
+  foo: false;
+  foo: false; }
+  div span {
+    foo: true;
+    foo: true;
+    foo: false;
+    foo: false;
+    foo: false;
+    foo: false; }
+    div span p {
+      foo: true;
+      foo: true;
+      foo: false;
+      foo: false;
+      foo: false;
+      foo: false;
+      foo: false; }

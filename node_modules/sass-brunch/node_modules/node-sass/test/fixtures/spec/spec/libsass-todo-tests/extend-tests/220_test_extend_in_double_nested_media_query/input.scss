@@ -1,0 +1,6 @@
+@media all {
+@media (orientation: landscape) {
+  %foo {color: blue}
+  .bar {@extend %foo}
+}
+}

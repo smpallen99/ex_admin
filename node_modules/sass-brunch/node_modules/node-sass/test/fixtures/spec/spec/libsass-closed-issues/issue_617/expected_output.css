@@ -1,0 +1,5 @@
+.foo {
+  display: block; }
+  @supports (display: flex) {
+    .foo {
+      display: flex; } }

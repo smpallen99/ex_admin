@@ -1,0 +1,42 @@
+div {
+  foo: true;
+  foo: true;
+  foo: true;
+  foo: true;
+  foo: true;
+  foo: true;
+  foo: true;
+  foo: true;
+  foo: false;
+  foo: false;
+  foo: false;
+  foo: false;
+  foo: true; }
+  div span {
+    foo: true;
+    foo: true;
+    foo: true;
+    foo: true;
+    foo: true;
+    foo: true;
+    foo: true;
+    foo: true;
+    foo: false;
+    foo: false;
+    foo: false;
+    foo: false;
+    foo: true; }
+    div span p {
+      foo: true;
+      foo: true;
+      foo: true;
+      foo: true;
+      foo: true;
+      foo: true;
+      foo: true;
+      foo: true;
+      foo: false;
+      foo: false;
+      foo: false;
+      foo: false;
+      foo: true; }

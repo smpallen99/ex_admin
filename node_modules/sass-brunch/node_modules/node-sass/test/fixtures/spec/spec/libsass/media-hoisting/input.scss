@@ -1,0 +1,27 @@
+@media screen {
+  a {
+    color: black;
+    height: 8px;
+  }
+}
+
+a {
+  color: red;
+  @media screen {
+    color: blue;
+    height: 10px;
+  }
+}
+
+a {
+  color: beige;
+  b {
+    color: teal;
+    @media screen {
+      color: orange;
+      c {
+        height: 12px;
+      }
+    }
+  }
+}

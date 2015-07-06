@@ -1,0 +1,15 @@
+foo {
+  @at-root {
+    @media print {
+      bar {
+        color: red;
+      }
+    }
+
+    baz {
+      @media speech {
+        color: blue;
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+.foo {@extend .bar}
+
+.parent {
+.bar {
+  width: 2000px;
+}
+.foo {
+  @extend .bar
+}
+}

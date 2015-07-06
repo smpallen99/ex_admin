@@ -1,0 +1,11 @@
+%foo %bar%baz {c: d}
+
+.parent1 {
+@extend %foo;
+.child1 {@extend %bar}
+}
+
+.parent2 {
+@extend %foo;
+.child2 {@extend %baz}
+}

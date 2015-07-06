@@ -1,0 +1,6 @@
+div {
+  blah: url(foobar);
+  blah: url(fn("s"));
+  blah: url("red.png");
+  blah: url(hello-world.png);
+  blah: url("assets/fudge/budge.png"); }

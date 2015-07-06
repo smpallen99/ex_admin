@@ -1,0 +1,32 @@
+$color: #c09853;
+
+.bar {
+	color1: rgba($color,0.5);
+	color2: rgba($color,1);
+}
+
+.darken {
+	color1: darken($color, 10%); 
+	color2: darken($color, 20%); 
+	color3: darken($color, 30%); 
+	color4: darken($color, 40%); 
+	color5: darken($color, 50%); 
+	color6: darken($color, 60%); 
+	color7: darken($color, 70%); 
+	color8: darken($color, 80%); 
+	color9: darken($color, 90%); 
+	color10: darken($color, 100%); 
+}
+
+.lighten {
+	color1: lighten($color, 10%); 
+	color2: lighten($color, 20%); 
+	color3: lighten($color, 30%); 
+	color4: lighten($color, 40%); 
+	color5: lighten($color, 50%); 
+	color6: lighten($color, 60%); 
+	color7: lighten($color, 70%); 
+	color8: lighten($color, 80%); 
+	color9: lighten($color, 90%); 
+	color10: lighten($color, 100%); 
+}

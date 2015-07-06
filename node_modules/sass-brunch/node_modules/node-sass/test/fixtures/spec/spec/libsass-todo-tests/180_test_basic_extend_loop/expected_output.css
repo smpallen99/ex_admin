@@ -1,0 +1,5 @@
+.foo, .bar {
+  a: b; }
+
+.bar, .foo {
+  c: d; }

@@ -1,0 +1,10 @@
+$flow: left;
+
+$map: (
+  margin-#{$flow}: 3em,
+  foo: bar,
+);
+
+.test {
+  margin-left: map-get($map, margin-left);
+}

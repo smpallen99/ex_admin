@@ -1,0 +1,5 @@
+h1:nth-of-type(2n + 1) {
+  color: red; }
+
+h1:nth-of-type(2n   +  1) {
+  color: red; }

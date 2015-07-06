@@ -1,0 +1,17 @@
+
+foo {
+  $limit: 10;
+  $num: random($limit);
+  $is-digit: type-of($num) == number and floor($num) == $num;
+  $is-within-range: $num >= 1 and $num <= $limit;
+
+  @for $i from 1 through 1000 {
+    $num: random($limit);
+    $is-digit: $is-digit and type-of($num) == number and floor($num) == $num;
+    $is-within-range: $is-within-range and $num >= 1 and $num <= $limit;
+  }
+
+  is-defined: $num != "random(10)";
+  is-digit: $is-digit;
+  is-within-range: $is-within-range;
+}

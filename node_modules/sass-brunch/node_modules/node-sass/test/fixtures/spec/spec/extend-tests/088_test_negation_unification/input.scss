@@ -1,0 +1,2 @@
+%-a :not(.foo).baz {a: b}
+:not(.foo) {@extend .baz} -a {@extend %-a}

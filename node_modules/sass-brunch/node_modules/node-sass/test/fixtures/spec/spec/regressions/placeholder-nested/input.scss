@@ -1,0 +1,13 @@
+%x {
+  width: 100px;
+
+  %y {
+    height: 100px;
+  }
+}
+
+.foo {
+  @extend %x;
+
+  .bar { @extend %y }
+}

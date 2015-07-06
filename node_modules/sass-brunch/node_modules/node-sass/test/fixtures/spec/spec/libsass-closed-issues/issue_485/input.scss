@@ -1,0 +1,3 @@
+@media not all and (monochrome) { foo: bar; }
+@media not screen and (color), print and (color) { foo: bar; }
+@media (not (screen and (color))), print and (color) { foo: bar; }

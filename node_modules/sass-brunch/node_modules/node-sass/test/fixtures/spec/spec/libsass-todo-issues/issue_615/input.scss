@@ -1,0 +1,8 @@
+$foo: "bar";
+%#{"foo--#{$foo}"} {
+  foo: bar;
+}
+
+a {
+  @extend %foo--bar;
+}

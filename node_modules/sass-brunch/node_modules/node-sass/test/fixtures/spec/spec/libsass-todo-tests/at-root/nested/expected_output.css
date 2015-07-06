@@ -1,0 +1,13 @@
+foo {
+  color: blue; }
+  foo baz {
+    color: purple; }
+    bar {
+      color: red; }
+
+foo {
+  color: blue; }
+  foo baz {
+    color: purple; }
+    bar {
+      color: red; }

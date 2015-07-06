@@ -1,0 +1,26 @@
+div {
+  bar: str-insert("abcd", "X", 1);
+  bar: str-insert("abcd", 'X', 1);
+  bar: str-insert("abcd", 'X\'fjd\'sk', 1);
+  bar: str-insert("abcd", "e", 3);
+  bar: str-insert("abcd", "e", 18);
+  bar: str-insert("abcd", "e", -2);
+  bar: str-insert("abcd", "e", -18);
+  bar: str-insert("abcd", "e", 0);
+  bar: str-insert("abcd", e, 0);
+  bar: str-insert(abcd, "e", 0);
+  bar: str-insert(abcd, e, 0);
+  bar: str-insert("Déjà vu", "abcd", 0);
+  bar: str-insert("Déjà vu", "abcd", 2);
+  bar: str-insert("Déjà vu", "abcd", -3);
+  bar: str-insert("Déjà vu", "abcd", 18);
+
+  bar: str-insert("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", " ABCD ", 0);
+  bar: str-insert("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", " ABCD ", 2);
+  bar: str-insert("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", " ABCD ", 5);
+  bar: str-insert("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", " ABCD ", 9);
+  bar: str-insert("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", " ABCD ", 28);
+  bar: str-insert("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", " ABCD ", -3);
+  bar: str-insert("øáéíóúüñ¿éàŤǅǂɊɱʭʬѪ҈ݓ", " ABCD ", -28);
+
+}

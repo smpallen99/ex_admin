@@ -1,0 +1,27 @@
+
+$base-path:'../images/';
+$base-attr:'data-';
+
+@function url($src, $path:''){
+  @return unquote('url('+$base-path + $path+ $src +')');
+}
+@function url2($src, $path:''){
+  @return unquote('url('+ $base-path + $path+ $src +')');
+}
+@function attr($arg1, $arg2:''){
+  @return unquote('attr('+$base-attr + $arg1 + $arg2 +')');
+}
+
+div {
+    background: url('image.png');
+    background: url('image.png','img/');
+    background: url2('image.png','img/');
+
+  &:after {
+    content: attr(value);
+    content: attr(value, -extra);
+    content: url('icon.png');
+    content: url('icon.png','gfx/');
+    content: url2('icon.png','gfx/');
+  }
+}

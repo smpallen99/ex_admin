@@ -1,0 +1,5 @@
+#context %foo, .bar .baz {color: blue}
+
+.bat {
+  @extend %foo;
+}

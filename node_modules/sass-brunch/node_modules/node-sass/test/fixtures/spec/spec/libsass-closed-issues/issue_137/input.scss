@@ -1,0 +1,10 @@
+.foo {
+  background-color: lime;
+  a {
+    color: white;
+  }
+}
+
+.baz {
+  @extend .foo;
+}

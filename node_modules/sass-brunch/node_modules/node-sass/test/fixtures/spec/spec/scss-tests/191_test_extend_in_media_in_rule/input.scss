@@ -1,0 +1,11 @@
+.foo {
+  @media screen {
+    @extend %bar;
+  }
+}
+
+@media screen {
+  %bar {
+    a: b;
+  }
+}

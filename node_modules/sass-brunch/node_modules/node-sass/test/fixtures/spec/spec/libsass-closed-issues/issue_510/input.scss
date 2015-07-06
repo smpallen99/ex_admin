@@ -1,0 +1,6 @@
+$before: map-remove((foo: 1, bar: 2, baz: 3, burp: 4), bar, baz);
+$after: (foo: 1, burp: 4);
+
+div {
+  foo: $before == $after;
+}

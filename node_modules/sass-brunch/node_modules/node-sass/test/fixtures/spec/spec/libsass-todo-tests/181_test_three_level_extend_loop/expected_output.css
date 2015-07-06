@@ -1,0 +1,8 @@
+.foo, .baz, .bar {
+  a: b; }
+
+.bar, .foo, .baz {
+  c: d; }
+
+.baz, .bar, .foo {
+  e: f; }
