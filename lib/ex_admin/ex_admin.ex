@@ -5,23 +5,10 @@ defmodule ExAdmin do
   import ExAdmin.Utils, only: [base_name: 1, titleize: 1, humanize: 1]
   require ExAdmin.Register
 
-  @modules Application.get_env(:ex_admin, :modules, [])
-
   @filename "/tmp/ex_admin_registered" 
   Code.ensure_compiled ExAdmin.Register
 
   Module.register_attribute __MODULE__, :registered, accumulate: true, persist: true
-
-  # File.read!(@filename)
-  # |> String.split("\n", trim: true)
-  # |> Enum.map(&(String.strip(&1)))
-  # |> Enum.each(fn(mod) -> 
-  #   Module.put_attribute(__MODULE__, :registered, String.to_atom(mod))
-  # end)
-
-  for mod <- @modules do
-    Module.put_attribute(__MODULE__, :registered, mod)
-  end
 
   defmacro __using__(_) do
     quote do
@@ -30,7 +17,7 @@ defmodule ExAdmin do
     end
   end
 
-  def registered, do: @registered
+  def registered, do: Application.get_env(:ex_admin, :modules, [])
 
   def put_data(key, value) do
     Agent.update __MODULE__, &(Map.put(&1, key, value))
@@ -41,7 +28,7 @@ defmodule ExAdmin do
   end
 
   def get_all_registered do 
-    for reg <- @registered do
+    for reg <- registered do
       item = get_registered_resource(reg)
       {item.resource_name, item}
     end
@@ -51,7 +38,7 @@ defmodule ExAdmin do
   end
 
   def get_registered do
-    for reg <- @registered do
+    for reg <- registered do
       get_registered_resource(reg)
     end
   end

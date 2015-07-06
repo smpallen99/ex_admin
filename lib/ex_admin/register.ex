@@ -151,7 +151,7 @@ defmodule ExAdmin.Register do
 
       controller_methods = Module.get_attribute(__MODULE__, :controller_methods)
 
-      defstruct controller: UcxCallout.AdminController,
+      defstruct controller: Module.concat(Application.get_env(:ex_admin, :project), AdminController),
                 controller_methods: controller_methods,
                 type: :page,
                 resource_name: String.to_atom(page_name),

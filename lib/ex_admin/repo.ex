@@ -5,7 +5,7 @@ defmodule ExAdmin.Repo do
   alias ExAdmin.Changeset
   import Ecto.Query
 
-  def repo, do: UcxCallout.Repo
+  def repo, do: Application.get_env(:ex_admin, :repo)
 
   def changeset(resource, nil), do: changeset(resource, %{})
   def changeset(resource, params) do
