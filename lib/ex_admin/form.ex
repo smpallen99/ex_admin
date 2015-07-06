@@ -374,11 +374,12 @@ defmodule ExAdmin.Form do
   end
 
   defp build_actions_block(conn, model_name, mode) do
+    display_name = ExAdmin.Utils.displayable_name_singular conn
     label = if mode == :new, do: "Create", else: "Update"
     fieldset(".actions") do
       ol do
         li(".action.input_action##{model_name}_submit_action") do
-          Xain.input name: "commit", type: :submit, value: escape_value("#{label} #{humanize model_name}")
+          Xain.input name: "commit", type: :submit, value: escape_value("#{label} #{humanize display_name}")
         end
         li(".cancel") do
           a("Cancel", href: get_route_path(conn, :index))

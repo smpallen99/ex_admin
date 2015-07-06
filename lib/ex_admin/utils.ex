@@ -193,4 +193,12 @@ defmodule ExAdmin.Utils do
     menu = ExAdmin.get_registered_by_controller_route!(conn).menu
     Map.get menu, :label, resource_name(conn)
   end
+  
+  def displayable_name_plural(conn) do
+    ExAdmin.Utils.get_resource_label(conn) |> Inflex.pluralize
+  end
+  def displayable_name_singular(conn) do
+    ExAdmin.Utils.get_resource_label(conn) |> Inflex.singularize
+  end
+
 end

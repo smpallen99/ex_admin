@@ -101,7 +101,7 @@ defmodule ExAdmin do
 
   def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_name: resource_name} = defn) do
     # Logger.warn "action name: #{inspect Utils.action_name(conn)}"
-    singular = resource_name |> base_name |> titleize
+    singular = ExAdmin.Utils.displayable_name_singular(conn) |> titleize
     actions = defn.actions
     case Utils.action_name(conn) do
       :show -> 
