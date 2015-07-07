@@ -52,6 +52,7 @@ defmodule ExAdmin.Table do
                         {f_name, opts} -> 
                           build_field(resource, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) -> 
                             td ".#{f_name} #{contents}"
+
                           end)
                       end
                     end
@@ -83,12 +84,16 @@ defmodule ExAdmin.Table do
     end
   end
 
-  def build_th({field_name, opts}, table_opts) when is_atom(field_name), do: build_th(Atom.to_string(field_name), opts, table_opts)
-  def build_th({field_name, opts}, table_opts) when is_binary(field_name), do: build_th(field_name, opts, table_opts)
-
+  def build_th({field_name, %{label: label} = opts}, table_opts) when is_atom(field_name) and is_binary(label), 
+    do: build_th(label, opts, table_opts)
+  def build_th({field_name, opts}, table_opts) when is_atom(field_name),  
+    do: build_th(Atom.to_string(field_name), opts, table_opts)
+  def build_th({field_name, %{label: label} = opts}, table_opts) when is_binary(label), 
+    do: build_th(label, opts, table_opts)
+  def build_th({field_name, opts}, table_opts) when is_binary(field_name), 
+    do: build_th(field_name, opts, table_opts)
   def build_th(field_name, _),
     do: th(".#{field_name} #{humanize field_name}")
-
   def build_th(field_name, opts, %{fields: fields} = table_opts) do
     if String.to_atom(field_name) in fields and opts == %{} do
       _build_th(field_name, opts, table_opts)
@@ -96,14 +101,12 @@ defmodule ExAdmin.Table do
       th(".#{field_name} #{humanize field_name}") 
     end
   end
-
   def build_th(field_name, _, _) when is_binary(field_name) do
     th(class: to_class(field_name)) do
       text field_name
     end
   end 
   def build_th(field_name, _, _), do: build_th(field_name, nil)
-
   def _build_th(field_name, _opts, %{path_prefix: path_prefix, order: {name, sort}, 
       fields: _fields}) when field_name == name do
     link_order = if sort == "desc", do: "asc", else: "desc"
@@ -112,7 +115,6 @@ defmodule ExAdmin.Table do
         field_name <> "_#{link_order}")
     end
   end
-
   def _build_th(field_name, _opts, %{path_prefix: path_prefix} = table_opts) do
     sort = Map.get(table_opts, :sort, "asc")
     th(".sortable.#{field_name}") do

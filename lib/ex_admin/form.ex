@@ -179,22 +179,35 @@ defmodule ExAdmin.Form do
     end
   end
 
+  defp build_select_binary_list(collection, item, field_name, resource, model_name, ext_name) do
+    select("#{ext_name}_id", name: "#{model_name}[#{field_name}]") do
+      for item <- collection do
+        selected = if Map.get(resource, field_name) == item, 
+          do: [selected: :selected], else: []
+        option(item, [value: item] ++ selected) 
+      end
+    end
+  end
+
   def build_item(%{type: :input, name: field_name, resource: resource, 
        opts: %{collection: collection}} = item, _resource, model_name, errors) do
     errors = get_errors(errors, field_name)
-    IO.puts "--> field_name: #{field_name}, model_name: #{model_name}"
     label = Map.get item[:opts], :label, field_name
     wrap_item(field_name, model_name, label, errors, fn(ext_name) -> 
-      owner_key = get_association_owner_key(resource, field_name) 
-      assoc_fields = get_association_fields(item[:opts])
-      select("#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
-        for item <- collection do
+      if Enum.all?(collection, &(is_binary(&1))) do 
+        build_select_binary_list(collection, item, field_name, resource, model_name, ext_name) 
+      else
+        owner_key = get_association_owner_key(resource, field_name) 
+        assoc_fields = get_association_fields(item[:opts])
+        select("#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
+          for item <- collection do
 
-          selected = if Map.get(resource, owner_key) == item.id, 
-            do: [selected: :selected], else: []
+            selected = if Map.get(resource, owner_key) == item.id, 
+              do: [selected: :selected], else: []
 
-          map_relationship_fields(item, assoc_fields)
-          |> option([value: "#{item.id}"] ++ selected) 
+            map_relationship_fields(item, assoc_fields)
+            |> option([value: "#{item.id}"] ++ selected) 
+          end
         end
       end
       build_errors(errors)
