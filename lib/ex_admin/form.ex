@@ -170,11 +170,11 @@ defmodule ExAdmin.Form do
     end
   end
 
-  def wrap_item(field_name, model_name, error, contents) do
+  def wrap_item(field_name, model_name, label, error, contents) do
     ext_name = "#{model_name}_#{field_name}"
     error = if error in [nil, [], false], do: "", else: "error "
     li( class: "string input optional #{error}stringish", id: "#{ext_name}_input") do
-      label(".label #{humanize field_name}", for: ext_name)
+      label(".label #{humanize label}", for: ext_name)
       contents.(ext_name)
     end
   end
@@ -182,7 +182,9 @@ defmodule ExAdmin.Form do
   def build_item(%{type: :input, name: field_name, resource: resource, 
        opts: %{collection: collection}} = item, _resource, model_name, errors) do
     errors = get_errors(errors, field_name)
-    wrap_item(field_name, model_name, errors, fn(ext_name) -> 
+    IO.puts "--> field_name: #{field_name}, model_name: #{model_name}"
+    label = Map.get item[:opts], :label, field_name
+    wrap_item(field_name, model_name, label, errors, fn(ext_name) -> 
       owner_key = get_association_owner_key(resource, field_name) 
       assoc_fields = get_association_fields(item[:opts])
       select("#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
@@ -215,7 +217,8 @@ defmodule ExAdmin.Form do
   def build_item(%{type: :input, resource: resource, name: field_name, opts: opts}, 
        _resource, model_name, errors) do
     errors = get_errors(errors, field_name)
-    wrap_item(field_name, model_name, errors, fn(ext_name) -> 
+    label = Map.get opts, :label, field_name
+    wrap_item(field_name, model_name, label, errors, fn(ext_name) -> 
       Map.put_new(opts, :type, :text)
       |> Map.put_new(:maxlength, "255")
       |> Map.put_new(:name, "#{model_name}[#{field_name}]")
