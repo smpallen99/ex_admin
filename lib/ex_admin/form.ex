@@ -30,6 +30,11 @@ defmodule ExAdmin.Form do
         var!(input_blocks, ExAdmin.Form) = [] 
         unquote(contents)
         items = var!(input_blocks, ExAdmin.Form) |> Enum.reverse
+        # IO.puts "----------------------------"
+        # Enum.each items, fn(i) -> 
+        #   IO.puts "----> form_view item: #{inspect i}"
+        # end
+        # IO.puts "----------------------------"
         ExAdmin.Form.build_form(conn, var!(resource), items, var!(params))
       end
     end
@@ -69,6 +74,7 @@ defmodule ExAdmin.Form do
 
   defmacro input(resource, name, opts \\ []) do
     quote do
+      IO.puts "------------> input: name: #{unquote(name)}"
       opts = Enum.into unquote(opts), %{}
       item = %{type: :input, resource: unquote(resource), name: unquote(name), opts: opts}
       var!(inputs, ExAdmin.Form) = [item | var!(inputs, ExAdmin.Form)]
@@ -98,6 +104,18 @@ defmodule ExAdmin.Form do
     quote do
       item = %{type: :content, content: unquote(items), opts: unquote(opts)}
       var!(items, ExAdmin.Form) = [item | var!(items, ExAdmin.Form)]
+    end
+  end
+
+  defmacro javascript(do: block) do
+    IO.puts "------> compile javascript contents: #{inspect block}"
+    quote do
+      #contents = unquote(block)
+      IO.puts "--------------------->"
+
+      item = %{type: :script, contents: unquote(block)}
+      IO.puts "----> javascript contents: #{inspect item}"
+      var!(input_blocks, ExAdmin.Form) = [item | var!(input_blocks, ExAdmin.Form)]
     end
   end
 
@@ -186,6 +204,13 @@ defmodule ExAdmin.Form do
           do: [selected: :selected], else: []
         option(item, [value: item] ++ selected) 
       end
+    end
+  end
+
+  def build_item(%{type: :script, contents: contents}, _resource, model_name, _errors) do
+    IO.puts "build type script, #{contents}"
+    script do 
+      text contents
     end
   end
 
