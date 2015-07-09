@@ -28,14 +28,16 @@ defmodule ExAdmin.Form do
         import ExAdmin.Register, except: [actions: 1]
         # var!(query_options) = []
         var!(input_blocks, ExAdmin.Form) = [] 
+        var!(script_block, ExAdmin.Form) = nil
         unquote(contents)
         items = var!(input_blocks, ExAdmin.Form) |> Enum.reverse
+        script_block = var!(script_block, ExAdmin.Form)
         # IO.puts "----------------------------"
         # Enum.each items, fn(i) -> 
         #   IO.puts "----> form_view item: #{inspect i}"
         # end
         # IO.puts "----------------------------"
-        ExAdmin.Form.build_form(conn, var!(resource), items, var!(params))
+        ExAdmin.Form.build_form(conn, var!(resource), items, var!(params), script_block)
       end
     end
   end
@@ -44,13 +46,8 @@ defmodule ExAdmin.Form do
   defmacro inputs(opts) do
     quote(do: inputs("", unquote(opts)))
   end
-  defmacro inputs(name, do: block) do
-    # {name, contents} = 
-    #   case name do
-    #     [do: block] -> {"", [do: block]}
-    #     other -> {other, contents}
-    #   end
 
+  defmacro inputs(name, opts, do: block) do
     quote location: :keep do
       import Xain, except: [input: 1]
       # inputs_save = var!(inputs, ExAdmin.Form) 
@@ -58,7 +55,20 @@ defmodule ExAdmin.Form do
       unquote(block)
       items = var!(inputs, ExAdmin.Form) |> Enum.reverse
       # var!(inputs, ExAdmin.Form) = inputs_save
-      input_block = %{type: :inputs, name: unquote(name), inputs: items}
+      input_block = %{type: :inputs, name: unquote(name), inputs: items, opts: unquote(opts)}
+      var!(input_blocks, ExAdmin.Form) = [input_block | var!(input_blocks, ExAdmin.Form)]
+    end
+
+  end
+  defmacro inputs(name, do: block) do
+    quote location: :keep do
+      import Xain, except: [input: 1]
+      # inputs_save = var!(inputs, ExAdmin.Form) 
+      var!(inputs, ExAdmin.Form) = []
+      unquote(block)
+      items = var!(inputs, ExAdmin.Form) |> Enum.reverse
+      # var!(inputs, ExAdmin.Form) = inputs_save
+      input_block = %{type: :inputs, name: unquote(name), inputs: items, opts: []}
       var!(input_blocks, ExAdmin.Form) = [input_block | var!(input_blocks, ExAdmin.Form)]
     end
   end
@@ -74,7 +84,6 @@ defmodule ExAdmin.Form do
 
   defmacro input(resource, name, opts \\ []) do
     quote do
-      IO.puts "------------> input: name: #{unquote(name)}"
       opts = Enum.into unquote(opts), %{}
       item = %{type: :input, resource: unquote(resource), name: unquote(name), opts: opts}
       var!(inputs, ExAdmin.Form) = [item | var!(inputs, ExAdmin.Form)]
@@ -100,6 +109,14 @@ defmodule ExAdmin.Form do
     end
   end
 
+  defmacro content(do: block) do
+    quote do
+      contents = unquote(block)
+      item = %{type: :content, name: "", content: unquote(block), opts: []}
+      var!(inputs, ExAdmin.Form) = [item | var!(inputs, ExAdmin.Form)]
+    end
+  end
+
   defmacro content(items, opts \\ quote(do: [])) do
     quote do
       item = %{type: :content, content: unquote(items), opts: unquote(opts)}
@@ -108,21 +125,15 @@ defmodule ExAdmin.Form do
   end
 
   defmacro javascript(do: block) do
-    IO.puts "------> compile javascript contents: #{inspect block}"
     quote do
-      #contents = unquote(block)
-      IO.puts "--------------------->"
-
-      item = %{type: :script, contents: unquote(block)}
-      IO.puts "----> javascript contents: #{inspect item}"
-      var!(input_blocks, ExAdmin.Form) = [item | var!(input_blocks, ExAdmin.Form)]
+      var!(script_block, ExAdmin.Form) = unquote(block)
     end
   end
 
   #################
   # Functions
 
-  def build_form(conn, resource, items, params) do
+  def build_form(conn, resource, items, params, script_block) do
     mode = if params[:id], do: :edit, else: :new
     markup do
       model_name = Map.get(resource, :__struct__, "") |> base_name |> Inflex.parameterize("_")
@@ -135,6 +146,12 @@ defmodule ExAdmin.Form do
         build_main_block(conn, resource, model_name, items) 
         build_actions_block(conn, model_name, mode) 
       end 
+      if script_block do
+        Xain.text "\n"
+        Xain.script type: "text/javascript" do
+          text "\n" <> script_block <> "\n"
+        end
+      end
     end
   end
   defp get_action(conn, resource, mode) do
@@ -197,20 +214,24 @@ defmodule ExAdmin.Form do
     end
   end
 
-  defp build_select_binary_list(collection, item, field_name, resource, model_name, ext_name) do
-    select("#{ext_name}_id", name: "#{model_name}[#{field_name}]") do
+  defp build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) do
+    select("##{ext_name}_id", name: "#{model_name}[#{field_name}]") do
       for item <- collection do
-        selected = if Map.get(resource, field_name) == item, 
+        {value, name} = case item do
+          {value, name} -> {value, name}
+          other -> {other, other}
+        end
+        selected = if Map.get(resource, field_name) == value, 
           do: [selected: :selected], else: []
-        option(item, [value: item] ++ selected) 
+        option(name, [value: value] ++ selected) 
       end
     end
   end
 
   def build_item(%{type: :script, contents: contents}, _resource, model_name, _errors) do
-    IO.puts "build type script, #{contents}"
-    script do 
-      text contents
+    script type: "javascript" do 
+      #text "\n  //<![CDATA[\n" <> contents <> "\n  //]]>\n"
+      text "\n" <> contents <> "\n"
     end
   end
 
@@ -219,12 +240,12 @@ defmodule ExAdmin.Form do
     errors = get_errors(errors, field_name)
     label = Map.get item[:opts], :label, field_name
     wrap_item(field_name, model_name, label, errors, fn(ext_name) -> 
-      if Enum.all?(collection, &(is_binary(&1))) do 
-        build_select_binary_list(collection, item, field_name, resource, model_name, ext_name) 
+      if Enum.all?(collection, &(is_binary(&1) or (is_tuple(&1) and (tuple_size(&1) == 2)))) do 
+        build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) 
       else
         owner_key = get_association_owner_key(resource, field_name) 
         assoc_fields = get_association_fields(item[:opts])
-        select("#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
+        select(id: "#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
           for item <- collection do
 
             selected = if Map.get(resource, owner_key) == item.id, 
@@ -247,6 +268,9 @@ defmodule ExAdmin.Form do
     end
   end
 
+  def build_item(%{type: :content, content: content}, _resource, _model_name, _errors) when is_binary(content) do
+    text content
+  end
   def build_item(%{type: :content, content: content}, _resource, _model_name, _errors) do
     # {:safe, content} = content
     text elem(content, 1)
@@ -328,7 +352,9 @@ defmodule ExAdmin.Form do
   end
 
   def build_item(%{type: :inputs} = item, resource, model_name, errors) do
-    fieldset(".inputs") do
+    opts = Map.get(item, :opts, [])
+
+    fieldset(".inputs", opts) do
       build_fieldset_legend(item[:name]) 
       ol do
         for inpt <- item[:inputs] do

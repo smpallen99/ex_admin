@@ -16,10 +16,10 @@ defmodule ExAdmin.Table do
           table(border: "0", cellspacing: "0", cellpadding: "0") do
             tbody do
               for field_name <- Map.get(schema, :rows, []) do
-                build_field(resource, field_name, fn(contents, field_name) -> 
+                build_field(resource, field_name, fn(contents, f_name) -> 
                   tr do
-                    th(humanize field_name) 
-                    handle_contents(contents, field_name)
+                    field_header field_name 
+                    handle_contents(contents, f_name)
                   end
                 end)
               end
@@ -29,6 +29,10 @@ defmodule ExAdmin.Table do
       end
     end
   end
+
+  def field_header({_, %{label: label}}), do: th(humanize label)
+  def field_header({field_name, opts}), do: field_header(field_name)
+  def field_header(field_name), do: th(humanize field_name)
 
   def panel(schema) do
     div(".panel") do
@@ -91,7 +95,7 @@ defmodule ExAdmin.Table do
   def build_th({field_name, %{label: label} = opts}, table_opts) when is_binary(label), 
     do: build_th(label, opts, table_opts)
   def build_th({field_name, opts}, table_opts) when is_binary(field_name), 
-    do: build_th(field_name, opts, table_opts)
+    do: th(".#{Inflex.parameterize field_name, "_"} #{field_name}")
   def build_th(field_name, _),
     do: th(".#{field_name} #{humanize field_name}")
   def build_th(field_name, opts, %{fields: fields} = table_opts) do
