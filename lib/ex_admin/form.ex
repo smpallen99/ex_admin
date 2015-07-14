@@ -216,6 +216,7 @@ defmodule ExAdmin.Form do
 
   defp build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) do
     select("##{ext_name}_id", name: "#{model_name}[#{field_name}]") do
+      handle_prompt(field_name, item)
       for item <- collection do
         {value, name} = case item do
           {value, name} -> {value, name}
@@ -228,7 +229,24 @@ defmodule ExAdmin.Form do
     end
   end
 
-  def build_item(%{type: :script, contents: contents}, _resource, model_name, _errors) do
+  defp handle_prompt(field_name, item) do
+    case get_prompt(field_name, item) do
+      false -> nil
+      prompt -> option(prompt, value: "")
+    end
+  end
+
+  defp get_prompt(field_name, item) do
+    case Map.get item[:opts], :prompt, nil do
+      nil -> 
+        nm = humanize("#{field_name}")
+        |> articlize
+        "Select #{nm}"
+      other -> other
+    end
+  end
+
+  def build_item(%{type: :script, contents: contents}, _resource, _model_name, _errors) do
     script type: "javascript" do 
       #text "\n  //<![CDATA[\n" <> contents <> "\n  //]]>\n"
       text "\n" <> contents <> "\n"
@@ -246,14 +264,15 @@ defmodule ExAdmin.Form do
         owner_key = get_association_owner_key(resource, field_name) 
         assoc_fields = get_association_fields(item[:opts])
         select(id: "#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
+          handle_prompt(field_name, item)
           for item <- collection do
-
             selected = if Map.get(resource, owner_key) == item.id, 
               do: [selected: :selected], else: []
 
             map_relationship_fields(item, assoc_fields)
             |> option([value: "#{item.id}"] ++ selected) 
           end
+
         end
       end
       build_errors(errors)

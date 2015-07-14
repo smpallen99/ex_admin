@@ -36,6 +36,14 @@ defmodule ExAdmin.Utils do
     |> humanize
   end
 
+  def articlize(string) when is_binary(string) do
+    if String.at(string, 0) in ~w(A a E e I i O o U u) do
+      "an " 
+    else 
+      "a "
+    end <> string
+  end
+
   def action_name(conn) do
     Phoenix.Controller.action_name(conn)
   end
