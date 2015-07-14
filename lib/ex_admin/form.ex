@@ -24,7 +24,7 @@ defmodule ExAdmin.Form do
     end
 
     quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
-      def form_view(conn, unquote(resource) = var!(resource), var!(params) = params) do 
+      def form_view(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do 
         import ExAdmin.Register, except: [actions: 1]
         # var!(query_options) = []
         var!(input_blocks, ExAdmin.Form) = [] 
@@ -37,7 +37,7 @@ defmodule ExAdmin.Form do
         #   IO.puts "----> form_view item: #{inspect i}"
         # end
         # IO.puts "----------------------------"
-        ExAdmin.Form.build_form(conn, var!(resource), items, var!(params), script_block)
+        ExAdmin.Form.build_form(var!(conn), var!(resource), items, var!(params), script_block)
       end
     end
   end
@@ -207,8 +207,13 @@ defmodule ExAdmin.Form do
 
   def wrap_item(field_name, model_name, label, error, contents) do
     ext_name = "#{model_name}_#{field_name}"
+    {label, hidden} = if label == :none or label == false do 
+      {"", [style: "display: none"]}
+    else 
+      {label, []}
+    end
     error = if error in [nil, [], false], do: "", else: "error "
-    li( class: "string input optional #{error}stringish", id: "#{ext_name}_input") do
+    li([class: "string input optional #{error}stringish", id: "#{ext_name}_input"] ++ hidden) do
       label(".label #{humanize label}", for: ext_name)
       contents.(ext_name)
     end
@@ -298,7 +303,7 @@ defmodule ExAdmin.Form do
   def build_item(%{type: :input, resource: resource, name: field_name, opts: opts}, 
        _resource, model_name, errors) do
     errors = get_errors(errors, field_name)
-    label = Map.get opts, :label, field_name
+    label = get_label(field_name, opts)
     wrap_item(field_name, model_name, label, errors, fn(ext_name) -> 
       Map.put_new(opts, :type, :text)
       |> Map.put_new(:maxlength, "255")
@@ -449,6 +454,12 @@ defmodule ExAdmin.Form do
     inx
   end
 
+  def get_label(field_name, opts) do
+    cond do
+      Map.get(opts, :type) in ["hidden", :hidden] -> :none
+      true -> Map.get opts, :label, field_name
+    end
+  end
 
   defp new_record_name(field_name) do
     name = field_name
