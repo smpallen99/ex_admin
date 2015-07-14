@@ -69,13 +69,20 @@ defmodule ExAdmin.Register do
           end
       end
 
+      controller_route = (base_name(module) |> Inflex.underscore |> Inflex.pluralize)
+      case Module.get_attribute(__MODULE__, :options) do 
+        nil -> nil
+        options -> 
+          controller_route = Keyword.get(options, :controller_route, controller_route)
+      end
+
       defstruct controller: @controller, 
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
                 title_actions: &ExAdmin.default_resource_title_actions/2,
                 type: :resource,
                 resource_name: module,
                 query_opts: query_opts,
-                controller_route: (base_name(module) |> Inflex.parameterize("_") |> Inflex.pluralize),
+                controller_route: controller_route,
                 menu: menu_opts, 
                 actions: actions, 
                 member_actions: Module.get_attribute(__MODULE__, :member_actions),
@@ -94,8 +101,6 @@ defmodule ExAdmin.Register do
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
     end
   end
-
-
 
   defmacro controller([do: block]) do
     quote do
@@ -160,6 +165,12 @@ defmodule ExAdmin.Register do
                 menu: menu_opts
 
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
+    end
+  end
+
+  defmacro options(opts) do
+    quote do
+      Module.put_attribute __MODULE__, :options, unquote(opts)
     end
   end
 
