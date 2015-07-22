@@ -28,14 +28,14 @@ defmodule ExAdmin.Filter do
   end
 
   def fields(defn) do
-    for field <- defn.resource_name.__schema__(:fields) -- [:id] do
-      {field, defn.resource_name.__schema__(:field, field)}
+    for field <- defn.resource_model.__schema__(:fields) -- [:id] do
+      {field, defn.resource_model.__schema__(:field, field)}
     end
   end
 
   def associations(defn) do
-    Enum.reduce defn.resource_name.__schema__(:associations), [], fn(assoc, acc) -> 
-      case defn.resource_name.__schema__(:association, assoc) do
+    Enum.reduce defn.resource_model.__schema__(:associations), [], fn(assoc, acc) -> 
+      case defn.resource_model.__schema__(:association, assoc) do
         %Ecto.Association.BelongsTo{} = belongs_to -> [{assoc, belongs_to} | acc]
         _ -> acc
       end
@@ -123,7 +123,7 @@ defmodule ExAdmin.Filter do
   defp check_and_build_association(name, q, defn) do
     name_str = Atom.to_string name
     if String.match? name_str, ~r/_id$/ do
-      Enum.map(defn.resource_name.__schema__(:associations), &(defn.resource_name.__schema__(:association, &1)))
+      Enum.map(defn.resource_model.__schema__(:associations), &(defn.resource_model.__schema__(:association, &1)))
       |> Enum.find(fn(assoc) -> 
         case assoc do
           %Ecto.Association.BelongsTo{owner_key: ^name} -> 

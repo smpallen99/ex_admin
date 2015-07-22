@@ -6,13 +6,13 @@ defmodule ExAdmin.Table do
   import Kernel, except: [to_string: 1]
 
   def attributes_table(_conn, resource, schema) do
-    resource_name = model_name(resource)
+    resource_model = model_name(resource)
 
     div(".panel") do
-      h3(Map.get schema, :name, "#{String.capitalize resource_name} Details")
+      h3(Map.get schema, :name, "#{String.capitalize resource_model} Details")
       div(".panel_contents") do
-        id = "attributes_table_#{resource_name}_#{resource.id}"
-        div(".attributes_table.#{resource_name}#{id}") do
+        id = "attributes_table_#{resource_model}_#{resource.id}"
+        div(".attributes_table.#{resource_model}#{id}") do
           table(border: "0", cellspacing: "0", cellpadding: "0") do
             tbody do
               for field_name <- Map.get(schema, :rows, []) do
@@ -43,7 +43,7 @@ defmodule ExAdmin.Table do
             table(border: "0", cellspacing: "0", cellpadding: "0") do
               table_head(columns)
               tbody do
-                model_name = get_resource_name resources
+                model_name = get_resource_model resources
 
                 Enum.with_index(resources)
                 |> Enum.map(fn({resource, inx}) -> 

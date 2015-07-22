@@ -8,9 +8,10 @@ defmodule ExAdmin.Navigation do
       registered = ExAdmin.get_all_registered 
       |> Enum.map(fn({_, resource}) -> resource end)
       |> Enum.filter(fn(%{menu: menu}) -> menu[:none] != true end)
-      |> Enum.filter(fn(%{menu: menu}) -> 
+      |> Enum.filter(fn(%{menu: menu} = defn) -> 
         case menu[:if] do
           nil -> true
+          fun when is_function(fun, 2) -> fun.(conn, defn)
           fun -> fun.(conn)
         end
       end)
@@ -24,9 +25,9 @@ defmodule ExAdmin.Navigation do
       end
     end
   end
-  def nav_link(conn, %{controller: controller, resource_name: resource_name} = registered) do
+  def nav_link(conn, %{controller: controller, resource_model: resource_model} = registered) do
     controller_name = controller_name(controller)
-    path = get_route_path(resource_name, :index)
+    path = get_route_path(resource_model, :index)
     menu = Map.get registered, :menu, %{}
     name = Map.get menu, :label, (controller_name |> titleize |> Inflex.pluralize)
     link_to_active conn, name, path, (Inflex.parameterize(controller_name, "_") |> Inflex.pluralize)

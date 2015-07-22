@@ -40,7 +40,7 @@ defmodule ExAdmin.Mixfile do
       {:sass_elixir, "~> 0.0.1"}, 
       {:ex_form, github: "smpallen99/ex_form"},
       {:xain, github: "smpallen99/xain", override: true},
-      {:scrivener, "~> 0.4.0"}, 
+      {:scrivener, "~> 0.10.0"}, 
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~>1.0.0"}, 
     ]

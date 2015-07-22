@@ -12,14 +12,41 @@ defmodule ExAdmin.Paginate do
     end
     div ".pagination_information" do
       record_number = (page_number - 1) * page_size + 1
-      case record_number + page_size - 1 do
-        val when val < record_count -> 
-          pagination_information(name, record_number, val, record_count)
-        _ -> 
-          pagination_information(name, record_count)
-      end
+      IO.puts "paginate: rec_number: #{record_number}, page_number: #{page_number}, page_size: {page_size}"
+      IO.puts "         val: #{record_number + page_size - 1}, record_count: #{record_count}"
+
+      display_pagination name, (page_number - 1) * page_size + 1, page_size, 
+                         record_count, record_number + page_size - 1
+      # if total_pages == 1 do
+      #   pagination_information(name, record_count)
+      # else
+      #   last_number = case record_number + page_size - 1 do
+      #     val when val <= record_count -> val
+      #     _ -> record_count
+      #   end
+      #   pagination_information(name, record_number, last_number, record_count)
+      # end
     end
   end
+
+  defp display_pagination(name, record_number, 1, record_count, _) do 
+    pagination_information(name, record_count)
+  end
+  defp display_pagination(name, record_number, page_size, record_count, last_number) 
+      when last_number < record_count do 
+    pagination_information(name, record_number, last_number, record_count)
+  end
+  defp display_pagination(name, record_number, page_size, record_count, _) do
+    pagination_information(name, record_number, record_count, record_count)
+  end
+
+  def pagination_information(name, record_number, record_number, record_count) do
+    text "Displaying " <> Inflex.singularize("#{name}") <> " "
+    b "#{record_number}"
+    text " of "
+    b "#{record_count}"
+    text " in total"
+  end  
 
   def pagination_information(name, record_number, last, record_count) do
     text "Displaying #{name} "
@@ -34,7 +61,6 @@ defmodule ExAdmin.Paginate do
     b "all #{total}"
     text " #{name}"
   end
-
 
   def build_item(_, {:current, num}) do
     span ".current.page #{num}"

@@ -54,9 +54,9 @@ defmodule ExAdmin.Utils do
     |> extract_controller_name
   end
 
-  def resource_name(%Plug.Conn{path_info: path_info}) do
+  def resource_model(%Plug.Conn{path_info: path_info}) do
     ExAdmin.get_registered_by_controller_route(path_info)
-    |> Map.get(:resource_name)
+    |> Map.get(:resource_model)
     |> base_name
   end
 
@@ -106,8 +106,8 @@ defmodule ExAdmin.Utils do
     Map.get(resource, :__struct__)
     |> get_route_path(method, id)
   end
-  def get_route_path(resource_name, method, id) when is_atom(resource_name) do
-    route_name = ExAdmin.get_controller_path(resource_name)
+  def get_route_path(resource_model, method, id) when is_atom(resource_model) do
+    route_name = ExAdmin.get_controller_path(resource_model)
     # prefix = UcxCallout.Router.Helpers.admin_path(@endpoint, :index, [])
     prefix = "/admin"
     |> String.split("/", trim: true)
@@ -199,7 +199,7 @@ defmodule ExAdmin.Utils do
 
   def get_resource_label(%Plug.Conn{} = conn) do
     menu = ExAdmin.get_registered_by_controller_route!(conn).menu
-    Map.get menu, :label, resource_name(conn)
+    Map.get menu, :label, resource_model(conn)
   end
   
   def displayable_name_plural(conn) do
@@ -209,4 +209,11 @@ defmodule ExAdmin.Utils do
     ExAdmin.Utils.get_resource_label(conn) |> Inflex.singularize
   end
 
+  def authorized_action?(conn, action, resource_model) when is_atom(resource_model) do
+    fun = Application.get_env(:ex_admin, :authorize)
+    if fun, do: fun.(conn, action, resource_model), else: true
+  end
+  def authorized_action?(conn, action, defn) do
+    authorized_action?(conn, action, defn.resource_model)
+  end
 end

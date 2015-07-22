@@ -50,11 +50,12 @@ defmodule ExAdmin.Index do
   defp get_resource_fields([resource | _]), do: resource.__struct__.__schema__(:fields)
 
   def render_index_table(conn, page, columns, %{selectable_column: selectable}) do
+    IO.puts "render_table page: #{inspect Map.put(page, :entries, [])}"
     href = get_route_path(conn, :index) <> "?order="
     resources = page.entries
     fields = get_resource_fields resources
-    count = ExAdmin.Query.count resources
-    name = resource_name(conn) |> titleize |> Inflex.pluralize
+    count = page.total_entries
+    name = resource_model(conn) |> titleize |> Inflex.pluralize
     order = get_sort_order(conn.params["order"]) 
     defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
     batch_actions = not false in defn.batch_actions
@@ -66,9 +67,9 @@ defmodule ExAdmin.Index do
     end
 
     label = get_resource_label(conn) |> Inflex.pluralize
-    resource_name = conn.params["resource"]
+    resource_model = conn.params["resource"]
 
-    batch_action_form batch_actions, resource_name, fn -> 
+    batch_action_form batch_actions, resource_model, fn -> 
       if count == 0 do
         div ".blank_slate_container" do
           span ".blank_slate" do
@@ -76,7 +77,7 @@ defmodule ExAdmin.Index do
               text "No #{humanize label} found."
             else
               text "There are no #{humanize label} yet. "
-              if ExAdmin.has_action?(defn, :new) do
+              if ExAdmin.has_action?(conn, defn, :new) do
                 a "Create one", href: get_route_path(conn, :new)
               end
             end
@@ -216,18 +217,43 @@ defmodule ExAdmin.Index do
 
   def build_index_links(conn, resource) do
     # name = controller_name(conn)
+    resource_model = resource.__struct__
     base_class = "member_link"
     id = resource.id
-    [ Link.link("View", to: get_route_path(conn, :show, id), class: base_class <> " view_link"),
-      Link.link("Edit", to: get_route_path(conn, :edit, id), class: base_class <> " edit_link"),
-      Link.link("Delete", to: get_route_path(conn, :delete, id), 
-          class: base_class <> " delete_link", "data-confirm": confirm_message, 
-          "data-method": :delete, rel: :nofollow ) ] 
+    # [ Link.link("View", to: get_route_path(conn, :show, id), class: base_class <> " view_link"),
+    #   Link.link("Edit", to: get_route_path(conn, :edit, id), class: base_class <> " edit_link"),
+    #   Link.link("Delete", to: get_route_path(conn, :delete, id), 
+    #       class: base_class <> " delete_link", "data-confirm": confirm_message, 
+    #       "data-method": :delete, rel: :nofollow ) ] 
+    # |> html_escape
+    get_authorized_links(conn, resource_model)
+    |> Enum.reduce([], fn(item, acc) -> 
+      link = case item do
+        :show -> 
+          Link.link("View", to: get_route_path(conn, :show, id), class: base_class <> " view_link")
+        :edit -> 
+          Link.link("Edit", to: get_route_path(conn, :edit, id), class: base_class <> " edit_link")
+        :destroy -> 
+          Link.link("Delete", to: get_route_path(conn, :delete, id), 
+            class: base_class <> " delete_link", "data-confirm": confirm_message, 
+            "data-method": :delete, rel: :nofollow )
+      end
+      [link | acc]
+    end)
     |> html_escape
+
     # a("View", href: get_route_path(conn, :show, id), class: base_class <> " view_link")
     # a("Edit", href: get_route_path(conn, :edit, id), class: base_class <> " edit_link")
     # a("Delete", href: get_route_path(conn, :delete, id), 
     #     class: base_class <> " delete_link", "data-confirm": confirm_message, 
     #     "data-method": :delete, rel: :nofollow )
+  end
+   #   columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource) end}}]
+
+  def get_authorized_links(conn, resource_model) do
+    Enum.reduce [:show, :edit, :destroy], [], fn(item, acc) -> 
+      if ExAdmin.Utils.authorized_action?(conn, item, resource_model),
+        do: [item | acc], else: acc
+    end
   end
 end

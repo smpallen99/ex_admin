@@ -75,12 +75,17 @@ defmodule ExAdmin.Register do
         options -> 
           controller_route = Keyword.get(options, :controller_route, controller_route)
       end
+      plugs = case Module.get_attribute(__MODULE__, :controller_plugs) do
+        nil -> []
+        list -> Enum.reverse list
+      end
+
 
       defstruct controller: @controller, 
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
                 title_actions: &ExAdmin.default_resource_title_actions/2,
                 type: :resource,
-                resource_name: module,
+                resource_model: module,
                 query_opts: query_opts,
                 controller_route: controller_route,
                 menu: menu_opts, 
@@ -90,14 +95,18 @@ defmodule ExAdmin.Register do
                 controller_filters: Module.get_attribute(__MODULE__, :controller_filters), 
                 index_filters: Module.get_attribute(__MODULE__, :index_filters),
                 selectable_column: Module.get_attribute(__MODULE__, :selectable_column), 
-                batch_actions: Module.get_attribute(__MODULE__, :batch_actions)
+                batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
+                plugs: plugs 
 
 
       def run_query(repo, action, id \\ nil) do
-        resource_name = %__MODULE__{}
-        |> Map.get(:resource_name)
+        %__MODULE__{}
+        |> Map.get(:resource_model)
         |> ExAdmin.Query.run_query(repo, action, id, @query)
       end
+
+      def plugs(), do: @controller_plugs
+
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
     end
   end
@@ -106,7 +115,9 @@ defmodule ExAdmin.Register do
     quote do
       Module.register_attribute(__MODULE__, :controller_methods, accumulate: false, persist: true)
       Module.register_attribute(__MODULE__, :controller_filters, accumulate: true, persist: true)
+      Module.register_attribute(__MODULE__, :controller_plugs, accumulate: true, persist: true)
       Module.put_attribute(__MODULE__, :controller_methods, [])
+
       unquote(block)
     end
   end
@@ -140,6 +151,12 @@ defmodule ExAdmin.Register do
     end
   end
 
+  defmacro plug(name, opts \\ []) do
+    quote do
+      Module.put_attribute(__MODULE__, :controller_plugs, {unquote(name), unquote(opts)})
+    end
+  end
+
   defmacro register_page(name, [do: block]) do
     quote do
       page_name = unquote(name)
@@ -155,11 +172,12 @@ defmodule ExAdmin.Register do
       end
 
       controller_methods = Module.get_attribute(__MODULE__, :controller_methods)
+      resource_model = String.to_atom(page_name)
 
       defstruct controller: Module.concat(Application.get_env(:ex_admin, :project), AdminController),
                 controller_methods: controller_methods,
                 type: :page,
-                resource_name: String.to_atom(page_name),
+                resource_model: resource_model,
                 title_actions: &ExAdmin.default_page_title_actions/2,
                 controller_route: (page_name |> Inflex.parameterize("_")),
                 menu: menu_opts

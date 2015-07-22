@@ -3,8 +3,8 @@ defmodule ExAdmin.Query do
   require Logger
   alias ExAdmin.Helpers
   
-  def run_query(resource_name, repo, action, id, query_opts) do
-    resource_name
+  def run_query(resource_model, repo, action, id, query_opts) do
+    resource_model
     |> build_query(query_opts, action, id)
     |> paginate(repo, action, id)
   end
@@ -101,10 +101,10 @@ defmodule ExAdmin.Query do
     |> build_order_bys(opts, action, id)
     |> build_wheres(opts, action, id)
   end
-  defp build_query(resource_name, opts, action, id) do
+  defp build_query(resource_model, opts, action, id) do
     case get_from opts, action, :query do
       [] -> 
-        (from r in resource_name)
+        (from r in resource_model)
         |> build_query(opts, action, id)
       query -> 
         build_query(query, opts, action, id)

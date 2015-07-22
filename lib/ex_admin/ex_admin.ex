@@ -30,7 +30,7 @@ defmodule ExAdmin do
   def get_all_registered do 
     for reg <- registered do
       item = get_registered_resource(reg)
-      {item.resource_name, item}
+      {item.resource_model, item}
     end
   end
   def get_registered_resource(name) do
@@ -42,9 +42,9 @@ defmodule ExAdmin do
       get_registered_resource(reg)
     end
   end
-  def get_registered(resource_name) do
+  def get_registered(resource_model) do
     get_all_registered
-    |> Keyword.get(resource_name)
+    |> Keyword.get(resource_model)
   end
 
   def get_registered_by_controller_route!(name) do
@@ -70,9 +70,9 @@ defmodule ExAdmin do
   def get_controller_path(%{} = resource) do
     get_controller_path Map.get(resource, :__struct__)
   end
-  def get_controller_path(resource_name) when is_atom(resource_name) do
+  def get_controller_path(resource_model) when is_atom(resource_model) do
     get_all_registered 
-    |> Keyword.get(resource_name, %{})
+    |> Keyword.get(resource_model, %{})
     |> Map.get(:controller_route)
   end
 
@@ -99,7 +99,7 @@ defmodule ExAdmin do
     end) 
   end
 
-  def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_name: resource_name} = defn) do
+  def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_model: _resource_model} = defn) do
     # Logger.warn "action name: #{inspect Utils.action_name(conn)}"
     singular = ExAdmin.Utils.displayable_name_singular(conn) |> titleize
     actions = defn.actions
@@ -109,12 +109,12 @@ defmodule ExAdmin do
         |> String.to_integer
         div(".action_items") do
           for action <- [:edit, :new, :delete], 
-            do: action_button(conn, singular, :show, action, actions, id)
+            do: action_button(conn, defn, singular, :show, action, actions, id)
         end
         
       action when action in [:index, :edit] -> 
         div(".action_items") do
-          action_button(conn, singular, action, :new, actions)
+          action_button(conn, defn, singular, action, :new, actions)
         end
 
       _ -> 
@@ -126,10 +126,12 @@ defmodule ExAdmin do
     div(".action_items")
   end
 
-  defp action_button(conn, name, page, action, actions, id \\ nil) do
+  defp action_button(conn, defn, name, page, action, actions, id \\ nil) do
     if action in actions do
-      span(".action_item") do
-        action_link(conn, name, action, id)
+      if ExAdmin.Utils.authorized_action?(conn, action, defn) do
+        span(".action_item") do
+          action_link(conn, name, action, id)
+        end
       end
     end
     button = get_custom_action(page, actions) 
@@ -168,7 +170,12 @@ defmodule ExAdmin do
     "#{humanize action} #{name}"
   end
 
-  def has_action?(defn, action) do
+  def has_action?(conn, defn, action) do
+    if ExAdmin.Utils.authorized_action?(conn, action, defn), 
+      do: _has_action?(defn, action), else: false
+  end
+
+  defp _has_action?(defn, action) do
     except = Keyword.get defn.actions, :except, []
     only = Keyword.get defn.actions, :only, []
     cond do
@@ -178,5 +185,5 @@ defmodule ExAdmin do
       true -> false
     end
   end
-  
+
 end

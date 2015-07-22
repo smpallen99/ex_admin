@@ -132,12 +132,12 @@ defmodule ExAdmin.Helpers do
     |> build_link_for(opts, resource, f_name)
   end
   
-  def get_resource_name(resources) do
+  def get_resource_model(resources) do
     case resources do
       [] -> 
         ""
       [resource | _] -> 
-        get_resource_name resource
+        get_resource_model resource
 
       %{__struct__: name} -> 
         name |> base_name |>  Inflex.parameterize("_")
@@ -159,6 +159,7 @@ defmodule ExAdmin.Helpers do
   
   def get_resource_field(resource, field, opts \\ %{}) when is_map(resource) do
     opts = Enum.into opts, %{}
+    #IO.puts "---> get_resource_field field: #{inspect field}, resource: #{inspect resource}"
     case resource do
       %{__struct__: struct_name} ->
         cond do
