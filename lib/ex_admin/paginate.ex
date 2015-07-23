@@ -12,20 +12,8 @@ defmodule ExAdmin.Paginate do
     end
     div ".pagination_information" do
       record_number = (page_number - 1) * page_size + 1
-      IO.puts "paginate: rec_number: #{record_number}, page_number: #{page_number}, page_size: {page_size}"
-      IO.puts "         val: #{record_number + page_size - 1}, record_count: #{record_count}"
-
       display_pagination name, (page_number - 1) * page_size + 1, page_size, 
                          record_count, record_number + page_size - 1
-      # if total_pages == 1 do
-      #   pagination_information(name, record_count)
-      # else
-      #   last_number = case record_number + page_size - 1 do
-      #     val when val <= record_count -> val
-      #     _ -> record_count
-      #   end
-      #   pagination_information(name, record_number, last_number, record_count)
-      # end
     end
   end
 
