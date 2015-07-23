@@ -184,7 +184,7 @@ defmodule ExAdmin.Index do
   def build_table_body(_conn, [], _columns, _opts) do
     tbody
   end
-  def build_table_body(_conn, resources, columns, opts) do
+  def build_table_body(conn, resources, columns, opts) do
     model_name = resources |> List.first |> Map.get(:__struct__)
     selectable = Map.get opts, :selectable_column
 
@@ -204,7 +204,7 @@ defmodule ExAdmin.Index do
           end
 
           for field <- columns do
-            build_field(resource, field, fn(contents, field_name) -> 
+            build_field(resource, conn, field, fn(contents, field_name) -> 
               ExAdmin.Table.handle_contents(contents, field_name)
             end)
           end

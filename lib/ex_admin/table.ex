@@ -5,7 +5,7 @@ defmodule ExAdmin.Table do
   import ExAdmin.Utils
   import Kernel, except: [to_string: 1]
 
-  def attributes_table(_conn, resource, schema) do
+  def attributes_table(conn, resource, schema) do
     resource_model = model_name(resource)
 
     div(".panel") do
@@ -16,7 +16,7 @@ defmodule ExAdmin.Table do
           table(border: "0", cellspacing: "0", cellpadding: "0") do
             tbody do
               for field_name <- Map.get(schema, :rows, []) do
-                build_field(resource, field_name, fn(contents, f_name) -> 
+                build_field(resource, conn, field_name, fn(contents, f_name) -> 
                   tr do
                     field_header field_name 
                     handle_contents(contents, f_name)
@@ -34,7 +34,7 @@ defmodule ExAdmin.Table do
   def field_header({field_name, opts}), do: field_header(field_name)
   def field_header(field_name), do: th(humanize field_name)
 
-  def panel(schema) do
+  def panel(conn, schema) do
     div(".panel") do
       h3(Map.get schema, :name, "")
       div(".panel_contents") do
@@ -54,7 +54,7 @@ defmodule ExAdmin.Table do
                         {f_name, fun} when is_function(fun) -> 
                           td ".#{f_name} #{fun.(resource)}"
                         {f_name, opts} -> 
-                          build_field(resource, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) -> 
+                          build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) -> 
                             td ".#{f_name} #{contents}"
 
                           end)

@@ -18,32 +18,48 @@ defmodule ExAdmin.Helpers do
     ]
   end
 
-  def build_link(nil, _, _, _), do: ""
-  def build_link("", _, _, _), do: ""
-  def build_link(contents, %{link: true}, resource, field_name) do
-    res = Map.get(resource, field_name, %{})
-    path = get_route_path res, :index
-    "<a href='#{path}'>#{contents}</a>"
+  def build_link(nil, _, _, _, _), do: ""
+  def build_link("", _, _, _, _), do: ""
+  def build_link(contents, conn, %{link: false}, _resource, _field_name), do: contents
+  def build_link(contents, conn, _, resource, field_name) do
+    case Map.get(resource, field_name) do
+      nil -> contents
+      res when is_map(res) -> 
+        if ExAdmin.Utils.authorized_action? conn, :index, res.__struct__ do
+          path = get_route_path res, :index
+          "<a href='#{path}'>#{contents}</a>"
+        else
+          contents
+        end
+    end
   end
-  def build_link(contents, _, _resource, _field_name), do: contents
 
   def model_name(resource) do
     Map.get(resource, :__struct__, "") |> ExAdmin.Utils.base_name |> Inflex.parameterize("_")
   end
 
-  def build_link_for({:safe, contents}, a, b, c) when is_list(contents) do 
+  def build_link_for({:safe, contents}, d, a, b, c) when is_list(contents) do 
     safe_contents("", contents)
-    |> build_link_for(a, b, c)
+    |> build_link_for(d, a, b, c)
   end
-  def build_link_for({:safe, contents}, a, b, c), do: build_link_for(contents, a, b, c)
-  def build_link_for("", _, _, _), do: ""
-  def build_link_for(nil, _, _, _), do: ""
-  def build_link_for(contents, %{link: true}, resource, _field_name) do
+  def build_link_for({:safe, contents}, d, a, b, c), do: build_link_for(contents, d, a, b, c)
+  def build_link_for("", _, _, _, _), do: ""
+  def build_link_for(nil, _, _, _, _), do: ""
+  def build_link_for(contents, _, %{link: false}, _, _), do: contents
+  def build_link_for(contents, conn, _, resource, field_name) do
     id  = resource.id
-    path = get_route_path resource, :show, id
-    "<a href='#{path}'>#{contents}</a>"
+    case Map.get resource, field_name do
+      nil -> contents
+      res when is_map(res) -> 
+        if ExAdmin.Utils.authorized_action? conn, :show, res.__struct__ do
+          path = get_route_path res, :show, res.id
+          "<a href='#{path}'>#{contents}</a>"
+        else
+          contents
+        end
+      _ -> contents
+    end
   end
-  def build_link_for(contents, _, _, _), do: contents
   
 
   def safe_contents(acc, []), do: acc
@@ -89,19 +105,19 @@ defmodule ExAdmin.Helpers do
   Handles parsing relationships, linking to the relationship, passing a 
   concatenated string of each of the given fields.
   """
-  def build_field(resource, field_name, fun) do
+  def build_field(resource, conn, field_name, fun) do
     case field_name do
 
       {f_name, %{has_many: _} = map2} -> 
-        _build_field(map2, resource, f_name)
+        _build_field(map2, conn, resource, f_name)
         |> fun.(f_name)
 
       {f_name, %{} = opts} -> 
-        build_single_field(resource, f_name, opts)
+        build_single_field(resource, conn, f_name, opts)
         |> fun.(f_name)
 
       {f_name, []} -> 
-        build_single_field(resource, f_name, %{})
+        build_single_field(resource, conn, f_name, %{})
         |> fun.(f_name)
 
       _ -> 
@@ -109,12 +125,12 @@ defmodule ExAdmin.Helpers do
     end
   end
 
-  def build_single_field(resource, f_name, %{fun: fun} = opts) do
+  def build_single_field(resource, conn, f_name, %{fun: fun} = opts) do
     fun.(resource)
-    |> build_link_for(opts, resource, f_name)
+    |> build_link_for(conn, opts, resource, f_name)
   end 
 
-  def build_single_field(resource, f_name, opts) do
+  def build_single_field(resource, conn, f_name, opts) do
     case get_resource_field(resource, f_name, opts) do
       nil -> 
         ""
@@ -129,7 +145,7 @@ defmodule ExAdmin.Helpers do
       other -> 
         "#{inspect other}"
     end
-    |> build_link_for(opts, resource, f_name)
+    |> build_link_for(conn, opts, resource, f_name)
   end
   
   def get_resource_model(resources) do
@@ -143,12 +159,12 @@ defmodule ExAdmin.Helpers do
         name |> base_name |>  Inflex.parameterize("_")
     end
   end
-  defp _build_field(%{fields: fields} = map, resource, field_name) do
+  defp _build_field(%{fields: fields} = map, conn, resource, field_name) do
     get_relationship(resource, field_name)
     |> map_relationship_fields(fields)
-    |> build_link(map, resource, field_name)
+    |> build_link(conn, map, resource, field_name)
   end
-  defp _build_field(%{}, _resource, _field_name), do: []
+  defp _build_field(%{}, _, _resource, _field_name), do: []
 
   def get_resource_field2(resource, field_name) do
     case Map.get(resource, field_name) do

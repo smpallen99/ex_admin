@@ -46,7 +46,7 @@ defmodule ExAdmin.Show do
     quote do
       var!(table_for, ExAdmin.Show) = []
       unquote(block)
-      ExAdmin.Table.panel(%{name: unquote(name), table_for: var!(table_for, ExAdmin.Show)})
+      ExAdmin.Table.panel(var!(conn), %{name: unquote(name), table_for: var!(table_for, ExAdmin.Show)})
     end
   end
 
