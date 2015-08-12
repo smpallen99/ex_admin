@@ -513,5 +513,6 @@ defmodule ExAdmin.Form do
   def error_messages({:too_short, min}), do: "must be longer than #{min - 1}"
   def error_messages({:must_match, field}), do: "must match #{humanize field}"
   def error_messages(:format), do: "has incorrect format"
+  def error_messages(other) when is_binary(other), do: other
   def error_messages(other), do: "error: #{inspect other}"
 end

@@ -56,7 +56,6 @@ defmodule ExAdmin.Table do
                         {f_name, opts} -> 
                           build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) -> 
                             td ".#{f_name} #{contents}"
-
                           end)
                       end
                     end

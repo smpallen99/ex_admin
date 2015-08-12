@@ -24,7 +24,13 @@ defmodule ExAdmin.Repo do
   end
 
   defp update_model(model, nil), do: model
-  defp update_model(model, params), do: struct(model, params)
+  defp update_model(model, params) do 
+    filtered = Map.to_list(params)
+    |> Enum.reduce(params, fn({k,v}, acc) -> 
+      if v == "", do: Map.delete(acc, k), else: acc
+    end)
+    struct model, filtered
+  end
 
   def changeset_attributes_for(%Changeset{} = changeset, resource, params) do
     {new_changeset, fields} = 
