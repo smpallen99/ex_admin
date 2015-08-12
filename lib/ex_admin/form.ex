@@ -489,6 +489,18 @@ defmodule ExAdmin.Form do
     Phoenix.HTML.html_escape(value) |> elem(1)
   end
 
+  def build_field_errors(conn, field_name) do
+    conn.private 
+    |> Map.get(:phoenix_flash, %{})
+    |> Map.get("inline_error", [])
+    |> get_errors(field_name)
+    |> Enum.reduce("", fn(error, acc) -> 
+      acc <> """
+      <p class="inline-errors">#{error_messages error}</p>
+      """
+    end)
+  end
+
   def get_errors(nil, _field_name), do: nil
 
   # def get_errors(errors, field_name) when is_binary(field_name) do
