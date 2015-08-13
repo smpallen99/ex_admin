@@ -138,22 +138,44 @@ defmodule ExAdmin.Form do
     markup do
       model_name = Map.get(resource, :__struct__, "") |> base_name |> Inflex.parameterize("_")
       action = get_action(conn, resource, mode)
-
+      scripts = ""
       Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "formtastic #{model_name}", 
           id: "new_#{model_name}", method: :post, novalidate: :novalidate  do
 
         build_hidden_block(conn, mode)
-        build_main_block(conn, resource, model_name, items) 
+        scripts = build_main_block(conn, resource, model_name, items) 
+        |> build_scripts
         build_actions_block(conn, model_name, mode) 
       end 
-      if script_block do
-        Xain.text "\n"
-        Xain.script type: "text/javascript" do
-          text "\n" <> script_block <> "\n"
-        end
+      put_script_block(scripts)
+      put_script_block(script_block)
+    end
+  end
+
+  defp put_script_block(script_block) do
+    if script_block do
+      Xain.text "\n"
+      Xain.script type: "text/javascript" do
+        text "\n" <> script_block <> "\n"
       end
     end
   end
+
+  defp build_scripts(list) do
+    head = "$(document).ready(function() {\n"
+    script = for i <- list, is_tuple(i), into: head, do: build_script(i)
+    script <> "});"
+  end
+
+  defp build_script({:change, %{id: id, script: script}}) do
+    """
+    $('##{id}').change(function() {
+      #{script}
+    });
+    """
+  end
+  defp build_script(other), do: ""
+
   defp get_action(conn, resource, mode) do
     case mode do 
       :new -> 
@@ -203,20 +225,31 @@ defmodule ExAdmin.Form do
     for item <- schema do
       build_item(item, resource, model_name, errors)
     end
+    |> flatten
   end
+
+  defp flatten(list) when is_list(list), do: List.flatten(list)
+  defp flatten(other), do: [other]
+
+  @hidden_style [style: "display: none"]
 
   def wrap_item(field_name, model_name, label, error, contents) do
     ext_name = "#{model_name}_#{field_name}"
-    {label, hidden} = if label == :none or label == false do 
-      {"", [style: "display: none"]}
-    else 
-      {label, []}
+    {label, hidden} = case label do
+      {:hidden, label} -> 
+        {label, @hidden_style}
+      label when label in [:none, false] -> 
+        {"", @hidden_style}
+      label -> 
+        {label, []}
     end
+
     error = if error in [nil, [], false], do: "", else: "error "
     li([class: "string input optional #{error}stringish", id: "#{ext_name}_input"] ++ hidden) do
       label(".label #{humanize label}", for: ext_name)
       contents.(ext_name)
     end
+    ext_name
   end
 
   defp build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) do
@@ -262,7 +295,9 @@ defmodule ExAdmin.Form do
        opts: %{collection: collection}} = item, _resource, model_name, errors) do
     errors = get_errors(errors, field_name)
     label = Map.get item[:opts], :label, field_name
-    wrap_item(field_name, model_name, label, errors, fn(ext_name) -> 
+    onchange = Map.get item[:opts], :change
+    item = update_in item[:opts], &(Map.delete &1, :change)
+    id = wrap_item(field_name, model_name, label, errors, fn(ext_name) -> 
       if Enum.all?(collection, &(is_binary(&1) or (is_tuple(&1) and (tuple_size(&1) == 2)))) do 
         build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) 
       else
@@ -277,11 +312,11 @@ defmodule ExAdmin.Form do
             map_relationship_fields(item, assoc_fields)
             |> option([value: "#{item.id}"] ++ selected) 
           end
-
         end
       end
       build_errors(errors)
     end)  
+    if onchange, do: {:change, %{id: id <> "_id", script: onchange}}
   end
 
   def build_item(%{type: :actions, items: items}, resource, model_name, errors) do
@@ -310,6 +345,7 @@ defmodule ExAdmin.Form do
       |> Map.put_new(:name, "#{model_name}[#{field_name}]")
       |> Map.put_new(:id, ext_name)
       |> Map.put_new(:value, Map.get(resource, field_name, "") |> escape_value)
+      |> Map.delete(:display)
       |> Map.to_list
       |> Xain.input
       build_errors(errors)
@@ -381,11 +417,12 @@ defmodule ExAdmin.Form do
     fieldset(".inputs", opts) do
       build_fieldset_legend(item[:name]) 
       ol do
-        for inpt <- item[:inputs] do
+        ret = for inpt <- item[:inputs] do
           build_item(inpt, resource, model_name, errors)
         end
       end
     end
+    ret
   end
 
   def build_has_many_fieldset(res, fields, orig_inx, ext_name, field_field_name, model_name, errors) do
@@ -456,8 +493,12 @@ defmodule ExAdmin.Form do
 
   def get_label(field_name, opts) do
     cond do
-      Map.get(opts, :type) in ["hidden", :hidden] -> :none
-      true -> Map.get opts, :label, field_name
+      Map.get(opts, :type) in ["hidden", :hidden] -> 
+        :none
+      Map.get(opts, :display) -> 
+        {:hidden, Map.get(opts, :label, field_name) }
+      true -> 
+        Map.get opts, :label, field_name
     end
   end
 
