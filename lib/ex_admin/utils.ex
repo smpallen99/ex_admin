@@ -192,6 +192,12 @@ defmodule ExAdmin.Utils do
     zero_pad(h, 2) <> ":" <> zero_pad(min, 2) <> ":" <> zero_pad(s, 2) 
   end
 
+  def pluralize(atom) when is_atom(atom) do 
+    Atom.to_string(atom) |> pluralize
+  end
+  def pluralize(singular) when is_binary(singular) do
+    Inflex.pluralize(singular)
+  end
   def pluralize(atom, count) when is_atom(atom), 
     do: pluralize(Atom.to_string(atom), count)
   def pluralize(name, 1), do: Inflex.singularize(name)

@@ -34,8 +34,11 @@ defmodule ExAdmin.Helpers do
     end
   end
 
-  def model_name(resource) do
-    Map.get(resource, :__struct__, "") |> ExAdmin.Utils.base_name |> Inflex.parameterize("_")
+  def model_name(resource) when is_atom(resource) do
+    resource |> ExAdmin.Utils.base_name |> Inflex.parameterize("_")
+  end
+  def model_name(%{__struct__: name}) do
+    model_name name
   end
 
   def build_link_for({:safe, contents}, d, a, b, c) when is_list(contents) do 
@@ -94,7 +97,10 @@ defmodule ExAdmin.Helpers do
   def get_association_fields(%{fields: fields}), do: fields
   def get_association_fields(%{}), do: [:name]
 
+  def get_association_owner_key(resource, association) when is_binary(association), 
+    do: get_association_owner_key(resource, String.to_atom(association))
   def get_association_owner_key(resource, association) do
+    Logger.warn "association: #{inspect association}"
     resource.__struct__.__schema__(:association, association).owner_key
   end
 

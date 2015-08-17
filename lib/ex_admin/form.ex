@@ -3,6 +3,8 @@ defmodule ExAdmin.Form do
   import ExAdmin.Utils
   import ExAdmin.Helpers
   import ExAdmin.DslUtils
+  import ExAdmin.Form.Fields
+  import ExAdmin.ViewHelpers, only: [escape_javascript: 1]
 
   import Kernel, except: [div: 2]
   use Xain
@@ -38,6 +40,40 @@ defmodule ExAdmin.Form do
         # end
         # IO.puts "----------------------------"
         ExAdmin.Form.build_form(var!(conn), var!(resource), items, var!(params), script_block)
+      end
+
+      def get_blocks(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do 
+        import ExAdmin.Register, except: [actions: 1]
+        var!(input_blocks, ExAdmin.Form) = [] 
+        var!(script_block, ExAdmin.Form) = nil
+        unquote(contents)
+        var!(input_blocks, ExAdmin.Form) |> Enum.reverse
+      end
+
+      def ajax_view(conn, params, resources, block) do
+        Logger.warn "ajax_view: resources: #{inspect resources}"
+        Logger.warn "ajax_view: params: #{inspect conn.params}"
+        Logger.warn "ajax_view: params: #{inspect params}"
+        defn = ExAdmin.get_registered_by_controller_route(params[:resource]) 
+        resource = defn.resource_model.__struct__
+        field_name = String.to_atom params[:field_name]
+        model_name = model_name(resource)
+        ext_name = ext_name model_name, field_name
+        if is_function(block[:opts][:collection]) do
+          block = update_in(block[:opts][:collection], &(&1.(conn, resource)))
+        end
+        view = markup do
+          ExAdmin.Form.Fields.input_collection(resource, resources, model_name, field_name, params[:id1], params[:nested2], block)
+        end
+        Logger.warn "------------------------"
+        Logger.warn "ext_name: #{ext_name}"
+        Logger.warn "view: #{inspect view}"
+
+        ~s/$('##{ext_name}-update').html("#{escape_javascript(view)}");/
+
+        # markup do
+        #   unquote(contents)
+        # end
       end
     end
   end
@@ -136,7 +172,7 @@ defmodule ExAdmin.Form do
   def build_form(conn, resource, items, params, script_block) do
     mode = if params[:id], do: :edit, else: :new
     markup do
-      model_name = Map.get(resource, :__struct__, "") |> base_name |> Inflex.parameterize("_")
+      model_name = model_name resource
       action = get_action(conn, resource, mode)
       scripts = ""
       Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "formtastic #{model_name}", 
@@ -168,8 +204,9 @@ defmodule ExAdmin.Form do
   end
 
   defp build_script({:change, %{id: id, script: script}}) do
+    # $('##{id}').change(function() {
     """
-    $('##{id}').change(function() {
+    $(document).on('change','##{id}', function() {
       #{script}
     });
     """
@@ -223,7 +260,7 @@ defmodule ExAdmin.Form do
   defp build_main_block(conn, resource, model_name, schema) do
     errors = Phoenix.Controller.get_flash(conn, :inline_error)
     for item <- schema do
-      build_item(item, resource, model_name, errors)
+      build_item(conn, item, resource, model_name, errors)
     end
     |> flatten
   end
@@ -233,23 +270,65 @@ defmodule ExAdmin.Form do
 
   @hidden_style [style: "display: none"]
 
-  def wrap_item(field_name, model_name, label, error, contents) do
-    ext_name = "#{model_name}_#{field_name}"
-    {label, hidden} = case label do
+  def wrap_item(field_name, model_name, label, error, opts, contents) do
+    Logger.warn "wrap item field_name: #{inspect field_name}, model_name: #{inspect model_name}"
+    as = Map.get(opts, :as)
+    Logger.warn "wrap_item as: #{inspect as}"
+    ext_name = ext_name(model_name, field_name)
+    {label, hidden, ajax} = case label do
+      {:ajax, label, show} when show -> 
+        Logger.warn "wrap_item 1. #{inspect show}"
+        {label, [], true}
+      {:ajax, label, show} -> 
+        Logger.warn "wrap_item 2."
+        {label, @hidden_style, true}
       {:hidden, label} -> 
-        {label, @hidden_style}
+        Logger.warn "wrap_item 3."
+        {label, @hidden_style, false}
       label when label in [:none, false] -> 
-        {"", @hidden_style}
+        Logger.warn "wrap_item 4."
+        {"", @hidden_style, false}
       label -> 
-        {label, []}
+        Logger.warn "wrap_item 5."
+        {label, [], false}
     end
-
     error = if error in [nil, [], false], do: "", else: "error "
-    li([class: "string input optional #{error}stringish", id: "#{ext_name}_input"] ++ hidden) do
-      label(".label #{humanize label}", for: ext_name)
-      contents.(ext_name)
-    end
+    _wrap_item(ext_name, label, hidden, ajax, error, contents, as)
     ext_name
+  end
+
+  def _wrap_item(ext_name, label, hidden, ajax, error, contents, as) when as in [:check_boxes, :radio] do
+    li([class: "#{as} input optional #{error}stringish", id: "#{ext_name}_input"] ++ hidden) do
+      fieldset ".choices" do
+        legend ".label" do
+          label humanize(label)
+        end
+        if ajax do
+          div "##{ext_name}-update" do
+            if hidden == [] do
+              contents.(ext_name)
+            end
+          end
+        else
+          contents.(ext_name)
+        end
+      end
+    end
+  end
+  def _wrap_item(ext_name, label, hidden, ajax, error, contents, _) do
+    li([class: "string input optional #{error}stringish", id: "#{ext_name}_input"] ++ hidden) do
+      if ajax do
+        label(".label #{humanize label}", for: ext_name)
+        div "##{ext_name}-update" do
+          if hidden == [] do
+            contents.(ext_name)
+          end
+        end
+      else
+        label(".label #{humanize label}", for: ext_name)
+        contents.(ext_name)
+      end
+    end
   end
 
   defp build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) do
@@ -267,79 +346,105 @@ defmodule ExAdmin.Form do
     end
   end
 
-  defp handle_prompt(field_name, item) do
-    case get_prompt(field_name, item) do
-      false -> nil
-      prompt -> option(prompt, value: "")
-    end
-  end
 
-  defp get_prompt(field_name, item) do
-    case Map.get item[:opts], :prompt, nil do
-      nil -> 
-        nm = humanize("#{field_name}")
-        |> articlize
-        "Select #{nm}"
-      other -> other
-    end
-  end
-
-  def build_item(%{type: :script, contents: contents}, _resource, _model_name, _errors) do
+  def build_item(conn, %{type: :script, contents: contents}, _resource, _model_name, _errors) do
     script type: "javascript" do 
       #text "\n  //<![CDATA[\n" <> contents <> "\n  //]]>\n"
       text "\n" <> contents <> "\n"
     end
   end
 
-  def build_item(%{type: :input, name: field_name, resource: resource, 
+  def build_item(conn, %{type: :input, name: field_name, resource: resource, 
        opts: %{collection: collection}} = item, _resource, model_name, errors) do
+    if is_function(collection) do
+      collection = collection.(conn, resource)
+    end
+    Logger.warn "build_item: model_name: #{inspect model_name}, item: #{inspect item}"
     errors = get_errors(errors, field_name)
     label = Map.get item[:opts], :label, field_name
     onchange = Map.get item[:opts], :change
-    item = update_in item[:opts], &(Map.delete &1, :change)
-    id = wrap_item(field_name, model_name, label, errors, fn(ext_name) -> 
-      if Enum.all?(collection, &(is_binary(&1) or (is_tuple(&1) and (tuple_size(&1) == 2)))) do 
+    ajax = Map.get item[:opts], :ajax
+    Logger.warn "collection: #{inspect collection}"
+    binary_tuple = binary_tuple?(collection)
+    Logger.warn "build_item :input name: #{inspect field_name}, collection: ajax: #{ajax}, binary_tuple: #{binary_tuple} ..."
+    if ajax do
+      visible? = if binary_tuple do
+        true 
+      else
+        Logger.warn "assoc owner key #{inspect get_association_owner_key(resource, field_name)}"
+        Logger.warn "resource #{inspect resource}"
+        Logger.warn "map: #{inspect Map.get(resource, get_association_owner_key(resource, field_name))}"
+        not is_nil(Map.get(resource, get_association_owner_key(resource, field_name)))
+      end
+      Logger.warn "build item visible? #{inspect visible?}"
+      label = {:ajax, label, visible?}
+    end
+
+    item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
+    id = wrap_item(field_name, model_name, label, errors, item[:opts], fn(ext_name) -> 
+      if binary_tuple do
         build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) 
       else
-        owner_key = get_association_owner_key(resource, field_name) 
-        assoc_fields = get_association_fields(item[:opts])
-        select(id: "#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
-          handle_prompt(field_name, item)
-          for item <- collection do
-            selected = if Map.get(resource, owner_key) == item.id, 
-              do: [selected: :selected], else: []
+        input_collection(resource, collection, model_name, field_name, nil, nil, item)
+        # owner_key = get_association_owner_key(resource, field_name) 
+        # assoc_fields = get_association_fields(item[:opts])
+        # select(id: "#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
+        #   handle_prompt(field_name, item)
+        #   for item <- collection do
+        #     selected = if Map.get(resource, owner_key) == item.id, 
+        #       do: [selected: :selected], else: []
 
-            map_relationship_fields(item, assoc_fields)
-            |> option([value: "#{item.id}"] ++ selected) 
-          end
-        end
+        #     map_relationship_fields(item, assoc_fields)
+        #     |> option([value: "#{item.id}"] ++ selected) 
+        #   end
+        # end
       end
       build_errors(errors)
     end)  
-    if onchange, do: {:change, %{id: id <> "_id", script: onchange}}
+    value = case onchange do
+      script when is_binary(script) -> 
+        {:change, %{id: id <> "_id", script: onchange}}
+      list when is_list(list) -> 
+        update = Keyword.get(list, :update)
+        if update do
+          # TODO: Use route builder for this
+          target = pluralize(field_name)
+          nested = pluralize(update)
+
+          control_id = "#{model_name}_#{update}_input"
+          script = "$('##{control_id}').show();\n" <> 
+                   "console.log('show #{control_id}');\n" <>
+                   "$.get('/admin/#{pluralize model_name}/#{target}/'+$(this).val()+'/#{nested}/?field_name=#{update}&format=js');\n"
+
+          Logger.warn "update script: #{script}"
+          {:change, %{id: id <> "_id", script: script}}
+        end
+      _ -> nil
+    end
+    if onchange, do: value
   end
 
-  def build_item(%{type: :actions, items: items}, resource, model_name, errors) do
+  def build_item(conn, %{type: :actions, items: items}, resource, model_name, errors) do
     fieldset ".actions" do
       for i <- items do
-        build_item(i, resource, model_name, errors)
+        build_item(conn, i, resource, model_name, errors)
       end
     end
   end
 
-  def build_item(%{type: :content, content: content}, _resource, _model_name, _errors) when is_binary(content) do
+  def build_item(conn, %{type: :content, content: content}, _resource, _model_name, _errors) when is_binary(content) do
     text content
   end
-  def build_item(%{type: :content, content: content}, _resource, _model_name, _errors) do
+  def build_item(conn, %{type: :content, content: content}, _resource, _model_name, _errors) do
     # {:safe, content} = content
     text elem(content, 1)
   end
 
-  def build_item(%{type: :input, resource: resource, name: field_name, opts: opts}, 
+  def build_item(conn, %{type: :input, resource: resource, name: field_name, opts: opts}, 
        _resource, model_name, errors) do
     errors = get_errors(errors, field_name)
     label = get_label(field_name, opts)
-    wrap_item(field_name, model_name, label, errors, fn(ext_name) -> 
+    wrap_item(field_name, model_name, label, errors, opts, fn(ext_name) -> 
       Map.put_new(opts, :type, :text)
       |> Map.put_new(:maxlength, "255")
       |> Map.put_new(:name, "#{model_name}[#{field_name}]")
@@ -352,7 +457,7 @@ defmodule ExAdmin.Form do
     end)
   end
 
-  def build_item(%{type: :has_many, resource: resource, name: field_name, 
+  def build_item(conn, %{type: :has_many, resource: resource, name: field_name, 
       opts: %{fun: fun}}, _resource, model_name, errors) do
     field_field_name = "#{field_name}_attributes"
     human_label = "#{humanize(field_name) |> Inflex.singularize}"
@@ -367,7 +472,7 @@ defmodule ExAdmin.Form do
           fields = fun.(res) |> Enum.reverse
           ext_name = "#{model_name}_#{field_field_name}_#{inx}"
 
-          new_inx = build_has_many_fieldset(res, fields, inx, ext_name, field_field_name, model_name, errors)
+          new_inx = build_has_many_fieldset(conn, res, fields, inx, ext_name, field_field_name, model_name, errors)
           
           Xain.input [id: "#{ext_name}_id", 
             name: "#{model_name}[#{field_field_name}][#{new_inx}][id]",
@@ -376,7 +481,7 @@ defmodule ExAdmin.Form do
         {_, html} = markup :nested do
           ext_name = "#{model_name}_#{field_field_name}_#{new_record_name_var}"
           fields = fun.(ExAdmin.Repo.get_assoc_model(resource, field_name)) |> Enum.reverse
-          build_has_many_fieldset(nil, fields, new_record_name_var, ext_name, field_field_name, model_name, errors)
+          build_has_many_fieldset(conn, nil, fields, new_record_name_var, ext_name, field_field_name, model_name, errors)
         end
       end
       {_, onclick} = Phoenix.HTML.html_escape  ~s|$(this).siblings("li.input").append("#{html}".replace(/#{new_record_name_var}/g,| <>
@@ -388,8 +493,12 @@ defmodule ExAdmin.Form do
   @doc """
   Handle building an inputs :name, as: ...
   """
-  def build_item(%{type: :inputs, name: name, opts: %{collection: collection}}, 
+  def build_item(conn, %{type: :inputs, name: name, opts: %{collection: collection}}, 
       resource, model_name, errors) when is_atom(name) do
+
+    is_function(collection) do
+      collection = collection.(conn, resource)
+    end
     errors = get_errors(errors, name)
     name_ids = "#{Atom.to_string(name) |> Inflex.singularize}_ids"
     assoc_ids = Enum.map(get_resource_field2(resource, name), &(&1.id))
@@ -411,21 +520,21 @@ defmodule ExAdmin.Form do
     end
   end
 
-  def build_item(%{type: :inputs} = item, resource, model_name, errors) do
+  def build_item(conn, %{type: :inputs} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
 
     fieldset(".inputs", opts) do
       build_fieldset_legend(item[:name]) 
       ol do
         ret = for inpt <- item[:inputs] do
-          build_item(inpt, resource, model_name, errors)
+          build_item(conn, inpt, resource, model_name, errors)
         end
       end
     end
     ret
   end
 
-  def build_has_many_fieldset(res, fields, orig_inx, ext_name, field_field_name, model_name, errors) do
+  def build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_field_name, model_name, errors) do
     inx = cond do
       is_nil(res) -> orig_inx 
       res.id ->  orig_inx
@@ -453,6 +562,9 @@ defmodule ExAdmin.Form do
           error = if errors in [nil, [], false], do: "", else: ".error"
           case field[:opts] do
             %{collection: collection} -> 
+              is_function(collection) do
+                collection = collection.(conn, res)
+              end
               li ".select.input.required#{error}", [id: "#{ext_name}_label_input"] do
                 label ".label #{humanize f_name}", for: "#{ext_name}_#{f_name}" do
                   abbr "*", title: "required"
@@ -497,6 +609,8 @@ defmodule ExAdmin.Form do
         :none
       Map.get(opts, :display) -> 
         {:hidden, Map.get(opts, :label, field_name) }
+      Map.get(opts, :ajax) -> 
+        {:ajax, Map.get(opts, :label, field_name)}
       true -> 
         Map.get opts, :label, field_name
     end
@@ -540,6 +654,11 @@ defmodule ExAdmin.Form do
       <p class="inline-errors">#{error_messages error}</p>
       """
     end)
+  end
+
+  defp binary_tuple?([]), do: false
+  defp binary_tuple?(collection) do
+    Enum.all?(collection, &(is_binary(&1) or (is_tuple(&1) and (tuple_size(&1) == 2))))
   end
 
   def get_errors(nil, _field_name), do: nil

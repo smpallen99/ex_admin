@@ -88,4 +88,29 @@ defmodule ExAdmin.ViewHelpers do
     #     div(acc, "#titlebar_right") 
     # end
   end
+  
+  @js_escape_map Enum.into([{"^", ""}, { ~S(\\), ~S(\\\\)}, {~S(</), ~S(<\/)}, {"\r\n", ~S(\n)}, {"\n", ~S(\n)}, {"\r", ~S(\n)}, 
+    {~S("), ~S(\")}, 
+    {"'", "\\'" }], %{})
+    #{~S(\"), ~S(\\")}, 
+
+  def escape_javascript(unescaped) do
+    #Phoenix.HTML.safe _escape_javascript(unescaped) 
+    #IO.puts "escape_javascript: unescaped: #{inspect unescaped}`"
+    res = Phoenix.HTML.safe_to_string(unescaped) 
+    |> String.replace("\n", "")
+    |> _escape_javascript
+    #IO.puts "escape_javascript: #{inspect res}"
+    res
+  end
+  def _escape_javascript({:safe, list}) do
+    _escape_javascript(list) 
+  end
+  def _escape_javascript([h | t]) do
+    [_escape_javascript(h) | _escape_javascript(t)]
+  end
+  def _escape_javascript([]), do: []
+  def _escape_javascript(javascript) when is_binary(javascript) do
+    Regex.replace(~r/(\|<\/|\r\n|\342\200\250|\342\200\251|[\n\r"'^])/u, javascript, fn(match) -> @js_escape_map[match] end)
+  end
 end

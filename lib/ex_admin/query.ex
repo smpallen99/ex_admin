@@ -4,6 +4,7 @@ defmodule ExAdmin.Query do
   alias ExAdmin.Helpers
   
   def run_query(resource_model, repo, action, id, query_opts) do
+    Logger.warn "run_query: resource_model: #{inspect resource_model}, action: #{action}, id: #{inspect id}, query_opts: #{inspect query_opts}"
     resource_model
     |> build_query(query_opts, action, id)
     |> paginate(repo, action, id)
@@ -19,6 +20,10 @@ defmodule ExAdmin.Query do
     query
     |> filter(params)
     |> repo.paginate(params)
+  end
+  defp paginate(query, repo, :nested, params) do 
+    Logger.warn "paginate nested params: #{inspect params}, query: #{inspect query}"
+    apply repo, get_method(:nested), [query]
   end
   defp paginate(query, repo, action, _) do 
     apply repo, get_method(action), [query]
@@ -94,6 +99,7 @@ defmodule ExAdmin.Query do
 
   defp get_method(:index), do: :all 
   defp get_method(:csv), do: :all 
+  defp get_method(:nested), do: :all 
   defp get_method(_), do: :one
 
   defp build_query(%Ecto.Query{} = query, opts, action, id) do
@@ -101,6 +107,22 @@ defmodule ExAdmin.Query do
     |> build_order_bys(opts, action, id)
     |> build_wheres(opts, action, id)
   end
+  # defp build_query(resource_model, opts, action, [{n1, id}, n2] = list) when is_list(list) do
+  #   model1 = ExAdmin.get_registered_by_controller_route(n1) |> Map.get(:resource_model)
+  #   model2 = ExAdmin.get_registered_by_controller_route(n2) |> Map.get(:resource_model)
+  #   assoc1 = get_association(model1, n2)
+  #   assoc2 = get_association(model2, n1)
+  #   Logger.warn "build_query model1: #{inspect model1}, model2: #{inspect model2}, assoc1: #{inspect assoc1}"
+  #   field1 = assoc1.assoc_key
+  #   field2 = assoc2.assoc_key
+  #   Logger.warn "build_query field1: #{inspect field1}, field2: #{inspect field2}"
+  #   #  Version |> join(:inner, [j1], j2 in ProductVersion, j1.id == j2.version_id and j2.product_id == 1)
+  #   #resource_model
+  #   join_model = assoc1.assoc
+  #   model2
+  #   |> join(:inner, [j1], j2 in ^join_model, j1.id == field(j2, ^field2) and field(j2, ^field1) == ^id)
+  #   # |> join(:inner, [j1], j2 in UcxLicensing.ProductVersion, j1.id == j2.version_id and j2.product_id == ^id)
+  # end
   defp build_query(resource_model, opts, action, id) do
     case get_from opts, action, :query do
       [] -> 
@@ -109,6 +131,12 @@ defmodule ExAdmin.Query do
       query -> 
         build_query(query, opts, action, id)
     end
+  end
+
+  defp get_association(model, field) do
+    field = String.to_atom(field)
+    [assoc, _] = model.__schema__(:association, field) |> Map.get(:through)
+    model.__schema__(:association, assoc)
   end
 
   defp build_preloads(query, opts, action, _id) do

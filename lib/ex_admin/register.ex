@@ -29,6 +29,7 @@ defmodule ExAdmin.Register do
       Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true 
       Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true 
       Module.register_attribute __MODULE__, :selectable_column, accumulate: false, persist: true
+      Module.register_attribute(__MODULE__, :form_items, accumulate: true, persist: true)
       module = unquote(mod) 
       Module.put_attribute(__MODULE__, :module, module)
 
@@ -106,6 +107,7 @@ defmodule ExAdmin.Register do
       end
 
       def plugs(), do: @controller_plugs
+
 
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
     end
