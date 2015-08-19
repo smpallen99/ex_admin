@@ -51,29 +51,21 @@ defmodule ExAdmin.Form do
       end
 
       def ajax_view(conn, params, resources, block) do
-        Logger.warn "ajax_view: resources: #{inspect resources}"
-        Logger.warn "ajax_view: params: #{inspect conn.params}"
-        Logger.warn "ajax_view: params: #{inspect params}"
         defn = ExAdmin.get_registered_by_controller_route(params[:resource]) 
         resource = defn.resource_model.__struct__
         field_name = String.to_atom params[:field_name]
         model_name = model_name(resource)
         ext_name = ext_name model_name, field_name
         if is_function(block[:opts][:collection]) do
-          block = update_in(block[:opts][:collection], &(&1.(conn, resource)))
+          resources = block[:opts][:collection].(conn, resource)
+          #Logger.warn "ajax_view: ******* resources: #{inspect Enum.map(resources, &({&1.id, Map.get(&1, :name)}))}"
         end
         view = markup do
           ExAdmin.Form.Fields.input_collection(resource, resources, model_name, field_name, params[:id1], params[:nested2], block)
         end
-        Logger.warn "------------------------"
-        Logger.warn "ext_name: #{ext_name}"
-        Logger.warn "view: #{inspect view}"
+        # Logger.warn "view: #{inspect view}"
 
         ~s/$('##{ext_name}-update').html("#{escape_javascript(view)}");/
-
-        # markup do
-        #   unquote(contents)
-        # end
       end
     end
   end
@@ -234,28 +226,6 @@ defmodule ExAdmin.Form do
       get_put_fields(mode)
     end
   end
-  # def build_field_input({field_name, %{type: :collection} = map}, resource, model_name) do
-
-  #   %{fields: assoc_fields, query: query} = map
-
-  #   ext_name = "#{model_name}_#{field_name}"
-  #   owner_key = get_association_owner_key(resource, field_name) 
-
-  #   li( class: "string input optional stringish", id: "#{ext_name}_input") do
-  #     label(".label #{humanize field_name}", for: ext_name)
-  #     select("#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
-  #       for item <- query_association(resource.__struct__, field_name, query) do
-
-  #         selected = if Map.get(resource, owner_key) == item.id, 
-  #           do: [selected: :selected], else: []
-
-  #         map_relationship_fields(item, assoc_fields)
-  #         option([value: "#{item.id}"] ++ selected)
-  #       end
-  #     end
-  #   end  
-  # end
-
 
   defp build_main_block(conn, resource, model_name, schema) do
     errors = Phoenix.Controller.get_flash(conn, :inline_error)
@@ -271,26 +241,15 @@ defmodule ExAdmin.Form do
   @hidden_style [style: "display: none"]
 
   def wrap_item(field_name, model_name, label, error, opts, contents) do
-    Logger.warn "wrap item field_name: #{inspect field_name}, model_name: #{inspect model_name}"
-    as = Map.get(opts, :as)
-    Logger.warn "wrap_item as: #{inspect as}"
+    # Logger.warn "wrap item field_name: #{inspect field_name}, model_name: #{inspect model_name}, label: #{inspect label}"
+    as = Map.get opts, :as 
+    ajax = Map.get opts, :ajax
     ext_name = ext_name(model_name, field_name)
-    {label, hidden, ajax} = case label do
-      {:ajax, label, show} when show -> 
-        Logger.warn "wrap_item 1. #{inspect show}"
-        {label, [], true}
-      {:ajax, label, show} -> 
-        Logger.warn "wrap_item 2."
-        {label, @hidden_style, true}
-      {:hidden, label} -> 
-        Logger.warn "wrap_item 3."
-        {label, @hidden_style, false}
-      label when label in [:none, false] -> 
-        Logger.warn "wrap_item 4."
-        {"", @hidden_style, false}
-      label -> 
-        Logger.warn "wrap_item 5."
-        {label, [], false}
+    display_style = if Map.get(opts, :display, true), do: [], else: @hidden_style
+    {label, hidden}  = case label do 
+      {:hidden, l} -> {l, @hidden_style}
+      l when l in [:none, false] ->  {"", @hidden_style}
+      l -> {l, display_style}
     end
     error = if error in [nil, [], false], do: "", else: "error "
     _wrap_item(ext_name, label, hidden, ajax, error, contents, as)
@@ -316,6 +275,7 @@ defmodule ExAdmin.Form do
     end
   end
   def _wrap_item(ext_name, label, hidden, ajax, error, contents, _) do
+    # TODO: Fix this to use the correct type, instead of hard coding string
     li([class: "string input optional #{error}stringish", id: "#{ext_name}_input"] ++ hidden) do
       if ajax do
         label(".label #{humanize label}", for: ext_name)
@@ -359,45 +319,21 @@ defmodule ExAdmin.Form do
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
-    Logger.warn "build_item: model_name: #{inspect model_name}, item: #{inspect item}"
+    # Logger.warn "build_item: model_name: #{inspect model_name}, item: #{inspect item}"
     errors = get_errors(errors, field_name)
     label = Map.get item[:opts], :label, field_name
     onchange = Map.get item[:opts], :change
     ajax = Map.get item[:opts], :ajax
-    Logger.warn "collection: #{inspect collection}"
+    # Logger.warn "collection: #{inspect collection}"
     binary_tuple = binary_tuple?(collection)
-    Logger.warn "build_item :input name: #{inspect field_name}, collection: ajax: #{ajax}, binary_tuple: #{binary_tuple} ..."
-    if ajax do
-      visible? = if binary_tuple do
-        true 
-      else
-        Logger.warn "assoc owner key #{inspect get_association_owner_key(resource, field_name)}"
-        Logger.warn "resource #{inspect resource}"
-        Logger.warn "map: #{inspect Map.get(resource, get_association_owner_key(resource, field_name))}"
-        not is_nil(Map.get(resource, get_association_owner_key(resource, field_name)))
-      end
-      Logger.warn "build item visible? #{inspect visible?}"
-      label = {:ajax, label, visible?}
-    end
+    # Logger.warn "build_item :input name: #{inspect field_name}, collection: ajax: #{ajax}, binary_tuple: #{binary_tuple} ..."
 
-    item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
     id = wrap_item(field_name, model_name, label, errors, item[:opts], fn(ext_name) -> 
+      item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
       if binary_tuple do
         build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) 
       else
         input_collection(resource, collection, model_name, field_name, nil, nil, item)
-        # owner_key = get_association_owner_key(resource, field_name) 
-        # assoc_fields = get_association_fields(item[:opts])
-        # select(id: "#{ext_name}_id", name: "#{model_name}[#{owner_key}]") do
-        #   handle_prompt(field_name, item)
-        #   for item <- collection do
-        #     selected = if Map.get(resource, owner_key) == item.id, 
-        #       do: [selected: :selected], else: []
-
-        #     map_relationship_fields(item, assoc_fields)
-        #     |> option([value: "#{item.id}"] ++ selected) 
-        #   end
-        # end
       end
       build_errors(errors)
     end)  
@@ -406,15 +342,27 @@ defmodule ExAdmin.Form do
         {:change, %{id: id <> "_id", script: onchange}}
       list when is_list(list) -> 
         update = Keyword.get(list, :update)
+        params = Keyword.get(list, :params)
         if update do
           # TODO: Use route builder for this
           target = pluralize(field_name)
           nested = pluralize(update)
 
+          # TODO: Need to fix this by looking it up 
+          resource_name = pluralize model_name
+
+          {extra, param_str} = 
+          case params do
+            atom when is_atom(atom) -> extra_javascript(model_name, atom, atom)
+            [{param, attr}]         -> extra_javascript(model_name, param, attr)
+            _                       -> {"", ""}
+          end
+
           control_id = "#{model_name}_#{update}_input"
           script = "$('##{control_id}').show();\n" <> 
+                   extra <> 
                    "console.log('show #{control_id}');\n" <>
-                   "$.get('/admin/#{pluralize model_name}/#{target}/'+$(this).val()+'/#{nested}/?field_name=#{update}&format=js');\n"
+                   "$.get('/admin/#{resource_name}/#{target}/'+$(this).val()+'/#{nested}/?field_name=#{update}#{param_str}&format=js');\n"
 
           Logger.warn "update script: #{script}"
           {:change, %{id: id <> "_id", script: script}}
@@ -496,7 +444,7 @@ defmodule ExAdmin.Form do
   def build_item(conn, %{type: :inputs, name: name, opts: %{collection: collection}}, 
       resource, model_name, errors) when is_atom(name) do
 
-    is_function(collection) do
+    if is_function(collection) do
       collection = collection.(conn, resource)
     end
     errors = get_errors(errors, name)
@@ -659,6 +607,10 @@ defmodule ExAdmin.Form do
   defp binary_tuple?([]), do: false
   defp binary_tuple?(collection) do
     Enum.all?(collection, &(is_binary(&1) or (is_tuple(&1) and (tuple_size(&1) == 2))))
+  end
+
+  def extra_javascript(model_name, param, attr) do
+    {"var extra = $('##{model_name}_#{attr}').val();\n", "&#{param}='+extra+'"}
   end
 
   def get_errors(nil, _field_name), do: nil

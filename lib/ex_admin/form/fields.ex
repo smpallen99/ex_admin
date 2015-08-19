@@ -8,8 +8,6 @@ defmodule ExAdmin.Form.Fields do
   def ext_name(model_name, field_name), do: "#{model_name}_#{field_name}"
 
   def input_collection(resource, collection, model_name, field_name, id, nested_name, item) do
-    Logger.warn "input_collection: resource: #{inspect resource}"
-    Logger.warn "----> item[:opts]: #{inspect item[:opts]}"
     ext_name = ext_name model_name, field_name
     _input_collection(resource, collection, model_name, field_name, item, 
         resource.__struct__.__schema__(:association, field_name))
@@ -30,16 +28,26 @@ defmodule ExAdmin.Form.Fields do
     end
   end
   defp _input_collection(resource, collection, model_name, field_name, 
-      %{opts: %{as: :check_boxes}} = item, %{cardinality: :many} = assoc) do
+      %{opts: %{as: :check_boxes}} = item, %{cardinality: :many, through: [join_name | _]} = assoc) do
+    assoc_key = resource.__struct__.__schema__(:association, join_name).assoc_key
     ext_name = ext_name model_name, field_name
-    Logger.warn "collection many owner_key: #{inspect assoc.owner_key}"
-    name = "license[option_ids][]"
+    name_ids = "#{Atom.to_string(field_name) |> Inflex.singularize}_ids"
+    name = "#{model_name}[#{name_ids}][]"
+    id_base = "#{model_name}_#{name_ids}_"
     #input "#license_options_none", name: name, type: :hidden
+    ids = case Map.get(resource, field_name, []) do
+      list when is_list(list) -> Enum.map(list, &(&1.id))
+      _ -> []
+    end
+    
     ol ".choices-group" do
       for o <- collection do
+        checked = if Map.get(o, assoc.owner_key) in ids,
+          do: [checked: :checked], else: []
         li ".choice" do
-          label for: "license_option_ids_#{o.id}"  do
-            input "#license_option_ids_#{o.id}", value: o.id, name: name, type: :checkbox
+          id = id_base <> Integer.to_string(o.id) 
+          label for: id  do
+            input "#" <> id, [value: o.id, name: name, type: :checkbox] ++ checked
             text o.name
           end
         end
