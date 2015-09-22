@@ -1,3 +1,4 @@
+Code.ensure_compiled(ExAdmin.Utils)
 defmodule ExAdmin.Filter do
   require Logger
   require Ecto.Query
@@ -79,7 +80,7 @@ defmodule ExAdmin.Filter do
   end
 
 
-  def build_field({name, %Ecto.Association.BelongsTo{assoc: assoc, owner_key: owner_key}}, q, _) do
+  def build_field({name, %Ecto.Association.BelongsTo{related: assoc, owner_key: owner_key}}, q, _) do
     id = "q_#{owner_key}"
     if assoc.__schema__(:field, :name) do
       repo = Application.get_env :ex_admin, :repo

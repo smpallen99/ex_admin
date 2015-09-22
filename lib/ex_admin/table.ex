@@ -1,3 +1,4 @@
+Code.ensure_compiled(ExAdmin.Utils)
 defmodule ExAdmin.Table do
   require Integer
   use Xain

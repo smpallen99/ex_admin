@@ -1,6 +1,6 @@
 defmodule ExAdmin.Utils do
   require Logger
-  import Ecto.DateTime.Util, only: [zero_pad: 2]
+  import Ecto.DateTime.Utils, only: [zero_pad: 2]
   @endpoint Application.get_env(:ex_admin, :endpoint)
 
   def endpoint, do: @endpoint

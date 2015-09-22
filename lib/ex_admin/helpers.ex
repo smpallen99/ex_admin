@@ -1,3 +1,4 @@
+Code.ensure_compiled(ExAdmin.Utils)
 defmodule ExAdmin.Helpers do
   require Logger
   require Integer
