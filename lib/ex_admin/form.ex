@@ -5,6 +5,7 @@ defmodule ExAdmin.Form do
   import ExAdmin.DslUtils
   import ExAdmin.Form.Fields
   import ExAdmin.ViewHelpers, only: [escape_javascript: 1]
+  require IEx
 
   import Kernel, except: [div: 2]
   use Xain
@@ -61,7 +62,7 @@ defmodule ExAdmin.Form do
           #Logger.warn "ajax_view: ******* resources: #{inspect Enum.map(resources, &({&1.id, Map.get(&1, :name)}))}"
         end
         view = markup do
-          ExAdmin.Form.Fields.input_collection(resource, resources, model_name, field_name, params[:id1], params[:nested2], block)
+          ExAdmin.Form.Fields.input_collection(resource, resources, model_name, field_name, params[:id1], params[:nested2], block, conn.params)
         end
         # Logger.warn "view: #{inspect view}"
 
@@ -240,12 +241,44 @@ defmodule ExAdmin.Form do
 
   @hidden_style [style: "display: none"]
 
-  def wrap_item(field_name, model_name, label, error, opts, contents) do
+  defp check_display(opts) do
+    if Map.get(opts, :display, true), do: [], else: @hidden_style
+  end
+  defp check_params(display_style, resource, params, model_name, field_name, ajax) do
+    field_name_str = Atom.to_string(field_name)
+    Logger.warn "check_params: params: #{inspect params[model_name]}" 
+    Logger.warn "check_params params_name: #{inspect params_name(resource, field_name, params)}"
+    cond do
+      params["id"] -> []
+      params[model_name][params_name(resource, field_name, params)] -> []
+      true -> display_style
+    end
+  end
+
+  defp params_name(resource, field_name, params) do
+    Logger.warn "params_name: field_name: #{inspect field_name}, params: #{inspect params}"
+    case resource.__struct__.__schema__(:association, field_name) do
+      %{cardinality: :one, owner_key: owner_key} -> 
+        Logger.warn "1. owner_key: #{inspect owner_key}"
+        Atom.to_string(owner_key)
+      %{cardinality: :many, owner_key: owner_key, through: [_, name]} -> 
+        Logger.warn "2. owner_key: #{inspect owner_key}, name: #{inspect name}"
+        res = Atom.to_string(name) <> "_" <> Inflex.pluralize(Atom.to_string(owner_key))
+      _ -> 
+        Logger.warn "3. field_name: #{inspect field_name}"
+        Atom.to_string(field_name)
+    end
+  end
+
+  def wrap_item(resource, field_name, model_name, label, error, opts, params, contents) do
     # Logger.warn "wrap item field_name: #{inspect field_name}, model_name: #{inspect model_name}, label: #{inspect label}"
     as = Map.get opts, :as 
     ajax = Map.get opts, :ajax
     ext_name = ext_name(model_name, field_name)
-    display_style = if Map.get(opts, :display, true), do: [], else: @hidden_style
+    # display_style = if Map.get(opts, :display, true), do: [], else: @hidden_style
+    display_style = check_display(opts)
+    |> check_params(resource, params, model_name, field_name, ajax)
+    #IEx.pry
     {label, hidden}  = case label do 
       {:hidden, l} -> {l, @hidden_style}
       l when l in [:none, false] ->  {"", @hidden_style}
@@ -319,7 +352,9 @@ defmodule ExAdmin.Form do
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
-    # Logger.warn "build_item: model_name: #{inspect model_name}, item: #{inspect item}"
+    Logger.warn "build_item: model_name: #{inspect model_name}, field_name: #{inspect field_name}" #, item: #{inspect item}"
+    Logger.warn "build_item: field: #{inspect Map.get(resource, field_name)}"
+    Logger.warn "build_item: params: #{inspect conn.params}"
     errors = get_errors(errors, field_name)
     label = Map.get item[:opts], :label, field_name
     onchange = Map.get item[:opts], :change
@@ -328,12 +363,12 @@ defmodule ExAdmin.Form do
     binary_tuple = binary_tuple?(collection)
     # Logger.warn "build_item :input name: #{inspect field_name}, collection: ajax: #{ajax}, binary_tuple: #{binary_tuple} ..."
 
-    id = wrap_item(field_name, model_name, label, errors, item[:opts], fn(ext_name) -> 
+    id = wrap_item(resource, field_name, model_name, label, errors, item[:opts], conn.params, fn(ext_name) -> 
       item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
       if binary_tuple do
         build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) 
       else
-        input_collection(resource, collection, model_name, field_name, nil, nil, item)
+        input_collection(resource, collection, model_name, field_name, nil, nil, item, conn.params)
       end
       build_errors(errors)
     end)  
@@ -392,7 +427,7 @@ defmodule ExAdmin.Form do
        _resource, model_name, errors) do
     errors = get_errors(errors, field_name)
     label = get_label(field_name, opts)
-    wrap_item(field_name, model_name, label, errors, opts, fn(ext_name) -> 
+    wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, fn(ext_name) -> 
       Map.put_new(opts, :type, :text)
       |> Map.put_new(:maxlength, "255")
       |> Map.put_new(:name, "#{model_name}[#{field_name}]")
