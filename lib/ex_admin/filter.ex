@@ -30,7 +30,7 @@ defmodule ExAdmin.Filter do
 
   def fields(defn) do
     for field <- defn.resource_model.__schema__(:fields) -- [:id] do
-      {field, defn.resource_model.__schema__(:field, field)}
+      {field, defn.resource_model.__schema__(:type, field)}
     end
   end
 
@@ -63,7 +63,7 @@ defmodule ExAdmin.Filter do
     end
   end
 
-  def build_field({name, :integer}, q, defn) do
+  def build_field({name, num}, q, defn) when num in [:integer, :id] do
     unless check_and_build_association(name, q, defn) do
       selected_name = integer_selected_name(name, q)
       value = get_value name, q
@@ -82,7 +82,7 @@ defmodule ExAdmin.Filter do
 
   def build_field({name, %Ecto.Association.BelongsTo{related: assoc, owner_key: owner_key}}, q, _) do
     id = "q_#{owner_key}"
-    if assoc.__schema__(:field, :name) do
+    if assoc.__schema__(:type, :name) do
       repo = Application.get_env :ex_admin, :repo
       resources = repo.all Ecto.Query.select(assoc, [c], {c.id, c.name})
       selected_key = case q["#{owner_key}_eq"] do

@@ -95,7 +95,7 @@ defmodule ExAdmin.Repo do
   end
 
   def insert(%ExAdmin.Changeset{} = changeset) do
-    resource = repo.insert changeset.changeset
+    {:ok, resource} = repo.insert changeset.changeset
     resource = repo.get(resource.__struct__, resource.id)
 
     for {cs, fun} <- changeset.dependents do

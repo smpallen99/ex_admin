@@ -34,7 +34,7 @@ defmodule ExAdmin.Register do
       Module.put_attribute(__MODULE__, :module, module)
 
       alias unquote(mod)
-      import ExAuth
+      #import ExAuth
       import Ecto.Query
       
       def config do

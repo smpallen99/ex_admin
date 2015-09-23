@@ -222,4 +222,8 @@ defmodule ExAdmin.Utils do
   def authorized_action?(conn, action, defn) do
     authorized_action?(conn, action, defn.resource_model)
   end
+
+  def use_authentication do
+    false
+  end
 end

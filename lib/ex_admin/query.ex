@@ -107,25 +107,10 @@ defmodule ExAdmin.Query do
     |> build_order_bys(opts, action, id)
     |> build_wheres(opts, action, id)
   end
-  # defp build_query(resource_model, opts, action, [{n1, id}, n2] = list) when is_list(list) do
-  #   model1 = ExAdmin.get_registered_by_controller_route(n1) |> Map.get(:resource_model)
-  #   model2 = ExAdmin.get_registered_by_controller_route(n2) |> Map.get(:resource_model)
-  #   assoc1 = get_association(model1, n2)
-  #   assoc2 = get_association(model2, n1)
-  #   Logger.warn "build_query model1: #{inspect model1}, model2: #{inspect model2}, assoc1: #{inspect assoc1}"
-  #   field1 = assoc1.assoc_key
-  #   field2 = assoc2.assoc_key
-  #   Logger.warn "build_query field1: #{inspect field1}, field2: #{inspect field2}"
-  #   #  Version |> join(:inner, [j1], j2 in ProductVersion, j1.id == j2.version_id and j2.product_id == 1)
-  #   #resource_model
-  #   join_model = assoc1.assoc
-  #   model2
-  #   |> join(:inner, [j1], j2 in ^join_model, j1.id == field(j2, ^field2) and field(j2, ^field1) == ^id)
-  #   # |> join(:inner, [j1], j2 in UcxLicensing.ProductVersion, j1.id == j2.version_id and j2.product_id == ^id)
-  # end
+  
   defp build_query(resource_model, opts, action, id) do
     case get_from opts, action, :query do
-      [] -> 
+      [] ->
         (from r in resource_model)
         |> build_query(opts, action, id)
       query -> 
@@ -181,7 +166,9 @@ defmodule ExAdmin.Query do
 
   defp get_from_all(opts, key, default \\ []), do: get_from(opts, :all, key, default)
 
-  defp get_from(opts, from, key, default \\ []) do
+  defp get_from(opts, from, key, default \\ [])
+  defp get_from(nil, _from, _key, default), do: default
+  defp get_from(opts, from, key, default) do
     Map.get(opts, from, [])
     |> Keyword.get(key, default)
   end
