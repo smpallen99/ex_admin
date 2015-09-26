@@ -39,34 +39,45 @@ defmodule ExAdmin.Table do
     div(".panel") do
       h3(Map.get schema, :name, "")
       div(".panel_contents") do
-        case schema do
-          %{table_for: %{resources: resources, columns: columns}} -> 
-            table(border: "0", cellspacing: "0", cellpadding: "0") do
-              table_head(columns)
-              tbody do
-                model_name = get_resource_model resources
+        do_panel(conn, schema)
+      end
+    end
+  end
 
-                Enum.with_index(resources)
-                |> Enum.map(fn({resource, inx}) -> 
-                  odd_even = if Integer.is_even(inx), do: "even", else: "odd"
-                  tr(".#{odd_even}##{model_name}_#{inx}") do
-                    for field <- columns do
-                      case field do
-                        {f_name, fun} when is_function(fun) -> 
-                          td ".#{f_name} #{fun.(resource)}"
-                        {f_name, opts} -> 
-                          build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) -> 
-                            td ".#{f_name} #{contents}"
-                          end)
-                      end
-                    end
-                  end
-                end)
+  defp do_panel(conn, %{table_for: %{resources: resources, columns: columns}}) do
+    table(border: "0", cellspacing: "0", cellpadding: "0") do
+      table_head(columns)
+      tbody do
+        model_name = get_resource_model resources
+
+        Enum.with_index(resources)
+        |> Enum.map(fn({resource, inx}) -> 
+          odd_even = if Integer.is_even(inx), do: "even", else: "odd"
+          tr(".#{odd_even}##{model_name}_#{inx}") do
+            for field <- columns do
+              case field do
+                {f_name, fun} when is_function(fun) -> 
+                  td ".#{f_name} #{fun.(resource)}"
+                {f_name, opts} -> 
+                  build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) -> 
+                    td ".#{f_name} #{contents}"
+                  end)
               end
             end
           end
+        end)
       end
     end
+  end
+  defp do_panel(conn, %{contents: %{contents: content}}) do
+    require Logger
+    Logger.warn "got some panel contents: #{inspect content}"
+    div do 
+      content |> elem(1) |> Xain.text
+    end
+  end
+  defp do_panel(conn, schema) do
+    throw "Unknown schema: #{inspect schema}"
   end
 
   def table_head(columns, opts \\ %{}) do

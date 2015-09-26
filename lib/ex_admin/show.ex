@@ -45,8 +45,11 @@ defmodule ExAdmin.Show do
   defmacro panel(name \\ "", do: block) do
     quote do
       var!(table_for, ExAdmin.Show) = []
+      var!(contents, ExAdmin.Show) = [] 
       unquote(block)
-      ExAdmin.Table.panel(var!(conn), %{name: unquote(name), table_for: var!(table_for, ExAdmin.Show)})
+      ExAdmin.Table.panel(var!(conn), %{name: unquote(name), 
+        table_for: var!(table_for, ExAdmin.Show), 
+        contents: var!(contents, ExAdmin.Show)})
     end
   end
 
@@ -56,6 +59,15 @@ defmodule ExAdmin.Show do
       unquote(block)
       columns = var!(columns, ExAdmin.Show) |> Enum.reverse
       var!(table_for, ExAdmin.Show) = %{resources: unquote(resources), columns: columns}
+    end
+  end
+
+  defmacro markup_contents(do: block) do
+    quote do
+      content = markup :nested do
+        unquote(block)
+      end
+      var!(contents, ExAdmin.Show) = %{contents: content}
     end
   end
 
