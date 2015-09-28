@@ -71,13 +71,12 @@ defmodule ExAdmin.Table do
   end
   defp do_panel(conn, %{contents: %{contents: content}}) do
     require Logger
-    Logger.warn "got some panel contents: #{inspect content}"
     div do 
       content |> elem(1) |> Xain.text
     end
   end
   defp do_panel(conn, schema) do
-    throw "Unknown schema: #{inspect schema}"
+    ""
   end
 
   def table_head(columns, opts \\ %{}) do
