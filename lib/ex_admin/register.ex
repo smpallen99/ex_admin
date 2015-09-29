@@ -160,6 +160,8 @@ defmodule ExAdmin.Register do
 
   defmacro register_page(name, [do: block]) do
     quote do
+      use ExAdmin.Page
+
       Module.register_attribute __MODULE__, :query, accumulate: false, persist: true
       Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true 
       Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true 
@@ -223,11 +225,6 @@ defmodule ExAdmin.Register do
 
       def plugs(), do: @controller_plugs
 
-      def page_view(conn) do
-        markup do
-          h2 "Default Dashboard"
-        end
-      end
 
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
     end
