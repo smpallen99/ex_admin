@@ -10,7 +10,29 @@ defmodule ExAdmin.AdminController do
   
   def action(%{private: %{phoenix_action: action}} = conn, _options) do
     params = filter_params(conn.params)
-    case get_registered_by_controller_route(params[:resource]) do
+    handle_action(conn, action, params, params[:resource])
+  end
+  defp handle_action(conn, action, params, nil) do
+    ExAdmin.get_all_registered
+    |> Enum.sort(&(elem(&1,1).menu[:priority] < elem(&2,1).menu[:priority]))
+    |> hd
+    |> case do
+      {_, %{controller_route: resource}} -> 
+        Logger.warn "1. #{resource}"
+        Logger.warn "path_info: #{inspect conn.path_info}"
+        conn
+        |> struct(path_info: conn.path_info ++ [resource])
+        |> struct(params: Map.put(conn.params, "resource", resource)) 
+        |> handle_action(action, Map.put(params, :resource, resource), resource)
+      other -> 
+        Logger.warn "2. #{inspect other}"
+        throw :invalid_route
+    end
+  end
+  defp handle_action(conn, action, params, resource) do
+    Logger.warn "3. #{inspect resource}"
+    Logger.warn "4. path_info: #{inspect conn.path_info}"
+    case get_registered_by_controller_route(resource) do
       nil -> 
         throw :invalid_route
       %{__struct__: _} = defn -> 
@@ -76,6 +98,10 @@ defmodule ExAdmin.AdminController do
     contents = case defn do
       nil -> 
         throw :invalid_route
+      %{type: :page} = defn -> 
+        model = defn.__struct__ 
+        Logger.warn "model: ..... #{inspect model}"
+        apply(model, :page_view, [conn])
       defn -> 
         model = defn.__struct__ 
 

@@ -64,6 +64,7 @@ defmodule ExAdmin.Router do
         # delete "/:resource/:id", AdminController, :destroy
         # post "/:resource/batch_action", AdminController, :batch_action
 
+        get "/#{prefix}", AdminController, :index
         get "/#{prefix}/:resource/", AdminController, :index
         get "/#{prefix}/:resource/new", AdminController, :new
         get "/#{prefix}/:resource/csv", AdminController, :csv

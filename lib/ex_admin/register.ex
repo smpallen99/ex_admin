@@ -108,7 +108,6 @@ defmodule ExAdmin.Register do
 
       def plugs(), do: @controller_plugs
 
-
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
     end
   end
@@ -161,9 +160,15 @@ defmodule ExAdmin.Register do
 
   defmacro register_page(name, [do: block]) do
     quote do
+      Module.register_attribute __MODULE__, :query, accumulate: false, persist: true
+      Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true 
+      Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true 
+      Module.register_attribute __MODULE__, :selectable_column, accumulate: false, persist: true
+      Module.register_attribute(__MODULE__, :form_items, accumulate: true, persist: true)
       page_name = unquote(name)
       unquote(block)
 
+      # query_opts = Module.get_attribute(__MODULE__, :query)
       menu_opts = case Module.get_attribute(__MODULE__, :menu) do
         :none -> 
           %{none: true}
@@ -174,15 +179,55 @@ defmodule ExAdmin.Register do
       end
 
       controller_methods = Module.get_attribute(__MODULE__, :controller_methods)
-      resource_model = String.to_atom(page_name)
+      page_name = case page_name do
+        atom when is_atom(atom) -> Atom.to_string atom
+        string -> string
+      end
+      # page_name = String.to_atom(page_name)
+
+      plugs = case Module.get_attribute(__MODULE__, :controller_plugs) do
+        nil -> []
+        list -> Enum.reverse list
+      end
+
+      # defstruct controller: Module.concat(Application.get_env(:ex_admin, :project), AdminController),
+      #           controller_methods: controller_methods,
+      #           type: :page,
+      #           resource_model: resource_model,
+      #           title_actions: &ExAdmin.default_page_title_actions/2,
+      #           controller_route: (page_name |> Inflex.parameterize("_")),
+      #           menu: menu_opts, 
+      #           plugs: plugs
 
       defstruct controller: Module.concat(Application.get_env(:ex_admin, :project), AdminController),
-                controller_methods: controller_methods,
+                controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
                 type: :page,
-                resource_model: resource_model,
+                page_name: page_name,
                 title_actions: &ExAdmin.default_page_title_actions/2,
                 controller_route: (page_name |> Inflex.parameterize("_")),
-                menu: menu_opts
+                menu: menu_opts, 
+
+                member_actions: Module.get_attribute(__MODULE__, :member_actions),
+                collection_actions: Module.get_attribute(__MODULE__, :collection_actions),
+                controller_filters: Module.get_attribute(__MODULE__, :controller_filters), 
+                index_filters: [false],
+                # selectable_column: Module.get_attribute(__MODULE__, :selectable_column), 
+                batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
+                plugs: plugs 
+
+      def run_query(repo, action, id \\ nil) do
+        %__MODULE__{}
+        |> Map.get(:resource_model)
+        |> ExAdmin.Query.run_query(repo, action, id, @query)
+      end
+
+      def plugs(), do: @controller_plugs
+
+      def page_view(conn) do
+        markup do
+          h2 "Default Dashboard"
+        end
+      end
 
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
     end
