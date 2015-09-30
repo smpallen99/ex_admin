@@ -21,7 +21,7 @@ defmodule ExAdmin.Helpers do
 
   def build_link(nil, _, _, _, _), do: ""
   def build_link("", _, _, _, _), do: ""
-  def build_link(contents, conn, %{link: false}, _resource, _field_name), do: contents
+  def build_link(contents, _conn, %{link: false}, _resource, _field_name), do: contents
   def build_link(contents, conn, _, resource, field_name) do
     case Map.get(resource, field_name) do
       nil -> contents
@@ -51,7 +51,7 @@ defmodule ExAdmin.Helpers do
   def build_link_for(nil, _, _, _, _), do: ""
   def build_link_for(contents, _, %{link: false}, _, _), do: contents
   def build_link_for(contents, conn, _, resource, field_name) do
-    id  = resource.id
+    # id  = resource.id
     case Map.get resource, field_name do
       nil -> contents
       res when is_map(res) -> 

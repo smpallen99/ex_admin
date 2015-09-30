@@ -25,6 +25,36 @@ defmodule ExAdmin.Show do
     end
   end
 
+  def default_show_view(conn, resource) do
+    markup do
+      default_attributes_table conn, resource
+    end
+  end
+
+  def default_attributes_table(conn, resource) do
+    [_, res | _] = conn.path_info 
+    case ExAdmin.get_registered_by_controller_route(res) do
+      nil -> 
+        throw :invalid_route
+      %{__struct__: _} = defn -> 
+        columns = defn.resource_model.__schema__(:fields)
+        |> Enum.filter(&(not &1 in [:id, :inserted_at, :updated_at]))
+        |> Enum.map(&({translate_field(&1), %{}}))
+        |> Enum.filter(&(not is_nil(&1)))
+        ExAdmin.Table.attributes_table conn, resource, %{rows: columns}
+    end
+  end
+
+  defp translate_field(field) do
+    case Regex.scan ~r/(.+)_id$/, Atom.to_string(field) do
+      [[_, assoc]] -> String.to_atom(assoc)
+      _ -> field
+    end
+  end
+
+  # defmacro attributes_table(do: block) do
+  #   attributes_table nil, block
+  # end
   defmacro attributes_table(name \\ nil, do: block) do
     quote location: :keep do
       var!(rows, ExAdmin.Show) = []
@@ -37,9 +67,15 @@ defmodule ExAdmin.Show do
         name -> 
           %{name: name, rows: rows}
       end
-
       ExAdmin.Table.attributes_table var!(conn), var!(resource), schema
     end 
+  end
+
+  # defmacro attributes_table(name \\ nil) do
+  defmacro attributes_table do
+    quote location: :keep do
+      ExAdmin.Show.default_attributes_table(var!(conn), var!(resource))
+    end
   end
 
   defmacro panel(name \\ "", do: block) do

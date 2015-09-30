@@ -28,6 +28,8 @@ defmodule ExAdmin.Index do
         var!(selectable_column, ExAdmin.Index) = nil
         unquote(contents)
         columns = var!(columns, ExAdmin.Show) |> Enum.reverse
+        # columns |> Enum.each(&(Logger.warn "------ column: #{inspect &1}"))
+        
         selectable = case var!(selectable_column, ExAdmin.Index) do
           nil -> false
           other -> other

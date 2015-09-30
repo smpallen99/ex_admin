@@ -2,13 +2,12 @@ defmodule ExAdmin.Form.Fields do
   require Logger
   import ExAdmin.Utils
   import ExAdmin.Helpers
-  import ExAdmin.DslUtils
   import Xain, except: [input: 1]
 
   def ext_name(model_name, field_name), do: "#{model_name}_#{field_name}"
 
-  def input_collection(resource, collection, model_name, field_name, id, nested_name, item, params) do
-    ext_name = ext_name model_name, field_name
+  def input_collection(resource, collection, model_name, field_name, _id, _nested_name, item, params) do
+    # ext_name = ext_name model_name, field_name
     _input_collection(resource, collection, model_name, field_name, item, 
         resource.__struct__.__schema__(:association, field_name), params)
   end
@@ -33,9 +32,9 @@ defmodule ExAdmin.Form.Fields do
     end
   end
   defp _input_collection(resource, collection, model_name, field_name, 
-      %{opts: %{as: :check_boxes}} = item, %{cardinality: :many, through: [join_name | _]} = assoc, params) do
-    assoc_key = resource.__struct__.__schema__(:association, join_name).assoc_key
-    ext_name = ext_name model_name, field_name
+      %{opts: %{as: :check_boxes}}, %{cardinality: :many, through: [join_name | _]} = assoc, params) do
+    # assoc_key = resource.__struct__.__schema__(:association, join_name).assoc_key
+    # ext_name = ext_name model_name, field_name
     name_ids = "#{Atom.to_string(field_name) |> Inflex.singularize}_ids"
     name = "#{model_name}[#{name_ids}][]"
     id_base = "#{model_name}_#{name_ids}_"
@@ -68,7 +67,7 @@ defmodule ExAdmin.Form.Fields do
       end
     end
   end
-  defp _input_collection(resource, collection, model_name, field_name, item, assoc, _params) do
+  defp _input_collection(_resource, _collection, _model_name, field_name, item, assoc, _params) do
     Logger.error "_input_collection: unknown type for field_name: #{inspect field_name}, item[:opts]: #{inspect item[:opts]}, assoc: #{inspect assoc}"
   end
 

@@ -22,7 +22,7 @@ defmodule ExAdmin.AdminController do
         |> struct(path_info: conn.path_info ++ [resource])
         |> struct(params: Map.put(conn.params, "resource", resource)) 
         |> handle_action(action, Map.put(params, :resource, resource), resource)
-      other -> 
+      _other -> 
         throw :invalid_route
     end
   end
@@ -65,8 +65,8 @@ defmodule ExAdmin.AdminController do
     end
   end
 
-  defp handle_plugs(conn, :nested, defn, params), do: conn
-  defp handle_plugs(conn, action, defn, params) do
+  defp handle_plugs(conn, :nested, _defn, _params), do: conn
+  defp handle_plugs(conn, _action, defn, _params) do
     case Application.get_env(:ex_admin, :plug, []) do
       list when is_list(list) -> list
       item -> [{item, []}]
@@ -86,6 +86,7 @@ defmodule ExAdmin.AdminController do
 
   defp set_layout(conn, _) do
     put_layout(conn, "admin.html")
+    # put_layout(conn, {ExAdmin.LayoutView, "admin.html"})
   end
 
   def index(conn, params) do
@@ -111,8 +112,9 @@ defmodule ExAdmin.AdminController do
           ExAdmin.Index.default_index_view conn, page
         end
     end
-    render conn, "admin.html", html: contents, defn: defn, resource: nil,
-      filters: (if false in defn.index_filters, do: false, else: defn.index_filters)
+    conn
+    |> render("admin.html", html: contents, defn: defn, resource: nil,
+      filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end
 
   def show(conn, params) do
@@ -135,8 +137,11 @@ defmodule ExAdmin.AdminController do
           model.run_query(repo, :show, params[:id])
         end
 
-        contents = apply(model, :show_view, [conn, resource])
-        contents
+        if function_exported? model, :show_view, 2 do
+          apply(model, :show_view, [conn, resource])
+        else
+          ExAdmin.Show.default_show_view conn, resource
+        end
     end
     render conn, "admin.html", html: contents, resource: resource, filters: nil
   end

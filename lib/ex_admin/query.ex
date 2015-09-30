@@ -4,7 +4,6 @@ defmodule ExAdmin.Query do
   alias ExAdmin.Helpers
   
   def run_query(resource_model, repo, action, id, query_opts) do
-    Logger.warn "run_query: resource_model: #{inspect resource_model}, action: #{action}, id: #{inspect id}, query_opts: #{inspect query_opts}"
     resource_model
     |> build_query(query_opts, action, id)
     |> paginate(repo, action, id)
@@ -118,11 +117,11 @@ defmodule ExAdmin.Query do
     end
   end
 
-  defp get_association(model, field) do
-    field = String.to_atom(field)
-    [assoc, _] = model.__schema__(:association, field) |> Map.get(:through)
-    model.__schema__(:association, assoc)
-  end
+  # defp get_association(model, field) do
+  #   field = String.to_atom(field)
+  #   [assoc, _] = model.__schema__(:association, field) |> Map.get(:through)
+  #   model.__schema__(:association, assoc)
+  # end
 
   defp build_preloads(query, opts, action, _id) do
     preloads = case {query.preloads, get_from(opts, action, :preload)} do

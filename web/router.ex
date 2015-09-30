@@ -49,8 +49,15 @@ defmodule ExAdmin.Router do
   defmacro admin_routes(name \\ :admin) do
     quote do
       prefix = unquote(name)
+      pipeline :admin do
+        plug :accepts, ["html"]
+        plug :fetch_session
+        plug :fetch_flash
+        # plug :protect_from_forgery
+        plug :put_secure_browser_headers
+      end
       scope "/", ExAdmin do
-        pipe_through :browser
+        pipe_through :admin
         
         #pipe_through :admin
         # get "/:resource/", AdminController, :index

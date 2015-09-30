@@ -32,6 +32,9 @@ defmodule ExAdmin.Register do
       Module.register_attribute(__MODULE__, :form_items, accumulate: true, persist: true)
       module = unquote(mod) 
       Module.put_attribute(__MODULE__, :module, module)
+      Module.put_attribute(__MODULE__, :query, nil)
+      Module.put_attribute(__MODULE__, :selectable_column, nil)
+      Module.put_attribute(__MODULE__, :controller_plugs, nil)
 
       alias unquote(mod)
       #import ExAuth
@@ -43,7 +46,17 @@ defmodule ExAdmin.Register do
       
       unquote(block)
 
-      query_opts = Module.get_attribute(__MODULE__, :query)
+      query_opts = case Module.get_attribute(__MODULE__, :query) do
+        nil -> 
+          list = module.__schema__(:associations)
+          |> Enum.map(&(ExAdmin.Register.build_query_association module, &1))
+          |> Enum.filter(&(not is_nil(&1)))
+          query = %{all: [preload: list]}
+          Module.put_attribute __MODULE__, :query, query
+          query
+        other -> other
+      end
+
       controller = case Module.get_attribute(__MODULE__, :controller) do
         nil -> 
           controller_mod = String.to_atom("#{module}Controller")
@@ -80,7 +93,6 @@ defmodule ExAdmin.Register do
         nil -> []
         list -> Enum.reverse list
       end
-
 
       defstruct controller: @controller, 
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
@@ -313,6 +325,24 @@ defmodule ExAdmin.Register do
   defmacro batch_actions(false) do
     quote do
       Module.put_attribute __MODULE__, :batch_actions, false
+    end
+  end
+  
+  def build_query_association(module, field) do
+    case module.__schema__(:association, field) do
+      %Ecto.Association.BelongsTo{cardinality: :one} -> field
+      %Ecto.Association.Has{cardinality: :many} -> 
+        check_preload field, :preload_many
+      other -> 
+        nil
+    end
+  end
+  
+  defp check_preload(field, key) do
+    if Application.get_env :ex_admin, key, true do
+      field
+    else
+      nil
     end
   end
 

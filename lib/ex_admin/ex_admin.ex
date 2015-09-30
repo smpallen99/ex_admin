@@ -82,8 +82,6 @@ defmodule ExAdmin do
 
   def get_title_actions(%Plug.Conn{private: _private, path_info: path_info} = conn) do
     defn = get_registered_by_controller_route(path_info)
-    Logger.warn "path_info: #{inspect path_info}"
-    Logger.warn "defn: #{inspect defn}"
     fun = defn |> Map.get(:title_actions)
     fun.(conn, defn)
   end

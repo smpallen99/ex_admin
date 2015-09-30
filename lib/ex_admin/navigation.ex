@@ -25,7 +25,7 @@ defmodule ExAdmin.Navigation do
       end
     end
   end
-  def nav_link(conn, %{controller: controller, type: :page, page_name: page_name} = registered) do
+  def nav_link(conn, %{controller: controller, type: :page, page_name: _page_name} = registered) do
     controller_name = controller_name(controller)
     # path = get_route_path(resource_model, :index)
     path = "/admin/dashboard"

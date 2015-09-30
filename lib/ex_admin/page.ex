@@ -1,7 +1,5 @@
 defmodule ExAdmin.Page do
-  import ExAdmin.Utils
   import ExAdmin.DslUtils
-  import ExAdmin.Helpers
   import Kernel, except: [div: 2, to_string: 1]
   use Xain
 

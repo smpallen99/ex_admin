@@ -8,7 +8,6 @@ defmodule ExAdmin.Filter do
   @integer_options [eq: "Equal To", gt: "Greater Than", lt: "Less Than" ]
 
   def filter_view(conn, _filters, defn) do
-    Logger.warn "conn: #{inspect conn.params}"
     q = conn.params["q"]
     markup do 
       div "#filters_sidebar_sectionl.sidebar_section.panel" do

@@ -36,6 +36,17 @@ defmodule ExAdmin.Web do
 
   def view do
     quote do
+      require Logger
+
+
+      # file_path = __ENV__.file
+      # |> Path.dirname
+      # |> String.split("/views")
+      # |> hd
+      # |> Path.join("templates")
+      # Logger.warn "view file_path: #{file_path}"
+
+      #use Phoenix.View, root: file_path
       use Phoenix.View, root: "web/templates"
 
       # Import convenience functions from controllers
