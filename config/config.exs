@@ -8,6 +8,11 @@ use Mix.Config
 # if you want to provide default values for your application for third-
 # party users, it should be done in your mix.exs file.
 config :ex_admin, route_prefix: "admin"
+
+config :phoenix, :template_engines,
+          haml: PhoenixHaml.Engine,
+          eex: Phoenix.Template.EExEngine
+
 # Sample configuration:
 #
 #     config :logger, :console,

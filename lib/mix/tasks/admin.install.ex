@@ -2,18 +2,29 @@ defmodule Mix.Tasks.Admin.Install do
   @moduledoc """
   Install ExAdmin
 
-  Installs the files required to use ExAdmin.
+  Installs the files required to use ExAdmin, including:
 
+    * copying css and image files
+    * adding configuration to config/config.exs
+    * adding a default dashboard
+    * displaying instructions to add the admin routes
+
+  The --renderer renderer option can be used to add a renderer
+  to the config file. For example
+
+      mix admin.install --renderer swift
+
+  Installs ExAdmin and sets the swift renderer for text-to-speech
   """
 
-  @shortdoc "Install ExAdmin"
+  # @shortdoc "Install ExAdmin"
 
   use Mix.Task
   import Mix.ExAdmin.Utils
 
   defmodule Config do
     defstruct route: true, assets: true, dashboard: true, 
-      package_path: nil
+      package_path: nil, config: true, renderer: false
   end
 
   def run(args) do
@@ -28,6 +39,7 @@ defmodule Mix.Tasks.Admin.Install do
   def do_install(config) do
     config
     |> do_assets
+    |> do_config
     |> do_dashboard
     |> do_route
   end
@@ -58,6 +70,63 @@ defmodule Mix.Tasks.Admin.Install do
     config
   end
   def do_route(config) do
+    config
+  end
+
+  def do_config(%Config{config: true} = config) do
+    status_msg("updating", "config/config.exs")
+    dest_path = Path.join [File.cwd! | ~w(config)]
+    dest_file_path = Path.join dest_path, "config.exs"
+    source = File.read!(dest_file_path)
+    append = ""
+    |> config_template_engines(config, source)
+    |> config_xain(config, source)
+    |> config_renderer(config, source)
+    |> config_write(config, dest_file_path, source)
+  end
+  def do_config(config) do
+    config
+  end
+
+  defp config_renderer(append, %{renderer: false} = config, source) do
+    append
+  end
+  defp config_renderer(append, config, source) do
+    unless String.contains? source, ":speak_ex, :renderer" do
+      append <> """
+      config :speak_ex, :renderer, :#{config.renderer}
+      """
+    else
+      append
+    end
+  end
+  defp config_template_engines(append, _config, source) do
+    unless String.contains? source, "haml: PhoenixHaml.Engine" do
+      append <> """
+      config :phoenix, :template_engines,
+          haml: PhoenixHaml.Engine,
+          eex: Phoenix.Template.EExEngine
+
+      """
+    else
+      append
+    end
+  end
+  defp config_xain(append, _config, source) do
+    unless String.contains? source, ":xain, :quote" do
+      append <> """
+      config :xain, :quote, "'"
+      config :xain, :after_callback, &Phoenix.HTML.raw/1
+
+      """
+    else
+      append
+    end
+  end
+
+  defp config_write("", config, _dest_file_path, _source), do: config
+  defp config_write(append, config, dest_file_path, source) do
+    File.write! dest_file_path, source <> "\n" <> append 
     config
   end
 
@@ -95,8 +164,20 @@ defmodule Mix.Tasks.Admin.Install do
     base_path
   end
 
-  defp parse_args(_args) do
-    %Config{package_path: get_package_path}
+  defp parse_args(args) do
+    {opts, values, _} = OptionParser.parse args
+    Enum.reduce opts, %Config{package_path: get_package_path}, fn(item, config) -> 
+      case item do
+        {key, value} -> 
+          if key in Map.keys(config) do
+            struct(config, [{key, value}])
+          else
+            IO.puts "incorrect option: #{key}"
+            config
+          end
+        _ -> config
+      end
+    end
   end
 
 

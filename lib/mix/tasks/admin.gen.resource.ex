@@ -5,6 +5,10 @@ defmodule Mix.Tasks.Admin.Gen.Resource do
   Creates a resource file used to define the administration pages 
   for the auto administration feature
 
+      mix admin.gen.resource Survey
+
+  Creates a web/admin/survey.ex file.
+
   """
 
   @shortdoc "Generate a Resource file"
