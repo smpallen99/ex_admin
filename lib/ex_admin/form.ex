@@ -21,6 +21,43 @@ defmodule ExAdmin.Form do
   ################
   # DSL Macros
 
+  def default_form_view(conn, resource, params) do
+    [_, res | _] = conn.path_info 
+    case ExAdmin.get_registered_by_controller_route(res) do
+      nil -> 
+        throw :invalid_route
+      %{__struct__: _} = defn -> 
+        columns = defn.resource_model.__schema__(:fields)
+        |> Enum.filter(&(not &1 in [:id, :inserted_at, :updated_at]))
+        |> Enum.map(&(build_item resource, &1))
+        |> Enum.filter(&(not is_nil(&1)))
+        items = [%{type: :inputs, name: "", inputs: columns, opts: []}]
+        ExAdmin.Form.build_form(conn, resource, items, params, false)
+    end
+  end
+
+  defp build_item(resource, name) do
+    case translate_field name do 
+      field when field == name -> 
+        %{type: :input, resource: resource, name: name, opts: %{}}
+      field -> 
+        case resource.__struct__.__schema__(:association, field) do
+          %Ecto.Association.BelongsTo{cardinality: :one, queryable: assoc} -> 
+            collection = Application.get_env(:ex_admin, :repo).all assoc
+            %{type: :input, resource: resource, name: field, opts: %{collection: collection}}
+          _ -> 
+            nil
+        end
+    end
+  end
+
+  defp translate_field(field) do
+    case Regex.scan ~r/(.+)_id$/, Atom.to_string(field) do
+      [[_, assoc]] -> String.to_atom(assoc)
+      _ -> field
+    end
+  end
+
   defmacro form(resource, [do: block]) do
     contents = quote do
       unquote(block)
@@ -35,11 +72,6 @@ defmodule ExAdmin.Form do
         unquote(contents)
         items = var!(input_blocks, ExAdmin.Form) |> Enum.reverse
         script_block = var!(script_block, ExAdmin.Form)
-        # IO.puts "----------------------------"
-        # Enum.each items, fn(i) -> 
-        #   IO.puts "----> form_view item: #{inspect i}"
-        # end
-        # IO.puts "----------------------------"
         ExAdmin.Form.build_form(var!(conn), var!(resource), items, var!(params), script_block)
       end
 
@@ -59,19 +91,16 @@ defmodule ExAdmin.Form do
         ext_name = ext_name model_name, field_name
         if is_function(block[:opts][:collection]) do
           resources = block[:opts][:collection].(conn, resource)
-          #Logger.warn "ajax_view: ******* resources: #{inspect Enum.map(resources, &({&1.id, Map.get(&1, :name)}))}"
         end
         view = markup do
           ExAdmin.Form.Fields.input_collection(resource, resources, model_name, field_name, params[:id1], params[:nested2], block, conn.params)
         end
-        # Logger.warn "view: #{inspect view}"
 
         ~s/$('##{ext_name}-update').html("#{escape_javascript(view)}");/
       end
     end
   end
 
-  #defmacro inputs(name \\ quote(do: ""), opts \\ quote(do: []))
   defmacro inputs(opts) do
     quote(do: inputs("", unquote(opts)))
   end
@@ -163,11 +192,17 @@ defmodule ExAdmin.Form do
   # Functions
 
   def build_form(conn, resource, items, params, script_block) do
+
+    # items 
+    # |> hd
+    # |> Map.get(:inputs)
+    # |> Enum.each(&(Logger.warn "==> build_form: item: #{inspect &1}"))
+    
     mode = if params[:id], do: :edit, else: :new
     markup do
       model_name = model_name resource
       action = get_action(conn, resource, mode)
-      scripts = ""
+      # scripts = ""
       Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "formtastic #{model_name}", 
           id: "new_#{model_name}", method: :post, novalidate: :novalidate  do
 
@@ -204,7 +239,7 @@ defmodule ExAdmin.Form do
     });
     """
   end
-  defp build_script(other), do: ""
+  defp build_script(_other), do: ""
 
   defp get_action(conn, resource, mode) do
     case mode do 
@@ -244,10 +279,8 @@ defmodule ExAdmin.Form do
   defp check_display(opts) do
     if Map.get(opts, :display, true), do: [], else: @hidden_style
   end
-  defp check_params(display_style, resource, params, model_name, field_name, ajax) do
-    field_name_str = Atom.to_string(field_name)
-    Logger.warn "check_params: params: #{inspect params[model_name]}" 
-    Logger.warn "check_params params_name: #{inspect params_name(resource, field_name, params)}"
+  defp check_params(display_style, resource, params, model_name, field_name, _ajax) do
+    # field_name_str = Atom.to_string(field_name)
     cond do
       params["id"] -> []
       params[model_name][params_name(resource, field_name, params)] -> []
@@ -255,30 +288,25 @@ defmodule ExAdmin.Form do
     end
   end
 
-  defp params_name(resource, field_name, params) do
-    Logger.warn "params_name: field_name: #{inspect field_name}, params: #{inspect params}"
+  defp params_name(resource, field_name, _params) do
     case resource.__struct__.__schema__(:association, field_name) do
       %{cardinality: :one, owner_key: owner_key} -> 
-        Logger.warn "1. owner_key: #{inspect owner_key}"
         Atom.to_string(owner_key)
       %{cardinality: :many, owner_key: owner_key, through: [_, name]} -> 
-        Logger.warn "2. owner_key: #{inspect owner_key}, name: #{inspect name}"
-        res = Atom.to_string(name) <> "_" <> Inflex.pluralize(Atom.to_string(owner_key))
+        Atom.to_string(name) <> "_" <> Inflex.pluralize(Atom.to_string(owner_key))
       _ -> 
-        Logger.warn "3. field_name: #{inspect field_name}"
         Atom.to_string(field_name)
     end
   end
 
   def wrap_item(resource, field_name, model_name, label, error, opts, params, contents) do
-    # Logger.warn "wrap item field_name: #{inspect field_name}, model_name: #{inspect model_name}, label: #{inspect label}"
     as = Map.get opts, :as 
     ajax = Map.get opts, :ajax
     ext_name = ext_name(model_name, field_name)
-    # display_style = if Map.get(opts, :display, true), do: [], else: @hidden_style
+    
     display_style = check_display(opts)
     |> check_params(resource, params, model_name, field_name, ajax)
-    #IEx.pry
+   
     {label, hidden}  = case label do 
       {:hidden, l} -> {l, @hidden_style}
       l when l in [:none, false] ->  {"", @hidden_style}
@@ -340,9 +368,8 @@ defmodule ExAdmin.Form do
   end
 
 
-  def build_item(conn, %{type: :script, contents: contents}, _resource, _model_name, _errors) do
+  def build_item(_conn, %{type: :script, contents: contents}, _resource, _model_name, _errors) do
     script type: "javascript" do 
-      #text "\n  //<![CDATA[\n" <> contents <> "\n  //]]>\n"
       text "\n" <> contents <> "\n"
     end
   end
@@ -352,16 +379,12 @@ defmodule ExAdmin.Form do
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
-    Logger.warn "build_item: model_name: #{inspect model_name}, field_name: #{inspect field_name}" #, item: #{inspect item}"
-    Logger.warn "build_item: field: #{inspect Map.get(resource, field_name)}"
-    Logger.warn "build_item: params: #{inspect conn.params}"
     errors = get_errors(errors, field_name)
     label = Map.get item[:opts], :label, field_name
     onchange = Map.get item[:opts], :change
-    ajax = Map.get item[:opts], :ajax
-    # Logger.warn "collection: #{inspect collection}"
+    # ajax = Map.get item[:opts], :ajax
+
     binary_tuple = binary_tuple?(collection)
-    # Logger.warn "build_item :input name: #{inspect field_name}, collection: ajax: #{ajax}, binary_tuple: #{binary_tuple} ..."
 
     id = wrap_item(resource, field_name, model_name, label, errors, item[:opts], conn.params, fn(ext_name) -> 
       item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
@@ -399,7 +422,6 @@ defmodule ExAdmin.Form do
                    "console.log('show #{control_id}');\n" <>
                    "$.get('/admin/#{resource_name}/#{target}/'+$(this).val()+'/#{nested}/?field_name=#{update}#{param_str}&format=js');\n"
 
-          Logger.warn "update script: #{script}"
           {:change, %{id: id <> "_id", script: script}}
         end
       _ -> nil
@@ -415,17 +437,17 @@ defmodule ExAdmin.Form do
     end
   end
 
-  def build_item(conn, %{type: :content, content: content}, _resource, _model_name, _errors) when is_binary(content) do
+  def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors) when is_binary(content) do
     text content
   end
-  def build_item(conn, %{type: :content, content: content}, _resource, _model_name, _errors) do
-    # {:safe, content} = content
+  def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors) do
     text elem(content, 1)
   end
 
   def build_item(conn, %{type: :input, resource: resource, name: field_name, opts: opts}, 
        _resource, model_name, errors) do
     errors = get_errors(errors, field_name)
+    # Logger.warn "--> build_item: field_name: #{inspect field_name}, opts: #{inspect opts}"
     label = get_label(field_name, opts)
     wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, fn(ext_name) -> 
       Map.put_new(opts, :type, :text)

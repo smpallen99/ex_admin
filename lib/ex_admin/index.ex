@@ -32,6 +32,7 @@ defmodule ExAdmin.Index do
           nil -> false
           other -> other
         end
+
         markup do
           ExAdmin.Index.render_index_table(var!(conn), page, columns, %{selectable_column: selectable})
         end
@@ -46,11 +47,35 @@ defmodule ExAdmin.Index do
     end
   end
 
+  def default_index_view(conn, page) do
+    [_, resource] = conn.path_info 
+
+    case ExAdmin.get_registered_by_controller_route(resource) do
+      nil -> 
+        throw :invalid_route
+      %{__struct__: _} = defn -> 
+        columns = defn.resource_model.__schema__(:fields)
+        |> Enum.filter(&(not &1 in [:id, :inserted_at, :updated_at]))
+        |> Enum.map(&({translate_field(&1), %{}}))
+        
+        markup do
+          ExAdmin.Index.render_index_table(var!(conn), page, columns, 
+            %{selectable_column: true})
+        end
+    end
+  end
+
+  defp translate_field(field) do
+    case Regex.scan ~r/(.+)_id$/, Atom.to_string(field) do
+      [[_, assoc]] -> String.to_atom(assoc)
+      _ -> field
+    end
+  end
+
   defp get_resource_fields([]), do: []
   defp get_resource_fields([resource | _]), do: resource.__struct__.__schema__(:fields)
 
   def render_index_table(conn, page, columns, %{selectable_column: selectable}) do
-    IO.puts "render_table page: #{inspect Map.put(page, :entries, [])}"
     href = get_route_path(conn, :index) <> "?order="
     resources = page.entries
     fields = get_resource_fields resources
@@ -149,37 +174,6 @@ defmodule ExAdmin.Index do
     Inflex.parameterize(string, seperator)
   end
 
-  # def build_table_head(conn, _resources, columns) do
-  #   path_prefix = get_route_path(conn, :index) <> "?order="
-
-  #   Logger.error "columns: #{inspect columns}"
-
-
-  #   thead do
-  #     tr do
-  #       th(".selectable") do
-  #         div(".resource_selection_toggle_cell") do
-  #           input("#collection_selection_toggle_all.toggle_all", type: "checkbox", name: "collection_selection_toggle_all")
-  #         end
-  #       end
-  #       for {field_name, opts} <- columns do 
-  #         build_th field_name, path_prefix, "desc"
-  #       end
-  #       #th "Actions"
-  #     end
-  #   end
-  # end
-
-  # def build_th(field_name, path_prefix, sort) when is_binary(field_name) do
-  #   th(class: to_class(field_name)) do
-  #     text field_name
-  #   end
-  # end
-  # def build_th(field_name, path_prefix, sort) when is_atom(field_name) do
-  #   th(".sortable.#{field_name}") do
-  #     a("#{humanize field_name}", href: path_prefix <> Atom.to_string(field_name) <> "_#{sort}")
-  #   end
-  # end
 
   def build_table_body(_conn, [], _columns, _opts) do
     tbody

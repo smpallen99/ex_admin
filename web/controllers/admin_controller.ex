@@ -18,20 +18,15 @@ defmodule ExAdmin.AdminController do
     |> hd
     |> case do
       {_, %{controller_route: resource}} -> 
-        Logger.warn "1. #{resource}"
-        Logger.warn "path_info: #{inspect conn.path_info}"
         conn
         |> struct(path_info: conn.path_info ++ [resource])
         |> struct(params: Map.put(conn.params, "resource", resource)) 
         |> handle_action(action, Map.put(params, :resource, resource), resource)
       other -> 
-        Logger.warn "2. #{inspect other}"
         throw :invalid_route
     end
   end
   defp handle_action(conn, action, params, resource) do
-    Logger.warn "3. #{inspect resource}"
-    Logger.warn "4. path_info: #{inspect conn.path_info}"
     case get_registered_by_controller_route(resource) do
       nil -> 
         throw :invalid_route
@@ -99,9 +94,8 @@ defmodule ExAdmin.AdminController do
       nil -> 
         throw :invalid_route
       %{type: :page} = defn -> 
-        model = defn.__struct__ 
-        Logger.warn "model: ..... #{inspect model}"
-        apply(model, :page_view, [conn])
+        defn.__struct__ 
+        |> apply(:page_view, [conn])
       defn -> 
         model = defn.__struct__ 
 
@@ -111,7 +105,11 @@ defmodule ExAdmin.AdminController do
           page -> 
             page
         end
-        apply(model, :index_view, [conn, page])
+        if function_exported? model, :index_view, 2 do
+          apply(model, :index_view, [conn, page])
+        else
+          ExAdmin.Index.default_index_view conn, page
+        end
     end
     render conn, "admin.html", html: contents, defn: defn, resource: nil,
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters)
@@ -150,8 +148,11 @@ defmodule ExAdmin.AdminController do
       defn -> 
         model = defn.__struct__ 
         resource = model.run_query(repo, :edit, params[:id])
-        contents = apply(model, :form_view, [conn, resource, params])
-        contents
+        if function_exported? model, :form_view, 3 do
+          apply(model, :form_view, [conn, resource, params])
+        else
+          ExAdmin.Form.default_form_view conn, resource, params
+        end
     end
     render conn, "admin.html", html: contents, resource: resource, filters: nil
   end
@@ -163,8 +164,11 @@ defmodule ExAdmin.AdminController do
       defn -> 
         model = defn.__struct__ 
         resource = model.__struct__.resource_model.__struct__
-        contents = apply(model, :form_view, [conn, resource, params])
-        contents
+        if function_exported? model, :form_view, 3 do
+          apply(model, :form_view, [conn, resource, params])
+        else
+          ExAdmin.Form.default_form_view conn, resource, params
+        end
     end
     render conn, "admin.html", html: contents, resource: resource, filters: nil
   end
@@ -281,7 +285,6 @@ defmodule ExAdmin.AdminController do
       defn -> 
         model = defn.__struct__ 
 
-        #resource_name = AuthEx.Utils.resource_name conn, model: defn.resource_model
         items = apply(model, :get_blocks, [conn, defn.resource_model.__struct__, params])
         block = deep_find(items, String.to_atom(params[:field_name]))
         
@@ -290,7 +293,6 @@ defmodule ExAdmin.AdminController do
         contents = apply(model, :ajax_view, [conn, params, resources, block])
         contents
     end
-    #Logger.warn "contents: #{inspect contents}"
     send_resp(conn, conn.status || 200, "text/javascript", contents)
   end
 
