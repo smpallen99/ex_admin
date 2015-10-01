@@ -3,7 +3,7 @@ defmodule ExAdmin.Mixfile do
 
   def project do
     [app: :ex_admin,
-     version: "0.0.1",
+     version: "0.3.0",
      elixir: "~> 1.0",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix] ++ Mix.compilers,
@@ -12,9 +12,6 @@ defmodule ExAdmin.Mixfile do
      deps: deps]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type `mix help compile.app` for more information
   def application do
     [applications: [:logger]]
   end
@@ -22,15 +19,6 @@ defmodule ExAdmin.Mixfile do
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
   defp elixirc_paths(_),     do: ["lib", "web"]
   
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type `mix help deps` for more examples and options
   defp deps do
     [
       {:phoenix, "~> 1.0.2"},
@@ -44,8 +32,6 @@ defmodule ExAdmin.Mixfile do
       {:factory_girl_elixir, "~> 0.1.1"},
       {:pavlov, "~> 0.1.2", only: :test},
       {:inflex, github: "smpallen99/inflex"},
-      #{:inflex, "~> 1.0"},
-      #{:sass_elixir, "~> 0.0.1"}, 
       {:ex_form, github: "smpallen99/ex_form"},
       {:xain, github: "smpallen99/xain", override: true},
       {:scrivener, "~> 0.10.0"}, 
