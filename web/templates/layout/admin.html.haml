@@ -7,7 +7,7 @@
     %meta{name: "description" content: ""}
     %meta{name: "author" content: ""}
 
-    %title UCx License
+    %title= site_title
     %link{href: "/css/active_admin.css.css" media="screen" rel="stylesheet" type="text/css"}
     //%script{src: "/js/active_admin/application.js.js", type: "text/javascript"}
     //%script{src: "/js/active_admin/base.js.js", type: "text/javascript"}
@@ -20,7 +20,7 @@
     %body{class: "index admin_#{resource_label} active_admin logged_in admin_namespace"}
       #wrapper
         .header#header
-          %h1{class: "site_title", id: "site_title"} UCx License
+          %h1{class: "site_title", id: "site_title"}= site_title
           = ExAdmin.Navigation.nav_view(@conn)
           - if ExAdmin.Utils.use_authentication and is_function(:current_user, 1) do
             %p.header-item#utility_nav

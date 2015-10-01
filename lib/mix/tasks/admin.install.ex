@@ -8,13 +8,6 @@ defmodule Mix.Tasks.Admin.Install do
     * adding configuration to config/config.exs
     * adding a default dashboard
     * displaying instructions to add the admin routes
-
-  The --renderer renderer option can be used to add a renderer
-  to the config file. For example
-
-      mix admin.install --renderer swift
-
-  Installs ExAdmin and sets the swift renderer for text-to-speech
   """
 
   # @shortdoc "Install ExAdmin"
@@ -24,7 +17,7 @@ defmodule Mix.Tasks.Admin.Install do
 
   defmodule Config do
     defstruct route: true, assets: true, dashboard: true, 
-      package_path: nil, config: true, renderer: false
+      package_path: nil, config: true
   end
 
   def run(args) do
@@ -81,25 +74,12 @@ defmodule Mix.Tasks.Admin.Install do
     append = ""
     |> config_template_engines(config, source)
     |> config_xain(config, source)
-    |> config_renderer(config, source)
     |> config_write(config, dest_file_path, source)
   end
   def do_config(config) do
     config
   end
 
-  defp config_renderer(append, %{renderer: false} = config, source) do
-    append
-  end
-  defp config_renderer(append, config, source) do
-    unless String.contains? source, ":speak_ex, :renderer" do
-      append <> """
-      config :speak_ex, :renderer, :#{config.renderer}
-      """
-    else
-      append
-    end
-  end
   defp config_template_engines(append, _config, source) do
     unless String.contains? source, "haml: PhoenixHaml.Engine" do
       append <> """

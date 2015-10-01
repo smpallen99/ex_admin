@@ -171,14 +171,15 @@ defmodule ExAdmin.Register do
   end
 
   defmacro register_page(name, [do: block]) do
-    quote do
+    quote location: :keep do
       use ExAdmin.Page
 
       Module.register_attribute __MODULE__, :query, accumulate: false, persist: true
       Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true 
       Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true 
       Module.register_attribute __MODULE__, :selectable_column, accumulate: false, persist: true
-      Module.register_attribute(__MODULE__, :form_items, accumulate: true, persist: true)
+      Module.register_attribute __MODULE__, :form_items, accumulate: true, persist: true
+      Module.put_attribute __MODULE__, :controller_plugs, nil 
       page_name = unquote(name)
       unquote(block)
 
@@ -229,11 +230,11 @@ defmodule ExAdmin.Register do
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
                 plugs: plugs 
 
-      def run_query(repo, action, id \\ nil) do
-        %__MODULE__{}
-        |> Map.get(:resource_model)
-        |> ExAdmin.Query.run_query(repo, action, id, @query)
-      end
+      # def run_query(repo, action, id \\ nil) do
+      #   %__MODULE__{}
+      #   |> Map.get(:resource_model)
+      #   |> ExAdmin.Query.run_query(repo, action, id, @query)
+      # end
 
       def plugs(), do: @controller_plugs
 
@@ -333,11 +334,11 @@ defmodule ExAdmin.Register do
       %Ecto.Association.BelongsTo{cardinality: :one} -> field
       %Ecto.Association.Has{cardinality: :many} -> 
         check_preload field, :preload_many
-      other -> 
+      _ -> 
         nil
     end
   end
-  
+
   defp check_preload(field, key) do
     if Application.get_env :ex_admin, key, true do
       field

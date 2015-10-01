@@ -29,7 +29,7 @@ defmodule ExAdmin do
 
   def get_all_registered do 
     for reg <- registered do
-      {model, item} = case get_registered_resource(reg) do
+      case get_registered_resource(reg) do
         %{resource_model: rm} = item -> 
           {rm, item}
         %{type: :page} = item -> 

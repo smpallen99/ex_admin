@@ -32,7 +32,7 @@ defmodule ExAdmin.Form.Fields do
     end
   end
   defp _input_collection(resource, collection, model_name, field_name, 
-      %{opts: %{as: :check_boxes}}, %{cardinality: :many, through: [join_name | _]} = assoc, params) do
+      %{opts: %{as: :check_boxes}}, %{cardinality: :many, through: [_join_name | _]} = assoc, params) do
     # assoc_key = resource.__struct__.__schema__(:association, join_name).assoc_key
     # ext_name = ext_name model_name, field_name
     name_ids = "#{Atom.to_string(field_name) |> Inflex.singularize}_ids"

@@ -32,7 +32,7 @@ defmodule ExAdmin.Table do
   end
 
   def field_header({_, %{label: label}}), do: th(humanize label)
-  def field_header({field_name, opts}), do: field_header(field_name)
+  def field_header({field_name, _opts}), do: field_header(field_name)
   def field_header(field_name), do: th(humanize field_name)
 
   def panel(conn, schema) do
@@ -69,13 +69,13 @@ defmodule ExAdmin.Table do
       end
     end
   end
-  defp do_panel(conn, %{contents: %{contents: content}}) do
+  defp do_panel(_conn, %{contents: %{contents: content}}) do
     require Logger
     div do 
       content |> elem(1) |> Xain.text
     end
   end
-  defp do_panel(conn, schema) do
+  defp do_panel(_conn, _schema) do
     ""
   end
 
@@ -102,9 +102,9 @@ defmodule ExAdmin.Table do
     do: build_th(label, opts, table_opts)
   def build_th({field_name, opts}, table_opts) when is_atom(field_name),  
     do: build_th(Atom.to_string(field_name), opts, table_opts)
-  def build_th({field_name, %{label: label} = opts}, table_opts) when is_binary(label), 
+  def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label), 
     do: build_th(label, opts, table_opts)
-  def build_th({field_name, opts}, table_opts) when is_binary(field_name), 
+  def build_th({field_name, _opts}, _table_opts) when is_binary(field_name), 
     do: th(".#{Inflex.parameterize field_name, "_"} #{field_name}")
   def build_th(field_name, _),
     do: th(".#{field_name} #{humanize field_name}")
