@@ -17,14 +17,14 @@ defmodule ExAdmin.Paginate do
     end
   end
 
-  defp display_pagination(name, record_number, 1, record_count, _) do 
+  defp display_pagination(name, _record_number, 1, record_count, _) do 
     pagination_information(name, record_count)
   end
-  defp display_pagination(name, record_number, page_size, record_count, last_number) 
+  defp display_pagination(name, record_number, _page_size, record_count, last_number) 
       when last_number < record_count do 
     pagination_information(name, record_number, last_number, record_count)
   end
-  defp display_pagination(name, record_number, page_size, record_count, _) do
+  defp display_pagination(name, record_number, _page_size, record_count, _) do
     pagination_information(name, record_number, record_count, record_count)
   end
 

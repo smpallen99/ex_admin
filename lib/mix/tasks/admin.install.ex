@@ -71,7 +71,7 @@ defmodule Mix.Tasks.Admin.Install do
     dest_path = Path.join [File.cwd! | ~w(config)]
     dest_file_path = Path.join dest_path, "config.exs"
     source = File.read!(dest_file_path)
-    append = ""
+    ""
     |> config_template_engines(config, source)
     |> config_xain(config, source)
     |> config_write(config, dest_file_path, source)
@@ -145,14 +145,14 @@ defmodule Mix.Tasks.Admin.Install do
   end
 
   defp parse_args(args) do
-    {opts, values, _} = OptionParser.parse args
+    {opts, _values, _} = OptionParser.parse args
     Enum.reduce opts, %Config{package_path: get_package_path}, fn(item, config) -> 
       case item do
         {key, value} -> 
           if key in Map.keys(config) do
             struct(config, [{key, value}])
           else
-            IO.puts "incorrect option: #{key}"
+            IO.puts "Incorrect option: #{key}"
             config
           end
         _ -> config
