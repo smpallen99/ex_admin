@@ -44,6 +44,10 @@ defmodule Mix.Tasks.Admin.Install do
     ~w(active_admin.css active_admin.css.css)
     |> Enum.each(&(copy_file base_path, "css", &1))
 
+    status_msg("creating", "js files")
+    ~w(jquery-ujs.js.js jquery.js)
+    |> Enum.each(&(copy_file base_path, "js", &1))
+
     status_msg("creating", "image files")
     ~w(glyphicons-halflings-white.png glyphicons-halflings.png)
     |> Enum.each(&(copy_file base_path, "images", &1))
