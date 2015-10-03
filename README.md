@@ -82,15 +82,20 @@ Visit http://localhost:4000/admin
 
 You should be the default Dashboard page. 
 
+## Getting Started
+
+### Adding an Ecto Model to ExAdmin
+
 To add a model, use `admin.gen.resource model` mix task
 
 ```
 mix admin.gen.resource MyModel
+```
 
 Add the new module to the config file:
 
-```elixir
 config/config.exs
+
 ```elixir
 config :ex_admin, 
   repo: MyProject.Repo,
@@ -101,12 +106,83 @@ config :ex_admin,
   ]
 ```
 
-Start the phoenix server again and browse to `http://localhost:4000/admin/my_model
+Start the phoenix server again and browse to `http://localhost:4000/admin/my_model`
 
 You can now list/add/edit/and delete MyModels
 
-## Getting Started
+### Customizing the index page
 
+# Modifying the displayed columns
+
+Use the index do command to define the fields to be displayed. 
+
+admin/my_model.ex
+```elixir
+defmodule MyProject.ExAdmin.MyModel do
+  use ExAdmin.Register
+  register_resource MyProject.MyModel do
+
+    index do 
+      selectable_column
+
+      column :id
+      column :name
+    end
+  end
+end
+```
+
+### Customizing the form
+
+The following example shows...
+
+```
+defmodule MyProject.ExAdmin.Contact do
+  use ExAdmin.Register
+
+  register_resource MyProject.Contact do
+    form contact do
+      inputs do
+        input contact, :first_name
+        input contact, :last_name 
+        input contact, :email
+        input contact, :category, collection: MyProject.Category.all
+      end 
+
+      inputs "Groups" do
+        inputs :groups, as: :check_boxes, collection: MyProject.Group.all
+      end
+    end
+  end
+end
+```
+
+### Customizing the show page
+
+The following example illustrates how to modify the show page. 
+
+```elixir
+defmodule Survey.ExAdmin.Question do
+  use ExAdmin.Register
+
+  register_resource Survey.Question do
+    menu priority: 3
+
+    show question do
+
+      attributes_table   # display the defaults attributes
+
+      # create a panel to list the question's choices
+      panel "Choices" do
+        table_for(question.choices) do
+          column :key
+          column :name
+        end
+      end
+    end
+  end
+end
+```
 
 ## License
 
