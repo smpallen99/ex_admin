@@ -5,6 +5,7 @@ defmodule ExAdmin.AdminController do
   import ExAdmin
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
+  require IEx
 
   plug :set_layout
   
@@ -169,13 +170,17 @@ defmodule ExAdmin.AdminController do
       defn -> 
         model = defn.__struct__ 
         resource = model.__struct__.resource_model.__struct__
-        if function_exported? model, :form_view, 3 do
-          apply(model, :form_view, [conn, resource, params])
-        else
-          ExAdmin.Form.default_form_view conn, resource, params
-        end
+        do_form_view model, conn, resource, params
     end
     render conn, "admin.html", html: contents, resource: resource, filters: nil
+  end
+
+  defp do_form_view(model, conn, resource, params) do
+    if function_exported? model, :form_view, 3 do
+      apply(model, :form_view, [conn, resource, params])
+    else
+      ExAdmin.Form.default_form_view conn, resource, params
+    end
   end
 
   def create(conn, params) do
@@ -195,7 +200,7 @@ defmodule ExAdmin.AdminController do
           |> redirect(to: get_route_path(resource, :show, resource.id))
         else
           conn = put_flash(conn, :inline_error, changeset.errors)
-          contents = apply(model, :form_view, [conn, changeset.changeset.model, params])
+          contents = do_form_view model, conn, changeset.changeset.model, params
           conn |> render("admin.html", html: contents, resource: resource, filters: nil)
         end
     end
@@ -217,9 +222,8 @@ defmodule ExAdmin.AdminController do
           put_flash(conn, :notice, "#{base_name model} was successfully updated")
           |> redirect(to: get_route_path(resource, :show, resource.id))
         else
-
           conn = put_flash(conn, :inline_error, changeset.errors)
-          contents = apply(model, :form_view, [conn, changeset.changeset.model, params])
+          contents = do_form_view model, conn, changeset.changeset.model, params
           conn |> render("admin.html", html: contents, resource: resource, filters: nil)
         end
     end

@@ -376,10 +376,18 @@ defmodule ExAdmin.Form do
 
   def build_item(conn, %{type: :input, name: field_name, resource: resource, 
        opts: %{collection: collection}} = item, _resource, model_name, errors) do
+
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
-    errors = get_errors(errors, field_name)
+    module = resource.__struct__
+    errors_field_name = if field_name in module.__schema__(:associations) do
+      Map.get module.__schema__(:association, field_name), :owner_key
+    else
+      field_name
+    end
+    errors = get_errors(errors, errors_field_name)
+
     label = Map.get item[:opts], :label, field_name
     onchange = Map.get item[:opts], :change
     # ajax = Map.get item[:opts], :ajax

@@ -15,13 +15,14 @@ defmodule ExAdmin.Form.Fields do
   defp _input_collection(resource, collection, model_name, field_name, item, %{cardinality: :one} = assoc, params) do
     ext_name = ext_name model_name, field_name
     assoc_fields = get_association_fields(item[:opts])
+
     select(id: "#{ext_name}_id", name: "#{model_name}[#{assoc.owner_key}]") do
       handle_prompt(field_name, item)
       for item <- collection do
         selected = cond do 
           Map.get(resource, assoc.owner_key) == item.id -> 
             [selected: :selected]
-          params[model_name][Atom.to_string(assoc.owner_key)] -> 
+          not params[model_name][Atom.to_string(assoc.owner_key)] in [nil, ""] -> 
             [selected: :selected]
           true -> 
             []
