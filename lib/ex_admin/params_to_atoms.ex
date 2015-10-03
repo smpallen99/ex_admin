@@ -43,6 +43,8 @@ defmodule ExAdmin.ParamsToAtoms do
 
   @integer_keys ~r/_id$|^id$|page|page_size/
 
+  defp _replace_integers(key, " " <> rest), do: _replace_integers(key, rest)
+  defp _replace_integers(key, ""), do: {key, nil}
   defp _replace_integers(key, value) when is_integer(value), do: {key, value}
   defp _replace_integers(key, value) when is_map(value), do: {key, params_string_fields_to_integer(value)}
   defp _replace_integers(key, value) when is_atom(key) do
