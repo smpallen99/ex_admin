@@ -112,8 +112,6 @@ You can now list/add/edit/and delete MyModels
 
 ### Customizing the index page
 
-# Modifying the displayed columns
-
 Use the index do command to define the fields to be displayed. 
 
 admin/my_model.ex
