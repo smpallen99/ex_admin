@@ -1,4 +1,41 @@
 defmodule ExAdmin do
+  @moduledoc """
+  ExAdmin is a an auto administration tool for the PhoenixFramework, 
+  providing a quick way to create a CRUD interface for administering
+  Ecto models with little code and the ability to customize the 
+  interface if desired. 
+
+  After creating one or more Ecto models, the administration tool can 
+  be used by creating a resource model for each model. The basic 
+  resource file for model ... looks like this:
+
+      # web/admin/my_model.ex
+
+      defmodule MyProject.ExAdmin.MyModel do
+        use ExAdmin.Register
+
+        register_resource MyProject.MyModel do
+        end
+      end
+
+  This file can be created manually, or by using the mix task:
+
+      mix admin.gen.resource MyModel
+
+  ExAdmin adds a menu item for the model in the admin interface, along
+  with the ability to index, add, edit, show and delete instances of 
+  the model.
+
+  Many of the pages in the admin interface can be customized for each
+  model using a DSL. The following can be customized:
+
+  * `index` - Customize the index page
+  * `show` - Customize the show page
+  * `form` - Customize the new and edit pages
+  * `menu` - Customize the menu item
+  * `controller` - Customer the controller
+
+  """
   require Logger
   use Xain
   alias ExAdmin.Utils
@@ -17,16 +54,20 @@ defmodule ExAdmin do
     end
   end
 
+  @doc false
   def registered, do: Application.get_env(:ex_admin, :modules, [])
 
+  @doc false
   def put_data(key, value) do
     Agent.update __MODULE__, &(Map.put(&1, key, value))
   end
 
+  @doc false
   def get_data(key) do
     Agent.get __MODULE__, &(Map.get(&1, key))
   end
 
+  @doc false
   def get_all_registered do 
     for reg <- registered do
       case get_registered_resource(reg) do
@@ -37,28 +78,35 @@ defmodule ExAdmin do
       end
     end
   end
+  
+  @doc false
   def get_registered_resource(name) do
     apply(name, :__struct__, [])
   end
 
+  @doc false
   def get_registered do
     for reg <- registered do
       get_registered_resource(reg)
     end
   end
+  @doc false
   def get_registered(resource_model) do
     get_all_registered
     |> Keyword.get(resource_model)
   end
 
+  @doc false
   def get_registered_by_controller_route!(name) do
     res = get_registered_by_controller_route(name) 
     if res == %{}, do: throw("Unknown Resource"), else: res
   end
 
+  @doc false
   def get_registered_by_controller_route(%Plug.Conn{params: params}) do
     get_registered_by_controller_route params["resource"]
   end
+  @doc false
   def get_registered_by_controller_route(path_info) when is_list(path_info) do
     case path_info do
       ["admin", route | _] -> route
@@ -67,25 +115,30 @@ defmodule ExAdmin do
     |> get_registered_by_controller_route
   end
 
+  @doc false
   def get_registered_by_controller_route(route) do
     Enum.find get_registered, %{}, &(Map.get(&1, :controller_route) == route)
   end
 
+  @doc false
   def get_controller_path(%{} = resource) do
     get_controller_path Map.get(resource, :__struct__)
   end
+  @doc false
   def get_controller_path(resource_model) when is_atom(resource_model) do
     get_all_registered 
     |> Keyword.get(resource_model, %{})
     |> Map.get(:controller_route)
   end
 
+  @doc false
   def get_title_actions(%Plug.Conn{private: _private, path_info: path_info} = conn) do
     defn = get_registered_by_controller_route(path_info)
     fun = defn |> Map.get(:title_actions)
     fun.(conn, defn)
   end
 
+  @doc false
   def get_title_actions(name) do
     case get_registered(name) do
       nil -> 
@@ -95,6 +148,7 @@ defmodule ExAdmin do
     end
   end
 
+  @doc false
   def get_name_from_controller(controller) when is_atom(controller) do
     get_all_registered
     |> Enum.find_value(fn({name, %{controller: c_name}}) -> 
@@ -102,6 +156,7 @@ defmodule ExAdmin do
     end) 
   end
 
+  @doc false
   def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_model: _resource_model} = defn) do
     # Logger.warn "action name: #{inspect Utils.action_name(conn)}"
     singular = ExAdmin.Utils.displayable_name_singular(conn) |> titleize
@@ -125,6 +180,7 @@ defmodule ExAdmin do
     end
   end
 
+  @doc false
   def default_page_title_actions(_conn, _) do
     div(".action_items")
   end
@@ -147,6 +203,7 @@ defmodule ExAdmin do
     end
   end
 
+  @doc false
   def get_custom_action(action, actions) do
     Enum.find_value actions, fn(x) -> 
       case x do
@@ -173,6 +230,7 @@ defmodule ExAdmin do
     "#{humanize action} #{name}"
   end
 
+  @doc false
   def has_action?(conn, defn, action) do
     if ExAdmin.Utils.authorized_action?(conn, action, defn), 
       do: _has_action?(defn, action), else: false
