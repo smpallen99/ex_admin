@@ -1,4 +1,5 @@
 defmodule ExAdmin.ParamsToAtoms do
+  @moduledoc false
   require Logger
 
   #@behaviour Plug

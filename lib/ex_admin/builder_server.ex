@@ -1,5 +1,7 @@
 defmodule ExAdmin.Builder.Server do
+  @moduledoc false
   defmodule Context do
+    @moduledoc false
     defstruct buffers: HashDict.new
 
     def put_buffer(r, name, content) when is_atom(name) do

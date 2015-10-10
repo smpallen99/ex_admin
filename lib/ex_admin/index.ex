@@ -1,4 +1,77 @@
 defmodule ExAdmin.Index do
+  @moduledoc """
+  Override the default index page for an ExAdmin resource
+
+  By default, ExAdmin renders the index table without any additional 
+  configuration. It renders each column in the model, except the id, 
+  inserted_at, and updated_at columns. 
+
+  ExAdmin displays a selection checkbox column on the left with a batch
+  action control that enables when a checkbox is selected. 
+
+  To customize the index page, use the `index` macro. 
+
+  For example, the following will show on the id an name fields, as 
+  well place a selection column and batch actions row on the page:
+
+      defmodule MyProject.ExAdmin.MyModel do
+        use ExAdmin.Register
+        register_resource MyProject.MyModel do
+
+          index do 
+            selectable_column
+
+            column :id
+            column :name
+          end
+        end
+      end
+
+  ## Custom columns
+
+  Columns can be customized with column/2 where the second argument is
+  an anonymous function called with model. Here are a couple examples:
+
+      index do 
+        column :id 
+        column :name, fn(category) -> 
+          Phoenix.HTML.Tag.content_tag :span, category.name, 
+            "data-id": category.id, class: "category"
+        end
+        column "Created", fn(category) -> 
+          category.created_at
+        end
+      end
+
+  ## Override the Actions column
+
+  The Actions column can be customized by adding `column "Actions", fn(x) -> ...`
+
+      column "Actions", fn(r) -> 
+        safe_concat link_to("Restore", "/admin/backuprestores/restore/#\{r.id}", "data-method": :put, 
+            "data-confirm": "You are about to restore #\{r.file_name}. Are you sure?",
+            class: "member_link restore-link"), 
+          link_to("Delete", "/admin/backuprestores/#\{r.id}", "data-method": :delete,
+            "data-confirm": "Are you sure you want to delete this?",
+            class: "member_link")
+      end
+
+  ## Associations
+
+  By default, ExAdmin will attempt to render a belongs_to association with a 
+  select control, using name field in the association. If you would like to 
+  render an association with another field name, or would like to use more than 
+  one field, use the :field option. 
+
+      column :account, fields: [:username]
+
+  ## Change the column label
+
+  Use the :label option to override the column name:
+
+      column :name, label: "Custom Name"
+  """
+
   require Logger
   require Integer
   import ExAdmin.Utils
@@ -10,12 +83,17 @@ defmodule ExAdmin.Index do
   alias Phoenix.HTML.Link
   import Phoenix.HTML
 
+  @doc false
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
     end
   end
 
+  @doc """
+  The index macro is used to customize the index page of a resource. 
+  
+  """
   defmacro index(opts \\ [], do: block) do
 
     contents = quote do
@@ -43,12 +121,19 @@ defmodule ExAdmin.Index do
     end
   end
   
+  @doc """
+  Add a column of selection check boxes
+
+  Allows users to select individual rows on the index page. Selecting
+  columns activates the batch actions button.
+  """
   defmacro selectable_column do
     quote do
       var!(selectable_column, ExAdmin.Index) = true
     end
   end
 
+  @doc false
   def default_index_view(conn, page) do
     [_, resource] = conn.path_info 
 
@@ -77,6 +162,7 @@ defmodule ExAdmin.Index do
   defp get_resource_fields([]), do: []
   defp get_resource_fields([resource | _]), do: resource.__struct__.__schema__(:fields)
 
+  @doc false
   def render_index_table(conn, page, columns, %{selectable_column: selectable}) do
     href = get_route_path(conn, :index) <> "?order="
     resources = page.entries
@@ -133,6 +219,7 @@ defmodule ExAdmin.Index do
     end
   end
 
+  @doc false
   def batch_action_form enabled?, name, fun do
     msg = "Are you sure you want to delete these #{name}? You wont be able to undo this."
     if enabled? do
@@ -161,12 +248,14 @@ defmodule ExAdmin.Index do
     end
   end
 
+  @doc false
   def download_links(conn) do
     div ".download_links Download: " do
       a "CSV", href: "#{get_route_path(conn, :index)}/csv"
     end
   end
 
+  @doc false
   def parameterize(name, seperator \\ "_")
   def parameterize(atom, seperator) when is_atom(atom) do
     Atom.to_string(atom)
@@ -177,6 +266,7 @@ defmodule ExAdmin.Index do
   end
 
 
+  @doc false
   def build_table_body(_conn, [], _columns, _opts) do
     tbody
   end
@@ -211,6 +301,7 @@ defmodule ExAdmin.Index do
 
   # TODO: don't like that we can't handle the do block :(
 
+  @doc false
   def build_index_links(conn, resource) do
     # name = controller_name(conn)
     resource_model = resource.__struct__
@@ -246,6 +337,7 @@ defmodule ExAdmin.Index do
   end
    #   columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource) end}}]
 
+  @doc false
   def get_authorized_links(conn, resource_model) do
     Enum.reduce [:show, :edit, :destroy], [], fn(item, acc) -> 
       if ExAdmin.Utils.authorized_action?(conn, item, resource_model),

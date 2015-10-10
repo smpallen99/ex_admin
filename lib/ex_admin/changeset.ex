@@ -1,4 +1,5 @@
 defmodule ExAdmin.Changeset do
+  @moduledoc false
   alias __MODULE__, as: Cs
   defstruct valid?: true, changeset: nil, errors: nil, dependents: []
 

@@ -1,4 +1,5 @@
 defmodule ExAdmin.AdminController do
+  @moduledoc false
   use ExAdmin.Web, :controller
   require Logger
   # alias Survey.Repo

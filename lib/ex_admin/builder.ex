@@ -1,4 +1,5 @@
 defmodule ExAdmin.Builder do
+  @moduledoc false
   alias ExAdmin.Builder.Server
 
   use ExActor.GenServer

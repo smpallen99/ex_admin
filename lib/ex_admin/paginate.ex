@@ -1,4 +1,5 @@
 defmodule ExAdmin.Paginate do
+  @moduledoc false
   use Xain
 
   def paginate(_, nil, _, _, _, _, _), do: []

@@ -1,4 +1,5 @@
 defmodule ExAdmin.LayoutView do
+  @moduledoc false
   use ExAdmin.Web, :view
   import ExAdmin.ViewHelpers
 

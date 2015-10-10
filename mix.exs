@@ -21,12 +21,12 @@ defmodule ExAdmin.Mixfile do
   
   defp deps do
     [
-      {:phoenix, "~> 1.0.2"},
+      {:phoenix, "~> 1.0.2", override: true},
       {:ecto, "~> 1.0.3", override: true },
       {:phoenix_ecto, "~> 1.1"},
       {:cowboy, "~> 1.0"},
       {:mariaex, ">= 0.0.0"},
-      {:phoenix_html, "~> 2.1"},
+      {:phoenix_html, "~> 2.1", override: true},
       {:phoenix_haml, ">= 0.1.2"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:factory_girl_elixir, "~> 0.1.1"},
@@ -37,6 +37,8 @@ defmodule ExAdmin.Mixfile do
       {:scrivener, "~> 0.10.0"}, 
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~>1.0.0"}, 
+      {:ex_doc, "~>0.10.0"},
+      {:earmark, ">= 0.0.0"},
     ]
   end
 end

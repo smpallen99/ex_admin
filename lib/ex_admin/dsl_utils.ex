@@ -1,4 +1,5 @@
 defmodule ExAdmin.DslUtils do
+  @moduledoc false
 
   def add_to_attribute(mod, attr_name, key, value) do
     items = Module.get_attribute(mod, attr_name)

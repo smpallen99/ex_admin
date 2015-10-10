@@ -1,4 +1,5 @@
 defmodule ExAdmin.Router do
+  @moduledoc false
   use ExAdmin.Web, :router
 
   defmacro __using__(_opts \\ []) do

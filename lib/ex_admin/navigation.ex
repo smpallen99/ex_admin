@@ -1,4 +1,5 @@
 defmodule ExAdmin.Navigation do
+  @moduledoc false
   require Logger
   import ExAdmin.Utils
   use Xain

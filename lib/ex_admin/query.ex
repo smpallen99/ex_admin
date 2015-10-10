@@ -1,14 +1,18 @@
 defmodule ExAdmin.Query do
+  @moduledoc false
+
   import Ecto.Query, except: [count: 1]
   require Logger
   alias ExAdmin.Helpers
   
+  @doc false
   def run_query(resource_model, repo, action, id, query_opts) do
     resource_model
     |> build_query(query_opts, action, id)
     |> paginate(repo, action, id)
   end
 
+  @doc false
   def count([]), do: 0
   def count(resources) when is_list(resources) do
     repo = Application.get_env :ex_admin, :repo

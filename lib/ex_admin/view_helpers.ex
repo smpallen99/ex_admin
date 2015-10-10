@@ -1,4 +1,5 @@
 defmodule ExAdmin.ViewHelpers do
+  @moduledoc false
   use Xain
   import ExAdmin.Utils
 

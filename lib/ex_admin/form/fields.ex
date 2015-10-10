@@ -1,4 +1,5 @@
 defmodule ExAdmin.Form.Fields do
+  @moduledoc false
   require Logger
   import ExAdmin.Utils
   import ExAdmin.Helpers
