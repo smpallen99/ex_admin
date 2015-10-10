@@ -9,6 +9,8 @@ defmodule ExAdmin.Mixfile do
      compilers: [:phoenix] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     name: "ExAdmin",
+     docs: [extras: ["README.md"]],
      deps: deps]
   end
 

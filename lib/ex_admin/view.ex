@@ -1,5 +1,6 @@
 defmodule ExAdmin.View do
-  
+  @moduledoc false
+
   defprotocol Adapter do
     @fallback_to_any true
     def build_csv(resource, resources)

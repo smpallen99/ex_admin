@@ -1,4 +1,5 @@
 defmodule ExAdmin.Repo do
+  @moduledoc false
   require Logger
   alias ExAdmin.Utils
   alias ExAdmin.Helpers

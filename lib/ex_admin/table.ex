@@ -1,5 +1,7 @@
 Code.ensure_compiled(ExAdmin.Utils)
 defmodule ExAdmin.Table do
+  @module_doc false
+  
   require Integer
   use Xain
   import ExAdmin.Helpers

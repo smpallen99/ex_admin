@@ -1,4 +1,10 @@
 defmodule ExAdmin.Page do
+  @moduledoc """
+  Define pages in ExAdmin that don't render models, like a dashboard 
+  page. 
+
+  """
+
   import ExAdmin.DslUtils
 
   defmacro __using__(_) do
@@ -9,6 +15,27 @@ defmodule ExAdmin.Page do
   end
 
 
+  @doc """
+  Display contents on a page. Use Xain markup to create the page. 
+
+  For example, the dashboard page: 
+  
+      defmodule <%= base %>.ExAdmin.Dashboard do
+        use ExAdmin.Register
+
+        register_page "Dashboard" do
+          menu priority: 1, label: "Dashboard"
+          content do
+            div ".blank_slate_container#dashboard_default_message" do
+              span ".blank_slate" do
+                span "Welcome to ExAdmin. This is the default dashboard page."
+                small "To add dashboard sections, checkout 'web/admin/dashboards.ex'"
+              end
+            end
+          end
+        end
+      end
+  """
   defmacro content(opts \\ [], do: block) do
 
     bdy = quote do
