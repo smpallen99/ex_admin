@@ -172,7 +172,7 @@ defmodule ExAdmin.Utils do
     |> Enum.reduce("", fn({k,v}, acc) -> acc <> "#{k}='#{v}' " end)
 
     "<a href='#{path}' #{attributes}>#{name}</a>"
-    |> Phoenix.HTML.safe
+    |> Phoenix.HTML.raw
   end
 
 
