@@ -30,7 +30,7 @@ mix.exs
 
 Fetch and compile the dependency
 
-```mix do deps.get, compile```
+```mix do deps.get, deps.compile```
 
 Configure ExAdmin:
 
