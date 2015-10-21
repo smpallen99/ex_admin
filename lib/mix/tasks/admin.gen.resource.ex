@@ -27,14 +27,10 @@ defmodule Mix.Tasks.Admin.Gen.Resource do
 
 
   defp copy_file(%Config{module: module, package_path: package_path} = config) do
-    IO.puts "config: #{inspect config}"
     filename = String.downcase(module) <> ".ex"
-    # dest_path = Path.join [File.cwd! | ~w(web admin)]
     dest_path = Path.join ~w(web admin)
     dest_file_path = Path.join dest_path, filename
-    IO.puts "dest: #{inspect dest_file_path}"
     source_file = Path.join([package_path | ~w(priv templates admin.gen.resource resource.exs)] )
-    IO.puts "sourcefile: #{source_file}"
     source = source_file  |> EEx.eval_file(base: get_module, resource: module)
     status_msg "creating", dest_file_path
     File.write! dest_file_path, source
@@ -59,6 +55,5 @@ defmodule Mix.Tasks.Admin.Gen.Resource do
   defp parse_args([module]) do
     %Config{module: module, package_path: get_package_path}
   end
-
 
 end
