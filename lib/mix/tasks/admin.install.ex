@@ -1,13 +1,22 @@
 defmodule Mix.Tasks.Admin.Install do
   @moduledoc """
-  Install ExAdmin
+  Install ExAdmin supporting files.
 
-  Installs the files required to use ExAdmin, including:
+      mix admin.install
 
-    * copying css and image files
-    * adding configuration to config/config.exs
-    * adding a default dashboard
-    * displaying instructions to add the admin routes
+  # Defaults:
+
+    * assets - copy js, css, and image files
+    * config - add configuration to config/config.exs
+    * dashboard - create a default dashboard
+    * route - display instructions to add the admin routes
+
+  ## Options:
+
+    * --no-assets - Skip the assets
+    * --no-config - Skip the config
+    * --no-dashboard - Skip the dashboard
+    * --no-route - Skip the route instructions
   """
 
   # @shortdoc "Install ExAdmin"
@@ -35,6 +44,7 @@ defmodule Mix.Tasks.Admin.Install do
     |> do_config
     |> do_dashboard
     |> do_route
+    |> do_paging
   end
 
   def do_assets(%Config{assets: true} = config) do
@@ -49,6 +59,8 @@ defmodule Mix.Tasks.Admin.Install do
     |> Enum.each(&(copy_file base_path, "js", &1))
 
     status_msg("creating", "image files")
+    do_active_admin_images(base_path)
+
     ~w(glyphicons-halflings-white.png glyphicons-halflings.png)
     |> Enum.each(&(copy_file base_path, "images", &1))
 
@@ -62,8 +74,8 @@ defmodule Mix.Tasks.Admin.Install do
     IO.puts ""
     IO.puts "Add the admin routes to your web/router.ex:"
     IO.puts ""
+    IO.puts "    use ExAdmin.Router"
     IO.puts "    admin_routes :admin"
-    IO.puts ""
     config
   end
   def do_route(config) do
@@ -93,6 +105,7 @@ defmodule Mix.Tasks.Admin.Install do
 
       """
     else
+      status_msg("skipping", "template engines config. It already exists.")
       append
     end
   end
@@ -104,6 +117,7 @@ defmodule Mix.Tasks.Admin.Install do
 
       """
     else
+      status_msg("skipping", "xain config. It already exists.")
       append
     end
   end
@@ -132,24 +146,64 @@ defmodule Mix.Tasks.Admin.Install do
   def dashboard_instructions do
     base = get_module
     IO.puts ""
-    IO.puts "Remember to update your config file with the dashboard module"
+    IO.puts "Remember to update your config file:"
     IO.puts ""
     IO.puts """    
-        config :ex_admin, :modules, [
-          #{base}.ExAdmin.Dashboard,
-        ]
-
+        config :ex_admin, 
+          repo: #{base}.Repo,
+          module: #{base},
+          modules: [
+            #{base}.ExAdmin.Dashboard,
+          ]
     """
   end
 
+  def do_paging(config) do
+    base = get_module
+
+    IO.puts ""
+    IO.puts "Add Scrivener paging to your Repo:"
+    IO.puts ""
+    IO.puts "    defmodule #{base}.Repo do"
+    IO.puts "      use Ecto.Repo, otp_app: :#{String.downcase base}"
+    IO.puts "      use Scrivener, page_size: 10"
+    IO.puts "    end"
+    config
+  end
   defp copy_file(base_path, path, file_name) do
     File.cp Path.join([get_package_path, base_path, path, file_name]), 
             Path.join([File.cwd!, base_path, path, file_name])
     base_path
   end
 
+  defp do_active_admin_images(base_path) do
+    aa_rel_path = Path.join "images", "active_admin"
+    aa_images_path = Path.join(
+      [File.cwd!, base_path, aa_rel_path])
+
+    if File.exists? aa_images_path do
+      status_msg("skipping", 
+        aa_rel_path <> " files. Directory already exists.")
+    else
+      :ok = File.mkdir(aa_images_path)
+      ~w(admin_notes_icon.png orderable.png)
+      |> Enum.each(&(copy_file base_path, aa_rel_path, &1))
+
+      aa_dp_rel_path = Path.join aa_rel_path, "datepicker"
+      aa_dp_images_path = Path.join aa_images_path, "datepicker" 
+
+      :ok = File.mkdir(aa_dp_images_path)
+      ~w(datepicker-header-bg.png datepicker-input-icon.png) ++ 
+      ~w(datepicker-next-link-icon.png datepicker-nipple.png) ++ 
+      ~w(datepicker-prev-link-icon.png)
+      |> Enum.each(&(copy_file base_path, aa_dp_rel_path, &1))
+
+    end
+  end
+
   defp parse_args(args) do
-    {opts, _values, _} = OptionParser.parse args
+    {opts, _values, _} = OptionParser.parse args, switches: 
+      [assets: :boolean, config: :boolean, route: :boolean, dashboard: :boolean]
     Enum.reduce opts, %Config{package_path: get_package_path}, fn(item, config) -> 
       case item do
         {key, value} -> 
@@ -159,10 +213,9 @@ defmodule Mix.Tasks.Admin.Install do
             IO.puts "Incorrect option: #{key}"
             config
           end
-        _ -> config
+        _default -> config
       end
     end
   end
-
 
 end
