@@ -25,7 +25,6 @@ defmodule ExAdmin.Query do
     |> repo.paginate(params)
   end
   defp paginate(query, repo, :nested, params) do 
-    Logger.warn "paginate nested params: #{inspect params}, query: #{inspect query}"
     apply repo, get_method(:nested), [query]
   end
   defp paginate(query, repo, action, _) do 
@@ -35,7 +34,7 @@ defmodule ExAdmin.Query do
   defp filter(query, params) do
     q = Keyword.get(params, :q)
     if q do
-      filters = Map.to_list(q) |> Enum.filter(&(elem(&1,1) != "")) |> Enum.map(&({Atom.to_string(elem(&1, 0)), elem(&1, 1)}))
+      filters = Map.to_list(q) |> Enum.filter(&(not elem(&1,1) in ["", nil])) |> Enum.map(&({Atom.to_string(elem(&1, 0)), elem(&1, 1)}))
       string_filters(filters)
       |> integer_filters(filters)
       |> date_filters(filters)
