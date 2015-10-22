@@ -55,7 +55,7 @@ defmodule ExAdmin.Helpers do
     # id  = resource.id
     case Map.get resource, field_name do
       nil -> contents
-      res when is_map(res) -> 
+      %{__meta__: _} = res -> 
         if ExAdmin.Utils.authorized_action? conn, :show, res.__struct__ do
           path = get_route_path res, :show, res.id
           "<a href='#{path}'>#{contents}</a>"
