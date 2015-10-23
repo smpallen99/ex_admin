@@ -5,6 +5,13 @@ defmodule ExAdmin.Query do
   require Logger
   alias ExAdmin.Helpers
   
+  @doc 
+  # def get_query(conn) do
+    
+  #   resource_model
+  #   |> build_query(query_opts, action, id)
+  # end
+
   @doc false
   def run_query(resource_model, repo, action, id, query_opts) do
     resource_model
