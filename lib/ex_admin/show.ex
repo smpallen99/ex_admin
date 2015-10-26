@@ -13,8 +13,8 @@ defmodule ExAdmin.Show do
       register_resource Survey.Seating do
         show seating do
           attributes_table do
-            row seating, :id
-            row seating, :name
+            row :id
+            row :name
           end
           panel "Answers" do
             table_for(seating.answers) do
