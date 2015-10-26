@@ -88,7 +88,6 @@ defmodule Mix.Tasks.Admin.Install do
     dest_file_path = Path.join dest_path, "config.exs"
     source = File.read!(dest_file_path)
     ""
-    |> config_template_engines(config, source)
     |> config_xain(config, source)
     |> config_write(config, dest_file_path, source)
   end
@@ -96,19 +95,6 @@ defmodule Mix.Tasks.Admin.Install do
     config
   end
 
-  defp config_template_engines(append, _config, source) do
-    unless String.contains? source, "haml: PhoenixHaml.Engine" do
-      append <> """
-      config :phoenix, :template_engines,
-          haml: PhoenixHaml.Engine,
-          eex: Phoenix.Template.EExEngine
-
-      """
-    else
-      status_msg("skipping", "template engines config. It already exists.")
-      append
-    end
-  end
   defp config_xain(append, _config, source) do
     unless String.contains? source, ":xain, :quote" do
       append <> """

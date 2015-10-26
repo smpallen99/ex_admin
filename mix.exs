@@ -3,7 +3,7 @@ defmodule ExAdmin.Mixfile do
 
   def project do
     [app: :ex_admin,
-     version: "0.3.1",
+     version: "0.3.2",
      elixir: "~> 1.0",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix] ++ Mix.compilers,
@@ -29,7 +29,6 @@ defmodule ExAdmin.Mixfile do
       {:cowboy, "~> 1.0"},
       {:mariaex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.1", override: true},
-      {:phoenix_haml, ">= 0.1.2"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:factory_girl_elixir, "~> 0.1.1"},
       {:pavlov, "~> 0.1.2", only: :test},
@@ -39,7 +38,7 @@ defmodule ExAdmin.Mixfile do
       {:scrivener, "~> 0.10.0"}, 
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~>1.0.0"}, 
-      {:ex_doc, "~>0.10.0"},
+      {:ex_doc, "~>0.10.0", only: :dev},
       {:earmark, ">= 0.0.0"},
     ]
   end

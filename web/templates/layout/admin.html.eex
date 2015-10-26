@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title><%= site_title %></title>
+    <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/css/active_admin.css.css") %>">
+    <script src="<%= static_path(@conn, "/js/jquery.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/jquery-ujs.js.js") %>"></script>
+  </head>
+
+  <% resource_label = ExAdmin.Utils.get_resource_label(@conn) |> String.downcase %>
+
+  <body class="index admin_<%= resource_label %> active_admin logged_in admin_namespace">
+      <div id="wrapper">
+        <div class="header" id="header">
+          <h1 class="site_title" id="site_title"><%= site_title %></h1>
+          <%= ExAdmin.Navigation.nav_view(@conn) %>
+          <%= if ExAdmin.Utils.use_authentication and is_function(:current_user, 1) do %>
+            <p class="header-item" id="utility_nav">
+              <span class="current_user"><%= apply(:current_user, [@conn]).name %></span>
+              <%= link "Logout", to: apply(:session_path, [@conn, :destroy]), "data-method": "delete", rel: "nofollow" %>
+            </p>  
+          <% end %>
+        </div>    
+        <%= title_bar(@conn, @resource) %>
+        <%= ExAdmin.ViewHelpers.flashes(@conn) %>
+        <%= if @filters do %>
+          <div id="active_admin_content" class="with_sidebar">
+            <div id="main_content_wrapper">
+              <div id="main_content">
+                <%= @inner %>
+              </div>
+            </div>
+            <div id="sidebar">
+              <%= ExAdmin.Filter.filter_view(@conn, @filters, @defn) %>
+            </div>
+          </div>
+        <% else %>
+          <div id="active_admin_content" class="without_sidebar">
+            <div id="main_content_wrapper">
+              <div id="main_content">
+                <%= @inner %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+        <footer id="footer" style="font-size: 90%">
+          <hr \>
+          Powered by ExAdmin. Licensed by&nbsp;
+          <a href="http://emetrotel.com" target="_blank">E-MetroTel</a>
+          &nbsp;&copy 2013-2015.
+        </footer>
+      </div>
+      <div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all></div>
+    </body>
+    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+    <script>require("web/static/js/app")</script>
+</html>

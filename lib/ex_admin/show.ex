@@ -49,7 +49,7 @@ defmodule ExAdmin.Show do
       unquote(block)
     end
 
-    quote bind_quoted: [resource: escape(resource), contents: escape(contents)] do
+    quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
       def show_view(var!(conn), unquote(resource) = var!(resource)) do 
         #var!(query_options) = []
         markup do

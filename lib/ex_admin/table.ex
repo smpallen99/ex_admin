@@ -1,7 +1,6 @@
 Code.ensure_compiled(ExAdmin.Utils)
 defmodule ExAdmin.Table do
   @module_doc false
-  
   require Integer
   use Xain
   import ExAdmin.Helpers
@@ -72,7 +71,6 @@ defmodule ExAdmin.Table do
     end
   end
   defp do_panel(_conn, %{contents: %{contents: content}}) do
-    require Logger
     div do 
       content |> elem(1) |> Xain.text
     end
