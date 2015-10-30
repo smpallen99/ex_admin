@@ -64,15 +64,23 @@ defmodule ExAdmin.ViewHelpers do
 
   defp title_bar_left(conn, resource) do
     div("#titlebar_left") do
-      span(".breadcrumb") do
-        a(href: "/admin")
-        span(".breadcrumb_sep")
-      end
+      ExAdmin.BreadCrumb.get_breadcrumbs(conn, resource)
+      |> render_breadcrumbs
 
       h2("#page_title #{page_title(conn, resource)}")
     end
   end
   
+  defp render_breadcrumbs([]), do: nil
+  defp render_breadcrumbs(list) do
+    span(".breadcrumb") do
+      Enum.each list, fn({link, name}) -> 
+        a(name, href: link)
+        span(".breadcrumb_sep /")
+      end
+    end
+  end
+
   defp title_bar_right(conn) do
     #controller = controller_name(conn)
     #try do
