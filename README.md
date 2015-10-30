@@ -47,7 +47,7 @@ defmodule MyProject.Router do
   use ExAdmin.Router
   ...
   # setup the ExAdmin routes
-  admin_routes :admin
+  admin_routes
 
   scope "/", MyProject do
   ...
@@ -179,6 +179,24 @@ defmodule Survey.ExAdmin.Question do
       end
     end
   end
+end
+```
+
+### Adding Route Plugins
+
+To change the route pipeline for ExAdmin, use the `:pipeline` option
+when calling `admin_routes` in your Router module.
+
+```elixir
+defmodule MyProject.Router do
+  use ExAdmin.Router
+
+  pipeline :browser do
+    ...
+  end
+
+  admin_routes pipeline: :browser
+  ...
 end
 ```
 

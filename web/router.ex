@@ -1,5 +1,31 @@
 defmodule ExAdmin.Router do
-  @moduledoc false
+  @moduledoc """
+  Router macro for ExAdmin sites.
+
+  Provides a helper macro for adding up ExAdmin routes to your application.
+
+  ## Examples:
+
+      defmodule MyProject.Router do
+        use MyProject.Web, :router
+        use ExAdmin.Router
+        ...
+        # setup the ExAdmin routes on /admin
+        admin_routes 
+
+        scope "/", MyProject do
+        ...
+      end
+
+  ## Options for `admin_routes`
+
+  * `admin_routes :administration` - Sets a custom route to `/administrator` 
+  * `admin_routes pipeline: :browser` - Uses your :browser pipeline
+    and the default `/admin` route.
+  * `admin-routes prefix: :administration, pipeline: :browser` - Uses
+    your existing `:browser` pipeline and the custom `/administrator` route.
+  
+  """
   use ExAdmin.Web, :router
 
   defmacro __using__(_opts \\ []) do
@@ -8,70 +34,37 @@ defmodule ExAdmin.Router do
     end
   end
 
-  # pipeline :browser do
-  #   plug :accepts, ["html"]
-  #   plug :fetch_session
-  #   plug :fetch_flash
-  #   # plug :protect_from_forgery
-  #   plug :put_secure_browser_headers
-  # end
+  @doc """
+  Add ExAdmin Routes or your project's router
 
-  # pipeline :api do
-  #   plug :accepts, ["json"]
-  # end
+  Adds the routes required for ExAdmin
 
-  # scope "/", ExAdmin do
-  #   pipe_through :browser
-    
-  #   #pipe_through :admin
-  #   get "/:resource/", AdminController, :index
-  #   get "/:resource/new", AdminController, :new
-  #   get "/:resource/csv", AdminController, :csv
-  #   get "/:resource/:id", AdminController, :show
-  #   get "/:resource/:id/edit", AdminController, :edit
-  #   post "/:resource/", AdminController, :create
-  #   patch "/:resource/:id", AdminController, :update
-  #   put "/:resource/:id", AdminController, :update
-  #   delete "/:resource/:id", AdminController, :destroy
-  #   post "/:resource/batch_action", AdminController, :batch_action
+  ## Options
 
-  #   get "/admin/:resource/", AdminController, :index
-  #   get "/admin/:resource/new", AdminController, :new
-  #   get "/admin/:resource/csv", AdminController, :csv
-  #   get "/admin/:resource/:id", AdminController, :show
-  #   get "/admin/:resource/:id/edit", AdminController, :edit
-  #   post "/admin/:resource/", AdminController, :create
-  #   patch "/admin/:resource/:id", AdminController, :update
-  #   put "/admin/:resource/:id", AdminController, :update
-  #   delete "/admin/:resource/:id", AdminController, :destroy
-  #   post "/admin/:resource/batch_action", AdminController, :batch_action
-  # end
-
-  defmacro admin_routes(name \\ :admin) do
+  * `:prefix` - Change the `/admin` prefix.
+  * `:pipeline` - Use an existing pipeline.
+  """
+  defmacro admin_routes(opts \\ :admin) do
     quote do
-      prefix = unquote(name)
-      pipeline :admin do
-        plug :accepts, ["html"]
-        plug :fetch_session
-        plug :fetch_flash
-        plug :protect_from_forgery
-        plug :put_secure_browser_headers
+      opts = case unquote(opts) do
+        list when is_list(list) -> 
+          Enum.into list, %{prefix: :admin, no_pipeline: list[:pipeline]}
+        name -> 
+          %{prefix: name, no_pipeline: false, pipeline: :admin}
+      end
+      prefix = opts[:prefix]
+      unless opts[:no_pipeline] do
+        pipeline opts[:pipeline] do
+          plug :accepts, ["html"]
+          plug :fetch_session
+          plug :fetch_flash
+          plug :protect_from_forgery
+          plug :put_secure_browser_headers
+        end
       end
       scope "/", ExAdmin do
-        pipe_through :admin
+        pipe_through opts[:pipeline]
         
-        #pipe_through :admin
-        # get "/:resource/", AdminController, :index
-        # get "/:resource/new", AdminController, :new
-        # get "/:resource/csv", AdminController, :csv
-        # get "/:resource/:id", AdminController, :show
-        # get "/:resource/:id/edit", AdminController, :edit
-        # post "/:resource/", AdminController, :create
-        # patch "/:resource/:id", AdminController, :update
-        # put "/:resource/:id", AdminController, :update
-        # delete "/:resource/:id", AdminController, :destroy
-        # post "/:resource/batch_action", AdminController, :batch_action
-
         get "/#{prefix}", AdminController, :index
         get "/#{prefix}/:resource/", AdminController, :index
         get "/#{prefix}/:resource/new", AdminController, :new
