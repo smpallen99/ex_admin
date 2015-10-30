@@ -6,10 +6,6 @@ defmodule ExAdmin.Helpers do
   use Xain
   import ExAdmin.Utils
 
-  def csrf_token(conn) do
-    Map.get conn.req_cookies, "_csrf_token"
-  end
-
   def build_fieldset_legend(nil), do: []
   def build_fieldset_legend(""), do: []
   def build_fieldset_legend(name) do

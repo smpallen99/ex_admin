@@ -511,7 +511,7 @@ defmodule ExAdmin.Form do
   defp get_put_fields(_), do: nil
 
   defp build_hidden_block(conn, mode) do
-    csrf = csrf_token(conn)
+    csrf = Plug.CSRFProtection.get_csrf_token
     div style: "margin:0;padding:0;display:inline" do
       Xain.input(name: "utf8", type: :hidden, value: "✓")
       Xain.input(type: :hidden, name: "_csrf_token", value: csrf)
