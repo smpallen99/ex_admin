@@ -323,6 +323,7 @@ defmodule ExAdmin.Index do
         :destroy -> 
           Link.link("Delete", to: get_route_path(conn, :delete, id), 
             class: base_class <> " delete_link", "data-confirm": confirm_message, 
+            "data-csrf": Plug.CSRFProtection.get_csrf_token,
             "data-method": :delete, rel: :nofollow )
       end
       [link | acc]

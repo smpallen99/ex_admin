@@ -33,8 +33,12 @@
         return;
       }
       href = $(this).attr("href");
+      csrf = $(this).attr("data-csrf");
       id = "delete_" + href.replace(/\//g, "_");
-      $("<form id='" + id + "' method='post' class='link' action='" + href + "'> <input name='_method' value='delete' type='hidden' /> </form>").appendTo($(this).parent());
+      $("<form id='" + id + "' method='post' class='link' action='" + href + 
+        "'> <input name='_method' value='delete' type='hidden' /> " +
+        "<input type='hidden' name='_csrf_token' value='"+csrf+"' /> " + 
+        "</form>").appendTo($(this).parent());
       $("#" + id).submit();
       return false;
     });

@@ -218,6 +218,7 @@ defmodule ExAdmin do
     button_name(name, :delete)
     |> a(href: ExAdmin.Utils.get_route_path(conn, :delete, id),
         "data-confirm": Utils.confirm_message, 
+        "data-csrf": Plug.CSRFProtection.get_csrf_token,
         "data-method": :delete, rel: :nofollow )
   end
   defp action_link(conn, name, action, id) do
