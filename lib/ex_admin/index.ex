@@ -169,7 +169,7 @@ defmodule ExAdmin.Index do
     fields = get_resource_fields resources
     count = page.total_entries
     name = resource_model(conn) |> titleize |> Inflex.pluralize
-    order = get_sort_order(conn.params["order"]) 
+    order = ExQueb.get_sort_order(conn.params["order"]) 
     defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
     batch_actions = not false in defn.batch_actions
     selectable = selectable and batch_actions

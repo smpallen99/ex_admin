@@ -259,11 +259,11 @@ defmodule ExAdmin.Helpers do
   def to_class(field_name) when is_atom(field_name), 
     do: Atom.to_string(field_name)
 
-  def get_sort_order(nil), do: nil
-  def get_sort_order(order) do
-    case Regex.scan ~r/(.+)_(desc|asc)$/, order do
-      [] -> nil
-      [[_, name, sort_order]] -> {name, sort_order}
-    end
-  end
+  # def get_sort_order(nil), do: nil
+  # def get_sort_order(order) do
+  #   case Regex.scan ~r/(.+)_(desc|asc)$/, order do
+  #     [] -> nil
+  #     [[_, name, sort_order]] -> {name, sort_order}
+  #   end
+  # end
 end
