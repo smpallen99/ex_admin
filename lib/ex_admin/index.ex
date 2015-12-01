@@ -170,6 +170,8 @@ defmodule ExAdmin.Index do
     count = page.total_entries
     name = resource_model(conn) |> titleize |> Inflex.pluralize
     order = ExQueb.get_sort_order(conn.params["order"]) 
+    href = get_route_path(conn, :index) <> "?order="
+    Logger.warn "order... #{inspect order}"
     defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
     batch_actions = not false in defn.batch_actions
     selectable = selectable and batch_actions
@@ -204,13 +206,18 @@ defmodule ExAdmin.Index do
                 table("#contacts.index_table.index", border: "0", cellspacing: "0", 
                     cellpadding: "0", paginator: "true") do
                   ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: href, 
-                    sort: "desc", order: order, fields: fields, selectable_column: selectable})
+                    sort: "desc", order: order, fields: fields, page: page, 
+                    selectable_column: selectable})
                   build_table_body(conn, resources, columns, %{selectable_column: selectable})
                 end # table          
               end
             end # .index_content
           end
           div "#index_footer" do
+            href = case order do
+              {name, sort} -> href <> "#{name}_#{sort}"
+              _ -> href
+            end
             ExAdmin.Paginate.paginate(href, page.page_number, page.page_size, page.total_pages, count, name)
             download_links(conn)
           end
