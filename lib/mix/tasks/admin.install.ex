@@ -55,8 +55,11 @@ defmodule Mix.Tasks.Admin.Install do
     |> Enum.each(&(copy_file base_path, "css", &1))
 
     status_msg("creating", "js files")
-    ~w(jquery-ujs.js.js jquery.js)
-    |> Enum.each(&(copy_file base_path, "js", &1))
+
+    ~w(jquery-ujs.js.js jquery.js jquery-ui.min.js active_admin.js) ++ 
+    ~w(best_in_place.js best_in_place.purr.js)
+    |> Enum.each(&(copy_vendor_file base_path, "js", &1))
+
     do_active_admin_js(base_path)
 
     status_msg("creating", "image files")
@@ -157,8 +160,15 @@ defmodule Mix.Tasks.Admin.Install do
     IO.puts "    end"
     config
   end
+
   defp copy_file(base_path, path, file_name) do
     File.cp Path.join([get_package_path, base_path, path, file_name]), 
+            Path.join([File.cwd!, base_path, path, file_name])
+    base_path
+  end
+
+  defp copy_vendor_file(base_path, path, file_name) do
+    File.cp Path.join([get_package_path, "web", "static", "vendor", file_name]), 
             Path.join([File.cwd!, base_path, path, file_name])
     base_path
   end
@@ -188,23 +198,25 @@ defmodule Mix.Tasks.Admin.Install do
     end
   end
 
+  # 
+  # Build the active_admin_lib.js file. 
+  # Note: if you change one of the coffee script files, you must manually 
+  #       compile the js files with the following command
+  # `coffee --output web/static/vendor/active_admin/ --compile web/static/js/active_admin/`
+  # 
   defp do_active_admin_js(base_path) do
-    src_path = Path.join([get_package_path | ~w(web static js active_admin src)])
-    fname = "application.js.js"
-    source = get_file_banner(fname)
-    source = source <> File.read!(Path.join([src_path, fname])) <> "\n\n"
+    src_path = Path.join([get_package_path | ~w(web static vendor active_admin)])
 
-    lib_files = ~w(batch_actions.js.js dropdown-menu.js.js has_many.js.js) ++  
-      ~w(table-checkbox-toggler.js.js checkbox-toggler.js.js flash.js.js) ++ 
-      ~w(modal_dialog.js.js popover.js.js per_page.js.js)
+    lib_files = ~w(batch_actions.js.js checkbox-toggler.js.js dropdown-menu.js.js) ++  
+      ~w(flash.js.js has_many.js.js modal_dialog.js.js per_page.js.js) ++
+      ~w(popover.js.js table-checkbox-toggler.js.js) 
 
     source = 
       ""
       |> read_active_admin_js(src_path, ~w(application.js.js base.js.js)) 
-      |> read_active_admin_js(Path.join([src_path, "ext"]), ~w(jquery-ui.js.js jquery.js.js))
       |> read_active_admin_js(Path.join([src_path, "lib"]), lib_files)
 
-    File.write! Path.join([base_path, "js", "active_admin.js"]), source
+    File.write! Path.join([base_path, "js", "active_admin_lib.js"]), source
   end
 
   defp read_active_admin_js(source, src_path, files) do
