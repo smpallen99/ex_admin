@@ -10,6 +10,7 @@ defmodule ExAdmin.Filter do
 
   def filter_view(conn, _filters, defn) do
     q = conn.params["q"]
+    order = conn.params["order"]
     markup do 
       div "#filters_sidebar_sectionl.sidebar_section.panel" do
         h3 "Filters"
@@ -19,7 +20,8 @@ defmodule ExAdmin.Filter do
             div ".buttons" do
               input name: "commit", type: "submit", value: "Filter"
               a ".clear_filters_btn Clear Filters", href: "#"
-              input id: "order", name: "order", type: :hidden, value: "id_desc"
+              order_value = if order, do: order, else: "id_desc"
+              input id: "order", name: "order", type: :hidden, value: order_value
             end
           end
         end

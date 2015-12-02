@@ -10,7 +10,23 @@
     <title><%= site_title %></title>
     <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/css/active_admin.css.css") %>">
     <script src="<%= static_path(@conn, "/js/jquery.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/jquery-ui.min.js") %>"></script>
     <script src="<%= static_path(@conn, "/js/jquery-ujs.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin1.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/best_in_place.js") %>"></script>
+
+    <script src="<%= static_path(@conn, "/js/active_admin/application.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/base.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/lib/batch_actions.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/lib/checkbox-toggler.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/lib/dropdown-menu.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/lib/flash.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/lib/has_many.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/lib/modal_dialog.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/lib/per_page.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/lib/popover.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/active_admin/lib/table-checkbox-toggler.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/best_in_place.purr.js") %>"></script>
   </head>
 
   <% resource_label = ExAdmin.Utils.get_resource_label(@conn) |> String.downcase %>

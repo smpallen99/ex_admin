@@ -130,7 +130,8 @@ defmodule ExAdmin.Table do
     end
     th(".sortable.sorted-#{sort}.#{field_name}") do
       a("#{humanize field_name}", href: path_prefix <> 
-        field_name <> "_#{link_order}#{page_segment}")
+        field_name <> "_#{link_order}#{page_segment}" <> 
+        Map.get(table_opts, :filter, ""))
     end
   end
   def _build_th(field_name, _opts, %{path_prefix: path_prefix} = table_opts) do
@@ -141,7 +142,8 @@ defmodule ExAdmin.Table do
     end
     th(".sortable.#{field_name}") do
       a("#{humanize field_name}", href: path_prefix <> 
-        field_name <> "_#{sort}#{page_segment}")
+        field_name <> "_#{sort}#{page_segment}" <> 
+        Map.get(table_opts, :filter, ""))
     end
   end
   def handle_contents(%Ecto.DateTime{} = dt, field_name) do

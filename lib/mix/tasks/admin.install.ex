@@ -57,6 +57,7 @@ defmodule Mix.Tasks.Admin.Install do
     status_msg("creating", "js files")
     ~w(jquery-ujs.js.js jquery.js)
     |> Enum.each(&(copy_file base_path, "js", &1))
+    do_active_admin_js(base_path)
 
     status_msg("creating", "image files")
     do_active_admin_images(base_path)
@@ -185,6 +186,36 @@ defmodule Mix.Tasks.Admin.Install do
       |> Enum.each(&(copy_file base_path, aa_dp_rel_path, &1))
 
     end
+  end
+
+  defp do_active_admin_js(base_path) do
+    src_path = Path.join([get_package_path | ~w(web static js active_admin src)])
+    fname = "application.js.js"
+    source = get_file_banner(fname)
+    source = source <> File.read!(Path.join([src_path, fname])) <> "\n\n"
+
+    lib_files = ~w(batch_actions.js.js dropdown-menu.js.js has_many.js.js) ++  
+      ~w(table-checkbox-toggler.js.js checkbox-toggler.js.js flash.js.js) ++ 
+      ~w(modal_dialog.js.js popover.js.js per_page.js.js)
+
+    source = 
+      ""
+      |> read_active_admin_js(src_path, ~w(application.js.js base.js.js)) 
+      |> read_active_admin_js(Path.join([src_path, "ext"]), ~w(jquery-ui.js.js jquery.js.js))
+      |> read_active_admin_js(Path.join([src_path, "lib"]), lib_files)
+
+    File.write! Path.join([base_path, "js", "active_admin.js"]), source
+  end
+
+  defp read_active_admin_js(source, src_path, files) do
+    files 
+    |> Enum.reduce(source, fn(fname, acc) -> 
+      acc <> get_file_banner(fname) <> File.read!(Path.join([src_path, fname])) <> "\n\n"
+    end)
+  end
+
+  defp get_file_banner(file_name) do
+    "// File: " <> file_name <> "\n"
   end
 
   defp parse_args(args) do

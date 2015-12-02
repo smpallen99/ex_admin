@@ -2,7 +2,11 @@ exports.config = {
   // See http://brunch.io/#documentation for docs.
   files: {
     javascripts: {
-      joinTo: 'js/active_admin.js'
+      joinTo: {
+        'active_admin.js': [
+          /^(web\/static\/js\/active_admin\/src)/
+        ]
+      }
       // To use a separate vendor.js bundle, specify two files path
       // https://github.com/brunch/brunch/blob/stable/docs/config.md#files
       // joinTo: {
@@ -19,12 +23,12 @@ exports.config = {
       //   ]
       // }
     },
-    stylesheets: {
-      joinTo: 'css/active_admin.css'
-    },
-    templates: {
-      joinTo: 'js/active_admin.js'
-    }
+    // stylesheets: {
+    //   joinTo: 'css/active_admin.css'
+    // },
+    // templates: {
+    //   joinTo: 'js/active_admin.js'
+    // }
   },
 
   conventions: {
@@ -37,10 +41,11 @@ exports.config = {
   // Phoenix paths configuration
   paths: {
     // Which directories to watch
-    watched: ["web/static", "test/static"],
+    watched: ["web/static", "web/static/js", "web/static/js/active_admin", "test/static"],
 
     // Where to compile files to
-    public: "priv/static"
+    // public: "priv/static"
+    public: "web/static/vendor"
   },
 
   // Configure your plugins
