@@ -15,7 +15,7 @@ defmodule ExAdmin.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :ex_queb]]
   end
 
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]

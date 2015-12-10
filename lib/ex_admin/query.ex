@@ -3,7 +3,7 @@ defmodule ExAdmin.Query do
 
   import Ecto.Query, except: [count: 1]
   require Logger
-  alias ExAdmin.Helpers
+  # alias ExAdmin.Helpers
   import ExQueb
   
   @doc false
@@ -25,7 +25,7 @@ defmodule ExAdmin.Query do
     |> filter(params)
     |> repo.paginate(params)
   end
-  defp paginate(query, repo, :nested, params) do 
+  defp paginate(query, repo, :nested, _params) do 
     apply repo, get_method(:nested), [query]
   end
   defp paginate(query, repo, action, _) do 

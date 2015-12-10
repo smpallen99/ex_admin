@@ -164,7 +164,6 @@ defmodule ExAdmin.Index do
 
   @doc false
   def render_index_table(conn, page, columns, %{selectable_column: selectable}) do
-    href = get_route_path(conn, :index) <> "?order="
     resources = page.entries
     fields = get_resource_fields resources
     count = page.total_entries

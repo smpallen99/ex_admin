@@ -11,13 +11,13 @@ defmodule ExAdmin.BreadCrumb do
      Map.get(defn, :page_name), conn.private[:phoenix_action]
   end
 
-    defp get_breadcrumbs(conn, resource, _, nil, :index) do 
+  defp get_breadcrumbs(conn, _resource, _, nil, :index) do 
     case conn.path_info do
       [admin | _] -> [{admin_link(admin), admin}]
       _ -> []
     end
   end
-  defp get_breadcrumbs(conn, resource, defn, nil, action) when action in [:new, :show] do 
+  defp get_breadcrumbs(conn, _resource, defn, nil, action) when action in [:new, :show] do 
     case conn.path_info do
       [admin, name | _] -> 
         admin_link = admin_link(admin)
@@ -38,10 +38,10 @@ defmodule ExAdmin.BreadCrumb do
       _ -> []
     end
   end
-  defp get_breadcrumbs(conn, resource, _, _, _), do: []
+  defp get_breadcrumbs(_conn, _resource, _, _, _), do: []
 
-  defp get_name(id, name) when is_binary(name), do: name
-  defp get_name(id, name) when is_integer(name), do: Integer.to_string(name)
+  defp get_name(_id, name) when is_binary(name), do: name
+  defp get_name(_id, name) when is_integer(name), do: Integer.to_string(name)
   defp get_name(id, _), do: Integer.to_string(id)
 
   defp get_label(defn, name) do
