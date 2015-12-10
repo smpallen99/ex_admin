@@ -40,7 +40,7 @@ defmodule ExAdmin.Mixfile do
       {:exactor, "~>1.0.0"}, 
       {:ex_doc, "~>0.10.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:ex_queb, path: "../ex_queb"},
+      {:ex_queb, github: "E-MetroTel/ex_queb"},
     ]
   end
 end
