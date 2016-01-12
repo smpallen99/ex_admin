@@ -4,7 +4,7 @@ defmodule ExAdmin.Mixfile do
   def project do
     [app: :ex_admin,
      version: "0.3.2",
-     elixir: "~> 1.0",
+     elixir: "~> 1.2",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
@@ -23,12 +23,12 @@ defmodule ExAdmin.Mixfile do
   
   defp deps do
     [
-      {:phoenix, "~> 1.0.2", override: true},
-      {:ecto, "~> 1.0.3", override: true },
-      {:phoenix_ecto, "~> 1.1"},
+      {:phoenix, "~> 1.1", override: true},
+      {:ecto, "~> 1.1", override: true },
+      {:phoenix_ecto, "~> 2.0"},
       {:cowboy, "~> 1.0"},
       {:mariaex, ">= 0.0.0"},
-      {:phoenix_html, "~> 2.1", override: true},
+      {:phoenix_html, "~> 2.3", override: true},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:factory_girl_elixir, "~> 0.1.1"},
       {:pavlov, "~> 0.1.2", only: :test},
@@ -37,7 +37,7 @@ defmodule ExAdmin.Mixfile do
       {:xain, github: "smpallen99/xain", override: true},
       {:scrivener, "~> 0.10.0"}, 
       {:csvlixir, "~> 1.0.0"},
-      {:exactor, "~>1.0.0"}, 
+      {:exactor, "~>2.2.0"}, 
       {:ex_doc, "~>0.10.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
     ]
