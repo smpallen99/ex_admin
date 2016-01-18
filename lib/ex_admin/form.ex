@@ -194,7 +194,9 @@ defmodule ExAdmin.Form do
         ExAdmin.Form.build_form(var!(conn), var!(resource), items, var!(params), script_block)
       end
 
-      def get_blocks(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do 
+      def get_blocks(var!(conn), unquote(resource) = var!(resource), var!(params) = _params) do 
+        # TODO: do we need the passed params? they are not used. 
+        _ = {var!(conn), var!(resource), var!(params)}
         import ExAdmin.Register, except: [actions: 1]
         var!(input_blocks, ExAdmin.Form) = [] 
         var!(script_block, ExAdmin.Form) = nil
@@ -510,7 +512,7 @@ defmodule ExAdmin.Form do
   end
   defp get_put_fields(_), do: nil
 
-  defp build_hidden_block(conn, mode) do
+  defp build_hidden_block(_conn, mode) do
     csrf = Plug.CSRFProtection.get_csrf_token
     div style: "margin:0;padding:0;display:inline" do
       Xain.input(name: "utf8", type: :hidden, value: "✓")
@@ -742,7 +744,7 @@ defmodule ExAdmin.Form do
       li ".input" do
         get_resource_field2(resource, field_name) 
         |> Enum.with_index
-        |> Enum.each fn({res, inx}) -> 
+        |> Enum.each(fn({res, inx}) -> 
           fields = fun.(res) |> Enum.reverse
           ext_name = "#{model_name}_#{field_field_name}_#{inx}"
 
@@ -751,7 +753,7 @@ defmodule ExAdmin.Form do
           Xain.input [id: "#{ext_name}_id", 
             name: "#{model_name}[#{field_field_name}][#{new_inx}][id]",
             value: "#{res.id}", type: :hidden]  
-        end
+        end)
         {_, html} = markup :nested do
           ext_name = "#{model_name}_#{field_field_name}_#{new_record_name_var}"
           fields = fun.(ExAdmin.Repo.get_assoc_model(resource, field_name)) |> Enum.reverse

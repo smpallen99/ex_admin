@@ -121,7 +121,7 @@ defmodule ExAdmin.AdminController do
 
   def show(conn, params) do
 
-    contents = case get_registered_by_controller_route(params[:resource]) do
+    {contents, resource} = case get_registered_by_controller_route(params[:resource]) do
       nil -> 
         throw :invalid_route
       defn -> 
@@ -140,38 +140,38 @@ defmodule ExAdmin.AdminController do
         end
 
         if function_exported? model, :show_view, 2 do
-          apply(model, :show_view, [conn, resource])
+          {apply(model, :show_view, [conn, resource]), resource}
         else
-          ExAdmin.Show.default_show_view conn, resource
+          {ExAdmin.Show.default_show_view(conn, resource), resource}
         end
     end
     render conn, "admin.html", html: contents, resource: resource, filters: nil
   end
 
   def edit(conn, params) do
-    contents = case get_registered_by_controller_route(params[:resource]) do
+    {contents, resource} = case get_registered_by_controller_route(params[:resource]) do
       nil -> 
         throw :invalid_route
       defn -> 
         model = defn.__struct__ 
         resource = model.run_query(repo, :edit, params[:id])
         if function_exported? model, :form_view, 3 do
-          apply(model, :form_view, [conn, resource, params])
+          {apply(model, :form_view, [conn, resource, params]), resource}
         else
-          ExAdmin.Form.default_form_view conn, resource, params
+          {ExAdmin.Form.default_form_view(conn, resource, params), resource}
         end
     end
     render conn, "admin.html", html: contents, resource: resource, filters: nil
   end
 
   def new(conn, params) do
-    contents = case get_registered_by_controller_route(params[:resource]) do
+    {contents, resource} = case get_registered_by_controller_route(params[:resource]) do
       nil -> 
         throw :invalid_route
       defn -> 
         model = defn.__struct__ 
         resource = model.__struct__.resource_model.__struct__
-        do_form_view model, conn, resource, params
+        {do_form_view(model, conn, resource, params), resource}
     end
     render conn, "admin.html", html: contents, resource: resource, filters: nil
   end

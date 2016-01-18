@@ -24,7 +24,7 @@ defmodule ExAdmin.Query do
     |> filter(params)
     |> repo.paginate(params)
   end
-  defp paginate(query, repo, :nested, params) do 
+  defp paginate(query, repo, :nested, _params) do 
     apply repo, get_method(:nested), [query]
   end
   defp paginate(query, repo, action, _) do 

@@ -228,7 +228,7 @@ defmodule ExAdmin.Repo do
     cs = assoc_model.changeset(assoc_resource, params)
     |> attributes_for_translate_errors(resource, model, inx)
 
-    fun = fn(_, _) -> end
+    fun = fn(_, _) -> nil end
     
     {cs, fun, model}
   end
