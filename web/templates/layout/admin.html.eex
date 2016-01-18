@@ -33,7 +33,7 @@
           <div id="active_admin_content" class="with_sidebar">
             <div id="main_content_wrapper">
               <div id="main_content">
-                <%= @inner %>
+                <%= render @view_module, @view_template, assigns %>
               </div>
             </div>
             <div id="sidebar">
@@ -44,7 +44,7 @@
           <div id="active_admin_content" class="without_sidebar">
             <div id="main_content_wrapper">
               <div id="main_content">
-                <%= @inner %>
+                <%= render @view_module, @view_template, assigns %>
               </div>
             </div>
           </div>
