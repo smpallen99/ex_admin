@@ -71,7 +71,7 @@ defmodule ExAdmin.Repo do
   end
 
   def update(%Changeset{} = changeset) do
-    resource = repo.update changeset.changeset
+    {:ok, resource} = repo.update changeset.changeset
     
     for {cs, fun} <- changeset.dependents do
       if cs do
@@ -246,8 +246,8 @@ defmodule ExAdmin.Repo do
     # get the join model atom
     join_table_name = get_assoc_join_name(resource, Utils.to_atom(has_many_atom))
     struct(join_model.__struct__, [
-      {res_model.__schema__(:association, join_table_name).assoc_key, resource.id},
-      {new_model.__struct__.__schema__(:association, join_table_name).assoc_key, new_model.id}
+      {res_model.__schema__(:association, join_table_name).related_key, resource.id},
+      {new_model.__struct__.__schema__(:association, join_table_name).related_key, new_model.id}
     ])
   end
 
@@ -257,8 +257,8 @@ defmodule ExAdmin.Repo do
     # get the join model atom
     join_table_name = get_assoc_join_name(resource, Utils.to_atom(has_many_atom))
 
-    field1 = res_model.__schema__(:association, join_table_name).assoc_key
-    field2 = new_model.__struct__.__schema__(:association, join_table_name).assoc_key 
+    field1 = res_model.__schema__(:association, join_table_name).related_key
+    field2 = new_model.__struct__.__schema__(:association, join_table_name).related_key 
 
     "from c in #{join_model}, where: c.#{field1} == #{resource.id} and " <>
       "c.#{field2} == #{new_model.id}"
@@ -284,8 +284,8 @@ defmodule ExAdmin.Repo do
       %{through: [first, _]} -> 
         # assoc_model =  res_model.__schema__(:association, first).assoc_key
         {:ok, {
-          res_model.__schema__(:association, first).assoc_key, 
-          res_model.__schema__(:association, first).assoc.assoc_key, 
+          res_model.__schema__(:association, first).related_key, 
+          res_model.__schema__(:association, first).related.related_key, 
         }}
       _ -> 
         {:error, :notfound}
@@ -299,7 +299,7 @@ defmodule ExAdmin.Repo do
     res_model = resource.__struct__
     case res_model.__schema__(:association, field) do
       %{through: [first, second]} -> 
-        {:ok, {res_model.__schema__(:association, first).assoc, second}}
+        {:ok, {res_model.__schema__(:association, first).related, second}}
       _ -> 
         {:error, :notfound}
     end
@@ -311,7 +311,7 @@ defmodule ExAdmin.Repo do
   def get_assoc_model(resource, field) do
     case get_assoc_join_model(resource, field) do
       {:ok, {assoc, second}} -> 
-        {assoc.__schema__(:association, second).assoc, assoc}
+        {assoc.__schema__(:association, second).related, assoc}
       error ->  
         error
     end
