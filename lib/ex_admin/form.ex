@@ -718,18 +718,10 @@ defmodule ExAdmin.Form do
   def build_item(conn, %{type: :input, resource: resource, name: field_name, opts: opts}, 
        _resource, model_name, errors) do
     errors = get_errors(errors, field_name)
-    # Logger.warn "--> build_item: field_name: #{inspect field_name}, opts: #{inspect opts}"
     label = get_label(field_name, opts)
     wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, fn(ext_name) -> 
-      Map.put_new(opts, :type, :text)
-      |> Map.put_new(:maxlength, "255")
-      |> Map.put_new(:name, "#{model_name}[#{field_name}]")
-      |> Map.put_new(:id, ext_name)
-      |> Map.put_new(:value, Map.get(resource, field_name, "") |> escape_value)
-      |> Map.delete(:display)
-      |> Map.to_list
-      |> Xain.input
-      build_errors(errors)
+      resource.__struct__.__schema__(:type, field_name)
+      |> build_control(resource, opts, model_name, field_name, ext_name, errors) 
     end)
   end
 
@@ -809,6 +801,35 @@ defmodule ExAdmin.Form do
       end
     end
     ret
+  end
+
+  @doc false 
+  def build_control(:boolean, resource, opts, model_name, field_name, ext_name, errors) do
+    Xain.input type: :hidden, value: "false", name: "#{model_name}[#{field_name}]"
+    if Map.get(resource, field_name) do 
+      Map.put_new(opts, :selected, "selected")
+    else
+      opts
+    end
+    |> Map.put_new(:type, :checkbox)
+    |> Map.put_new(:value, "true")
+    |> Map.put_new(:name, "#{model_name}[#{field_name}]")
+    |> Map.put_new(:id, ext_name)
+    |> Map.to_list
+    |> Xain.input
+    build_errors(errors)
+  end
+
+  def build_control(_type, resource, opts, model_name, field_name, ext_name, errors) do
+    Map.put_new(opts, :type, :text)
+    |> Map.put_new(:maxlength, "255")
+    |> Map.put_new(:name, "#{model_name}[#{field_name}]")
+    |> Map.put_new(:id, ext_name)
+    |> Map.put_new(:value, Map.get(resource, field_name, "") |> escape_value)
+    |> Map.delete(:display)
+    |> Map.to_list
+    |> Xain.input
+    build_errors(errors)
   end
 
   @doc false
