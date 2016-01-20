@@ -1,6 +1,6 @@
 defmodule ExAdmin.Repo do
   @moduledoc false
-  require Logger
+  # require Logger
   alias ExAdmin.Utils
   alias ExAdmin.Helpers
   alias ExAdmin.Changeset
@@ -20,17 +20,7 @@ defmodule ExAdmin.Repo do
     do: changeset(changeset, resource, %{})
   def changeset(%Changeset{} = changeset, resource, params) do
     cs = resource.__struct__.changeset(resource, params)
-    cs = struct(cs, model: update_model(cs.model, params))
     Changeset.update(changeset, valid?: cs.valid?, changeset: cs, errors: cs.errors)
-  end
-
-  defp update_model(model, nil), do: model
-  defp update_model(model, params) do 
-    filtered = Map.to_list(params)
-    |> Enum.reduce(params, fn({k,v}, acc) -> 
-      if v == "", do: Map.delete(acc, k), else: acc
-    end)
-    struct model, filtered
   end
 
   def changeset_attributes_for(%Changeset{} = changeset, resource, params) do
@@ -150,6 +140,7 @@ defmodule ExAdmin.Repo do
   end
 
   def do_collection(resource, {assoc, ids}) do
+    # Logger.warn "... assoc: #{inspect assoc}, ids: #{inspect ids}"
     {assoc_model, join_model} = get_assoc_model resource, assoc
     assoc_instance = assoc_model.__struct__
     selected_collection = for id <- ids, do: struct(assoc_instance, id: id)

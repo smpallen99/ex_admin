@@ -23,6 +23,7 @@ defmodule ExAdmin.Mixfile do
   
   defp deps do
     [
+      {:decimal, "~> 1.0"},
       {:phoenix, "~> 1.1.2", override: true},
       {:ecto, "~> 1.1", override: true },
       {:phoenix_ecto, "~> 2.0"},

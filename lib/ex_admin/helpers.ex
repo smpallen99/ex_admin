@@ -172,6 +172,7 @@ defmodule ExAdmin.Helpers do
 
   def get_resource_field2(resource, field_name) do
     case Map.get(resource, field_name) do
+      nil -> []
       %Ecto.Association.NotLoaded{} -> []
       other -> other
     end

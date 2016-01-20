@@ -1,8 +1,7 @@
 defmodule ExAdmin.AdminController do
   @moduledoc false
   use ExAdmin.Web, :controller
-  require Logger
-  # alias Survey.Repo
+  # require Logger
   import ExAdmin
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
@@ -11,24 +10,28 @@ defmodule ExAdmin.AdminController do
   plug :set_layout
   
   def action(%{private: %{phoenix_action: action}} = conn, _options) do
-    params = filter_params(conn.params)
-    handle_action(conn, action, params, params[:resource])
+    handle_action(conn, action, conn.params["resource"])
   end
-  defp handle_action(conn, action, params, nil) do
+
+  defp handle_action(conn, action, nil) do
     ExAdmin.get_all_registered
     |> Enum.sort(&(elem(&1,1).menu[:priority] < elem(&2,1).menu[:priority]))
     |> hd
     |> case do
       {_, %{controller_route: resource}} -> 
+        conn = scrub_params(conn, resource, action)
+        params = filter_params(conn.params)
         conn
         |> struct(path_info: conn.path_info ++ [resource])
         |> struct(params: Map.put(conn.params, "resource", resource)) 
-        |> handle_action(action, Map.put(params, :resource, resource), resource)
+        |> handle_action(action, resource)
       _other -> 
         throw :invalid_route
     end
   end
-  defp handle_action(conn, action, params, resource) do
+  defp handle_action(conn, action, resource) do
+    conn = scrub_params(conn, resource, action)
+    params = filter_params(conn.params)
     case get_registered_by_controller_route(resource) do
       nil -> 
         throw :invalid_route
@@ -41,6 +44,15 @@ defmodule ExAdmin.AdminController do
         apply(__MODULE__, action, [conn, params])
     end
   end
+
+  defp scrub_params(conn, required_key, action) when action in [:create, :update] do
+    if conn.params[required_key] do
+      Phoenix.Controller.scrub_params conn, required_key   
+    else
+      conn
+    end
+  end
+  defp scrub_params(conn, _required_key, _action), do: conn
 
   def handle_custom_actions(conn, action, defn, params) do
     %{member_actions: member_actions, collection_actions: collection_actions} = defn
@@ -216,7 +228,6 @@ defmodule ExAdmin.AdminController do
         resource_model = model.__struct__.resource_model 
         |> base_name |> String.downcase |> String.to_atom
         resource = model.run_query(repo, :edit, params[:id])
-
         changeset = ExAdmin.Repo.changeset(resource, params[resource_model])
         if changeset.valid? do
           ExAdmin.Repo.update(changeset)

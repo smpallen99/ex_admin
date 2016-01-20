@@ -450,12 +450,6 @@ defmodule ExAdmin.Form do
 
   @doc false
   def build_form(conn, resource, items, params, script_block) do
-
-    # items 
-    # |> hd
-    # |> Map.get(:inputs)
-    # |> Enum.each(&(Logger.warn "==> build_form: item: #{inspect &1}"))
-    
     mode = if params[:id], do: :edit, else: :new
     markup do
       model_name = model_name resource
@@ -807,7 +801,7 @@ defmodule ExAdmin.Form do
   def build_control(:boolean, resource, opts, model_name, field_name, ext_name, errors) do
     Xain.input type: :hidden, value: "false", name: "#{model_name}[#{field_name}]"
     if Map.get(resource, field_name) do 
-      Map.put_new(opts, :selected, "selected")
+      Map.put_new(opts, :checked, "checked")
     else
       opts
     end
