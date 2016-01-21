@@ -814,7 +814,13 @@ defmodule ExAdmin.Form do
     build_errors(errors)
   end
 
+  def build_control(Ecto.DateTime, resource, opts, model_name, field_name, ext_name, errors) do
+    %{name: model_name, model: resource, id: model_name}
+    |> datetime_select(field_name, Map.get(opts, :options, []))
+  end
+
   def build_control(_type, resource, opts, model_name, field_name, ext_name, errors) do
+    # Logger.debug "build_control type: #{inspect _type}"
     Map.put_new(opts, :type, :text)
     |> Map.put_new(:maxlength, "255")
     |> Map.put_new(:name, "#{model_name}[#{field_name}]")
@@ -825,6 +831,179 @@ defmodule ExAdmin.Form do
     |> Xain.input
     build_errors(errors)
   end
+
+  def datetime_select(form, field_name, opts \\ []) do
+    value = value_from(form, field_name)
+
+    builder =
+      Keyword.get(opts, :builder) || fn b ->
+        date_builder(b, opts)
+        text " &mdash; "
+        time_builder(b, opts)
+      end
+
+    builder.(datetime_builder(form, field_name, date_value(value), time_value(value), opts))
+  end
+
+  def date_select(form, field_name, opts \\ []) do
+    value   = Keyword.get(opts, :value, value_from(form, field_name) || Keyword.get(opts, :default))
+    builder = Keyword.get(opts, :builder) || &date_builder(&1, opts)
+    builder.(datetime_builder(form, field_name, date_value(value), nil, opts))
+  end
+
+  defp date_builder(b, _opts) do
+    b.(:year, [])
+    text(" / ") 
+    b.(:month, []) 
+    text(" / ")
+    b.(:day, [])
+  end
+
+  defp date_value(%{"year" => year, "month" => month, "day" => day}),
+    do: %{year: year, month: month, day: day}
+  defp date_value(%{year: year, month: month, day: day}),
+    do: %{year: year, month: month, day: day}
+
+  defp date_value({{year, month, day}, _}),
+    do: %{year: year, month: month, day: day}
+  defp date_value({year, month, day}),
+    do: %{year: year, month: month, day: day}
+
+  defp date_value(nil),
+    do: %{year: nil, month: nil, day: nil}
+  defp date_value(other),
+    do: raise(ArgumentError, "unrecognized date #{inspect other}")
+
+  def time_select(form, field, opts \\ []) do
+    value   = Keyword.get(opts, :value, value_from(form, field) || Keyword.get(opts, :default))
+    builder = Keyword.get(opts, :builder) || &time_builder(&1, opts)
+    builder.(datetime_builder(form, field, nil, time_value(value), opts))
+  end
+
+  defp time_builder(b, opts) do
+    b.(:hour, [])
+    text(" : ") 
+    b.(:min, [])
+
+    if Keyword.get(opts, :sec) do
+      text(" : ") 
+      b.(:sec, [])
+    end
+  end
+
+  defp time_value(%{"hour" => hour, "min" => min} = map),
+    do: %{hour: hour, min: min, sec: Map.get(map, "sec", 0)}
+  defp time_value(%{hour: hour, min: min} = map),
+    do: %{hour: hour, min: min, sec: Map.get(map, :sec, 0)}
+
+  defp time_value({_, {hour, min, sec, _msec}}),
+    do: %{hour: hour, min: min, sec: sec}
+  defp time_value({hour, min, sec, _mseg}),
+    do: %{hour: hour, min: min, sec: sec}
+  defp time_value({_, {hour, min, sec}}),
+    do: %{hour: hour, min: min, sec: sec}
+  defp time_value({hour, min, sec}),
+    do: %{hour: hour, min: min, sec: sec}
+
+  defp time_value(nil),
+    do: %{hour: nil, min: nil, sec: nil}
+  defp time_value(other),
+    do: raise(ArgumentError, "unrecognized time #{inspect other}")
+
+  @months [
+    {"January", "1"},
+    {"February", "2"},
+    {"March", "3"},
+    {"April", "4"},
+    {"May", "5"},
+    {"June", "6"},
+    {"July", "7"},
+    {"August", "8"},
+    {"September", "9"},
+    {"October", "10"},
+    {"November", "11"},
+    {"December", "12"},
+  ]
+
+  map = &Enum.map(&1, fn i ->
+    i = Integer.to_string(i)
+    {String.rjust(i, 2, ?0), i}
+  end)
+  @days   map.(1..31)
+  @hours  map.(0..23)
+  @minsec map.(0..59)
+
+  defp datetime_builder(form, field, date, time, parent) do
+    id   = Keyword.get(parent, :id, id_from(form, field))
+    name = Keyword.get(parent, :name, name_from(form, field))
+
+    fn
+      :year, opts when date != nil ->
+        {year, _, _}  = :erlang.date()
+        {value, opts} = datetime_options(:year, year-5..year+5, id, name, parent, date, opts)
+        build_select(:datetime, :year, value, opts)
+      :month, opts when date != nil ->
+        {value, opts} = datetime_options(:month, @months, id, name, parent, date, opts)
+        build_select(:datetime, :month, value, opts)
+      :day, opts when date != nil ->
+        {value, opts} = datetime_options(:day, @days, id, name, parent, date, opts)
+        build_select(:datetime, :day, value, opts)
+      :hour, opts when time != nil ->
+        {value, opts} = datetime_options(:hour, @hours, id, name, parent, time, opts)
+        build_select(:datetime, :hour, value, opts)
+      :min, opts when time != nil ->
+        {value, opts} = datetime_options(:min, @minsec, id, name, parent, time, opts)
+        build_select(:datetime, :min, value, opts)
+      :sec, opts when time != nil ->
+        {value, opts} = datetime_options(:sec, @minsec, id, name, parent, time, opts)
+        build_select(:datetime, :sec, value, opts)
+    end
+  end
+
+  defp build_select(_name, type, value, opts) do
+    value = if Range.range? value do
+      Enum.map value, fn(x) -> 
+        val = Integer.to_string x
+        {val,val}
+      end
+    else
+      value
+    end
+    select "", opts do
+      current_value = "#{opts[:value]}"
+      Enum.each value, fn({k,v}) -> 
+        selected = if v == current_value, do: [selected: "selected"], else: []
+        option k, [{:value, v}| selected]
+      end
+    end
+  end
+
+  defp datetime_options(type, values, id, name, parent, datetime, opts) do
+    opts = Keyword.merge Keyword.get(parent, type, []), opts
+    suff = Atom.to_string(type)
+
+    {value, opts} = Keyword.pop(opts, :options, values)
+
+    {value,
+      opts
+      |> Keyword.put_new(:id, id <> "_" <> suff)
+      |> Keyword.put_new(:name, name <> "[" <> suff <> "]")
+      |> Keyword.put_new(:value, Map.get(datetime, type))}
+  end
+
+  defp value_from(%{model: resource}, field_name) do
+    Map.get(resource, field_name, "")
+  end
+
+  defp id_from(%{id: id}, field),
+    do: "#{id}_#{field}"
+  defp id_from(name, field) when is_atom(name),
+    do: "#{name}_#{field}"
+
+  defp name_from(%{name: name}, field),
+    do: "#{name}[#{field}]"
+  defp name_from(name, field) when is_atom(name),
+    do: "#{name}[#{field}]"
 
   @doc false
   def build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_field_name, model_name, errors) do
@@ -934,6 +1113,7 @@ defmodule ExAdmin.Form do
     end
   end
 
+  defp escape_value(nil), do: nil
   defp escape_value(value) do
     Phoenix.HTML.html_escape(value) |> elem(1)
   end
