@@ -824,18 +824,33 @@ defmodule ExAdmin.Form do
   def build_control(Ecto.DateTime, resource, opts, model_name, field_name, ext_name, errors) do
     %{name: model_name, model: resource, id: model_name}
     |> datetime_select(field_name, Map.get(opts, :options, []))
+    build_errors(errors)
   end
   def build_control(Ecto.Date, resource, opts, model_name, field_name, ext_name, errors) do
     %{name: model_name, model: resource, id: model_name}
     |> date_select(field_name, Map.get(opts, :options, []))
+    build_errors(errors)
   end
   def build_control(Ecto.Time, resource, opts, model_name, field_name, ext_name, errors) do
     %{name: model_name, model: resource, id: model_name}
     |> time_select(field_name, Map.get(opts, :options, []))
+    build_errors(errors)
+  end
+
+  def build_control(:text, resource, opts, model_name, field_name, ext_name, errors) do
+    # Logger.debug "build_control type: #{inspect _type}"
+    value = Map.get(resource, field_name, "") |> escape_value
+    options = opts
+    |> Map.put_new(:name, "#{model_name}[#{field_name}]")
+    |> Map.put_new(:id, ext_name)
+    |> Map.delete(:display)
+    |> Map.to_list
+    Xain.textarea value, options
+    build_errors(errors)
   end
 
   def build_control(_type, resource, opts, model_name, field_name, ext_name, errors) do
-    # Logger.debug "build_control type: #{inspect _type}"
+    # Logger.debug "build_control name: #{field_name} type: #{inspect _type}"
     Map.put_new(opts, :type, :text)
     |> Map.put_new(:maxlength, "255")
     |> Map.put_new(:name, "#{model_name}[#{field_name}]")
