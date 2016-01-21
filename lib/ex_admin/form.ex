@@ -825,6 +825,14 @@ defmodule ExAdmin.Form do
     %{name: model_name, model: resource, id: model_name}
     |> datetime_select(field_name, Map.get(opts, :options, []))
   end
+  def build_control(Ecto.Date, resource, opts, model_name, field_name, ext_name, errors) do
+    %{name: model_name, model: resource, id: model_name}
+    |> date_select(field_name, Map.get(opts, :options, []))
+  end
+  def build_control(Ecto.Time, resource, opts, model_name, field_name, ext_name, errors) do
+    %{name: model_name, model: resource, id: model_name}
+    |> time_select(field_name, Map.get(opts, :options, []))
+  end
 
   def build_control(_type, resource, opts, model_name, field_name, ext_name, errors) do
     # Logger.debug "build_control type: #{inspect _type}"

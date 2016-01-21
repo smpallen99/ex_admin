@@ -180,6 +180,7 @@ defmodule ExAdmin.Utils do
   def confirm_message, do: "Are you sure you want to delete this?"
 
   @doc false
+  def to_string(nil), do: ""
   def to_string(string) when is_binary(string), do: string
   def to_string(number) when is_number(number), do: "#{number}"
   def to_string(atom) when is_number(atom), do: Atom.to_string(atom)
@@ -196,6 +197,9 @@ defmodule ExAdmin.Utils do
   end
   def to_string(%Ecto.Date{} = dt) do
     Ecto.Date.to_string dt
+  end
+  def to_string(other) do
+    "#{inspect other}"
   end
 
   @doc false

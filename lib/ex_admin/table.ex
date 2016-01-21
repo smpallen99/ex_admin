@@ -141,6 +141,16 @@ defmodule ExAdmin.Table do
       text to_string(dt)
     end
   end
+  def handle_contents(%Ecto.Time{} = dt, field_name) do
+    td class: to_class(field_name) do
+      text to_string(dt)
+    end
+  end
+  def handle_contents(%Ecto.Date{} = dt, field_name) do
+    td class: to_class(field_name) do
+      text to_string(dt)
+    end
+  end
   def handle_contents(%{}, _field_name), do: []
   def handle_contents(contents, field_name) when is_binary(contents) do
     td(".#{to_class(field_name)}") do

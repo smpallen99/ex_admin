@@ -4,6 +4,7 @@ defmodule ExAdmin.Helpers do
   require Logger
   require Integer
   use Xain
+  import Kernel, except: [to_string: 1]
   import ExAdmin.Utils
 
   def build_fieldset_legend(nil), do: []
@@ -135,20 +136,7 @@ defmodule ExAdmin.Helpers do
   end 
 
   def build_single_field(resource, conn, f_name, opts) do
-    case get_resource_field(resource, f_name, opts) do
-      nil -> 
-        ""
-      other when is_binary(other) -> 
-        other
-      integer when is_integer(integer) -> 
-        "#{integer}"
-
-      %Ecto.DateTime{} = datetime -> 
-        Ecto.DateTime.to_string datetime
-
-      other -> 
-        "#{inspect other}"
-    end
+    to_string(get_resource_field(resource, f_name, opts))
     |> build_link_for(conn, opts, resource, f_name)
   end
   
