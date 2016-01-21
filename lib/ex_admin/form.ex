@@ -64,6 +64,13 @@ defmodule ExAdmin.Form do
 
       input user, :password, type: :password
 
+  ### Customizing DateTime fields
+
+      input user, :start_at, options: [sec: []]
+
+  Most of the options from the `datetime_select` control from 
+  `phoenix_html` should work.
+
   ## Rendering a has_many relationship
 
   The example at the beginning of the chapter illustrates how to add 
