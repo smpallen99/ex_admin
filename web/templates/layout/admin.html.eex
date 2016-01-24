@@ -20,10 +20,10 @@
         <div class="header" id="header">
           <h1 class="site_title" id="site_title"><%= site_title %></h1>
           <%= ExAdmin.Navigation.nav_view(@conn) %>
-          <%= if ExAdmin.Utils.use_authentication and is_function(:current_user, 1) do %>
+          <%= if use_authentication?(@conn) do %>
             <p class="header-item" id="utility_nav">
-              <span class="current_user"><%= apply(:current_user, [@conn]).name %></span>
-              <%= link "Logout", to: apply(:session_path, [@conn, :destroy]), "data-method": "delete", rel: "nofollow" %>
+              <span class="current_user"><%= current_user_name(@conn) %></span>
+              <%= link "Logout", to: session_path(@conn, :destroy), "data-method": "delete", rel: "nofollow" %>
             </p>  
           <% end %>
         </div>    

@@ -2,6 +2,7 @@ defmodule ExAdmin.LayoutView do
   @moduledoc false
   use ExAdmin.Web, :view
   import ExAdmin.ViewHelpers
+  import ExAdmin.Authentication
 
   def site_title do
     case Application.get_env(:ex_admin, :module) |> Module.split do
