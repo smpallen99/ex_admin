@@ -37,7 +37,7 @@ defmodule ExAdmin.AdminController do
         throw :invalid_route
       %{__struct__: _} = defn -> 
         conn
-        |> handle_plugs(action, defn, params)
+        |> handle_plugs(action, defn)
         |> handle_before_filter(action, defn, params)
         |> handle_custom_actions(action, defn, params)
       _ -> 
@@ -54,6 +54,9 @@ defmodule ExAdmin.AdminController do
   end
   defp scrub_params(conn, _required_key, _action), do: conn
 
+  def handle_custom_actions({conn, params}, action, defn, _) do
+    handle_custom_actions(conn, action, defn, params)
+  end
   def handle_custom_actions(conn, action, defn, params) do
     %{member_actions: member_actions, collection_actions: collection_actions} = defn
     cond do
@@ -71,16 +74,19 @@ defmodule ExAdmin.AdminController do
       nil -> 
         conn
       {name, opts} -> 
-        if action in opts[:only] do
-          apply defn.__struct__, name, [conn, params]
-        else
-          conn
+        filter = cond do
+          opts[:only] -> 
+            if action in opts[:only], do: true, else: false
+          opts[:except] -> 
+            if not action in opts[:except], do: true, else: false
+          true -> true
         end
+        if filter, do: apply(defn.__struct__, name, [conn, params]), else: conn
     end
   end
 
-  defp handle_plugs(conn, :nested, _defn, _params), do: conn
-  defp handle_plugs(conn, _action, defn, _params) do
+  defp handle_plugs(conn, :nested, _defn), do: conn
+  defp handle_plugs(conn, _action, defn) do
     case Application.get_env(:ex_admin, :plug, []) do
       list when is_list(list) -> list
       item -> [{item, []}]
@@ -100,7 +106,6 @@ defmodule ExAdmin.AdminController do
 
   defp set_layout(conn, _) do
     put_layout(conn, "admin.html")
-    # put_layout(conn, {ExAdmin.LayoutView, "admin.html"})
   end
 
   def index(conn, params) do

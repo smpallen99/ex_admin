@@ -84,14 +84,13 @@ defmodule ExAdmin.Register do
       Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true 
       Module.register_attribute __MODULE__, :selectable_column, accumulate: false, persist: true
       Module.register_attribute(__MODULE__, :form_items, accumulate: true, persist: true)
+      Module.register_attribute(__MODULE__, :controller_plugs, accumulate: true, persist: true)
       module = unquote(mod) 
       Module.put_attribute(__MODULE__, :module, module)
       Module.put_attribute(__MODULE__, :query, nil)
       Module.put_attribute(__MODULE__, :selectable_column, nil)
-      Module.put_attribute(__MODULE__, :controller_plugs, nil)
 
       alias unquote(mod)
-      #import ExAuth
       import Ecto.Query
       
       def config do
@@ -186,7 +185,7 @@ defmodule ExAdmin.Register do
 
   * `define_method` - Create a controller action with the body of
     the action
-  * `before_filer` - Add a before_filter to the controller
+  * `before_filter` - Add a before_filter to the controller
   * `redirect_to` - Redirects to another page
   * `plug` - Add a plug to the controller
 
@@ -195,7 +194,6 @@ defmodule ExAdmin.Register do
     quote do
       Module.register_attribute(__MODULE__, :controller_methods, accumulate: false, persist: true)
       Module.register_attribute(__MODULE__, :controller_filters, accumulate: true, persist: true)
-      Module.register_attribute(__MODULE__, :controller_plugs, accumulate: true, persist: true)
       Module.put_attribute(__MODULE__, :controller_methods, [])
 
       unquote(block)
@@ -229,7 +227,6 @@ defmodule ExAdmin.Register do
       methods = Module.get_attribute(__MODULE__, :controller_methods)
 
       Module.put_attribute(__MODULE__, :controller_methods, [{unquote(name), []} | methods])
-      #Module.put_attribute(__MODULE__, :last_controller_method, unquote(name))
       unquote(block)
     end
   end
@@ -239,6 +236,9 @@ defmodule ExAdmin.Register do
 
   The before filter is executed before the controller action(s) are
   executed.
+
+  Normally, the function should return the conn struct. However, if you 
+  want to modify the params, then return the tuple `{conn, new_parms}`.
 
   ## Examples
 
@@ -253,9 +253,17 @@ defmodule ExAdmin.Register do
           conn
         end
       end
+
+      controller do 
+        before_filter :no_change, except: [:create, :modify]
+
+        def no_change(conn, params) do
+          {conn, put_in(params, [:setting, :no_mod], true)}
+        end
+      end
   """
   defmacro before_filter(name, opts) do
-    quote do
+    quote location: :keep do
       Module.put_attribute(__MODULE__, :controller_filters, {:before_filter, {unquote(name), unquote(opts)}})
     end
   end
