@@ -465,6 +465,8 @@ defmodule ExAdmin.Form do
       Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "formtastic #{model_name}", 
           id: "new_#{model_name}", method: :post, novalidate: :novalidate  do
 
+        resource = setup_resource(resource, params, model_name)
+
         build_hidden_block(conn, mode)
         scripts = build_main_block(conn, resource, model_name, items) 
         |> build_scripts
@@ -472,6 +474,15 @@ defmodule ExAdmin.Form do
       end 
       put_script_block(scripts)
       put_script_block(script_block)
+    end
+  end
+
+  defp setup_resource(resource, params, model_name) do
+    model_name = String.to_atom(model_name)
+    case params[model_name] do
+      nil -> resource
+      model_params -> 
+        struct(resource, Map.to_list(model_params))
     end
   end
 
@@ -638,8 +649,8 @@ defmodule ExAdmin.Form do
     end
   end
 
-  def build_item(conn, %{type: :input, name: field_name, resource: resource, 
-       opts: %{collection: collection}} = item, _resource, model_name, errors) do
+  def build_item(conn, %{type: :input, name: field_name, resource: ________resource, 
+       opts: %{collection: collection}} = item, resource, model_name, errors) do
 
     if is_function(collection) do
       collection = collection.(conn, resource)
@@ -716,8 +727,8 @@ defmodule ExAdmin.Form do
     text elem(content, 1)
   end
 
-  def build_item(conn, %{type: :input, resource: resource, name: field_name, opts: opts}, 
-       _resource, model_name, errors) do
+  def build_item(conn, %{type: :input, resource: _resource, name: field_name, opts: opts}, 
+       resource, model_name, errors) do
     errors = get_errors(errors, field_name)
     label = get_label(field_name, opts)
     wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, fn(ext_name) -> 
@@ -726,8 +737,8 @@ defmodule ExAdmin.Form do
     end)
   end
 
-  def build_item(conn, %{type: :has_many, resource: resource, name: field_name, 
-      opts: %{fun: fun}}, _resource, model_name, errors) do
+  def build_item(conn, %{type: :has_many, resource: _resource, name: field_name, 
+      opts: %{fun: fun}}, resource, model_name, errors) do
     field_field_name = "#{field_name}_attributes"
     human_label = "#{humanize(field_name) |> Inflex.singularize}"
 
@@ -850,7 +861,7 @@ defmodule ExAdmin.Form do
   end
 
   def build_control(_type, resource, opts, model_name, field_name, ext_name, errors) do
-    # Logger.debug "build_control name: #{field_name} type: #{inspect _type}"
+    # Logger.debug "build_control res: #{inspect resource}, name: #{inspect field_name} type: #{inspect _type}"
     Map.put_new(opts, :type, :text)
     |> Map.put_new(:maxlength, "255")
     |> Map.put_new(:name, "#{model_name}[#{field_name}]")
