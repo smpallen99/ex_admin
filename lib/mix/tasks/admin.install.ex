@@ -99,7 +99,7 @@ defmodule Mix.Tasks.Admin.Install do
     unless String.contains? source, ":xain, :quote" do
       append <> """
       config :xain, :quote, "'"
-      config :xain, :after_callback, &Phoenix.HTML.raw/1
+      config :xain, :after_callback, {Phoenix.HTML, :raw}
 
       """
     else

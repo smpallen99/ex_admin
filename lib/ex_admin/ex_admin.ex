@@ -54,6 +54,16 @@ defmodule ExAdmin do
     end
   end
 
+  # check for old xain.after_callback format and issue a compile time
+  # exception if not configured correctly.
+  
+  case Application.get_env :xain, :after_callback do
+    nil -> nil
+    {_, _} -> nil
+    _ -> 
+      raise ExAdmin.CompileError, message: "Invalid xain_callback in config. Use {Phoenix.HTML, :raw}"
+  end
+
   @doc false
   def registered, do: Application.get_env(:ex_admin, :modules, [])
 
