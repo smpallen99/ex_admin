@@ -11,7 +11,7 @@ defmodule ExAdmin.BreadCrumb do
      Map.get(defn, :page_name), conn.private[:phoenix_action]
   end
 
-    defp get_breadcrumbs(conn, _resource, _, nil, :index) do 
+  defp get_breadcrumbs(conn, _resource, _, nil, :index) do 
     case conn.path_info do
       [admin | _] -> [{admin_link(admin), admin}]
       _ -> []

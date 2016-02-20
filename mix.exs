@@ -15,7 +15,7 @@ defmodule ExAdmin.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :ex_queb]]
   end
 
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
@@ -41,6 +41,7 @@ defmodule ExAdmin.Mixfile do
       {:exactor, "~>1.0.0"}, 
       {:ex_doc, "~>0.10.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
+      {:ex_queb, github: "E-MetroTel/ex_queb"},
     ]
   end
 end

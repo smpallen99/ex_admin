@@ -164,12 +164,12 @@ defmodule ExAdmin.Index do
 
   @doc false
   def render_index_table(conn, page, columns, %{selectable_column: selectable}) do
-    href = get_route_path(conn, :index) <> "?order="
     resources = page.entries
     fields = get_resource_fields resources
     count = page.total_entries
     name = resource_model(conn) |> titleize |> Inflex.pluralize
-    order = get_sort_order(conn.params["order"]) 
+    order = ExQueb.get_sort_order(conn.params["order"]) 
+    href = get_route_path(conn, :index) <> "?order="
     defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
     batch_actions = not false in defn.batch_actions
     selectable = selectable and batch_actions
@@ -204,19 +204,36 @@ defmodule ExAdmin.Index do
                 table("#contacts.index_table.index", border: "0", cellspacing: "0", 
                     cellpadding: "0", paginator: "true") do
                   ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: href, 
-                    sort: "desc", order: order, fields: fields, selectable_column: selectable})
+                    sort: "desc", order: order, fields: fields, page: page,
+                    filter: build_filter_href("", conn.params["q"]),
+                    selectable_column: selectable})
                   build_table_body(conn, resources, columns, %{selectable_column: selectable})
                 end # table          
               end
             end # .index_content
           end
           div "#index_footer" do
-            ExAdmin.Paginate.paginate(href, page.page_number, page.page_size, page.total_pages, count, name)
+            href 
+            |> build_order_href(order)
+            |> build_filter_href(conn.params["q"])
+            |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, count, name)
             download_links(conn)
           end
         end
       end
     end
+  end
+
+  defp build_order_href(href, {name, sort}), do: href <> "#{name}_#{sort}"
+  defp build_order_href(href, _), do: href
+
+  defp build_filter_href(href, nil), do: href
+  defp build_filter_href(href, q) do 
+    q
+    |> Map.to_list
+    |> Enum.reduce(href, fn({name, value}, acc) -> 
+      acc <> "&q%5B" <> name <> "%5D=" <> value
+    end)
   end
 
   @doc false

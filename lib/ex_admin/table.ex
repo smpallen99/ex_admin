@@ -122,18 +122,28 @@ defmodule ExAdmin.Table do
   end 
   def build_th(field_name, _, _), do: build_th(field_name, nil)
   def _build_th(field_name, _opts, %{path_prefix: path_prefix, order: {name, sort}, 
-      fields: _fields}) when field_name == name do
+      fields: _fields} = table_opts) when field_name == name do
     link_order = if sort == "desc", do: "asc", else: "desc"
+    page_segment = case Map.get table_opts, :page, nil do
+      nil -> ""
+      page -> "&page=#{page.page_number}"
+    end
     th(".sortable.sorted-#{sort}.#{field_name}") do
       a("#{humanize field_name}", href: path_prefix <> 
-        field_name <> "_#{link_order}")
+        field_name <> "_#{link_order}#{page_segment}" <> 
+        Map.get(table_opts, :filter, ""))
     end
   end
   def _build_th(field_name, _opts, %{path_prefix: path_prefix} = table_opts) do
     sort = Map.get(table_opts, :sort, "asc")
+    page_segment = case Map.get table_opts, :page, nil do
+      nil -> ""
+      page -> "&page=#{page.page_number}"
+    end
     th(".sortable.#{field_name}") do
       a("#{humanize field_name}", href: path_prefix <> 
-        field_name <> "_#{sort}")
+        field_name <> "_#{sort}#{page_segment}" <> 
+        Map.get(table_opts, :filter, ""))
     end
   end
   def handle_contents(%Ecto.DateTime{} = dt, field_name) do
