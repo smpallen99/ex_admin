@@ -23,7 +23,7 @@
           <%= if use_authentication?(@conn) do %>
             <p class="header-item" id="utility_nav">
               <span class="current_user"><%= current_user_name(@conn) %></span>
-              <%= link "Logout", to: session_path(@conn, :destroy), "data-method": "delete", rel: "nofollow" %>
+              <%= link "Logout", to: session_path(@conn, :destroy), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
             </p>  
           <% end %>
         </div>    
