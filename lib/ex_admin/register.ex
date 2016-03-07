@@ -40,7 +40,11 @@ defmodule ExAdmin.Register do
 
   """
 
-  @filename "/tmp/ex_admin_registered" 
+  if File.dir?("/tmp") do
+    @filename "/tmp/ex_admin_registered"
+  else
+    @filename System.tmp_dir <> "/ex_admin_registered"
+  end
 
   import ExAdmin.Utils
 
