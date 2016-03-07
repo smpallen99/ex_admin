@@ -28,8 +28,14 @@ defmodule ExAdmin.Filter do
 
   end
 
-  def fields(defn) do
+  def fields(%{index_filters: []} = defn) do
     for field <- defn.resource_model.__schema__(:fields) -- [:id] do
+      {field, defn.resource_model.__schema__(:type, field)}
+    end
+  end
+
+  def fields(%{index_filters: [filters]} = defn) do
+    for field <- filters do
       {field, defn.resource_model.__schema__(:type, field)}
     end
   end
