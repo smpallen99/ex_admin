@@ -38,7 +38,7 @@ defmodule ExAdmin.Mixfile do
       {:xain, github: "smpallen99/xain", override: true},
       {:scrivener, "~> 0.10.0"}, 
       {:csvlixir, "~> 1.0.0"},
-      {:exactor, "~>1.0.0"}, 
+      {:exactor, "~>2.2.0"}, 
       {:ex_doc, "~>0.10.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
     ]
