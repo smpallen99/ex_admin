@@ -643,10 +643,19 @@ defmodule ExAdmin.Register do
 
       filter false
 
+
+  Only show filters for the specified fields:
+
+      filter [:name, :email, :inserted_at]
   """
   defmacro filter(false) do
     quote do
       Module.put_attribute __MODULE__, :index_filters, false
+    end
+  end
+  defmacro filter(fields) when is_list(fields) do
+    quote do
+      Module.put_attribute __MODULE__, :index_filters, unquote(fields)
     end
   end
   defmacro filter(field, opts \\ quote(do: [])) do
