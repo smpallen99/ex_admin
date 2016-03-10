@@ -174,7 +174,6 @@ defmodule ExAdmin do
     case Utils.action_name(conn) do
       :show -> 
         id = Map.get(params, "id")
-        |> String.to_integer
         div(".action_items") do
           for action <- [:edit, :new, :delete], 
             do: action_button(conn, defn, singular, :show, action, actions, id)
