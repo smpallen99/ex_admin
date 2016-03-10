@@ -364,11 +364,7 @@ defmodule ExAdmin.Register do
       end
 
       controller_methods = Module.get_attribute(__MODULE__, :controller_methods)
-      page_name = case page_name do
-        atom when is_atom(atom) -> Atom.to_string atom
-        string -> string
-      end
-      # page_name = String.to_atom(page_name)
+      page_name = Kernel.to_string(page_name)
 
       plugs = case Module.get_attribute(__MODULE__, :controller_plugs) do
         nil -> []

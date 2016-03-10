@@ -832,17 +832,17 @@ defmodule ExAdmin.Form do
     build_errors(errors)
   end
 
-  def build_control(Ecto.DateTime, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(Ecto.DateTime, resource, opts, model_name, field_name, _ext_name, errors) do
     %{name: model_name, model: resource, id: model_name}
     |> datetime_select(field_name, Map.get(opts, :options, []))
     build_errors(errors)
   end
-  def build_control(Ecto.Date, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(Ecto.Date, resource, opts, model_name, field_name, _ext_name, errors) do
     %{name: model_name, model: resource, id: model_name}
     |> date_select(field_name, Map.get(opts, :options, []))
     build_errors(errors)
   end
-  def build_control(Ecto.Time, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(Ecto.Time, resource, opts, model_name, field_name, _ext_name, errors) do
     %{name: model_name, model: resource, id: model_name}
     |> time_select(field_name, Map.get(opts, :options, []))
     build_errors(errors)
@@ -1001,7 +1001,7 @@ defmodule ExAdmin.Form do
     end
   end
 
-  defp build_select(_name, type, value, opts) do
+  defp build_select(_name, _type, value, opts) do
     value = if Range.range? value do
       Enum.map value, fn(x) -> 
         val = Integer.to_string x
