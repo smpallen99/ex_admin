@@ -832,17 +832,17 @@ defmodule ExAdmin.Form do
     build_errors(errors)
   end
 
-  def build_control(Ecto.DateTime, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(Ecto.DateTime, resource, opts, model_name, field_name, _ext_name, errors) do
     %{name: model_name, model: resource, id: model_name}
     |> datetime_select(field_name, Map.get(opts, :options, []))
     build_errors(errors)
   end
-  def build_control(Ecto.Date, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(Ecto.Date, resource, opts, model_name, field_name, _ext_name, errors) do
     %{name: model_name, model: resource, id: model_name}
     |> date_select(field_name, Map.get(opts, :options, []))
     build_errors(errors)
   end
-  def build_control(Ecto.Time, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(Ecto.Time, resource, opts, model_name, field_name, _ext_name, errors) do
     %{name: model_name, model: resource, id: model_name}
     |> time_select(field_name, Map.get(opts, :options, []))
     build_errors(errors)
@@ -1001,7 +1001,7 @@ defmodule ExAdmin.Form do
     end
   end
 
-  defp build_select(_name, type, value, opts) do
+  defp build_select(_name, _type, value, opts) do
     value = if Range.range? value do
       Enum.map value, fn(x) -> 
         val = Integer.to_string x
@@ -1225,6 +1225,7 @@ defmodule ExAdmin.Form do
   def error_messages({:too_short, min}), do: "must be longer than #{min - 1}"
   def error_messages({:must_match, field}), do: "must match #{humanize field}"
   def error_messages(:format), do: "has incorrect format"
+  def error_messages({msg, opts}) when is_binary(msg), do: String.replace(msg, "%{count}", Integer.to_string(opts[:count]))
   def error_messages(other) when is_binary(other), do: other
   def error_messages(other), do: "error: #{inspect other}"
 end

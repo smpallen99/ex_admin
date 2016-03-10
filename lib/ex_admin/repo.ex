@@ -8,18 +8,18 @@ defmodule ExAdmin.Repo do
 
   def repo, do: Application.get_env(:ex_admin, :repo)
 
-  def changeset(resource, nil), do: changeset(resource, %{})
-  def changeset(resource, params) do
+  def changeset(fun, resource, nil), do: changeset(fun, resource, %{})
+  def changeset(fun, resource, params) do
     %ExAdmin.Changeset{}
-    |> changeset(resource, params)
+    |> changeset(fun, resource, params)
     |> changeset_attributes_for(resource, params)
     |> changeset_collection(resource, params)
   end
 
-  def changeset(%Changeset{} = changeset, resource, nil), 
-    do: changeset(changeset, resource, %{})
-  def changeset(%Changeset{} = changeset, resource, params) do
-    cs = resource.__struct__.changeset(resource, params)
+  def changeset(%Changeset{} = changeset, fun, resource, nil), 
+    do: changeset(changeset, fun, resource, %{})
+  def changeset(%Changeset{} = changeset, fun, resource, params) do
+    cs = fun.(resource, params)
     Changeset.update(changeset, valid?: cs.valid?, changeset: cs, errors: cs.errors)
   end
 

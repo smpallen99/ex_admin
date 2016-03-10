@@ -37,10 +37,15 @@ defmodule ExAdmin.Register do
   * `collection_action` - Add a custom action for collection based requests
   * `clear_action_items!` - Remove the action item buttons
   * `action_item` - Defines custom action items
+  * `changesets` - Defines custom changeset functions
 
   """
 
-  @filename "/tmp/ex_admin_registered" 
+  if File.dir?("/tmp") do
+    @filename "/tmp/ex_admin_registered"
+  else
+    @filename System.tmp_dir <> "/ex_admin_registered"
+  end
 
   import ExAdmin.Utils
 
@@ -89,6 +94,7 @@ defmodule ExAdmin.Register do
       Module.put_attribute(__MODULE__, :module, module)
       Module.put_attribute(__MODULE__, :query, nil)
       Module.put_attribute(__MODULE__, :selectable_column, nil)
+      Module.put_attribute(__MODULE__, :changesets, [])
 
       alias unquote(mod)
       import Ecto.Query
@@ -162,6 +168,7 @@ defmodule ExAdmin.Register do
                 index_filters: Module.get_attribute(__MODULE__, :index_filters),
                 selectable_column: Module.get_attribute(__MODULE__, :selectable_column), 
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
+                changesets: Module.get_attribute(__MODULE__, :changesets), 
                 plugs: plugs 
 
 
@@ -269,6 +276,32 @@ defmodule ExAdmin.Register do
   end
 
   @doc """
+  Override the changeset function for `update` and `create` actions.
+  By default, `changeset/2` for the resource will be used.
+
+  ## Examples
+
+  The following example illustrates how to add a sync action that will
+  be run before the index page is loaded.
+
+  changeset create: &__MODULE__.create_changeset/2,
+            update: &__MODULE__.update_changeset/2
+
+  def create_changeset(model, params) do
+    Ecto.Changeset.cast(model, params, ~w(name password), ~w(age))
+  end
+
+  def update_changeset(model, params) do
+    Ecto.Changeset.cast(model, params, ~w(name), ~w(age password))
+  end
+  """
+  defmacro changesets(opts) do
+    quote location: :keep do
+      Module.put_attribute(__MODULE__, :changesets, unquote(opts))
+    end
+  end
+
+  @doc """
   Redirect to a given path.
 
   Use this command in a controller block to redirect to another page.
@@ -331,11 +364,7 @@ defmodule ExAdmin.Register do
       end
 
       controller_methods = Module.get_attribute(__MODULE__, :controller_methods)
-      page_name = case page_name do
-        atom when is_atom(atom) -> Atom.to_string atom
-        string -> string
-      end
-      # page_name = String.to_atom(page_name)
+      page_name = Kernel.to_string(page_name)
 
       plugs = case Module.get_attribute(__MODULE__, :controller_plugs) do
         nil -> []
@@ -610,10 +639,19 @@ defmodule ExAdmin.Register do
 
       filter false
 
+
+  Only show filters for the specified fields:
+
+      filter [:name, :email, :inserted_at]
   """
   defmacro filter(false) do
     quote do
       Module.put_attribute __MODULE__, :index_filters, false
+    end
+  end
+  defmacro filter(fields) when is_list(fields) do
+    quote do
+      Module.put_attribute __MODULE__, :index_filters, unquote(fields)
     end
   end
   defmacro filter(field, opts \\ quote(do: [])) do

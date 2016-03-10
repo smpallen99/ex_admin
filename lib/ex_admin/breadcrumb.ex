@@ -40,9 +40,8 @@ defmodule ExAdmin.BreadCrumb do
   end
   defp get_breadcrumbs(_conn, _resource, _, _, _), do: []
 
-  defp get_name(_id, name) when is_binary(name), do: name
-  defp get_name(_id, name) when is_integer(name), do: Integer.to_string(name)
-  defp get_name(id, _), do: Integer.to_string(id)
+  defp get_name(_id, name) when not is_nil(name), do: to_string(name)
+  defp get_name(id, _), do: to_string(id)
 
   defp get_label(defn, name) do
     case Map.get defn, :menu do
