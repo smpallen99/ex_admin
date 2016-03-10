@@ -37,6 +37,7 @@ defmodule ExAdmin.Register do
   * `collection_action` - Add a custom action for collection based requests
   * `clear_action_items!` - Remove the action item buttons
   * `action_item` - Defines custom action items
+  * `changesets` - Defines custom changeset functions
 
   """
 
@@ -93,6 +94,7 @@ defmodule ExAdmin.Register do
       Module.put_attribute(__MODULE__, :module, module)
       Module.put_attribute(__MODULE__, :query, nil)
       Module.put_attribute(__MODULE__, :selectable_column, nil)
+      Module.put_attribute(__MODULE__, :changesets, [])
 
       alias unquote(mod)
       import Ecto.Query
@@ -166,6 +168,7 @@ defmodule ExAdmin.Register do
                 index_filters: Module.get_attribute(__MODULE__, :index_filters),
                 selectable_column: Module.get_attribute(__MODULE__, :selectable_column), 
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
+                changesets: Module.get_attribute(__MODULE__, :changesets), 
                 plugs: plugs 
 
 
@@ -269,6 +272,32 @@ defmodule ExAdmin.Register do
   defmacro before_filter(name, opts) do
     quote location: :keep do
       Module.put_attribute(__MODULE__, :controller_filters, {:before_filter, {unquote(name), unquote(opts)}})
+    end
+  end
+
+  @doc """
+  Override the changeset function for `update` and `create` actions.
+  By default, `changeset/2` for the resource will be used.
+
+  ## Examples
+
+  The following example illustrates how to add a sync action that will
+  be run before the index page is loaded.
+
+  changeset create: &__MODULE__.create_changeset/2,
+            update: &__MODULE__.update_changeset/2
+
+  def create_changeset(model, params) do
+    Ecto.Changeset.cast(model, params, ~w(name password), ~w(age))
+  end
+
+  def update_changeset(model, params) do
+    Ecto.Changeset.cast(model, params, ~w(name), ~w(age password))
+  end
+  """
+  defmacro changesets(opts) do
+    quote location: :keep do
+      Module.put_attribute(__MODULE__, :changesets, unquote(opts))
     end
   end
 

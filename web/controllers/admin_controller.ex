@@ -210,7 +210,8 @@ defmodule ExAdmin.AdminController do
         resource = model.__struct__.resource_model.__struct__
         resource_model = model.__struct__.resource_model 
         |> base_name |> String.downcase |> String.to_atom
-        changeset = ExAdmin.Repo.changeset(resource, params[resource_model])
+        changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
+        changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
 
         if changeset.valid? do
           resource = ExAdmin.Repo.insert(changeset) 
@@ -226,14 +227,15 @@ defmodule ExAdmin.AdminController do
 
   def update(conn, params) do
     case get_registered_by_controller_route(params[:resource]) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      defn -> 
-        model = defn.__struct__ 
-        resource_model = model.__struct__.resource_model 
+      defn ->
+        model = defn.__struct__
+        resource_model = model.__struct__.resource_model
         |> base_name |> String.downcase |> String.to_atom
         resource = model.run_query(repo, :edit, params[:id])
-        changeset = ExAdmin.Repo.changeset(resource, params[resource_model])
+        changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
+        changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
         if changeset.valid? do
           ExAdmin.Repo.update(changeset)
           put_flash(conn, :notice, "#{base_name model} was successfully updated")
