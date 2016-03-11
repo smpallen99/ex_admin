@@ -61,7 +61,6 @@
           &nbsp;&copy 2013-2015.
         </footer>
       </div>
-      <div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all></div>
     </body>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
     <script>require("web/static/js/app")</script>
