@@ -3,7 +3,7 @@ defmodule ExAdmin.Mixfile do
 
   def project do
     [app: :ex_admin,
-     version: "0.5.0",
+     version: "0.6.0",
      elixir: "~> 1.2",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix] ++ Mix.compilers,
