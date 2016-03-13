@@ -78,8 +78,12 @@ defmodule Mix.Tasks.Admin.Install do
     IO.puts ""
     IO.puts "Add the admin routes to your web/router.ex:"
     IO.puts ""
-    IO.puts "    use ExAdmin.Router"
-    IO.puts "    admin_routes :admin"
+    IO.puts "    use ExAdmin.Router\n"
+    IO.puts "    # your app's routes\n"
+    IO.puts "    scope \"/admin\", ExAdmin do"
+    IO.puts "      pipe_through :browser"
+    IO.puts "      admin_routes"
+    IO.puts "    end"
     config
   end
   def do_route(config) do
