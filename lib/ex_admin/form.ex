@@ -463,7 +463,7 @@ defmodule ExAdmin.Form do
       action = get_action(conn, resource, mode)
       # scripts = ""
       Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "formtastic #{model_name}", 
-          id: "new_#{model_name}", method: :post, novalidate: :novalidate  do
+          id: "new_#{model_name}", method: :post, enctype: "multipart/form-data", novalidate: :novalidate  do
 
         resource = setup_resource(resource, params, model_name)
 
@@ -1155,6 +1155,7 @@ defmodule ExAdmin.Form do
   end
 
   defp escape_value(nil), do: nil
+  defp escape_value(value) when is_map(value), do: value
   defp escape_value(value) do
     Phoenix.HTML.html_escape(value) |> elem(1)
   end
