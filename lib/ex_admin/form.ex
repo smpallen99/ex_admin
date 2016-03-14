@@ -860,13 +860,18 @@ defmodule ExAdmin.Form do
     build_errors(errors)
   end
 
-  def build_control(_type, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(type, resource, opts, model_name, field_name, ext_name, errors) do
     # Logger.debug "build_control res: #{inspect resource}, name: #{inspect field_name} type: #{inspect _type}"
-    Map.put_new(opts, :type, :text)
+    {field_type, value} = if type |> Kernel.to_string |> String.ends_with?(".Type") do
+      {:file, Map.get(resource, field_name, "")[:file_name]}
+    else
+      {:text, Map.get(resource, field_name, "")}
+    end
+    Map.put_new(opts, :type, field_type)
     |> Map.put_new(:maxlength, "255")
     |> Map.put_new(:name, "#{model_name}[#{field_name}]")
     |> Map.put_new(:id, ext_name)
-    |> Map.put_new(:value, Map.get(resource, field_name, "") |> escape_value)
+    |> Map.put_new(:value, value |> escape_value)
     |> Map.delete(:display)
     |> Map.to_list
     |> Xain.input
