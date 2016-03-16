@@ -60,7 +60,7 @@ defmodule ExAdmin.Filter do
     end
   end
 
-  def build_field({name, Ecto.DateTime}, q, _) do
+  def build_field({name, type}, q, _) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time] do
     gte_value = get_value("#{name}_gte", q)
     lte_value = get_value("#{name}_lte", q)
     div ".filter_form_field.filter_date_range" do
@@ -71,13 +71,13 @@ defmodule ExAdmin.Filter do
     end
   end
 
-  def build_field({name, num}, q, defn) when num in [:integer, :id] do
+  def build_field({name, num}, q, defn) when num in [:integer, :id, :decimal] do
     unless check_and_build_association(name, q, defn) do
       selected_name = integer_selected_name(name, q)
-      value = get_value name, q
+      value = get_integer_value name, q
       div ".filter_form_field.filter_numeric" do
         label ".label #{humanize name}", for: "#{name}_numeric"
-        select onchange: ~s|document.getElementById(\"#{name}_numeric\").name = \"q[\" + this.value + \"]\";| do
+        select onchange: ~s|document.getElementById('#{name}_numeric').name = 'q[' + this.value + ']';| do
           for {suffix, text} <- @integer_options do
             build_option(text, "#{name}_#{suffix}", selected_name)
           end
@@ -86,7 +86,6 @@ defmodule ExAdmin.Filter do
       end
     end
   end
-
 
   def build_field({name, %Ecto.Association.BelongsTo{related: assoc, owner_key: owner_key}}, q, _) do
     id = "q_#{owner_key}"
@@ -156,6 +155,16 @@ defmodule ExAdmin.Filter do
 
   defp get_value(_, nil), do: ""
   defp get_value(name, q), do: Map.get(q, name, "")
+
+  defp get_integer_value(_, nil), do: ""
+  defp get_integer_value(name, q) do
+    Map.to_list(q)
+    |> Enum.find(fn({k,v}) -> String.starts_with?(k, "#{name}") end)
+    |> case do
+      {k, v} -> v
+      _ -> ""
+    end
+  end
 
   defp build_option(text, name, selected_name) do
     selected = if name == selected_name, do: [selected: "selected"], else: []

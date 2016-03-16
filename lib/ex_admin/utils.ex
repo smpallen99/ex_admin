@@ -198,6 +198,9 @@ defmodule ExAdmin.Utils do
   def to_string(%Ecto.Date{} = dt) do
     Ecto.Date.to_string dt
   end
+  def to_string(%Decimal{} = decimal) do
+    Decimal.to_string decimal
+  end
   def to_string(other) do
     "#{inspect other}"
   end
