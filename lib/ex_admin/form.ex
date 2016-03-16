@@ -463,7 +463,7 @@ defmodule ExAdmin.Form do
       action = get_action(conn, resource, mode)
       # scripts = ""
       Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "formtastic #{model_name}", 
-          id: "new_#{model_name}", method: :post, novalidate: :novalidate  do
+          id: "new_#{model_name}", method: :post, enctype: "multipart/form-data", novalidate: :novalidate  do
 
         resource = setup_resource(resource, params, model_name)
 
@@ -860,13 +860,18 @@ defmodule ExAdmin.Form do
     build_errors(errors)
   end
 
-  def build_control(_type, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(type, resource, opts, model_name, field_name, ext_name, errors) do
     # Logger.debug "build_control res: #{inspect resource}, name: #{inspect field_name} type: #{inspect _type}"
-    Map.put_new(opts, :type, :text)
+    {field_type, value} = if type |> Kernel.to_string |> String.ends_with?(".Type") do
+      {:file, Map.get(resource, field_name, "")[:file_name]}
+    else
+      {:text, Map.get(resource, field_name, "")}
+    end
+    Map.put_new(opts, :type, field_type)
     |> Map.put_new(:maxlength, "255")
     |> Map.put_new(:name, "#{model_name}[#{field_name}]")
     |> Map.put_new(:id, ext_name)
-    |> Map.put_new(:value, Map.get(resource, field_name, "") |> escape_value)
+    |> Map.put_new(:value, value |> escape_value)
     |> Map.delete(:display)
     |> Map.to_list
     |> Xain.input
@@ -1155,6 +1160,7 @@ defmodule ExAdmin.Form do
   end
 
   defp escape_value(nil), do: nil
+  defp escape_value(value) when is_map(value), do: value
   defp escape_value(value) do
     Phoenix.HTML.html_escape(value) |> elem(1)
   end

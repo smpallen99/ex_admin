@@ -11,7 +11,7 @@ defmodule ExAdmin.ParamsToAtoms do
   # end
 
   def filter(params) do
-    Logger.warn "#{__MODULE__} filter/1 deprecated! Please use filter_parms/1"
+    Logger.warn "#{__MODULE__} filter/1 deprecated! Please use filter_params/1"
     filter_params(params)
   end
 
@@ -27,6 +27,9 @@ defmodule ExAdmin.ParamsToAtoms do
     Enum.into list, Map.new
   end
 
+  defp do_params_to_atoms(key, %Plug.Upload{} = value) do
+    {_to_atom(key), value}
+  end
   defp do_params_to_atoms(key, value) when is_map(value) do
     {_to_atom(key), params_to_atoms(value)}
   end
@@ -46,6 +49,7 @@ defmodule ExAdmin.ParamsToAtoms do
 
   defp _replace_integers(key, " " <> rest), do: _replace_integers(key, rest)
   defp _replace_integers(key, ""), do: {key, nil}
+  defp _replace_integers(key, %Plug.Upload{} = value), do: {key, value}
   defp _replace_integers(key, value) when is_integer(value), do: {key, value}
   defp _replace_integers(key, value) when is_map(value), do: {key, params_string_fields_to_integer(value)}
   defp _replace_integers(key, value) when is_atom(key) do
