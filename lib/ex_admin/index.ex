@@ -89,8 +89,6 @@ defmodule ExAdmin.Index do
   import ExAdmin.Helpers
   import Kernel, except: [div: 2, to_string: 1]
   use Xain
-  alias Phoenix.HTML.Link
-  import Phoenix.HTML
 
   @doc false
   defmacro __using__(_) do
@@ -333,36 +331,23 @@ defmodule ExAdmin.Index do
     resource_model = resource.__struct__
     base_class = "member_link"
     id = resource.id
-    # [ Link.link("View", to: get_route_path(conn, :show, id), class: base_class <> " view_link"),
-    #   Link.link("Edit", to: get_route_path(conn, :edit, id), class: base_class <> " edit_link"),
-    #   Link.link("Delete", to: get_route_path(conn, :delete, id), 
-    #       class: base_class <> " delete_link", "data-confirm": confirm_message, 
-    #       "data-method": :delete, rel: :nofollow ) ] 
-    # |> html_escape
+
     get_authorized_links(conn, resource_model)
     |> Enum.reduce([], fn(item, acc) -> 
       link = case item do
         :show -> 
-          Link.link("View", to: get_route_path(conn, :show, id), class: base_class <> " view_link")
+          a("View", href: get_route_path(conn, :show, id), class: base_class <> " view_link")
         :edit -> 
-          Link.link("Edit", to: get_route_path(conn, :edit, id), class: base_class <> " edit_link")
+          a("Edit", href: get_route_path(conn, :edit, id), class: base_class <> " edit_link")
         :destroy -> 
-          Link.link("Delete", to: get_route_path(conn, :delete, id), 
-            class: base_class <> " delete_link", "data-confirm": confirm_message, 
-            "data-csrf": Plug.CSRFProtection.get_csrf_token,
-            "data-method": :delete, rel: :nofollow )
+          a("Delete", href: get_route_path(conn, :delete, id), 
+              class: base_class <> " delete_link", "data-confirm": confirm_message, 
+              "data-method": :delete, rel: :nofollow )
       end
       [link | acc]
     end)
-    |> html_escape
 
-    # a("View", href: get_route_path(conn, :show, id), class: base_class <> " view_link")
-    # a("Edit", href: get_route_path(conn, :edit, id), class: base_class <> " edit_link")
-    # a("Delete", href: get_route_path(conn, :delete, id), 
-    #     class: base_class <> " delete_link", "data-confirm": confirm_message, 
-    #     "data-method": :delete, rel: :nofollow )
   end
-   #   columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource) end}}]
 
   @doc false
   def get_authorized_links(conn, resource_model) do

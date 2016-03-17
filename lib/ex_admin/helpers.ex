@@ -139,7 +139,9 @@ defmodule ExAdmin.Helpers do
     |> build_link_for(conn, opts, resource, f_name)
   end
   def build_single_field(resource, conn, f_name, %{fun: fun} = opts) do
-    fun.(resource)
+    markup :nested do
+      fun.(resource)
+    end
     |> build_link_for(conn, opts, resource, f_name)
   end 
 
