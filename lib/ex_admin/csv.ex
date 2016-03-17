@@ -134,7 +134,12 @@ defmodule ExAdmin.CSV do
 
   @doc false
   def build_default_column(name) do
-    %{field: ExAdmin.Utils.humanize(name), fun: fn(c) -> to_string Map.get(c, name) end}
+    %{field: ExAdmin.Utils.humanize(name), fun: fn(c) -> 
+      case Map.get(c, name) do
+        %{} -> ""
+        other -> other
+      end |> to_string 
+    end}
   end
 
 

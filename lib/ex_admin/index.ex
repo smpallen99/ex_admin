@@ -27,6 +27,15 @@ defmodule ExAdmin.Index do
         end
       end
 
+  ## Image fields
+
+  For image fields, use the `image: true` option. For example:
+
+      index do 
+        column :name
+        column :image, [image: true, height: 100], &(ExAdminDemo.Image.url({&1.image, &1}, :thumb))
+      end
+
   ## Custom columns
 
   Columns can be customized with column/2 where the second argument is

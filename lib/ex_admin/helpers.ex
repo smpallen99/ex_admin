@@ -130,6 +130,14 @@ defmodule ExAdmin.Helpers do
     end
   end
 
+  def build_single_field(resource, conn, f_name, %{fun: fun, image: true} = opts) do
+    attributes = opts
+      |> Map.delete(:fun)
+      |> Map.delete(:image)
+      |> build_attributes
+    "<img src='#{fun.(resource)}'#{attributes} />" 
+    |> build_link_for(conn, opts, resource, f_name)
+  end
   def build_single_field(resource, conn, f_name, %{fun: fun} = opts) do
     fun.(resource)
     |> build_link_for(conn, opts, resource, f_name)
@@ -248,4 +256,12 @@ defmodule ExAdmin.Helpers do
   def to_class(field_name) when is_atom(field_name), 
     do: Atom.to_string(field_name)
 
+  def build_attributes(%{} = opts) do
+    build_attributes Map.to_list(opts)
+  end
+  def build_attributes(opts) do
+    Enum.reduce opts, "", fn({k,v}, acc) -> 
+      acc <> " #{k}='#{v}'"
+    end
+  end
 end

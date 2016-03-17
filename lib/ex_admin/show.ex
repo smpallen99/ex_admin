@@ -15,6 +15,7 @@ defmodule ExAdmin.Show do
           attributes_table do
             row :id
             row :name
+            row :image, [image: true, height: 100], &(ExAdminDemo.Image.url({&1.image, &1}, :thumb))
           end
           panel "Answers" do
             table_for(seating.answers) do
