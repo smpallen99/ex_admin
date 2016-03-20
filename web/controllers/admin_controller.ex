@@ -110,12 +110,11 @@ defmodule ExAdmin.AdminController do
 
   def index(conn, params) do
     defn = get_registered_by_controller_route(params[:resource])
-    contents = case defn do
+    {contents, page} = case defn do
       nil -> 
         throw :invalid_route
       %{type: :page} = defn -> 
-        defn.__struct__ 
-        |> apply(:page_view, [conn])
+        {defn.__struct__ |> apply(:page_view, [conn]), nil}
       defn -> 
         model = defn.__struct__ 
 
@@ -126,19 +125,19 @@ defmodule ExAdmin.AdminController do
             page
         end
         if function_exported? model, :index_view, 2 do
-          apply(model, :index_view, [conn, page])
+          {apply(model, :index_view, [conn, page]), page}
         else
-          ExAdmin.Index.default_index_view conn, page
+          {ExAdmin.Index.default_index_view(conn, page), page}
         end
     end
     conn
-    |> render("admin.html", html: contents, defn: defn, resource: nil,
+    |> render("admin.html", html: contents, defn: defn, resource: page,
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end
 
   def show(conn, params) do
 
-    {contents, resource} = case get_registered_by_controller_route(params[:resource]) do
+    {contents, resource, defn} = case get_registered_by_controller_route(params[:resource]) do
       nil -> 
         throw :invalid_route
       defn -> 
@@ -157,40 +156,40 @@ defmodule ExAdmin.AdminController do
         end
 
         if function_exported? model, :show_view, 2 do
-          {apply(model, :show_view, [conn, resource]), resource}
+          {apply(model, :show_view, [conn, resource]), resource, defn}
         else
-          {ExAdmin.Show.default_show_view(conn, resource), resource}
+          {ExAdmin.Show.default_show_view(conn, resource), resource, defn}
         end
     end
-    render conn, "admin.html", html: contents, resource: resource, filters: nil
+    render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
   end
 
   def edit(conn, params) do
-    {contents, resource} = case get_registered_by_controller_route(params[:resource]) do
+    {contents, resource, defn} = case get_registered_by_controller_route(params[:resource]) do
       nil -> 
         throw :invalid_route
       defn -> 
         model = defn.__struct__ 
         resource = model.run_query(repo, :edit, params[:id])
         if function_exported? model, :form_view, 3 do
-          {apply(model, :form_view, [conn, resource, params]), resource}
+          {apply(model, :form_view, [conn, resource, params]), resource, defn}
         else
-          {ExAdmin.Form.default_form_view(conn, resource, params), resource}
+          {ExAdmin.Form.default_form_view(conn, resource, params), resource, defn}
         end
     end
-    render conn, "admin.html", html: contents, resource: resource, filters: nil
+    render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
   end
 
   def new(conn, params) do
-    {contents, resource} = case get_registered_by_controller_route(params[:resource]) do
+    {contents, resource, defn} = case get_registered_by_controller_route(params[:resource]) do
       nil -> 
         throw :invalid_route
       defn -> 
         model = defn.__struct__ 
         resource = model.__struct__.resource_model.__struct__
-        {do_form_view(model, conn, resource, params), resource}
+        {do_form_view(model, conn, resource, params), resource, defn}
     end
-    render conn, "admin.html", html: contents, resource: resource, filters: nil
+    render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
   end
 
   defp do_form_view(model, conn, resource, params) do
@@ -220,7 +219,7 @@ defmodule ExAdmin.AdminController do
         else
           conn = put_flash(conn, :inline_error, changeset.errors)
           contents = do_form_view model, conn, changeset.changeset.model, params
-          conn |> render("admin.html", html: contents, resource: resource, filters: nil)
+          conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
         end
     end
   end
@@ -243,7 +242,7 @@ defmodule ExAdmin.AdminController do
         else
           conn = put_flash(conn, :inline_error, changeset.errors)
           contents = do_form_view model, conn, changeset.changeset.model, params
-          conn |> render("admin.html", html: contents, resource: resource, filters: nil)
+          conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
         end
     end
   end

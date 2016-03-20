@@ -8,6 +8,8 @@ defmodule ExAdmin.Filter do
 
   @integer_options [eq: "Equal To", gt: "Greater Than", lt: "Less Than" ]
 
+  def filter_view(_conn, nil, _defn), do: ""
+  def filter_view(_conn, false, _defn), do: ""
   def filter_view(conn, _filters, defn) do
     q = conn.params["q"]
     order = conn.params["order"]

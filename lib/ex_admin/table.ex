@@ -12,19 +12,28 @@ defmodule ExAdmin.Table do
 
     div(".panel") do
       h3(Map.get schema, :name, "#{String.capitalize resource_model} Details")
-      div(".panel_contents") do
-        id = "attributes_table_#{resource_model}_#{resource.id}"
-        div(".attributes_table.#{resource_model}#{id}") do
-          table(border: "0", cellspacing: "0", cellpadding: "0") do
-            tbody do
-              for field_name <- Map.get(schema, :rows, []) do
-                build_field(resource, conn, field_name, fn(contents, f_name) -> 
-                  tr do
-                    field_header field_name 
-                    handle_contents(contents, f_name)
-                  end
-                end)
-              end
+      _attributes_table_for(conn, resource, resource_model, schema)
+    end
+  end
+
+  def attributes_table_for(conn, resource, schema) do
+    resource_model = model_name(resource)
+    _attributes_table_for(conn, resource, resource_model, schema)
+  end
+
+  defp _attributes_table_for(conn, resource, resource_model, schema) do
+    div(".panel_contents") do
+      id = "attributes_table_#{resource_model}_#{resource.id}"
+      div(".attributes_table.#{resource_model}#{id}") do
+        table(border: "0", cellspacing: "0", cellpadding: "0") do
+          tbody do
+            for field_name <- Map.get(schema, :rows, []) do
+              build_field(resource, conn, field_name, fn(contents, f_name) -> 
+                tr do
+                  field_header field_name 
+                  handle_contents(contents, f_name)
+                end
+              end)
             end
           end
         end

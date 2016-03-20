@@ -48,6 +48,7 @@ defmodule ExAdmin.Register do
   end
 
   import ExAdmin.Utils
+  import ExAdmin.DslUtils
 
   defmacro __using__(_) do
     quote do
@@ -90,6 +91,7 @@ defmodule ExAdmin.Register do
       Module.register_attribute __MODULE__, :selectable_column, accumulate: false, persist: true
       Module.register_attribute(__MODULE__, :form_items, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :controller_plugs, accumulate: true, persist: true)
+      Module.register_attribute(__MODULE__, :sidebars, accumulate: true, persist: true)
       module = unquote(mod) 
       Module.put_attribute(__MODULE__, :module, module)
       Module.put_attribute(__MODULE__, :query, nil)
@@ -152,6 +154,10 @@ defmodule ExAdmin.Register do
         nil -> []
         list -> Enum.reverse list
       end
+      sidebars = case Module.get_attribute(__MODULE__, :sidebars) do
+        nil -> []
+        list -> Enum.reverse list
+      end
 
       defstruct controller: @controller, 
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
@@ -169,7 +175,8 @@ defmodule ExAdmin.Register do
                 selectable_column: Module.get_attribute(__MODULE__, :selectable_column), 
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
                 changesets: Module.get_attribute(__MODULE__, :changesets), 
-                plugs: plugs 
+                plugs: plugs, 
+                sidebars: sidebars
 
 
       def run_query(repo, action, id \\ nil) do
@@ -371,6 +378,10 @@ defmodule ExAdmin.Register do
         list -> Enum.reverse list
       end
 
+      sidebars = case Module.get_attribute(__MODULE__, :sidebars) do
+        nil -> []
+        list -> Enum.reverse list
+      end
       # defstruct controller: Module.concat(Application.get_env(:ex_admin, :project), AdminController),
       #           controller_methods: controller_methods,
       #           type: :page,
@@ -394,7 +405,8 @@ defmodule ExAdmin.Register do
                 index_filters: [false],
                 # selectable_column: Module.get_attribute(__MODULE__, :selectable_column), 
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
-                plugs: plugs 
+                plugs: plugs,
+                sidebars: sidebars
 
       # def run_query(repo, action, id \\ nil) do
       #   %__MODULE__{}
@@ -407,6 +419,43 @@ defmodule ExAdmin.Register do
 
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
     end
+  end
+
+  @doc """
+  Add a sidebar to the page. 
+
+
+  The available options are:
+  
+  * `:only` - Filters the list of actions for the filter. 
+  * `:except` - Filters out actions in the except atom or list.
+
+  ## Examples
+
+      sidebar "ExAdmin Demo", only: [:index, :show] do
+        Phoenix.View.render ExAdminDemo.AdminView, "sidebar_links.html", []
+      end
+
+      sidebar :Orders, only: :show do
+        attributes_table_for resource do
+          row "title", fn(_) -> { resource.title } end
+          row "author", fn(_) -> { resource.author } end
+        end
+      end
+  """
+  defmacro sidebar(name, opts \\ [], [do: block]) do
+    contents = quote do
+      unquote(block)
+    end
+    quote location: :keep, bind_quoted: [name: escape(name), opts: escape(opts), contents: escape(contents)] do
+      fun_name = "side_bar_#{name}" |> String.replace(" ", "_") |> String.to_atom
+      def unquote(fun_name)(var!(conn), var!(resource)) do
+        _ = var!(conn) 
+        _ = var!(resource)
+        unquote(contents)
+      end
+      Module.put_attribute __MODULE__, :sidebars, {name, opts, {__MODULE__, fun_name}}
+    end 
   end
 
   @doc """

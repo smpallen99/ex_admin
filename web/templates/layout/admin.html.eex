@@ -34,26 +34,20 @@
         </div>    
         <%= title_bar(@conn, @resource) %>
         <%= ExAdmin.ViewHelpers.flashes(@conn) %>
-        <%= if @filters do %>
-          <div id="active_admin_content" class="with_sidebar">
-            <div id="main_content_wrapper">
-              <div id="main_content">
-                <%= render @view_module, @view_template, assigns %>
-              </div>
+        <% {sidebars?, klass} = check_for_sidebars(@conn, @filters, @defn) %>
+        <div id="active_admin_content" class="<%= klass %>">
+          <div id="main_content_wrapper">
+            <div id="main_content">
+              <%= render @view_module, @view_template, assigns %>
             </div>
+          </div>
+          <%= if sidebars? do %>
             <div id="sidebar">
               <%= ExAdmin.Filter.filter_view(@conn, @filters, @defn) %>
+              <%= ExAdmin.Sidebar.sidebar_view(@conn, @defn, @resource) %>
             </div>
-          </div>
-        <% else %>
-          <div id="active_admin_content" class="without_sidebar">
-            <div id="main_content_wrapper">
-              <div id="main_content">
-                <%= render @view_module, @view_template, assigns %>
-              </div>
-            </div>
-          </div>
-        <% end %>
+          <% end %>
+        </div>
         <footer id="footer" style="font-size: 90%">
           <hr \>
           Powered by ExAdmin. Licensed by&nbsp;

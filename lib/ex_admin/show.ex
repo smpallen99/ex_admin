@@ -93,6 +93,26 @@ defmodule ExAdmin.Show do
   end
 
   @doc """
+  Display a table of a specific model's attributes.
+
+  When called with a block, the rows specified in the block will be 
+  displayed. 
+
+  When called without a block, the default attributes table will be 
+  displayed.
+  """
+  defmacro attributes_table_for(resource, do: block) do
+    quote location: :keep do
+      var!(rows, ExAdmin.Show) = []
+      unquote(block)
+      rows = var!(rows, ExAdmin.Show) |> Enum.reverse
+      resource = unquote(resource)
+      schema = %{rows: rows}
+      ExAdmin.Table.attributes_table_for var!(conn), resource, schema
+    end 
+  end
+
+  @doc """
   Adds a new panel to the show page.
 
   The block given must include one of two commands:
