@@ -161,9 +161,9 @@ defmodule ExAdmin.Filter do
   defp get_integer_value(_, nil), do: ""
   defp get_integer_value(name, q) do
     Map.to_list(q)
-    |> Enum.find(fn({k,v}) -> String.starts_with?(k, "#{name}") end)
+    |> Enum.find(fn({k,_v}) -> String.starts_with?(k, "#{name}") end)
     |> case do
-      {k, v} -> v
+      {_k, v} -> v
       _ -> ""
     end
   end

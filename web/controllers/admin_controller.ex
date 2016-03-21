@@ -109,6 +109,7 @@ defmodule ExAdmin.AdminController do
   end
 
   def index(conn, params) do
+    require Logger
     defn = get_registered_by_controller_route(params[:resource])
     {contents, page} = case defn do
       nil -> 
@@ -120,14 +121,15 @@ defmodule ExAdmin.AdminController do
 
         page = case conn.assigns[:page] do
           nil -> 
-            model.run_query(repo, :index, params |> Map.to_list)
+            model.run_query(repo, defn, :index, params |> Map.to_list)
           page -> 
             page
         end
-        if function_exported? model, :index_view, 2 do
-          {apply(model, :index_view, [conn, page]), page}
+        counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
+        if function_exported? model, :index_view, 3 do
+          {apply(model, :index_view, [conn, page, counts]), page}
         else
-          {ExAdmin.Index.default_index_view(conn, page), page}
+          {ExAdmin.Index.default_index_view(conn, page, counts), page}
         end
     end
     conn
@@ -147,12 +149,12 @@ defmodule ExAdmin.AdminController do
           resource_name = AuthEx.Utils.resource_name conn, model: defn.resource_model
           case conn.assigns[resource_name] do
             nil -> 
-              model.run_query(repo, :show, params[:id])
+              model.run_query(repo, defn, :show, params[:id])
             res -> 
               res
           end
         else
-          model.run_query(repo, :show, params[:id])
+          model.run_query(repo, defn, :show, params[:id])
         end
 
         if function_exported? model, :show_view, 2 do
@@ -170,7 +172,7 @@ defmodule ExAdmin.AdminController do
         throw :invalid_route
       defn -> 
         model = defn.__struct__ 
-        resource = model.run_query(repo, :edit, params[:id])
+        resource = model.run_query(repo, defn, :edit, params[:id])
         if function_exported? model, :form_view, 3 do
           {apply(model, :form_view, [conn, resource, params]), resource, defn}
         else
@@ -232,7 +234,7 @@ defmodule ExAdmin.AdminController do
         model = defn.__struct__
         resource_model = model.__struct__.resource_model
         |> base_name |> String.downcase |> String.to_atom
-        resource = model.run_query(repo, :edit, params[:id])
+        resource = model.run_query(repo, defn, :edit, params[:id])
         changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
         changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
         if changeset.valid? do
@@ -257,7 +259,7 @@ defmodule ExAdmin.AdminController do
         resource_model = model.__struct__.resource_model 
         |> base_name |> String.downcase |> String.to_atom
 
-        model.run_query(repo, :edit, params[:id])
+        model.run_query(repo, defn, :edit, params[:id])
         |> ExAdmin.Repo.delete(params[resource_model]) 
         base_name model
     end
@@ -290,7 +292,7 @@ defmodule ExAdmin.AdminController do
       defn -> 
         model = defn.__struct__ 
 
-        csv = case model.run_query(repo, :csv) do
+        csv = case model.run_query(repo, defn, :csv) do
           [] -> []
           [resource | resources] -> 
             ExAdmin.View.Adapter.build_csv(resource, resources)

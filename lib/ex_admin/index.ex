@@ -108,7 +108,7 @@ defmodule ExAdmin.Index do
     end
 
     quote location: :keep, bind_quoted: [opts: escape(opts), contents: escape(contents)] do
-      def index_view(var!(conn), page) do
+      def index_view(var!(conn), page, scope_counts) do
         var!(columns, ExAdmin.Show) = []
         var!(selectable_column, ExAdmin.Index) = nil
         unquote(contents)
@@ -121,7 +121,7 @@ defmodule ExAdmin.Index do
         end
 
         markup do
-          ExAdmin.Index.render_index_table(var!(conn), page, columns, %{selectable_column: selectable})
+          ExAdmin.Index.render_index_table(var!(conn), page, columns, %{selectable_column: selectable}, scope_counts)
         end
 
       end
@@ -141,7 +141,7 @@ defmodule ExAdmin.Index do
   end
 
   @doc false
-  def default_index_view(conn, page) do
+  def default_index_view(conn, page, scope_counts) do
     [_, resource] = conn.path_info 
 
     case ExAdmin.get_registered_by_controller_route(resource) do
@@ -154,7 +154,7 @@ defmodule ExAdmin.Index do
         
         markup do
           ExAdmin.Index.render_index_table(var!(conn), page, columns, 
-            %{selectable_column: true})
+            %{selectable_column: true}, scope_counts)
         end
     end
   end
@@ -170,7 +170,7 @@ defmodule ExAdmin.Index do
   defp get_resource_fields([resource | _]), do: resource.__struct__.__schema__(:fields)
 
   @doc false
-  def render_index_table(conn, page, columns, %{selectable_column: selectable}) do
+  def render_index_table(conn, page, columns, %{selectable_column: selectable}, scope_counts) do
     resources = page.entries
     fields = get_resource_fields resources
     count = page.total_entries
@@ -179,6 +179,7 @@ defmodule ExAdmin.Index do
     href = get_route_path(conn, :index) <> "?order="
     defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
     batch_actions = not false in defn.batch_actions
+    scopes = defn.scopes
     selectable = selectable and batch_actions
     columns = unless Enum.any? columns, &((elem &1, 0) == "Actions") do
       columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource) end}}]
@@ -189,7 +190,7 @@ defmodule ExAdmin.Index do
     label = get_resource_label(conn) |> Inflex.pluralize
     resource_model = conn.params["resource"]
 
-    batch_action_form batch_actions, resource_model, fn -> 
+    batch_action_form conn, batch_actions, scopes, resource_model, scope_counts, fn -> 
       if count == 0 do
         div ".blank_slate_container" do
           span ".blank_slate" do
@@ -244,22 +245,39 @@ defmodule ExAdmin.Index do
   end
 
   @doc false
-  def batch_action_form enabled?, name, fun do
+  def batch_action_form conn, enabled?, scopes, name, scope_counts, fun do
     msg = "Are you sure you want to delete these #{name}? You wont be able to undo this."
-    if enabled? do
+    if enabled? or scopes != [] do
       form "#collection_selection", action: "/admin/#{name}/batch_action", method: :post, "accept-charset": "UTF-8" do
         div style: "margin:0;padding:0;display:inline" do
           input name: "utf8", type: :hidden, value: "✓"
         end
         input "#batch_action", name: "batch_action", type: :hidden
         div ".table_tools" do
-          div "#batch_actions_selector.dropdown_menu" do
-            a ".disabled.dropdown_menu_button Batch Actions", href: "#"
-            div ".dropdown_menu_list_wrapper", style: "display: none;" do
-              div ".dropdown_menu_nipple"
-              ul ".dropdown_menu_list" do
-                li do
-                  a ".batch_action Delete Selected", href: "#", "data-action": :destroy, "data-confirm": msg
+          if enabled? do
+            div "#batch_actions_selector.dropdown_menu" do
+              a ".disabled.dropdown_menu_button Batch Actions", href: "#"
+              div ".dropdown_menu_list_wrapper", style: "display: none;" do
+                div ".dropdown_menu_nipple"
+                ul ".dropdown_menu_list" do
+                  li do
+                    a ".batch_action Delete Selected", href: "#", "data-action": :destroy, "data-confirm": msg
+                  end
+                end
+              end
+            end
+          end
+          if scopes != [] do
+            current_scope = ExAdmin.Query.get_scope scopes, conn.params["scope"]
+            ul ".scopes.table_tools_segmented_control", style: "width: calc((100% - 10px) - 108px); float: right;" do
+              for {name, _opts} <- scopes do
+                count = scope_counts[name]
+                selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
+                li ".scope.#{name}#{selected}" do
+                  a ".table_tools_button", href: "/admin/products?scope=#{name}" do
+                    text ExAdmin.Utils.humanize("#{name} ")
+                    span ".count (#{count})"
+                  end
                 end
               end
             end

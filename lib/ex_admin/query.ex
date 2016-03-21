@@ -7,10 +7,25 @@ defmodule ExAdmin.Query do
   import ExQueb
   
   @doc false
-  def run_query(resource_model, repo, action, id, query_opts) do
+  def get_scope(scopes, nil) do
+    (Enum.find(scopes, fn({k, v}) -> v[:default] == true end) || hd(scopes)) |> elem(0)
+  end
+  def get_scope(scopes, scope), do: to_atom(scope)
+
+  @doc false
+  def run_query(resource_model, repo, defn, action, id, query_opts) do
     resource_model
-    |> build_query(query_opts, action, id)
+    |> build_query(query_opts, action, id, defn)
     |> paginate(repo, action, id)
+  end
+
+  @doc false
+  def run_query_counts(resource_model, repo, defn, action, id, query_opts) do
+    for {name, opts} <- defn.scopes do
+      resource_model
+      |> scope_where(defn.scopes, name)
+      |> count_q(repo, name)
+    end
   end
 
   @doc false
@@ -37,20 +52,26 @@ defmodule ExAdmin.Query do
   defp get_method(:nested), do: :all 
   defp get_method(_), do: :one
 
-  defp build_query(%Ecto.Query{} = query, opts, action, id) do
+  defp build_query(%Ecto.Query{} = query, opts, action, id, defn) do
     build_preloads(query, opts, action, id)
     |> build_order_bys(opts, action, id)
-    |> build_wheres(opts, action, id)
+    |> build_wheres(opts, action, id, defn)
   end
   
-  defp build_query(resource_model, opts, action, id) do
+  defp build_query(resource_model, opts, action, id, defn) do
     case get_from opts, action, :query do
       [] ->
         (from r in resource_model)
-        |> build_query(opts, action, id)
+        |> build_query(opts, action, id, defn)
       query -> 
-        build_query(query, opts, action, id)
+        build_query(query, opts, action, id, defn)
     end
+  end
+
+  defp count_q(query, repo, name) do
+    count = select(query, [p], count(p.id))
+    |> repo.one!
+    {name, count}
   end
 
   # defp get_association(model, field) do
@@ -68,9 +89,31 @@ defmodule ExAdmin.Query do
     preload(query, ^preloads)
   end
 
+  defp scope_where(query, [], _scope), do: query
+  defp scope_where(query, scopes, scope) do
+    case get_scope scopes, scope do
+      :all ->
+        query
+      other ->
+        case scopes[other][:fun] do
+          nil ->
+            Logger.warn "no fun..."
+            where(query, [p], field(p, ^other))
+          {module, fun} ->
+            apply module, fun, [query]
+        end
+    end
+  end
 
-  defp build_wheres(query, _, action, _) when action in [:index, :csv], do: query
-  defp build_wheres(query, _, _action, id) do
+  defp build_wheres(query, opts, action, id, defn) when action in [:index, :csv] do
+    case defn.scopes do
+      nil -> query
+      [] -> query
+      scopes ->
+        scope_where query, scopes, get_scope(scopes, id[:scope])
+    end
+  end
+  defp build_wheres(query, _, _action, id, _defn) do
     where(query, [c], c.id == ^id)
   end
 
@@ -83,4 +126,6 @@ defmodule ExAdmin.Query do
     |> Keyword.get(key, default)
   end
 
+  def to_atom(value) when is_atom(value), do: value
+  def to_atom(value) when is_binary(value), do: String.to_atom(value)
 end

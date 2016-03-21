@@ -3,7 +3,6 @@ defmodule ExAdmin.Sidebar do
   @moduledoc false
   require Logger
   require Ecto.Query
-  import ExAdmin.Utils
   use Xain
 
   def sidebars_visible?(_conn, %{sidebars: []}), do: false
@@ -40,7 +39,6 @@ defmodule ExAdmin.Sidebar do
   end
 
   def visible?(conn, opts) do
-    map = Enum.into opts, %{}
     Phoenix.Controller.action_name(conn)
     |> _visible?(Enum.into opts, %{}) 
   end

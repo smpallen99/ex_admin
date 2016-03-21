@@ -92,6 +92,7 @@ defmodule ExAdmin.Register do
       Module.register_attribute(__MODULE__, :form_items, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :controller_plugs, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :sidebars, accumulate: true, persist: true)
+      Module.register_attribute(__MODULE__, :scopes, accumulate: true, persist: true)
       module = unquote(mod) 
       Module.put_attribute(__MODULE__, :module, module)
       Module.put_attribute(__MODULE__, :query, nil)
@@ -158,6 +159,10 @@ defmodule ExAdmin.Register do
         nil -> []
         list -> Enum.reverse list
       end
+      scopes = case Module.get_attribute(__MODULE__, :scopes) do
+        nil -> []
+        list -> Enum.reverse list
+      end
 
       defstruct controller: @controller, 
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
@@ -176,13 +181,19 @@ defmodule ExAdmin.Register do
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
                 changesets: Module.get_attribute(__MODULE__, :changesets), 
                 plugs: plugs, 
-                sidebars: sidebars
+                sidebars: sidebars, 
+                scopes: scopes
 
 
-      def run_query(repo, action, id \\ nil) do
+      def run_query(repo, defn, action, id \\ nil) do
         %__MODULE__{}
         |> Map.get(:resource_model)
-        |> ExAdmin.Query.run_query(repo, action, id, @query)
+        |> ExAdmin.Query.run_query(repo, defn, action, id, @query)
+      end
+      def run_query_counts(repo, defn, action, id \\ nil) do
+        %__MODULE__{}
+        |> Map.get(:resource_model)
+        |> ExAdmin.Query.run_query_counts(repo, defn, action, id, @query)
       end
 
       def plugs(), do: @controller_plugs
@@ -382,14 +393,6 @@ defmodule ExAdmin.Register do
         nil -> []
         list -> Enum.reverse list
       end
-      # defstruct controller: Module.concat(Application.get_env(:ex_admin, :project), AdminController),
-      #           controller_methods: controller_methods,
-      #           type: :page,
-      #           resource_model: resource_model,
-      #           title_actions: &ExAdmin.default_page_title_actions/2,
-      #           controller_route: (page_name |> Inflex.parameterize("_")),
-      #           menu: menu_opts, 
-      #           plugs: plugs
 
       defstruct controller: Module.concat(Application.get_env(:ex_admin, :project), AdminController),
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
@@ -406,16 +409,10 @@ defmodule ExAdmin.Register do
                 # selectable_column: Module.get_attribute(__MODULE__, :selectable_column), 
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
                 plugs: plugs,
-                sidebars: sidebars
-
-      # def run_query(repo, action, id \\ nil) do
-      #   %__MODULE__{}
-      #   |> Map.get(:resource_model)
-      #   |> ExAdmin.Query.run_query(repo, action, id, @query)
-      # end
+                sidebars: sidebars, 
+                scopes: []
 
       def plugs(), do: @controller_plugs
-
 
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
     end
@@ -455,6 +452,59 @@ defmodule ExAdmin.Register do
         unquote(contents)
       end
       Module.put_attribute __MODULE__, :sidebars, {name, opts, {__MODULE__, fun_name}}
+    end 
+  end
+
+  @doc """
+  Scope the index page. 
+
+  ## Examples
+
+        scope :all, default: true
+
+        scope :available, fn(q) -> 
+          now = Ecto.Date.utc
+          where(q, [p], p.available_on <= ^now)
+        end 
+
+        scope :drafts, fn(q) -> 
+          now = Ecto.Date.utc
+          where(q, [p], p.available_on > ^now)
+        end
+
+        scope :featured_products, [], fn(q) ->
+          where(q, [p], p.featured == true)
+        end
+
+        scope :featured
+
+  """
+  defmacro scope(name) do
+    quote location: :keep  do
+      Module.put_attribute __MODULE__, :scopes, {unquote(name), []}
+    end 
+  end
+  defmacro scope(name, opts_or_fun) do
+    quote location: :keep  do
+      opts_or_fun = unquote(opts_or_fun)
+      if is_function(opts_or_fun) do
+        scope unquote(name), [], unquote(opts_or_fun)
+      else
+        Module.put_attribute __MODULE__, :scopes, {unquote(name), opts_or_fun}
+      end
+    end 
+  end
+  defmacro scope(name, opts, fun) do
+    contents = quote do
+      unquote(fun)
+    end
+    quote location: :keep, bind_quoted: [name: escape(name), opts: escape(opts), contents: escape(contents)] do
+      fun_name = "scope_#{name}" |> String.replace(" ", "_") |> String.to_atom
+      def unquote(fun_name)(var!(resource)) do
+        unquote(contents).(var!(resource))
+      end
+      opts = [{:fun, {__MODULE__, fun_name}} | opts]
+      Module.put_attribute __MODULE__, :scopes, {name, opts}
     end 
   end
 
