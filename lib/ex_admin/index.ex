@@ -222,6 +222,7 @@ defmodule ExAdmin.Index do
           end
           div "#index_footer" do
             href 
+            |> build_scope_href(conn.params["scope"])
             |> build_order_href(order)
             |> build_filter_href(conn.params["q"])
             |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, count, name)
@@ -230,6 +231,11 @@ defmodule ExAdmin.Index do
         end
       end
     end
+  end
+
+  defp build_scope_href(href, nil), do: href
+  defp build_scope_href(href, scope) do
+    String.replace(href, "?", "?scope=#{scope}&")
   end
 
   defp build_order_href(href, {name, sort}), do: href <> "#{name}_#{sort}"
@@ -274,7 +280,7 @@ defmodule ExAdmin.Index do
                 count = scope_counts[name]
                 selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
                 li ".scope.#{name}#{selected}" do
-                  a ".table_tools_button", href: "/admin/products?scope=#{name}" do
+                  a ".table_tools_button", href: get_route_path(conn, :index) <> "?scope=#{name}" do
                     text ExAdmin.Utils.humanize("#{name} ")
                     span ".count (#{count})"
                   end

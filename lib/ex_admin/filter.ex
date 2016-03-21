@@ -13,11 +13,15 @@ defmodule ExAdmin.Filter do
   def filter_view(conn, _filters, defn) do
     q = conn.params["q"]
     order = conn.params["order"]
+    scope = conn.params["scope"] 
     markup do 
       div "#filters_sidebar_sectionl.sidebar_section.panel" do
         h3 "Filters"
         div ".panel_contents" do
           form "accept-charset": "UTF-8", action: get_route_path(conn, :index), class: "filter_form", id: "q_search", method: "get" do
+            if scope do
+              input type: :hidden, name: :scope, value: scope
+            end
             for field <- fields(defn), do: build_field(field, q, defn)
             div ".buttons" do
               input name: "commit", type: "submit", value: "Filter"

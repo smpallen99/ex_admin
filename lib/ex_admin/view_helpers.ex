@@ -61,7 +61,9 @@ defmodule ExAdmin.ViewHelpers do
     end
   end
 
-
+  def status_tag(status) do
+    span ".status_tag.#{status} #{status}"
+  end
   defp title_bar_left(conn, resource) do
     div("#titlebar_left") do
       ExAdmin.BreadCrumb.get_breadcrumbs(conn, resource)
@@ -122,4 +124,26 @@ defmodule ExAdmin.ViewHelpers do
   def _escape_javascript(javascript) when is_binary(javascript) do
     Regex.replace(~r/(\|<\/|\r\n|\342\200\250|\342\200\251|[\n\r"'^])/u, javascript, fn(match) -> @js_escape_map[match] end)
   end
+
+  def decimal_to_currency(%Decimal{} = num, opts \\ []) do
+    del = opts[:delimiter] || "$"
+    sep = opts[:seperator] || "."
+    rnd = opts[:round] || 2
+    
+    neg_opts = case opts[:negative] do
+      nil -> {"-", ""}
+      {pre, post} -> {"#{pre}", "#{post}"}
+      pre -> {"#{pre}", ""}
+    end
+    case Decimal.round(num, rnd) |> Decimal.to_string |> String.split(".") do
+      [int, dec] -> 
+        del <> wrap_negative(int <> sep <> String.ljust(dec, 2, ?0), neg_opts)
+      [int] -> 
+        del <> wrap_negative(int <> sep <> "00", neg_opts)
+    end
+  end
+  defp wrap_negative("-" <> num, {neg_pre, neg_post}) do
+    "#{neg_pre}#{num}#{neg_post}" 
+  end
+  defp wrap_negative(num, _), do: num
 end
