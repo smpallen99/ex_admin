@@ -52,7 +52,7 @@ defmodule ExAdmin.Register do
 
   defmacro __using__(_) do
     quote do
-      use ExAdmin.Index
+      use ExAdmin.Index, except: [actions: 1]
       use ExAdmin.Show
       use ExAdmin.Form, except: [actions: 1]
       use ExAdmin.CSV
@@ -645,6 +645,7 @@ defmodule ExAdmin.Register do
       Module.put_attribute __MODULE__, :actions, unquote(opts)
     end
   end
+
 
   @doc """
   Add an id based action.

@@ -109,25 +109,43 @@ defmodule ExAdmin.Index do
 
     quote location: :keep, bind_quoted: [opts: escape(opts), contents: escape(contents)] do
       def index_view(var!(conn), page, scope_counts) do
+        import ExAdmin.Register, except: [actions: 1]
+        import ExAdmin.Form, except: [actions: 1]
         var!(columns, ExAdmin.Show) = []
         var!(selectable_column, ExAdmin.Index) = nil
+        var!(actions, ExAdmin.Index) = nil
         unquote(contents)
+
         columns = var!(columns, ExAdmin.Show) |> Enum.reverse
-        # columns |> Enum.each(&(Logger.warn "------ column: #{inspect &1}"))
-        
         selectable = case var!(selectable_column, ExAdmin.Index) do
           nil -> false
           other -> other
         end
 
         markup do
-          ExAdmin.Index.render_index_table(var!(conn), page, columns, %{selectable_column: selectable}, scope_counts)
+          ExAdmin.Index.render_index_table(var!(conn), page, columns, 
+             %{selectable_column: selectable}, scope_counts, var!(actions, ExAdmin.Index))
         end
 
       end
     end
   end
   
+  @doc """
+  Define which actions will be displayed in the index view.
+
+  ## Examples
+
+      actions 
+      actions [:new, :destroy]
+  """
+  defmacro actions(opts \\ quote(do: [])) do
+    quote do
+      Logger.debug "index actions opts: #{inspect unquote(opts)}"
+      var!(actions, ExAdmin.Index) = unquote(opts)
+    end
+  end
+
   @doc """
   Add a column of selection check boxes
 
@@ -154,7 +172,7 @@ defmodule ExAdmin.Index do
         
         markup do
           ExAdmin.Index.render_index_table(var!(conn), page, columns, 
-            %{selectable_column: true}, scope_counts)
+            %{selectable_column: true}, scope_counts, [])
         end
     end
   end
@@ -170,7 +188,7 @@ defmodule ExAdmin.Index do
   defp get_resource_fields([resource | _]), do: resource.__struct__.__schema__(:fields)
 
   @doc false
-  def render_index_table(conn, page, columns, %{selectable_column: selectable}, scope_counts) do
+  def render_index_table(conn, page, columns, %{selectable_column: selectable}, scope_counts, actions) do
     resources = page.entries
     fields = get_resource_fields resources
     count = page.total_entries
@@ -181,8 +199,8 @@ defmodule ExAdmin.Index do
     batch_actions = not false in defn.batch_actions
     scopes = defn.scopes
     selectable = selectable and batch_actions
-    columns = unless Enum.any? columns, &((elem &1, 0) == "Actions") do
-      columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource) end}}]
+    columns = unless Enum.any? columns, &((elem &1, 0) == "Actions") or is_nil(actions) do
+      columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
     else
       columns
     end
@@ -350,13 +368,21 @@ defmodule ExAdmin.Index do
   # TODO: don't like that we can't handle the do block :(
 
   @doc false
-  def build_index_links(conn, resource) do
+  def build_index_links(conn, resource, actions) do
     # name = controller_name(conn)
     resource_model = resource.__struct__
     base_class = "member_link"
     id = resource.id
 
+    links = case actions do
+      [] -> [:show, :edit, :destroy]
+      nil -> []
+      other -> other
+    end
+
     get_authorized_links(conn, resource_model)
+    |> Enum.filter(&(&1 in links))
+    |> Enum.reverse
     |> Enum.reduce([], fn(item, acc) -> 
       link = case item do
         :show -> 
@@ -370,6 +396,11 @@ defmodule ExAdmin.Index do
       end
       [link | acc]
     end)
+    |> case do
+      [] -> []
+      list -> 
+        [{"Actions", list}]
+    end
 
   end
 
