@@ -433,8 +433,8 @@ defmodule ExAdmin.Form do
   #################
   # Functions
 
-  defp build_item(resource, name) do
-    case translate_field name do 
+  defp build_item(resource, defn, name) do
+    case translate_field defn, name do 
       field when field == name -> 
         %{type: :input, resource: resource, name: name, opts: %{}}
       field -> 
@@ -445,13 +445,6 @@ defmodule ExAdmin.Form do
           _ -> 
             nil
         end
-    end
-  end
-
-  defp translate_field(field) do
-    case Regex.scan ~r/(.+)_id$/, Atom.to_string(field) do
-      [[_, assoc]] -> String.to_atom(assoc)
-      _ -> field
     end
   end
 
@@ -1187,7 +1180,7 @@ defmodule ExAdmin.Form do
       %{__struct__: _} = defn -> 
         columns = defn.resource_model.__schema__(:fields)
         |> Enum.filter(&(not &1 in [:id, :inserted_at, :updated_at]))
-        |> Enum.map(&(build_item resource, &1))
+        |> Enum.map(&(build_item resource, defn, &1))
         |> Enum.filter(&(not is_nil(&1)))
         items = [%{type: :inputs, name: "", inputs: columns, opts: []}]
         ExAdmin.Form.build_form(conn, resource, items, params, false)

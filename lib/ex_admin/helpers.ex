@@ -264,4 +264,15 @@ defmodule ExAdmin.Helpers do
       acc <> " #{k}='#{v}'"
     end
   end
+
+  def translate_field(defn, field) do
+    case Regex.scan ~r/(.+)_id$/, Atom.to_string(field) do
+      [[_, assoc]] -> 
+        assoc = String.to_atom(assoc)
+        if assoc in  defn.resource_model.__schema__(:associations), 
+          do: assoc, else: field
+      _ -> field
+    end
+  end
+
 end
