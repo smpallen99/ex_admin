@@ -146,4 +146,14 @@ defmodule ExAdmin.ViewHelpers do
     "#{neg_pre}#{num}#{neg_post}" 
   end
   defp wrap_negative(num, _), do: num
+
+  def truncate(string, opts \\ []) when is_binary(string) do
+    length = Keyword.get(opts, :length, 30)
+    omission = Keyword.get(opts, :omission, "...")
+    if String.length(string) < length do
+      string
+    else
+      String.slice(string, 0, length) <> omission
+    end
+  end
 end

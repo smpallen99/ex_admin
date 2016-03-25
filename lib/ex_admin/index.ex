@@ -107,13 +107,16 @@ defmodule ExAdmin.Index do
       unquote(block)
     end
 
-    quote location: :keep, bind_quoted: [opts: escape(opts), contents: escape(contents)] do
+    quote location: :keep, bind_quoted: [options: escape(opts), contents: escape(contents)] do
       def index_view(var!(conn), page, scope_counts) do
         import ExAdmin.Register, except: [actions: 1]
         import ExAdmin.Form, except: [actions: 1]
+        import ExAdmin.ViewHelpers
         var!(columns, ExAdmin.Show) = []
         var!(selectable_column, ExAdmin.Index) = nil
         var!(actions, ExAdmin.Index) = nil
+        var!(cell, ExAdmin.Index) = nil
+        opts = unquote(options)
         unquote(contents)
 
         columns = var!(columns, ExAdmin.Show) |> Enum.reverse
@@ -123,8 +126,13 @@ defmodule ExAdmin.Index do
         end
 
         markup do
-          ExAdmin.Index.render_index_table(var!(conn), page, columns, 
-             %{selectable_column: selectable}, scope_counts, var!(actions, ExAdmin.Index))
+          cond do 
+            opts[:as] == :grid -> 
+              ExAdmin.Index.render_index_grid(var!(conn), page, scope_counts, var!(cell, ExAdmin.Index), opts)
+            true -> 
+              ExAdmin.Index.render_index_table(var!(conn), page, columns, 
+                 %{selectable_column: selectable}, scope_counts, var!(actions, ExAdmin.Index))
+          end
         end
 
       end
@@ -141,8 +149,13 @@ defmodule ExAdmin.Index do
   """
   defmacro actions(opts \\ quote(do: [])) do
     quote do
-      Logger.debug "index actions opts: #{inspect unquote(opts)}"
       var!(actions, ExAdmin.Index) = unquote(opts)
+    end
+  end
+
+  defmacro cell(fun) do
+    quote do 
+      var!(cell, ExAdmin.Index) = unquote(fun)
     end
   end
 
@@ -187,6 +200,76 @@ defmodule ExAdmin.Index do
   defp get_resource_fields([]), do: []
   defp get_resource_fields([resource | _]), do: resource.__struct__.__schema__(:fields)
 
+  def render_index_grid(conn, page, scope_counts, cell, opts) do
+    columns = Keyword.get opts, :columns, 3
+    resources = page.entries
+    fields = get_resource_fields resources
+    count = page.total_entries
+    name = resource_model(conn) |> titleize |> Inflex.pluralize
+    order = ExQueb.get_sort_order(conn.params["order"]) 
+    href = get_route_path(conn, :index) <> "?order="
+    defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
+    batch_actions = not false in defn.batch_actions
+    scopes = defn.scopes
+    # selectable = selectable and batch_actions
+    selectable = batch_actions
+
+    label = get_resource_label(conn) |> Inflex.pluralize
+    resource_model = conn.params["resource"]
+
+    batch_action_form conn, batch_actions, scopes, resource_model, scope_counts, fn -> 
+      if count == 0 do
+        div ".blank_slate_container" do
+          span ".blank_slate" do
+            if conn.params["q"] do
+              text "No #{humanize label} found."
+            else
+              text "There are no #{humanize label} yet. "
+              if ExAdmin.has_action?(conn, defn, :new) do
+                a "Create one", href: get_route_path(conn, :new)
+              end
+            end
+          end
+        end
+      else
+        div ".paginated_collection" do
+          div ".paginated_collection_contents" do
+            div ".index_content" do
+              div ".index_as_grid.index" do
+                table(".index_grid", border: "0", cellspacing: "0", 
+                    cellpadding: "0", paginator: "true") do
+                  tbody do
+                    Enum.chunk(page.entries, columns, columns, [nil])
+                    |> Enum.each(fn(list) -> 
+                      tr do 
+                        Enum.each(list, fn(item) -> 
+                          td do
+                            if item do
+                              cell.(item)
+                            end
+                          end
+                        end)
+                      end
+                    end)
+                  end
+                end # table          
+              end
+            end # .index_content
+          end
+          div "#index_footer" do
+            href 
+            |> build_scope_href(conn.params["scope"])
+            |> build_order_href(order)
+            |> build_filter_href(conn.params["q"])
+            |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, count, name)
+            download_links(conn)
+          end
+        end
+      end
+    end
+    
+  end
+  
   @doc false
   def render_index_table(conn, page, columns, %{selectable_column: selectable}, scope_counts, actions) do
     resources = page.entries
