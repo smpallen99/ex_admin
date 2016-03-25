@@ -65,7 +65,7 @@ defmodule ExAdmin do
   end
 
   @doc false
-  def registered, do: Application.get_env(:ex_admin, :modules, [])
+  def registered, do: Application.get_env(:ex_admin, :modules, []) |> Enum.reverse
 
   @doc false
   def put_data(key, value) do

@@ -76,9 +76,18 @@ defmodule ExAdmin.Register do
   * A paginated index page listing all columns in the model's database
     table
   * A details page (show) listing fields and simple associations
-  * Need and and edit pages
+  * New and edit pages
   * A menu item
   * A CSV export link on the index page
+
+  # Default Association Rendering
+
+  ExAdmin will render an association using the following algorithm in the following order:
+
+  * Look for a `:name` field in the association
+  * Look for a display_name/1 function in the Admin Resource Module
+  * Look for a display_name/1 function in the Model's Module
+  * Use the 2nd field in the Model's schema
 
   """
   defmacro register_resource(mod, [do: block]) do
