@@ -192,8 +192,20 @@ defmodule ExAdmin.Helpers do
               raise ExAdmin.RuntimeError, 
                 message: "Could not call resource function #{:field} on #{struct_name}"
             end
+          function_exported?(ExAdmin.get_registered(resource.__struct__).__struct__, :display_name, 1) -> 
+            apply(ExAdmin.get_registered(resource.__struct__).__struct__, :display_name, [resource])
+
+          function_exported?(resource.__struct__, :display_name, 1) -> 
+            apply(resource.__struct__, :display_name, [resource])
           true -> 
-            raise ExAdmin.RuntimeError, message: "Could not find field #{inspect field} in #{inspect resource}"
+            case resource.__struct__.__schema__(:fields) do
+              [_, first | _] -> 
+                Map.get resource, first 
+              [id | _] -> 
+                Map.get resource, id
+              _ -> 
+                raise ExAdmin.RuntimeError, message: "Could not find field #{inspect field} in #{inspect resource}"
+            end
         end
       _ -> 
         raise ExAdmin.RuntimeError, message: "Resource must be a struct"
@@ -266,4 +278,15 @@ defmodule ExAdmin.Helpers do
       acc <> " #{k}='#{v}'"
     end
   end
+
+  def translate_field(defn, field) do
+    case Regex.scan ~r/(.+)_id$/, Atom.to_string(field) do
+      [[_, assoc]] -> 
+        assoc = String.to_atom(assoc)
+        if assoc in  defn.resource_model.__schema__(:associations), 
+          do: assoc, else: field
+      _ -> field
+    end
+  end
+
 end

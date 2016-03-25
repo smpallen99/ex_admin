@@ -31,6 +31,7 @@ defmodule ExAdmin.Show do
 
   """
   import ExAdmin.DslUtils
+  import ExAdmin.Helpers
 
   import Kernel, except: [div: 2]
   use Xain
@@ -205,16 +206,9 @@ defmodule ExAdmin.Show do
       %{__struct__: _} = defn -> 
         columns = defn.resource_model.__schema__(:fields)
         |> Enum.filter(&(not &1 in [:id, :inserted_at, :updated_at]))
-        |> Enum.map(&({translate_field(&1), %{}}))
+        |> Enum.map(&({translate_field(defn, &1), %{}}))
         |> Enum.filter(&(not is_nil(&1)))
         ExAdmin.Table.attributes_table conn, resource, %{rows: columns}
-    end
-  end
-
-  defp translate_field(field) do
-    case Regex.scan ~r/(.+)_id$/, Atom.to_string(field) do
-      [[_, assoc]] -> String.to_atom(assoc)
-      _ -> field
     end
   end
 end
