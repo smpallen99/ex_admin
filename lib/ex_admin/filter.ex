@@ -124,6 +124,29 @@ defmodule ExAdmin.Filter do
     end
   end
 
+  def build_field({name, Ecto.UUID}, q, defn) do
+    repo = Application.get_env :ex_admin, :repo
+    ids = repo.all(defn.resource_model)
+    |> Enum.map(&(Map.get(&1, name)))
+
+    selected_key = case q["#{name}_eq"] do
+      nil -> nil
+      val -> val
+    end
+
+    div ".filter_form_field.filter_select" do
+      title = humanize(name)
+      label ".label #{title}", for: "q_#{name}"
+      select "##{name}", [name: "q[#{name}_eq]"] do
+        option "Any", value: ""
+        for id <- ids do
+          selected = if "#{id}" == selected_key, do: [selected: :selected], else: []
+          option id, [{:value, "#{id}"} | selected]
+        end
+      end
+    end
+  end
+
   def build_field({name, type}, _q, _) do
     text "unknown #{name}, #{inspect type}"
   end

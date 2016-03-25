@@ -190,8 +190,20 @@ defmodule ExAdmin.Helpers do
               raise ExAdmin.RuntimeError, 
                 message: "Could not call resource function #{:field} on #{struct_name}"
             end
+          function_exported?(ExAdmin.get_registered(resource.__struct__).__struct__, :display_name, 1) -> 
+            apply(ExAdmin.get_registered(resource.__struct__).__struct__, :display_name, [resource])
+
+          function_exported?(resource.__struct__, :display_name, 1) -> 
+            apply(resource.__struct__, :display_name, [resource])
           true -> 
-            raise ExAdmin.RuntimeError, message: "Could not find field #{inspect field} in #{inspect resource}"
+            case resource.__struct__.__schema__(:fields) do
+              [_, first | _] -> 
+                Map.get resource, first 
+              [id | _] -> 
+                Map.get resource, id
+              _ -> 
+                raise ExAdmin.RuntimeError, message: "Could not find field #{inspect field} in #{inspect resource}"
+            end
         end
       _ -> 
         raise ExAdmin.RuntimeError, message: "Resource must be a struct"
