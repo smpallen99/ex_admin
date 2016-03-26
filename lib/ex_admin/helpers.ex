@@ -48,18 +48,23 @@ defmodule ExAdmin.Helpers do
   def build_link_for("", _, _, _, _), do: ""
   def build_link_for(nil, _, _, _, _), do: ""
   def build_link_for(contents, _, %{link: false}, _, _), do: contents
-  def build_link_for(contents, conn, _, resource, field_name) do
-    # id  = resource.id
+  def build_link_for(contents, conn, opts, resource, field_name) do
     case Map.get resource, field_name do
-      nil -> contents
+      nil -> 
+        contents
       %{__meta__: _} = res -> 
-        if ExAdmin.Utils.authorized_action? conn, :show, res.__struct__ do
-          path = get_route_path res, :show, res.id
-          "<a href='#{path}'>#{contents}</a>"
-        else
-          contents
-        end
-      _ -> contents
+        build_content_link(true, conn, res, contents)
+      _ -> 
+        build_content_link(opts[:link], conn, resource, contents)
+    end
+  end
+
+  defp build_content_link(link?, conn, resource, contents) do
+    if link? && ExAdmin.Utils.authorized_action?(conn, :show, resource.__struct__) do
+      path = get_route_path resource, :show, resource.id
+      "<a href='#{path}'>#{contents}</a>"
+    else
+      contents
     end
   end
   
@@ -178,7 +183,6 @@ defmodule ExAdmin.Helpers do
   
   def get_resource_field(resource, field, opts \\ %{}) when is_map(resource) do
     opts = Enum.into opts, %{}
-    #IO.puts "---> get_resource_field field: #{inspect field}, resource: #{inspect resource}"
     case resource do
       %{__struct__: struct_name} ->
         cond do

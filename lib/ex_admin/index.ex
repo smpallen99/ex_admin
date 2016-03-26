@@ -179,10 +179,24 @@ defmodule ExAdmin.Index do
       nil -> 
         throw :invalid_route
       %{__struct__: _} = defn -> 
-        columns = defn.resource_model.__schema__(:fields)
-        |> Enum.filter(&(not &1 in [:id, :inserted_at, :updated_at]))
+        columns = case defn.index_filters do
+          [] -> []
+          [false] -> []
+          [f] -> f
+        end
+        |> case do
+          [] -> 
+            columns = defn.resource_model.__schema__(:fields)
+            |> Enum.filter(&(not &1 in [:inserted_at, :updated_at]))
+          other ->
+            other
+        end
         |> Enum.map(&({translate_field(defn, &1), %{}}))
-        
+
+        if :id in defn.resource_model.__schema__(:fields) and Enum.any?(columns, (&(elem(&1, 0) == :id))) do
+          columns = Keyword.put columns, :id, %{link: true}
+        end
+
         markup do
           ExAdmin.Index.render_index_table(var!(conn), page, columns, 
             %{selectable_column: true}, scope_counts, [])
@@ -430,7 +444,6 @@ defmodule ExAdmin.Index do
               end
             end
           end
-
           for field <- columns do
             build_field(resource, conn, field, fn(contents, field_name) -> 
               ExAdmin.Table.handle_contents(contents, field_name)

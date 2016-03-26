@@ -51,7 +51,14 @@ defmodule ExAdmin.ViewHelpers do
       :index -> 
         plural
       :show -> 
-        ExAdmin.Helpers.resource_identity(resource)
+        cond do
+          function_exported?(ExAdmin.get_registered(resource.__struct__).__struct__, :display_name, 1) -> 
+            apply(ExAdmin.get_registered(resource.__struct__).__struct__, :display_name, [resource])
+          function_exported?(resource.__struct__, :display_name, 1) -> 
+            apply(resource.__struct__, :display_name, [resource])
+          true -> 
+            ExAdmin.Helpers.resource_identity(resource)
+        end
       :edit -> 
         "Edit #{singular}"
       :new -> 
@@ -154,6 +161,15 @@ defmodule ExAdmin.ViewHelpers do
       string
     else
       String.slice(string, 0, length) <> omission
+    end
+  end
+
+  def auto_link(resource) do
+    case resource.__struct__.__schema__(:fields) do
+      [_, field | _] -> 
+        name = Map.get resource, field, "Unknown"
+        a name, href: get_route_path(resource, :show, resource.id)
+      _ -> ""
     end
   end
 end

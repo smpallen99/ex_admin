@@ -749,11 +749,11 @@ defmodule ExAdmin.Register do
       filter false
 
 
-  Only show filters for the specified fields:
+  Only show index columns and filters for the specified fields:
 
       filter [:name, :email, :inserted_at]
   """
-  defmacro filter(false) do
+  defmacro filter(disable) when disable in [nil, false] do
     quote do
       Module.put_attribute __MODULE__, :index_filters, false
     end

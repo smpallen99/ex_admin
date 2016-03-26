@@ -154,7 +154,8 @@ defmodule ExAdmin.Filter do
   end
 
   def build_field({name, type}, _q, _) do
-    text "unknown #{name}, #{inspect type}"
+    Logger.warn "ExAdmin.Filter: unknown type: #{inspect type} for field: #{inspect name}"
+    nil
   end
 
   defp check_and_build_association(name, q, defn) do

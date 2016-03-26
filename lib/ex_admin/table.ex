@@ -109,7 +109,7 @@ defmodule ExAdmin.Table do
 
   def build_th({field_name, %{label: label} = opts}, table_opts) when is_atom(field_name) and is_binary(label), 
     do: build_th(label, opts, table_opts)
-  def build_th({field_name, opts}, table_opts) when is_atom(field_name),  
+  def build_th({field_name, opts}, table_opts) when is_atom(field_name),
     do: build_th(Atom.to_string(field_name), opts, table_opts)
   def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label), 
     do: build_th(label, opts, table_opts)
@@ -118,7 +118,7 @@ defmodule ExAdmin.Table do
   def build_th(field_name, _),
     do: th(".#{field_name} #{humanize field_name}")
   def build_th(field_name, opts, %{fields: fields} = table_opts) do
-    if String.to_atom(field_name) in fields and opts == %{} do
+    if String.to_atom(field_name) in fields and opts in [%{}, %{link: true}] do
       _build_th(field_name, opts, table_opts)
     else
       th(".#{field_name} #{humanize field_name}") 
@@ -130,6 +130,7 @@ defmodule ExAdmin.Table do
     end
   end 
   def build_th(field_name, _, _), do: build_th(field_name, nil)
+
   def _build_th(field_name, _opts, %{path_prefix: path_prefix, order: {name, sort}, 
       fields: _fields} = table_opts) when field_name == name do
     link_order = if sort == "desc", do: "asc", else: "desc"
