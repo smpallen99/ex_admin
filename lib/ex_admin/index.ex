@@ -97,6 +97,8 @@ defmodule ExAdmin.Index do
     end
   end
 
+
+
   @doc """
   The index macro is used to customize the index page of a resource. 
   
@@ -112,6 +114,7 @@ defmodule ExAdmin.Index do
         import ExAdmin.Register, except: [actions: 1]
         import ExAdmin.Form, except: [actions: 1]
         import ExAdmin.ViewHelpers
+
         var!(columns, ExAdmin.Show) = []
         var!(selectable_column, ExAdmin.Index) = nil
         var!(actions, ExAdmin.Index) = nil
@@ -134,7 +137,6 @@ defmodule ExAdmin.Index do
                  %{selectable_column: selectable}, scope_counts, var!(actions, ExAdmin.Index))
           end
         end
-
       end
     end
   end
@@ -210,7 +212,7 @@ defmodule ExAdmin.Index do
   def render_index_grid(conn, page, scope_counts, cell, opts) do
     columns = Keyword.get opts, :columns, 3
     resources = page.entries
-    fields = get_resource_fields resources
+    # fields = get_resource_fields resources
     count = page.total_entries
     name = resource_model(conn) |> titleize |> Inflex.pluralize
     order = ExQueb.get_sort_order(conn.params["order"]) 
@@ -219,7 +221,6 @@ defmodule ExAdmin.Index do
     batch_actions = not false in defn.batch_actions
     scopes = defn.scopes
     # selectable = selectable and batch_actions
-    selectable = batch_actions
 
     label = get_resource_label(conn) |> Inflex.pluralize
     resource_model = conn.params["resource"]

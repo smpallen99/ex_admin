@@ -8,9 +8,9 @@ defmodule ExAdmin.Query do
   
   @doc false
   def get_scope(scopes, nil) do
-    (Enum.find(scopes, fn({k, v}) -> v[:default] == true end) || hd(scopes)) |> elem(0)
+    (Enum.find(scopes, fn({_, v}) -> v[:default] == true end) || hd(scopes)) |> elem(0)
   end
-  def get_scope(scopes, scope), do: to_atom(scope)
+  def get_scope(_scopes, scope), do: to_atom(scope)
 
   @doc false
   def run_query(resource_model, repo, defn, action, id, query_opts) do
@@ -20,8 +20,8 @@ defmodule ExAdmin.Query do
   end
 
   @doc false
-  def run_query_counts(resource_model, repo, defn, action, id, query_opts) do
-    for {name, opts} <- defn.scopes do
+  def run_query_counts(resource_model, repo, defn, _action, _id, _query_opts) do
+    for {name, _opts} <- defn.scopes do
       resource_model
       |> scope_where(defn.scopes, name)
       |> count_q(repo, name)
@@ -105,7 +105,7 @@ defmodule ExAdmin.Query do
     end
   end
 
-  defp build_wheres(query, opts, action, id, defn) when action in [:index, :csv] do
+  defp build_wheres(query, _opts, action, id, defn) when action in [:index, :csv] do
     case defn.scopes do
       nil -> query
       [] -> query
