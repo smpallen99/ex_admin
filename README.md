@@ -5,9 +5,7 @@ ExAdmin is a port/inspiration of [ActiveAdmin](http://activeadmin.info/) for Eli
 
 ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) and the [Phoenix Framework](http://www.phoenixframework.org/) 
 
-Documentation is coming soon. 
-
-For a brief tutorial, please visit [Elixir Survey Tutorial](https://github.com/smpallen99/elixir_survey_tutorial)
+For a detailed example, checkout [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo).
 
 ## Usage
 
@@ -186,6 +184,10 @@ defmodule Survey.ExAdmin.Question do
 end
 ```
 
+## References
+
+* Detailed Example [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo)
+* For a brief tutorial, please visit [Elixir Survey Tutorial](https://github.com/smpallen99/elixir_survey_tutorial)
 
 ## License
 
