@@ -6,6 +6,8 @@ defmodule ExAdmin.Index do
   configuration. It renders each column in the model, except the id, 
   inserted_at, and updated_at columns. 
 
+  ## Default Table Type
+
   ExAdmin displays a selection checkbox column on the left with a batch
   action control that enables when a checkbox is selected. 
 
@@ -27,7 +29,7 @@ defmodule ExAdmin.Index do
         end
       end
 
-  ## Image fields
+  ### Image fields
 
   For image fields, use the `image: true` option. For example:
 
@@ -36,7 +38,7 @@ defmodule ExAdmin.Index do
         column :image, [image: true, height: 100], &(ExAdminDemo.Image.url({&1.image, &1}, :thumb))
       end
 
-  ## Custom columns
+  ### Custom columns
 
   Columns can be customized with column/2 where the second argument is
   an anonymous function called with model. Here are a couple examples:
@@ -52,7 +54,7 @@ defmodule ExAdmin.Index do
         end
       end
 
-  ## Override the Actions column
+  ### Override the Actions column
 
   The Actions column can be customized by adding `column "Actions", fn(x) -> ...`
 
@@ -65,7 +67,7 @@ defmodule ExAdmin.Index do
             class: "member_link")
       end
 
-  ## Associations
+  ### Associations
 
   By default, ExAdmin will attempt to render a belongs_to association with a 
   select control, using name field in the association. If you would like to 
@@ -74,11 +76,31 @@ defmodule ExAdmin.Index do
 
       column :account, fields: [:username]
 
-  ## Change the column label
+  ### Change the column label
 
   Use the :label option to override the column name:
 
       column :name, label: "Custom Name"
+
+
+  ## As Grid
+
+  By providing option `as: :grid` to the `index` macro, a grid index page 
+  is rendered. 
+
+  ### For Example: 
+
+      index as: :grid, default: true do
+        cell fn(p) -> 
+          div do
+            a href: get_route_path(conn, :show, p.id) do
+              img(src: ExAdminDemo.Image.url({p.image_file_name, p}, :thumb), height: 100)
+            end
+          end
+          a truncate(p.title), href: get_route_path(conn, :show, p.id)
+        end
+      end
+
   """
 
   require Logger
@@ -96,7 +118,6 @@ defmodule ExAdmin.Index do
       import unquote(__MODULE__)
     end
   end
-
 
 
   @doc """
@@ -211,7 +232,7 @@ defmodule ExAdmin.Index do
 
   def render_index_grid(conn, page, scope_counts, cell, opts) do
     columns = Keyword.get opts, :columns, 3
-    resources = page.entries
+    # resources = page.entries
     # fields = get_resource_fields resources
     count = page.total_entries
     name = resource_model(conn) |> titleize |> Inflex.pluralize

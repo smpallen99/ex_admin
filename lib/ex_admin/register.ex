@@ -93,6 +93,8 @@ defmodule ExAdmin.Register do
   """
   defmacro register_resource(mod, [do: block]) do
     quote location: :keep do
+      import ExAdmin.ViewHelpers
+      import ExAdmin.Utils
       require Logger
       Module.register_attribute __MODULE__, :query, accumulate: false, persist: true
       Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true 

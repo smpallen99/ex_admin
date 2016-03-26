@@ -55,6 +55,7 @@ defmodule ExAdmin.Show do
       def show_view(var!(conn), unquote(resource) = var!(resource)) do 
         import ExAdmin.Utils
         import ExAdmin.ViewHelpers
+        _ = var!(resource)
         #var!(query_options) = []
         markup do
           unquote(contents)
