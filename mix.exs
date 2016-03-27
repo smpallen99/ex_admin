@@ -10,7 +10,7 @@ defmodule ExAdmin.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      name: "ExAdmin",
-     docs: [extras: ["README.md"]],
+     docs: [extras: ["README.md"], main: "ExAdmin"],
      deps: deps]
   end
 

@@ -1,17 +1,17 @@
 ExAdmin
 =======
 
-ExAdmin is a port/inspiration of [ActiveAdmin](http://activeadmin.info/) for Elixir. 
+ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) and the [Phoenix Framework](http://www.phoenixframework.org/), a port/inspiration of [ActiveAdmin](http://activeadmin.info/) for Elixir. 
 
-ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) and the [Phoenix Framework](http://www.phoenixframework.org/) 
-
-For a detailed example, checkout [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo).
+Checkout the [Live Demo](http://demo.exadmin.info/admin). The source code can be found at [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo).
 
 ## Usage
 
 ExAdmin is an add on for an application using the [Phoenix Framework](http://www.phoenixframework.org) to create an CRUD administration tool with little or no code. By running a few mix tasks to define which Ecto Models you want to administer, you will have something that works with no additional code. 
 
 Before using ExAdmin, you will need a Phoenix project and an Ecto model created. 
+
+Visit [ExAdmin Docs](http://exadmin.info/doc) to view the documentation.
 
 ### Installation
 
@@ -188,10 +188,12 @@ end
 
 * Detailed Example [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo)
 * For a brief tutorial, please visit [Elixir Survey Tutorial](https://github.com/smpallen99/elixir_survey_tutorial)
+* [Live Demo](http://demo.exadmin.info/admin)
+* [ExAdmin Docs](http://exadmin.info/doc)
 
 ## License
 
-`ex_admin` is Copyright (c) 2015 E-MetroTel
+`ex_admin` is Copyright (c) 2015-2016 E-MetroTel
 
 The source code is released under the MIT License.
 
