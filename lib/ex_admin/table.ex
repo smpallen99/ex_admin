@@ -5,6 +5,7 @@ defmodule ExAdmin.Table do
   use Xain
   import ExAdmin.Helpers
   import ExAdmin.Utils
+  import ExAdmin.Render
   import Kernel, except: [to_string: 1]
 
   def attributes_table(conn, resource, schema) do

@@ -180,32 +180,6 @@ defmodule ExAdmin.Utils do
   def confirm_message, do: "Are you sure you want to delete this?"
 
   @doc false
-  def to_string(nil), do: ""
-  def to_string(string) when is_binary(string), do: string
-  def to_string(number) when is_number(number), do: "#{number}"
-  def to_string(atom) when is_number(atom), do: Atom.to_string(atom)
-  def to_string(%Ecto.DateTime{} = dt) do
-    dt
-    |> to_datetime
-    |> :calendar.universal_time_to_local_time
-    |> format_datetime
-  end
-  def to_string(%Ecto.Time{} = dt) do
-    dt
-    |> Ecto.Time.to_string
-    |> String.replace("Z", "")
-  end
-  def to_string(%Ecto.Date{} = dt) do
-    Ecto.Date.to_string dt
-  end
-  def to_string(%Decimal{} = decimal) do
-    Decimal.to_string decimal
-  end
-  def to_string(other) do
-    "#{inspect other}"
-  end
-
-  @doc false
   def to_datetime(%Ecto.DateTime{} = dt) do
     {:ok, {date, {h,m,s,_ms}}} = Ecto.DateTime.dump dt
     {date, {h,m,s}}

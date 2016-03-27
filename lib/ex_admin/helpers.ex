@@ -6,6 +6,7 @@ defmodule ExAdmin.Helpers do
   use Xain
   import Kernel, except: [to_string: 1]
   import ExAdmin.Utils
+  import ExAdmin.Render
 
   def build_fieldset_legend(nil), do: []
   def build_fieldset_legend(""), do: []

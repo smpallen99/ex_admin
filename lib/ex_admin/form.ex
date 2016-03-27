@@ -860,6 +860,7 @@ defmodule ExAdmin.Form do
     else
       {:text, Map.get(resource, field_name, "")}
     end
+    value = ExAdmin.Render.to_string(value)
     Map.put_new(opts, :type, field_type)
     |> Map.put_new(:maxlength, "255")
     |> Map.put_new(:name, "#{model_name}[#{field_name}]")

@@ -35,6 +35,52 @@ defmodule ExAdmin do
   * `menu` - Customize the menu item
   * `controller` - Customer the controller
 
+  ## Custom Ecto Types
+
+  ### Map Type
+
+  By default, ExAdmin used Poison.encode! to encode `Map` type. To change the 
+  decoding, add override the protocol. For Example:
+
+      defimpl ExAdmin.Render, for: Map do
+        def to_string(map) do
+          {:ok, encoded} = Poison.encode map
+          encoded
+        end
+      end
+
+  As well as handling the encoding to display the data, you will need to handle 
+  the params decoding for the `:create` and `:modify` actions. You have a couple
+  options for handling this.
+
+  * In your changeset, you can update the params field with the decoded value
+  * Add a controller `before_filter` in your admin resource file. 
+
+  For example:
+
+      register_resource AdminIdIssue.UserSession do
+        controller do
+          before_filter :decode, only: [:update, :create]
+
+          def decode(conn, params) do
+            if get_in params, [:usersession, :data] do
+              params = update_in params, [:usersession, :data], &(Poison.decode!(&1))
+            end
+            {conn, params}
+          end
+        end
+      end
+
+  ## Other Types
+
+  To support other Ecto Types, implement the ExAdmin.Render protocol for the 
+  desired type. Here is an example from the ExAdmin code for the `Ecto.Date` type:
+
+      defimpl ExAdmin.Render, for: Ecto.Date do
+        def to_string(dt) do
+          Ecto.Date.to_string dt
+        end
+      end
   """
   require Logger
   use Xain
