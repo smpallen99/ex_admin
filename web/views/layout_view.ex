@@ -20,4 +20,9 @@ defmodule ExAdmin.LayoutView do
       {true, "with_sidebar"}
     end
   end
+
+  def admin_static_path(conn, path) do
+    theme = "/themes/" <> Application.get_env(:ex_admin, :theme, "active_admin")
+    static_path(conn, "#{theme}#{path}")
+  end
 end

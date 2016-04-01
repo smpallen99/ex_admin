@@ -105,7 +105,8 @@ defmodule ExAdmin.AdminController do
   defp authorized?(conn), do: conn
 
   defp set_layout(conn, _) do
-    put_layout(conn, "admin.html")
+    theme = Application.get_env(:ex_admin, :theme, "active_admin")
+    put_layout(conn, "#{theme}.html")
   end
 
   def index(conn, params) do

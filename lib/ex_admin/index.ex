@@ -245,8 +245,8 @@ defmodule ExAdmin.Index do
 
     label = get_resource_label(conn) |> Inflex.pluralize
     resource_model = conn.params["resource"]
-
-    batch_action_form conn, batch_actions, scopes, resource_model, scope_counts, fn -> 
+    div ".box" do
+      batch_action_form conn, batch_actions, scopes, resource_model, scope_counts, fn -> 
       if count == 0 do
         div ".blank_slate_container" do
           span ".blank_slate" do
@@ -264,24 +264,38 @@ defmodule ExAdmin.Index do
         div ".paginated_collection" do
           div ".paginated_collection_contents" do
             div ".index_content" do
-              div ".index_as_grid.index" do
-                table(".index_grid", border: "0", cellspacing: "0", 
-                    cellpadding: "0", paginator: "true") do
-                  tbody do
-                    Enum.chunk(page.entries, columns, columns, [nil])
-                    |> Enum.each(fn(list) -> 
-                      tr do 
-                        Enum.each(list, fn(item) -> 
-                          td do
-                            if item do
-                              cell.(item)
-                            end
-                          end
-                        end)
+              div ".container-fluid" do
+                col_width = Kernel.div 12, columns
+                Enum.chunk(page.entries, columns, columns, [nil])
+                |> Enum.each(fn(list) -> 
+                  div ".row" do 
+                    Enum.each(list, fn(item) -> 
+                      div ".col-md-#{col_width}.col-sm-#{col_width * 2}.col-xs-12" do
+                        if item do
+                          cell.(item)
+                        end
                       end
                     end)
                   end
-                end # table          
+                end)
+
+                # table(".index_grid", border: "0", cellspacing: "0", 
+                #     cellpadding: "0", paginator: "true") do
+                #   tbody do
+                #     Enum.chunk(page.entries, columns, columns, [nil])
+                #     |> Enum.each(fn(list) -> 
+                #       tr do 
+                #         Enum.each(list, fn(item) -> 
+                #           td do
+                #             if item do
+                #               cell.(item)
+                #             end
+                #           end
+                #         end)
+                #       end
+                #     end)
+                #   end
+                # end # table          
               end
             end # .index_content
           end
@@ -295,8 +309,8 @@ defmodule ExAdmin.Index do
           end
         end
       end
+      end
     end
-    
   end
   
   @doc false
@@ -320,43 +334,45 @@ defmodule ExAdmin.Index do
     label = get_resource_label(conn) |> Inflex.pluralize
     resource_model = conn.params["resource"]
 
-    batch_action_form conn, batch_actions, scopes, resource_model, scope_counts, fn -> 
-      if count == 0 do
-        div ".blank_slate_container" do
-          span ".blank_slate" do
-            if conn.params["q"] do
-              text "No #{humanize label} found."
-            else
-              text "There are no #{humanize label} yet. "
-              if ExAdmin.has_action?(conn, defn, :new) do
-                a "Create one", href: get_route_path(conn, :new)
+    div ".box" do
+      batch_action_form conn, batch_actions, scopes, resource_model, scope_counts, fn -> 
+        if count == 0 do
+          div ".blank_slate_container" do
+            span ".blank_slate" do
+              if conn.params["q"] do
+                text "No #{humanize label} found."
+              else
+                text "There are no #{humanize label} yet. "
+                if ExAdmin.has_action?(conn, defn, :new) do
+                  a "Create one", href: get_route_path(conn, :new)
+                end
               end
             end
           end
-        end
-      else
-        div ".paginated_collection" do
-          div ".paginated_collection_contents" do
-            div ".index_content" do
-              div ".index_as_table" do
-                table("#contacts.index_table.index", border: "0", cellspacing: "0", 
-                    cellpadding: "0", paginator: "true") do
-                  ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: href, 
-                    sort: "desc", order: order, fields: fields, page: page,
-                    filter: build_filter_href("", conn.params["q"]),
-                    selectable_column: selectable})
-                  build_table_body(conn, resources, columns, %{selectable_column: selectable})
-                end # table          
-              end
-            end # .index_content
-          end
-          div "#index_footer" do
-            href 
-            |> build_scope_href(conn.params["scope"])
-            |> build_order_href(order)
-            |> build_filter_href(conn.params["q"])
-            |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, count, name)
-            download_links(conn)
+        else
+          div ".paginated_collection" do
+            div ".paginated_collection_contents" do
+              div ".index_content" do
+                div ".index_as_table" do
+                  table("#contacts.index_table.index", border: "0", cellspacing: "0", 
+                      cellpadding: "0", paginator: "true") do
+                    ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: href, 
+                      sort: "desc", order: order, fields: fields, page: page,
+                      filter: build_filter_href("", conn.params["q"]),
+                      selectable_column: selectable})
+                    build_table_body(conn, resources, columns, %{selectable_column: selectable})
+                  end # table          
+                end
+              end # .index_content
+            end
+            div "#index_footer" do
+              href 
+              |> build_scope_href(conn.params["scope"])
+              |> build_order_href(order)
+              |> build_filter_href(conn.params["q"])
+              |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, count, name)
+              download_links(conn)
+            end
           end
         end
       end
@@ -383,46 +399,56 @@ defmodule ExAdmin.Index do
   @doc false
   def batch_action_form conn, enabled?, scopes, name, scope_counts, fun do
     msg = "Are you sure you want to delete these #{name}? You wont be able to undo this."
+    enabled? = false
     if enabled? or scopes != [] do
       form "#collection_selection", action: "/admin/#{name}/batch_action", method: :post, "accept-charset": "UTF-8" do
         div style: "margin:0;padding:0;display:inline" do
           input name: "utf8", type: :hidden, value: "✓"
         end
         input "#batch_action", name: "batch_action", type: :hidden
-        div ".table_tools" do
-          if enabled? do
-            div "#batch_actions_selector.dropdown_menu" do
-              a ".disabled.dropdown_menu_button Batch Actions", href: "#"
-              div ".dropdown_menu_list_wrapper", style: "display: none;" do
-                div ".dropdown_menu_nipple"
-                ul ".dropdown_menu_list" do
-                  li do
-                    a ".batch_action Delete Selected", href: "#", "data-action": :destroy, "data-confirm": msg
+        div ".box-header" do
+          div ".table_tools" do
+            if enabled? do
+              div "#batch_actions_selector.dropdown_menu" do
+                a ".disabled.dropdown_menu_button Batch Actions", href: "#"
+                div ".dropdown_menu_list_wrapper", style: "display: none;" do
+                  div ".dropdown_menu_nipple"
+                  ul ".dropdown_menu_list" do
+                    li do
+                      a ".batch_action Delete Selected", href: "#", "data-action": :destroy, "data-confirm": msg
+                    end
                   end
                 end
               end
             end
-          end
-          if scopes != [] do
-            current_scope = ExAdmin.Query.get_scope scopes, conn.params["scope"]
-            ul ".scopes.table_tools_segmented_control", style: "width: calc((100% - 10px) - 108px); float: right;" do
-              for {name, _opts} <- scopes do
-                count = scope_counts[name]
-                selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
-                li ".scope.#{name}#{selected}" do
-                  a ".table_tools_button", href: get_route_path(conn, :index) <> "?scope=#{name}" do
-                    text ExAdmin.Utils.humanize("#{name} ")
-                    span ".count (#{count})"
-                  end
+            if scopes != [] do
+              current_scope = ExAdmin.Query.get_scope scopes, conn.params["scope"]
+              #ul ".scopes.table_tools_segmented_control", style: "width: calc((100% - 10px) - 108px); float: right;" do
+              div ".btn-group", style: "width: calc((100% - 10px) - 108px); float: right;" do
+                for {name, _opts} <- scopes do
+                  count = scope_counts[name]
+                  selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
+                  # li ".scope.#{name}#{selected}" do
+                    a ".table_tools_button.btn.btn-default", href: get_route_path(conn, :index) <> "?scope=#{name}" do
+                      # button type: :button, class: "btn btn-default" do
+                        text ExAdmin.Utils.humanize("#{name} ")
+                        span ".badge.bg-blue #{count}"
+                      # end
+                    end
+                  # end
                 end
               end
             end
           end
         end
-        fun.()
+        div ".box-body" do
+          fun.()
+        end
       end
     else
-      fun.()
+      div ".box-body" do
+        fun.()
+      end
     end
   end
 

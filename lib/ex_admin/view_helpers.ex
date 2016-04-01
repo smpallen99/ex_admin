@@ -12,9 +12,17 @@ defmodule ExAdmin.ViewHelpers do
   #   import UcxNotifier.Admin.ViewHelpers.Table 
   # end
 
+  # def title_bar(conn, resource) do
+  #   markup do
+  #     div("#title_bar.title_bar") do
+  #       title_bar_left(conn, resource)
+  #       title_bar_right(conn)
+  #     end
+  #   end
+  # end
   def title_bar(conn, resource) do
     markup do
-      div("#title_bar.title_bar") do
+      section("#title_bar.content-header") do
         title_bar_left(conn, resource)
         title_bar_right(conn)
       end
@@ -73,22 +81,32 @@ defmodule ExAdmin.ViewHelpers do
   end
   defp title_bar_left(conn, resource) do
     div("#titlebar_left") do
+      h1("#page_title #{page_title(conn, resource)}")
       ExAdmin.BreadCrumb.get_breadcrumbs(conn, resource)
       |> render_breadcrumbs
 
-      h2("#page_title #{page_title(conn, resource)}")
     end
   end
   
   defp render_breadcrumbs([]), do: nil
   defp render_breadcrumbs(list) do
-    span(".breadcrumb") do
+    ol(".breadcrumb") do
       Enum.each list, fn({link, name}) -> 
-        a(name, href: link)
-        span(".breadcrumb_sep /")
+        li do
+          a(name, href: link)
+          # span(".breadcrumb_sep /")
+        end
       end
     end
   end
+  # defp render_breadcrumbs(list) do
+  #   span(".breadcrumb") do
+  #     Enum.each list, fn({link, name}) -> 
+  #       a(name, href: link)
+  #       span(".breadcrumb_sep /")
+  #     end
+  #   end
+  # end
 
   defp title_bar_right(conn) do
     #controller = controller_name(conn)

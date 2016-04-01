@@ -22,9 +22,12 @@ defmodule ExAdmin.Sidebar do
   defp _sidebar_view(conn, {name, opts, {mod, fun}}, resource) do
     if visible? conn, opts do
       markup do 
-        div "#filters_sidebar_sectionl.sidebar_section.panel" do
-          h3 "#{name}"
-          div ".panel_contents" do
+        # div "#filters_sidebar_sectionl.sidebar_section.panel" do
+        div ".box.box-primary" do
+          div ".box-header.with-border" do
+            h3 ".box-title #{name}"
+          end
+          div ".box-body" do
             case apply mod, fun, [conn, resource] do
               {_, rest} -> text rest
               :ok       -> ""

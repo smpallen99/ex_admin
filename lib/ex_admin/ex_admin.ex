@@ -270,15 +270,19 @@ defmodule ExAdmin do
   end
 
   defp action_link(conn, name, :delete, id) do
-    button_name(name, :delete)
-    |> a(href: ExAdmin.Utils.get_route_path(conn, :delete, id),
+    a(href: ExAdmin.Utils.get_route_path(conn, :delete, id),
         "data-confirm": Utils.confirm_message, 
         "data-csrf": Plug.CSRFProtection.get_csrf_token,
-        "data-method": :delete, rel: :nofollow )
+        "data-method": :delete, rel: :nofollow ) do
+      button_name(name, :delete)
+      |> button(class: "btn btn-danger")
+    end
   end
   defp action_link(conn, name, action, id) do
-    button_name(name, action)
-    |> a(href: ExAdmin.Utils.get_route_path(conn, action, id))
+    a(href: ExAdmin.Utils.get_route_path(conn, action, id)) do
+      button_name(name, action)
+      |> button(class: "btn btn-primary")
+    end
   end
 
   defp button_name(name, :destroy), do: button_name(name, :delete)

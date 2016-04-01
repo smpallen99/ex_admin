@@ -1,3 +1,4 @@
+<% theme = "themes/" <> Application.get_env(:ex_admin, :theme, "active_admin") %>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,14 +9,15 @@
     <meta name="author" content="">
 
     <title><%= site_title %></title>
-    <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/css/active_admin.css.css") %>">
-    <script src="<%= static_path(@conn, "/js/jquery.js") %>"></script>
-    <script src="<%= static_path(@conn, "/js/jquery-ui.min.js") %>"></script>
-    <script src="<%= static_path(@conn, "/js/jquery-ujs.js.js") %>"></script>
-    <script src="<%= static_path(@conn, "/js/active_admin.js") %>"></script>
-    <script src="<%= static_path(@conn, "/js/best_in_place.js") %>"></script>
-    <script src="<%= static_path(@conn, "/js/active_admin_lib.js") %>"></script>
-    <script src="<%= static_path(@conn, "/js/best_in_place.purr.js") %>"></script>
+    <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/#{theme}/css/active_admin.css.css") %>">
+
+    <script src="<%= static_path(@conn, "/#{theme}/js/jquery.js") %>"></script>
+    <script src="<%= static_path(@conn, "/#{theme}/js/jquery-ui.min.js") %>"></script>
+    <script src="<%= static_path(@conn, "/#{theme}/js/jquery-ujs.js.js") %>"></script>
+    <script src="<%= static_path(@conn, "/#{theme}/js/active_admin.js") %>"></script>
+    <script src="<%= static_path(@conn, "/#{theme}/js/best_in_place.js") %>"></script>
+    <script src="<%= static_path(@conn, "/#{theme}/js/active_admin_lib.js") %>"></script>
+    <script src="<%= static_path(@conn, "/#{theme}/js/best_in_place.purr.js") %>"></script>
   </head>
 
   <% resource_label = ExAdmin.Utils.get_resource_label(@conn) |> String.downcase %>

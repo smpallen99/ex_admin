@@ -19,9 +19,12 @@ defmodule ExAdmin.Navigation do
       |> Enum.sort(fn(%{menu: menu1}, %{menu: menu2}) -> 
         menu1[:priority] < menu2[:priority]
       end)
-      ul(".header-item#tabs") do
-        for resource <- registered do
-          nav_link(conn, resource)
+      # ul(".header-item#tabs") do
+      div ".callapse.navbar-callapse.pull-left#navbar-callapse" do
+        ul(".nav.navbar-nav") do
+          for resource <- registered do
+            nav_link(conn, resource)
+          end
         end
       end
     end
