@@ -163,6 +163,7 @@ defmodule ExAdmin.Form do
   import ExAdmin.Form.Fields
   import ExAdmin.ViewHelpers, only: [escape_javascript: 1]
   require IEx
+  alias ExAdmin.Theme
 
   import Kernel, except: [div: 2]
   use Xain
@@ -621,7 +622,7 @@ Logger.warn "wrap item 2. ..."
 
   @doc false
   def _wrap_item(type, ext_name, label, hidden, ajax, error, contents, as) do
-    Logger.warn ".... ext_name: #{inspect ext_name}, as: #{inspect as}"
+    # Logger.warn ".... ext_name: #{inspect ext_name}, as: #{inspect as}"
     # TODO: Fix this to use the correct type, instead of hard coding string
     # li([class: "string input optional #{error}stringish", id: "#{ext_name}_input"] ++ hidden) do
     div ".form-group", hidden do
@@ -635,28 +636,15 @@ Logger.warn "wrap item 2. ..."
           end
         end
       else
-        _wrap_item_type(type, label, ext_name, contents)
+        wrap_item_type(type, label, ext_name, contents, error)
       end
     end
   end
 
-  defp _wrap_item_type(:boolean, label, ext_name, contents) do
-    div ".col-sm-offset-2.col-sm-10" do
-      div ".checkbox" do
-        label do
-          contents.(ext_name)
-          humanize(label) |> text
-        end
-      end
-    end
+  def wrap_item_type(type, label, ext_name, contents, error) do
+    ExAdmin.theme.wrap_item_type(type, label, ext_name, contents, error)
   end
 
-  defp _wrap_item_type(_type, label, ext_name, contents) do
-    label(".col-sm-2.control-label #{humanize label}", for: ext_name)
-    div ".col-sm-10" do
-      contents.(ext_name)
-    end
-  end
 
   defp build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) do
     select("##{ext_name}_id", name: "#{model_name}[#{field_name}]") do
@@ -839,7 +827,6 @@ Logger.warn "2 ............. builditem"
   @doc false
   def build_item(conn, %{type: :inputs} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
-Logger.warn "............. builditem"
     # build_fieldset_legend(item[:name]) 
     for inpt <- item[:inputs] do
       build_item(conn, inpt, resource, model_name, errors)
@@ -1248,7 +1235,12 @@ Logger.warn "............. builditem"
   def build_errors(nil), do: nil
   def build_errors(errors) do
     for error <- errors do
-      p ".inline-errors #{error_messages error}"
+      ExAdmin.theme.build_form_error(error)
+      # label ".control-label" do
+      #   i ".fa.fa-times-circle-o"
+      #   text " #{error_messages(error)}"
+      # end
+      # p ".inline-errors #{error_messages error}"
     end
     errors
   end

@@ -7,7 +7,12 @@ defmodule ExAdmin.AdminController do
   import ExAdmin.ParamsToAtoms
   require IEx
 
+  plug :set_theme
   plug :set_layout
+
+  def set_theme(conn, _) do
+    assign(conn, :theme, ExAdmin.theme)
+  end
   
   def action(%{private: %{phoenix_action: action}} = conn, _options) do
     handle_action(conn, action, conn.params["resource"])
@@ -105,18 +110,17 @@ defmodule ExAdmin.AdminController do
   defp authorized?(conn), do: conn
 
   defp set_layout(conn, _) do
-    theme = Application.get_env(:ex_admin, :theme, "active_admin")
-    put_layout(conn, "#{theme}.html")
+    put_layout(conn, "#{conn.assigns.theme.name}.html")
   end
 
   def index(conn, params) do
     require Logger
     defn = get_registered_by_controller_route(params[:resource])
-    {contents, page} = case defn do
+    {contents, page, scope_counts} = case defn do
       nil -> 
         throw :invalid_route
       %{type: :page} = defn -> 
-        {defn.__struct__ |> apply(:page_view, [conn]), nil}
+        {defn.__struct__ |> apply(:page_view, [conn]), nil, []}
       defn -> 
         model = defn.__struct__ 
 
@@ -128,12 +132,12 @@ defmodule ExAdmin.AdminController do
         end
         counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
         if function_exported? model, :index_view, 3 do
-          {apply(model, :index_view, [conn, page, counts]), page}
+          {apply(model, :index_view, [conn, page, counts]), page, counts}
         else
-          {ExAdmin.Index.default_index_view(conn, page, counts), page}
+          {ExAdmin.Index.default_index_view(conn, page, counts), page, counts}
         end
     end
-    conn
+    assign(conn, :scope_counts, scope_counts)
     |> render("admin.html", html: contents, defn: defn, resource: page,
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end

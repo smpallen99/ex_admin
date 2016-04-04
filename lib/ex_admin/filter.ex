@@ -75,11 +75,22 @@ defmodule ExAdmin.Filter do
     div ".form-group" do
       label ".label #{humanize name}", for: "q_#{name}_gte"
       div ".row" do
-        div ".col-xs-6" do
-          input class: "ex-daterangepicker form-control", id: "q_#{name}_gte", max: "10", name: "q[#{name}_gte]", size: "12", type: :text, value: gte_value
+        div ".col-xs-6", style: "padding-right: 5px;" do
+          div ".input-group" do
+            div ".input-group-addon" do
+              i ".fa.fa-calendar"
+            end
+            input class: "datepicker form-control", id: "q_#{name}_gte", max: "10", name: "q[#{name}_gte]", size: "15", type: :text, value: gte_value
+          end
         end
-        div ".col-xs-6" do
-          input class: "ex-daterangepicker form-control", id: "q_#{name}_lte", max: "10", name: "q[#{name}_lte]", size: "12", type: :text, value: lte_value
+
+        div ".col-xs-6", style: "padding-left: 5px;" do
+          div ".input-group" do
+            div ".input-group-addon" do
+              i ".fa.fa-calendar"
+            end
+            input class: "datepicker form-control", id: "q_#{name}_lte", max: "10", name: "q[#{name}_lte]", size: "15", type: :text, value: lte_value
+          end
         end
       end
     end

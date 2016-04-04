@@ -1,0 +1,25 @@
+<section id="title_bar" class="content-header">
+  <div id="titlebar_left">
+    <h1 id="page_title"><%= page_title(@conn, @resource) %></h1>
+    <% crumbs = ExAdmin.BreadCrumb.get_breadcrumbs(@conn, @resource) %>
+    <%= unless crumbs == [] do %>
+      <ol class="breadcrumb">
+        <%= for {link, name} <- crumbs do %>
+          <li> 
+            <a href="<%= link %>"><%= name %></a>
+          </li>  
+        <% end %>
+      </ol>
+    <% end %> 
+  </div>
+  <div id="titlebar_right">
+    <div class="action_items">
+      <%= for {action, opts} <- ExAdmin.get_title_actions(@conn) do
+        case action do
+          :delete -> build_link(action, opts, class: "btn btn-danger")
+          _ -> build_link(action, opts, class: "btn btn-primary")
+        end
+      end %>
+    </div>
+  </div>
+</section>

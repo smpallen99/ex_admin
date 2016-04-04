@@ -11,9 +11,13 @@ defmodule ExAdmin.Table do
   def attributes_table(conn, resource, schema) do
     resource_model = model_name(resource)
 
-    div(".panel") do
-      h3(Map.get schema, :name, "#{String.capitalize resource_model} Details")
-      _attributes_table_for(conn, resource, resource_model, schema)
+    div ".box" do
+      div ".box-header.with-border"  do
+        h3(Map.get schema, :name, "#{String.capitalize resource_model} Details")
+      end
+      div ".box-body" do
+        _attributes_table_for(conn, resource, resource_model, schema)
+      end
     end
   end
 
@@ -26,7 +30,7 @@ defmodule ExAdmin.Table do
     div(".panel_contents") do
       id = "attributes_table_#{resource_model}_#{resource.id}"
       div(".attributes_table.#{resource_model}#{id}") do
-        table(border: "0", cellspacing: "0", cellpadding: "0") do
+        table(".table") do
           tbody do
             for field_name <- Map.get(schema, :rows, []) do
               build_field(resource, conn, field_name, fn(contents, f_name) -> 
@@ -47,16 +51,18 @@ defmodule ExAdmin.Table do
   def field_header(field_name), do: th(humanize field_name)
 
   def panel(conn, schema) do
-    div(".panel") do
-      h3(Map.get schema, :name, "")
-      div(".panel_contents") do
+    div(".box") do
+      div ".box-header.with-border" do
+        h3(Map.get schema, :name, "")
+      end
+      div(".box-body") do
         do_panel(conn, schema)
       end
     end
   end
 
   defp do_panel(conn, %{table_for: %{resources: resources, columns: columns}}) do
-    table(border: "0", cellspacing: "0", cellpadding: "0") do
+    table(".table") do
       table_head(columns)
       tbody do
         model_name = get_resource_model resources
@@ -115,47 +121,54 @@ defmodule ExAdmin.Table do
   def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label), 
     do: build_th(label, opts, table_opts)
   def build_th({field_name, _opts}, _table_opts) when is_binary(field_name), 
-    do: th(".#{Inflex.parameterize field_name, "_"} #{field_name}")
+    do: th("#{field_name}")
+    # do: th(".#{Inflex.parameterize field_name, "_"} #{field_name}")
   def build_th(field_name, _),
-    do: th(".#{field_name} #{humanize field_name}")
+    do: th("#{humanize field_name}")
+    # do: th(".#{field_name} #{humanize field_name}")
   def build_th(field_name, opts, %{fields: fields} = table_opts) do
     if String.to_atom(field_name) in fields and opts in [%{}, %{link: true}] do
       _build_th(field_name, opts, table_opts)
     else
-      th(".#{field_name} #{humanize field_name}") 
+      th("#{humanize field_name}") 
+      # th(".#{field_name} #{humanize field_name}") 
     end
   end
   def build_th(field_name, _, _) when is_binary(field_name) do
-    th(class: to_class(field_name)) do
+    # th(class: to_class(field_name)) do
+    th do
       text field_name
     end
   end 
   def build_th(field_name, _, _), do: build_th(field_name, nil)
 
-  def _build_th(field_name, _opts, %{path_prefix: path_prefix, order: {name, sort}, 
-      fields: _fields} = table_opts) when field_name == name do
-    link_order = if sort == "desc", do: "asc", else: "desc"
-    page_segment = case Map.get table_opts, :page, nil do
-      nil -> ""
-      page -> "&page=#{page.page_number}"
-    end
-    th(".sortable.sorted-#{sort}.#{field_name}") do
-      a("#{humanize field_name}", href: path_prefix <> 
-        field_name <> "_#{link_order}#{page_segment}" <> 
-        Map.get(table_opts, :filter, ""))
-    end
-  end
-  def _build_th(field_name, _opts, %{path_prefix: path_prefix} = table_opts) do
-    sort = Map.get(table_opts, :sort, "asc")
-    page_segment = case Map.get table_opts, :page, nil do
-      nil -> ""
-      page -> "&page=#{page.page_number}"
-    end
-    th(".sortable.#{field_name}") do
-      a("#{humanize field_name}", href: path_prefix <> 
-        field_name <> "_#{sort}#{page_segment}" <> 
-        Map.get(table_opts, :filter, ""))
-    end
+
+  # def _build_th(field_name, _opts, %{path_prefix: path_prefix, order: {name, sort}, 
+  #     fields: _fields} = table_opts) when field_name == name do
+  #   link_order = if sort == "desc", do: "asc", else: "desc"
+  #   page_segment = case Map.get table_opts, :page, nildo
+  #     nil -> ""
+  #     page -> "&page=#{page.page_number}"
+  #   end
+  #   th(".sortable.sorted-#{sort}.#{field_name}") do
+  #     a("#{humanize field_name}", href: path_prefix <> 
+  #       field_name <> "_#{link_order}#{page_segment}" <> 
+  #       Map.get(table_opts, :filter, ""))
+  #   end
+  # end
+  # def _build_th(field_name, _opts, %{path_prefix: path_prefix} = table_opts) do
+  def _build_th(field_name, _opts, _table_opts) do
+    th humanize(field_name)
+    # sort = Map.get(table_opts, :sort, "asc")
+    # page_segment = case Map.get table_opts, :page, nil do
+    #   nil -> ""
+    #   page -> "&page=#{page.page_number}"
+    # end
+    # th(".sortable.#{field_name}") do
+    #   a("#{humanize field_name}", href: path_prefix <> 
+    #     field_name <> "_#{sort}#{page_segment}" <> 
+    #     Map.get(table_opts, :filter, ""))
+    # end
   end
   def handle_contents(%Ecto.DateTime{} = dt, field_name) do
     td class: to_class(field_name) do

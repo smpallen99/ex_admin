@@ -4,7 +4,7 @@ defmodule ExAdmin.Paginate do
 
   def paginate(_, nil, _, _, _, _, _), do: []
   def paginate(link, page_number, page_size, total_pages, record_count, name) do
-    nav ".pagination" do
+    ul ".pagination.pagination-sm.no-margin.pull-right" do
       if total_pages > 1 do
         for item <- items(page_number, page_size, total_pages) do
           build_item link, item
@@ -52,22 +52,36 @@ defmodule ExAdmin.Paginate do
   end
 
   def build_item(_, {:current, num}) do
-    span ".current.page #{num}"
+    # span ".current.page #{num}"
+    li ".active" do
+      a "#{num}", href: "#"
+    end
   end
   def build_item(_, {:gap, _}) do
-    span ".page.gap" do
-      text "... "
+    # span ".page.gap" do
+    #   text "... "
+    # end
+    li ".page.gap" do
+      span do 
+        text " ..."
+      end
     end
   end
   
   def build_item(link, {item, num}) when item in [:first, :prev, :next, :last] do
-    span ".#{item}" do
+    # span ".#{item}" do
+    #   a "#{special_name item}", href: "#{link}&page=#{num}"
+    # end
+    li do
       a "#{special_name item}", href: "#{link}&page=#{num}"
     end
   end
 
   def build_item(link, {item, num}) do
-    span ".#{item}" do
+    # span ".#{item}" do
+    #   a "#{num}", href: "#{link}&page=#{num}"
+    # end
+    li do
       a "#{num}", href: "#{link}&page=#{num}"
     end
   end

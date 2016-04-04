@@ -350,29 +350,28 @@ defmodule ExAdmin.Index do
             end
           end
         else
-          div ".paginated_collection" do
-            div ".paginated_collection_contents" do
-              div ".index_content" do
-                div ".index_as_table" do
-                  table("#contacts.index_table.index", border: "0", cellspacing: "0", 
-                      cellpadding: "0", paginator: "true") do
+          div ".box-body.table-responsive.no-padding" do
+            # div ".row" do
+            #   div ".col-sm-12" do
+                 div ".paginated_collection" do
+                  table(".table-striped.index.table.index_table") do
                     ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: href, 
                       sort: "desc", order: order, fields: fields, page: page,
                       filter: build_filter_href("", conn.params["q"]),
                       selectable_column: selectable})
                     build_table_body(conn, resources, columns, %{selectable_column: selectable})
                   end # table          
-                end
-              end # .index_content
-            end
-            div "#index_footer" do
-              href 
-              |> build_scope_href(conn.params["scope"])
-              |> build_order_href(order)
-              |> build_filter_href(conn.params["q"])
-              |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, count, name)
-              download_links(conn)
-            end
+                 end
+              # end # .index_content
+            # end
+          end
+          div ".box-footer.clearfix" do
+            href 
+            |> build_scope_href(conn.params["scope"])
+            |> build_order_href(order)
+            |> build_filter_href(conn.params["q"])
+            |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, count, name)
+            download_links(conn)
           end
         end
       end
@@ -399,18 +398,31 @@ defmodule ExAdmin.Index do
   @doc false
   def batch_action_form conn, enabled?, scopes, name, scope_counts, fun do
     msg = "Are you sure you want to delete these #{name}? You wont be able to undo this."
-    enabled? = false
+    scopes = unless Application.get_env(:ex_admin, :scopes_index_page, true), do: [], else: scopes
+    # enabled? = false
     if enabled? or scopes != [] do
       form "#collection_selection", action: "/admin/#{name}/batch_action", method: :post, "accept-charset": "UTF-8" do
         div style: "margin:0;padding:0;display:inline" do
+          csrf = Plug.CSRFProtection.get_csrf_token
           input name: "utf8", type: :hidden, value: "✓"
+          input(type: :hidden, name: "_csrf_token", value: csrf)
         end
         input "#batch_action", name: "batch_action", type: :hidden
         div ".box-header" do
           div ".table_tools" do
             if enabled? do
               div "#batch_actions_selector.dropdown_menu" do
-                a ".disabled.dropdown_menu_button Batch Actions", href: "#"
+                # button ".disabled.dropdown_menu_button.dropdown-toggle.btn.btn-sm.btn-default Batch Actions ", "data-toggle": "dropdown" do
+                #   span ".fa.fa-caret-down"
+                # end
+                # ul ".dropdown-menu" do
+                #   li do
+                #     a ".batch_action Delete Selected", href: "#", "data-action": :destroy, "data-confirm": msg
+                #   end
+                # end
+                button ".disabled.dropdown_menu_button.btn.btn-xs.btn-default Batch Actions " do
+                  span ".fa.fa-caret-down"
+                end
                 div ".dropdown_menu_list_wrapper", style: "display: none;" do
                   div ".dropdown_menu_nipple"
                   ul ".dropdown_menu_list" do
@@ -429,7 +441,7 @@ defmodule ExAdmin.Index do
                   count = scope_counts[name]
                   selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
                   # li ".scope.#{name}#{selected}" do
-                    a ".table_tools_button.btn.btn-default", href: get_route_path(conn, :index) <> "?scope=#{name}" do
+                    a ".table_tools_button.btn-sm.btn.btn-default", href: get_route_path(conn, :index) <> "?scope=#{name}" do
                       # button type: :button, class: "btn btn-default" do
                         text ExAdmin.Utils.humanize("#{name} ")
                         span ".badge.bg-blue #{count}"
@@ -529,6 +541,7 @@ defmodule ExAdmin.Index do
         :destroy -> 
           a("Delete", href: get_route_path(conn, :delete, id), 
               class: base_class <> " delete_link", "data-confirm": confirm_message, 
+              "data-csrf": Plug.CSRFProtection.get_csrf_token,
               "data-method": :delete, rel: :nofollow )
       end
       [link | acc]

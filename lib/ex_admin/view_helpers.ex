@@ -79,7 +79,7 @@ defmodule ExAdmin.ViewHelpers do
   def status_tag(status) do
     span ".status_tag.#{status} #{status}"
   end
-  defp title_bar_left(conn, resource) do
+  def title_bar_left(conn, resource) do
     div("#titlebar_left") do
       h1("#page_title #{page_title(conn, resource)}")
       ExAdmin.BreadCrumb.get_breadcrumbs(conn, resource)
@@ -98,6 +98,17 @@ defmodule ExAdmin.ViewHelpers do
         end
       end
     end
+  end
+
+  def build_link(action, opts, html_opts \\ [])
+  def build_link(_action, opts, _) when opts in [nil, []], do: ""
+  def build_link(action, [{name, opts} | _], html_opts) do
+    require Logger
+    Logger.warn "build_link: action: #{inspect action}, name: #{inspect name}, #{inspect opts}"
+    attrs = Enum.reduce(opts ++ html_opts, "", fn({k,v}, acc) -> 
+      acc <> "#{k}='#{v}' "
+    end)
+    Phoenix.HTML.raw "<a #{attrs}>#{name}</a>"
   end
   # defp render_breadcrumbs(list) do
   #   span(".breadcrumb") do

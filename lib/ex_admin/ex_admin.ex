@@ -93,6 +93,8 @@ defmodule ExAdmin do
 
   Module.register_attribute __MODULE__, :registered, accumulate: true, persist: true
 
+  @default_theme ExAdmin.Theme.AdminLte2
+
   defmacro __using__(_) do
     quote do
       use ExAdmin.Index
@@ -220,19 +222,22 @@ defmodule ExAdmin do
     case Utils.action_name(conn) do
       :show -> 
         id = Map.get(params, "id")
-        div(".action_items") do
-          for action <- [:edit, :new, :delete], 
-            do: action_button(conn, defn, singular, :show, action, actions, id)
-        end
+        for action <- [:edit, :new, :delete], 
+          do: {action, action_button(conn, defn, singular, :show, action, actions, id)}
+        # id = Map.get(params, "id")
+        # div(".action_items") do
+        #   for action <- [:edit, :new, :delete], 
+        #     do: action_button(conn, defn, singular, :show, action, actions, id)
+        # end
         
       action when action in [:index, :edit] -> 
-        div(".action_items") do
-          action_button(conn, defn, singular, action, :new, actions)
-        end
+        [{action, action_button(conn, defn, singular, action, :new, actions)}]
 
       _ -> 
-        div(".action_items")
+        []
+        # div(".action_items")
     end
+
   end
 
   @doc false
@@ -240,21 +245,34 @@ defmodule ExAdmin do
     div(".action_items")
   end
 
+  @doc """
+  Get current theme name
+  """
+
+  def theme do 
+    Application.get_env(:ex_admin, :theme, @default_theme)
+  end
+
+  # def theme_model, do: theme.__struct__
+
+  def theme_name(conn) do
+    conn.assigns.theme.name 
+  end
+
   defp action_button(conn, defn, name, page, action, actions, id \\ nil) do
     if action in actions do
       if ExAdmin.Utils.authorized_action?(conn, action, defn) do
-        span(".action_item") do
-          action_link(conn, name, action, id)
-        end
+        [action_link(conn, name, action, id)]
+      else 
+        []
       end
-    end
-    button = get_custom_action(page, actions) 
-    if button do
-      span(".action_item") do
-        {fun, _} = Code.eval_quoted button, [id: id], __ENV__
-        if is_function(fun, 1), do: text(fun.(id) |> elem(1))
-        if is_function(fun, 0), do: text(fun.() |> elem(1))
-      end
+    else
+      []
+    end ++ 
+    if button = get_custom_action(page, actions) do
+      {fun, _} = Code.eval_quoted button, [id: id], __ENV__
+      if is_function(fun, 1), do: [text(fun.(id) |> elem(1))], else: []
+      if is_function(fun, 0), do: [text(fun.() |> elem(1))], else: []
     end
   end
 
@@ -270,19 +288,26 @@ defmodule ExAdmin do
   end
 
   defp action_link(conn, name, :delete, id) do
-    a(href: ExAdmin.Utils.get_route_path(conn, :delete, id),
+    {button_name(name, :delete), 
+      [href: ExAdmin.Utils.get_route_path(conn, :delete, id),
         "data-confirm": Utils.confirm_message, 
         "data-csrf": Plug.CSRFProtection.get_csrf_token,
-        "data-method": :delete, rel: :nofollow ) do
-      button_name(name, :delete)
-      |> button(class: "btn btn-danger")
-    end
+        "data-method": :delete, rel: :nofollow]}
+    # a(href: ExAdmin.Utils.get_route_path(conn, :delete, id),
+    #     "data-confirm": Utils.confirm_message, 
+    #     "data-csrf": Plug.CSRFProtection.get_csrf_token,
+    #     "data-method": :delete, rel: :nofollow ) do
+    #   button_name(name, :delete)
+    #   |> button(class: "btn btn-danger")
+    # end
   end
   defp action_link(conn, name, action, id) do
-    a(href: ExAdmin.Utils.get_route_path(conn, action, id)) do
-      button_name(name, action)
-      |> button(class: "btn btn-primary")
-    end
+    {button_name(name, action),
+      [href: ExAdmin.Utils.get_route_path(conn, action, id)]}
+    # a(href: ExAdmin.Utils.get_route_path(conn, action, id)) do
+    #   button_name(name, action)
+    #   |> button(class: "btn btn-primary")
+    # end
   end
 
   defp button_name(name, :destroy), do: button_name(name, :delete)
