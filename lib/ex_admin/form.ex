@@ -199,7 +199,8 @@ defmodule ExAdmin.Form do
         unquote(contents)
         items = var!(input_blocks, ExAdmin.Form) |> Enum.reverse
         script_block = var!(script_block, ExAdmin.Form)
-        ExAdmin.Form.build_form(var!(conn), var!(resource), items, var!(params), script_block)
+        Module.concat(var!(conn).assigns.theme, Form).build_form(
+          var!(conn), var!(resource), items, var!(params), script_block)
       end
 
       def get_blocks(var!(conn), unquote(resource) = var!(resource), var!(params) = _params) do 
@@ -450,38 +451,7 @@ defmodule ExAdmin.Form do
     end
   end
 
-  @doc false
-  def build_form(conn, resource, items, params, script_block) do
-    mode = if params[:id], do: :edit, else: :new
-    markup do
-      model_name = model_name resource
-      action = get_action(conn, resource, mode)
-      # scripts = ""
-      div ".box.box-primary" do
-        div ".box-header.with-border" do
-          h3 ".box-title" do
-            text "New Product"
-          end
-        end
-        Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "form-horizontal", 
-            id: "new_#{model_name}", method: :post, enctype: "multipart/form-data", novalidate: :novalidate  do
-
-          resource = setup_resource(resource, params, model_name)
-
-          build_hidden_block(conn, mode)
-          div ".box-body" do
-            scripts = build_main_block(conn, resource, model_name, items) 
-            |> build_scripts
-          end
-          build_actions_block(conn, model_name, mode) 
-        end 
-      end
-      put_script_block(scripts)
-      put_script_block(script_block)
-    end
-  end
-
-  defp setup_resource(resource, params, model_name) do
+  def setup_resource(resource, params, model_name) do
     model_name = String.to_atom(model_name)
     case params[model_name] do
       nil -> resource
@@ -490,7 +460,7 @@ defmodule ExAdmin.Form do
     end
   end
 
-  defp put_script_block(script_block) do
+  def put_script_block(script_block) do
     if script_block do
       Xain.text "\n"
       Xain.script type: "text/javascript" do
@@ -499,13 +469,13 @@ defmodule ExAdmin.Form do
     end
   end
 
-  defp build_scripts(list) do
+  def build_scripts(list) do
     head = "$(document).ready(function() {\n"
     script = for i <- list, is_tuple(i), into: head, do: build_script(i)
     script <> "});"
   end
 
-  defp build_script({:change, %{id: id, script: script}}) do
+  def build_script({:change, %{id: id, script: script}}) do
     # $('##{id}').change(function() {
     """
     $(document).on('change','##{id}', function() {
@@ -513,9 +483,9 @@ defmodule ExAdmin.Form do
     });
     """
   end
-  defp build_script(_other), do: ""
+  def build_script(_other), do: ""
 
-  defp get_action(conn, resource, mode) do
+  def get_action(conn, resource, mode) do
     case mode do 
       :new -> 
         get_route_path(conn, :create)
@@ -528,7 +498,7 @@ defmodule ExAdmin.Form do
   end
   defp get_put_fields(_), do: nil
 
-  defp build_hidden_block(_conn, mode) do
+  def build_hidden_block(_conn, mode) do
     csrf = Plug.CSRFProtection.get_csrf_token
     div style: "margin:0;padding:0;display:inline" do
       Xain.input(name: "utf8", type: :hidden, value: "✓")
@@ -537,7 +507,7 @@ defmodule ExAdmin.Form do
     end
   end
 
-  defp build_main_block(conn, resource, model_name, schema) do
+  def build_main_block(conn, resource, model_name, schema) do
     errors = Phoenix.Controller.get_flash(conn, :inline_error)
     for item <- schema do
       build_item(conn, item, resource, model_name, errors)
@@ -1165,7 +1135,7 @@ Logger.warn "2 ............. builditem"
     "NEW_#{name}_RECORD"
   end
 
-  defp build_actions_block(conn, model_name, mode) do
+  def build_actions_block(conn, model_name, mode) do
     display_name = ExAdmin.Utils.displayable_name_singular conn
     label = if mode == :new, do: "Create", else: "Update"
     div ".box-footer" do
@@ -1205,7 +1175,8 @@ Logger.warn "2 ............. builditem"
         |> Enum.map(&(build_item resource, defn, &1))
         |> Enum.filter(&(not is_nil(&1)))
         items = [%{type: :inputs, name: "", inputs: columns, opts: []}]
-        ExAdmin.Form.build_form(conn, resource, items, params, false)
+        Module.concat(var!(conn).assigns.theme, Form).build_form(
+          conn, resource, items, params, false)
     end
   end
 
@@ -1221,10 +1192,6 @@ Logger.warn "2 ............. builditem"
 
   @doc false
   def get_errors(nil, _field_name), do: nil
-
-  # def get_errors(errors, field_name) when is_binary(field_name) do
-  #   get_errors errors, String.to_atom(field_name)
-  # end
   def get_errors(errors, field_name) do
     Enum.reduce errors, [], fn({k, v}, acc) -> 
       if k == field_name, do: [v | acc], else: acc
@@ -1236,11 +1203,6 @@ Logger.warn "2 ............. builditem"
   def build_errors(errors) do
     for error <- errors do
       ExAdmin.theme.build_form_error(error)
-      # label ".control-label" do
-      #   i ".fa.fa-times-circle-o"
-      #   text " #{error_messages(error)}"
-      # end
-      # p ".inline-errors #{error_messages error}"
     end
     errors
   end

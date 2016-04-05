@@ -148,6 +148,7 @@ defmodule ExAdmin.Index do
         opts = Enum.into(opts, %{})
         |> Map.put(:column_list, var!(columns, ExAdmin.Show) |> Enum.reverse)
         |> Map.put(:selectable_column, selectable)
+        |> Map.put(:actions, var!(actions, ExAdmin.Index))
 
         markup do
           ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, var!(cell, ExAdmin.Index), opts)
@@ -238,6 +239,7 @@ defmodule ExAdmin.Index do
         opts = %{}
         |> Map.put(:column_list, columns)
         |> Map.put(:selectable_column, true)
+        |> Map.put(:actions, [])
 
         markup do
           ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, nil, opts)
@@ -272,7 +274,8 @@ defmodule ExAdmin.Index do
       scope_counts: scope_counts,
       opts: page_opts,
       resources: page.entries, 
-      selectable_column: page_opts[:selectable_column]
+      selectable_column: page_opts[:selectable_column], 
+      actions: page_opts[:actions]
     }
     _render_index_page(conn, opts, page_opts)
   end
@@ -295,12 +298,12 @@ defmodule ExAdmin.Index do
     opts = Map.put(opts, :fields, get_resource_fields page.entries)
     selectable = opts[:selectable_column] and opts[:batch_actions]
     columns = page_opts[:column_list]
-
     columns = unless Enum.any? columns, &((elem &1, 0) == "Actions") or is_nil(actions) do
       columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
     else
       columns
     end
+    opts = Map.put opts, :column_list, columns
 
     Module.concat(conn.assigns.theme, Index).wrap_index_grid fn -> 
       Module.concat(conn.assigns.theme, Index).batch_action_form conn, 

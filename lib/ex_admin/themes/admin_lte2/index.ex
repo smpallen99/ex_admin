@@ -8,21 +8,21 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
   import ExAdmin.Helpers
 
   def wrap_index_grid(fun) do
-    div ".box" do
+    div ".box", style: "min-height: 400px" do
       fun.()
     end
   end
 
   def wrap_index_table(fun) do
-    div ".box" do
+    div ".box", style: "min-height: 400px" do
       fun.()
     end
   end
 
-  def blank_slate_page(conn, %{defn: defn}) do
+  def blank_slate_page(conn, %{defn: defn, label: label}) do
     div ".blank_slate_container" do
       span ".blank_slate" do
-        if conn.params["q"] do
+        unless is_nil(conn.params["q"]) and is_nil(conn.params["scope"]) do
           text "No #{humanize label} found."
         else
           text "There are no #{humanize label} yet. "
