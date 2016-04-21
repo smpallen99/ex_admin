@@ -1,7 +1,7 @@
 defmodule ExAdmin.AdminController do
   @moduledoc false
   use ExAdmin.Web, :controller
-  # require Logger
+  require Logger
   import ExAdmin
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
@@ -332,6 +332,14 @@ defmodule ExAdmin.AdminController do
 
   def dashboard(conn, _) do
     redirect conn, to: "/admin/contacts"
+  end
+
+  def select_theme(conn, %{id: id} = params) do
+    Logger.warn "select theme params: #{inspect params}"
+    {_, theme} = Application.get_env(:ex_admin, :theme_selector, [])
+    |> Enum.at(id)
+    Application.put_env :ex_admin, :theme, theme
+    redirect conn, to: "/admin"
   end
 
   def deep_find(items, name) do

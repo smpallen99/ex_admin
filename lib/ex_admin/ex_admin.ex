@@ -242,7 +242,9 @@ defmodule ExAdmin do
 
   @doc false
   def default_page_title_actions(_conn, _) do
-    div(".action_items")
+    "<div class='action_items'></div>"
+    # div(".action_items")
+    []
   end
 
   @doc """

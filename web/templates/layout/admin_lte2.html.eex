@@ -107,4 +107,13 @@
   </body>
   <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   <script>require("web/static/js/app")</script>
+  <script type="text/javascript">
+    $(function() {
+      $('#theme-selector').change(function(e) {
+        let val = $(this).val()
+        console.log('selector change', val);
+        $.ajax('/admin/select_theme/'+val)
+      });
+    });
+  </script>
 </html>

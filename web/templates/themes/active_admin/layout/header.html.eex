@@ -1,0 +1,26 @@
+<div class="header" id="header">
+  <h1 class="site_title" id="site_title">ExAdminDemo</h1>
+  <ol id="tabs" class="header-item">
+    <ul class="header-item" id="tabs">
+      <%= ExAdmin.Navigation.nav_view(@conn) %>
+    </ul>
+  </ol>
+  <p class="header-item" style="float: right;">
+    <%= ExAdmin.Theme.ActiveAdmin.Navigation.theme_selector %>
+  </p>
+  <%= if use_authentication?(@conn) do %>
+    <p class="header-item" id="utility_nav">
+      <span class="current_user"><%= current_user_name(@conn) %></span>
+      <%=# link "Logout", to: session_path(@conn, :destroy), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
+    </p>  
+  <% end %>
+</div>    
+
+<!-- 
+<div class='title_bar' id='title_bar'><div id='titlebar_left'><span class='breadcrumb'><a href='/admin'>admin</a><span class='breadcrumb_sep'>/</span></span><h2 id='page_title'>Customers</h2></div><div id='titlebar_right'><div class='action_items'><span class='action_item'><a href='/admin/users/new'>New Customer</a></span></div></div></div>
+-->
+<!-- 
+<div id="active_admin_content" class="with_sidebar">
+  <div id="main_content_wrapper">
+          <div id="main_content">
+-->
