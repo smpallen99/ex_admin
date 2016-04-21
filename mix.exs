@@ -35,10 +35,10 @@ defmodule ExAdmin.Mixfile do
       {:inflex, github: "smpallen99/inflex"},
       {:ex_form, github: "smpallen99/ex_form"},
       {:xain, github: "smpallen99/xain", override: true},
-      {:scrivener, "~> 0.10.0"}, 
+      {:scrivener, "~> 1.0"}, 
       {:csvlixir, "~> 1.0.0"},
-      {:exactor, "~>2.2.0"}, 
-      {:ex_doc, "~>0.10.0", only: :dev},
+      {:exactor, "~> 2.2.0"}, 
+      {:ex_doc, "~> 0.10.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
       {:ex_queb, github: "E-MetroTel/ex_queb"},
     ]

@@ -5,7 +5,7 @@
   "csvlixir": {:hex, :csvlixir, "1.0.0"},
   "decimal": {:hex, :decimal, "1.1.1"},
   "earmark": {:hex, :earmark, "0.2.1"},
-  "ecto": {:hex, :ecto, "1.1.1"},
+  "ecto": {:hex, :ecto, "1.1.5"},
   "ex_doc": {:hex, :ex_doc, "0.10.0"},
   "ex_form": {:git, "https://github.com/smpallen99/ex_form.git", "6d08d449b112f89e48279daeca74b2b42a16fdda", []},
   "ex_queb": {:git, "https://github.com/E-MetroTel/ex_queb.git", "8b61f174abafdb5b558f5afeb56f5f96844b09b2", []},
@@ -26,5 +26,5 @@
   "poolboy": {:hex, :poolboy, "1.5.1"},
   "ranch": {:hex, :ranch, "1.2.0"},
   "sass_elixir": {:hex, :sass_elixir, "0.0.1"},
-  "scrivener": {:hex, :scrivener, "0.10.0"},
+  "scrivener": {:hex, :scrivener, "1.1.4"},
   "xain": {:git, "https://github.com/smpallen99/xain.git", "873a093453dfb23d95ef993077f9331bf87f04b3", []}}
