@@ -1,9 +1,0 @@
-$x: .03;
-$y: 0.7;
-
-#foo {
-  color: saturate($x);
-  color: saturate($y);
-  -webkit-filter: grayscale(.03);
-  -webkit-filter: grayscale(0.7);
-}

@@ -1,5 +1,0 @@
-div {
-  foo: map-has-key((foo: 1, bar: 1), foo);
-  foo: map-has-key((foo: 1, bar: 1), baz);
-  foo: map-has-key((), foo);
-}
