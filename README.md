@@ -1,5 +1,11 @@
-ExAdmin
-=======
+# ExAdmin
+
+[![Hex Version][hex-img]][hex] [![License][license-img]][license]
+
+[hex-img]: https://img.shields.io/hexpm/v/ex_admin.svg
+[hex]: https://hex.pm/packages/ex_admin
+[license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg
+[license]: http://opensource.org/licenses/MIT
 
 Note: This version requires [Ecto 2.0](https://github.com/elixir-lang/ecto). Use [Branch v0.7.2](https://github.com/smpallen99/ex_admin/tree/v0.7.2) for [Hex version 0.7.1](https://hex.pm/packages/ex_admin/0.7.1) if you are still running Ecto 1.1.
 
@@ -23,14 +29,16 @@ mix.exs
 ```elixir
   defp deps do
      ...
-     {:ex_admin, ~> 0.8"}, 
+     {:ex_admin, ~> 0.7.1"}, 
      ...
   end
 ```
 
 Fetch and compile the dependency
 
-```mix do deps.get, deps.compile```
+```
+mix do deps.get, deps.compile
+```
 
 Configure ExAdmin:
 
