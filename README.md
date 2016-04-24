@@ -5,13 +5,13 @@ ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) 
 
 Checkout the [Live Demo](http://demo.exadmin.info/admin). The source code can be found at [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo).
 
+See the [docs](https://hexdocs.pm/ex_admin/) for more information.
+
 ## Usage
 
 ExAdmin is an add on for an application using the [Phoenix Framework](http://www.phoenixframework.org) to create an CRUD administration tool with little or no code. By running a few mix tasks to define which Ecto Models you want to administer, you will have something that works with no additional code. 
 
 Before using ExAdmin, you will need a Phoenix project and an Ecto model created. 
-
-Visit [ExAdmin Docs](http://exadmin.info/doc) to view the documentation.
 
 ### Installation
 
@@ -189,7 +189,7 @@ end
 * Detailed Example [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo)
 * For a brief tutorial, please visit [Elixir Survey Tutorial](https://github.com/smpallen99/elixir_survey_tutorial)
 * [Live Demo](http://demo.exadmin.info/admin)
-* [ExAdmin Docs](http://exadmin.info/doc)
+* [Docs](https://hexdocs.pm/ex_admin/)
 
 ## License
 
