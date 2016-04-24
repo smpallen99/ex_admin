@@ -1,7 +1,0 @@
-$mediaquery: 'and (min-width: 300px)';
-
-@media all #{$mediaquery} {
-  div {
-    display: block;
-  }
-}

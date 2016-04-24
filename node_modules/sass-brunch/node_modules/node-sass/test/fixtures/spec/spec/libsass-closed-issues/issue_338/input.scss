@@ -1,5 +1,0 @@
-$list: ("a", "b");
-
-test {
-    content: if( length($list) > 2, nth($list, 3), nth($list, 1) );
-}

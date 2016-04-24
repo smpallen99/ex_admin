@@ -1,9 +1,0 @@
-.foo {
-  @at-root & {
-    .bar {
-      @at-root & {
-        a: b;
-      }
-    }
-  }
-}

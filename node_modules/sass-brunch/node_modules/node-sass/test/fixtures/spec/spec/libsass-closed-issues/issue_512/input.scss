@@ -1,8 +1,0 @@
-$list: a b c;
-.css {
-  debug: index($list, a);
-
-  @if type-of(index($list, 2)) == "null" {
-    debug: foo;
-  }
-}

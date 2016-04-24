@@ -1,9 +1,0 @@
-$var: orange;
-
-.test {
-  color: $var;
-}
-
-.#{$var} {
-  color: #C0362C;
-}
