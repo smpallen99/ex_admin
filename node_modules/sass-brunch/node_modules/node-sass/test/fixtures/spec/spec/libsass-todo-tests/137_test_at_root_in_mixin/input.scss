@@ -1,7 +1,0 @@
-@mixin bar {
-  @at-root .bar {a: b}
-}
-
-.foo {
-  @include bar;
-}

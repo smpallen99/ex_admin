@@ -1,4 +1,0 @@
-$google-protocol: "http"; // choose http or https
-$google-webfont: "Open+Sans:400italic,700italic,400,700|Oswald"; // pull string after ?family= from step 3
-
-@import url("#{$google-protocol}://fonts.googleapis.com/css?family=#{$google-webfont}");

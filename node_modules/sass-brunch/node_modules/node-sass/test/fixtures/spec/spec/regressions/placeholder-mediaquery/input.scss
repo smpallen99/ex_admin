@@ -1,9 +1,0 @@
-%foo {
-	@media screen and (min-width: 300px) {
-		max-width: 80%;
-	}
-}
-
-bar {
-	@extend %foo;
-}
