@@ -31,11 +31,11 @@ defmodule ExAdmin.Mixfile do
   defp deps do
     [
       {:decimal, "~> 1.0"},
-      {:phoenix, "~> 1.1.2", override: true},
-      {:ecto, "~> 1.1", override: true },
+      {:phoenix, "~> 1.1"},
+      {:ecto, "~> 1.1"},
       {:phoenix_ecto, "~> 2.0"},
       {:cowboy, "~> 1.0"},
-      {:phoenix_html, "~> 2.3", override: true},
+      {:phoenix_html, "~> 2.5"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:factory_girl_elixir, "~> 0.1.1"},
       {:pavlov, "~> 0.1.2", only: :test},
