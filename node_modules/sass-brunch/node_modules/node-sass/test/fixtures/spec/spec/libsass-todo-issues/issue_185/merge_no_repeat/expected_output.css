@@ -1,8 +1,0 @@
-.foo {
-  content: foo; }
-  @media only screen and (min-width: 1337px) {
-    .foo {
-      content: bar; } }
-  @media only screen and (min-width: 1337px) and (max-width: 42em) {
-    .foo {
-      content: baz; } }

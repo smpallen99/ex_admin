@@ -1,8 +1,0 @@
-$list: one foo three bar six seven;
-$pos: set-nth($list, 2, two);
-$neg: set-nth($pos, -3, four five);
-
-.test {
-  -positive: $pos;
-  -negative: $neg;
-}
