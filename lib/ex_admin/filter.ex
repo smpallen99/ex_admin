@@ -83,7 +83,7 @@ defmodule ExAdmin.Filter do
       value = get_integer_value name, q
       div ".filter_form_field.filter_numeric" do
         label ".label #{humanize name}", for: "#{name}_numeric"
-        select onchange: ~s|document.getElementById('#{name}_numeric').name = 'q[' + this.value + ']';| do
+        select onchange: ~s|document.getElementById("#{name}_numeric").name="q[" + this.value + "]";| do
           for {suffix, text} <- @integer_options do
             build_option(text, "#{name}_#{suffix}", selected_name)
           end
