@@ -1,6 +1,8 @@
 ExAdmin
 =======
 
+Note: This version requires [Ecto 2.0](https://github.com/elixir-lang/ecto). Use [Branch v0.7.2](https://github.com/smpallen99/ex_admin/tree/v0.7.2) for [Hex version 0.7.1](https://hex.pm/packages/ex_admin/0.7.1) if you are still running Ecto 1.1.
+
 ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) and the [Phoenix Framework](http://www.phoenixframework.org/), a port/inspiration of [ActiveAdmin](http://activeadmin.info/) for Elixir. 
 
 Checkout the [Live Demo](http://demo.exadmin.info/admin). The source code can be found at [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo).
@@ -21,7 +23,7 @@ mix.exs
 ```elixir
   defp deps do
      ...
-     {:ex_admin, ~> 0.7"}, 
+     {:ex_admin, ~> 0.8"}, 
      ...
   end
 ```

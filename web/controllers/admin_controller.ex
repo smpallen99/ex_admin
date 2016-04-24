@@ -220,7 +220,7 @@ defmodule ExAdmin.AdminController do
           |> redirect(to: get_route_path(resource, :show, resource.id))
         else
           conn = put_flash(conn, :inline_error, changeset.errors)
-          contents = do_form_view model, conn, changeset.changeset.model, params
+          contents = do_form_view model, conn, changeset.changeset.data, params
           conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
         end
     end
@@ -243,7 +243,7 @@ defmodule ExAdmin.AdminController do
           |> redirect(to: get_route_path(resource, :show, resource.id))
         else
           conn = put_flash(conn, :inline_error, changeset.errors)
-          contents = do_form_view model, conn, changeset.changeset.model, params
+          contents = do_form_view model, conn, changeset.changeset.data, params
           conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
         end
     end

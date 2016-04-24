@@ -27,7 +27,7 @@ defmodule ExAdmin.Repo do
     {new_changeset, fields} = 
     Enum.reduce insert_or_update_attributes_for(resource, params), {changeset, []}, 
       fn({cs, fun, field}, {acc, fields}) ->
-        cs = struct(cs, model: struct(cs.model, params))
+        cs = struct(cs, data: struct(cs.data, params))
         {Changeset.update(acc, valid?: cs.valid?, dependents: {cs, fun}, errors: cs.errors), fields ++ [{field, cs}]}
       end
 
@@ -41,23 +41,23 @@ defmodule ExAdmin.Repo do
         {Changeset.update(acc, dependents: {nil, fun}), fields ++ [{field, coll}]}
       end
    
-    model = Enum.reduce fields, new_changeset.changeset.model, fn({k, v}, acc) -> 
+    data = Enum.reduce fields, new_changeset.changeset.data, fn({k, v}, acc) ->
       struct(acc, [{String.to_atom(k), v}])
     end
   
-    struct(new_changeset, changeset: struct(new_changeset.changeset, model: model))
+    struct(new_changeset, changeset: struct(new_changeset.changeset, data: data))
   end
 
   defp set_dependents(changeset, list) do
     fields = Helpers.group_by(list, fn({key, _val}) -> key end) 
     |> Enum.map(fn({k,v}) -> 
-      res = for %{model: model, changes: changes} <- Dict.values(v) do
-        struct(model, Map.to_list(changes))
+      res = for %{data: data, changes: changes} <- Dict.values(v) do
+        struct(data, Map.to_list(changes))
       end
       {String.to_atom(k), res}
     end)
 
-    struct(changeset, model: struct(changeset.model, fields))
+    struct(changeset, data: struct(changeset.data, fields))
   end
 
   def update(%Changeset{} = changeset) do

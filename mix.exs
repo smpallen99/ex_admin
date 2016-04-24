@@ -1,7 +1,7 @@
 defmodule ExAdmin.Mixfile do
   use Mix.Project
 
-  @version "0.7.2"
+  @version "0.8.0"
 
   def project do
     [ app: :ex_admin,
@@ -32,8 +32,8 @@ defmodule ExAdmin.Mixfile do
     [
       {:decimal, "~> 1.0"},
       {:phoenix, "~> 1.1"},
-      {:ecto, "~> 1.1"},
-      {:phoenix_ecto, "~> 2.0"},
+      {:ecto, "~> 2.0"},
+      {:phoenix_ecto, "~> 3.0"},
       {:cowboy, "~> 1.0"},
       {:phoenix_html, "~> 2.5"},
       {:factory_girl_elixir, "~> 0.1.1"},
