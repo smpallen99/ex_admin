@@ -36,16 +36,14 @@ defmodule ExAdmin.Mixfile do
       {:phoenix_ecto, "~> 2.0"},
       {:cowboy, "~> 1.0"},
       {:phoenix_html, "~> 2.5"},
-      {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:factory_girl_elixir, "~> 0.1.1"},
-      {:pavlov, "~> 0.1.2", only: :test},
       {:inflex, "~> 1.5"},
       {:xain, "~> 0.5.2"},
       {:scrivener, "~> 1.0"}, 
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~> 2.2.0"}, 
-      {:ex_doc, "~> 0.10.0", only: :dev},
-      {:earmark, ">= 0.0.0", only: :dev},
+      {:ex_doc, "~> 0.11", only: :docs},
+      {:earmark, "~> 0.1", only: :docs},
       {:ex_queb, "~> 0.1"},
     ]
   end
