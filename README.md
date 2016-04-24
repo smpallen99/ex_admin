@@ -1,5 +1,11 @@
-ExAdmin
-=======
+# ExAdmin
+
+[![Hex Version][hex-img]][hex] [![License][license-img]][license]
+
+[hex-img]: https://img.shields.io/hexpm/v/ex_admin.svg
+[hex]: https://hex.pm/packages/ex_admin
+[license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg
+[license]: http://opensource.org/licenses/MIT
 
 ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) and the [Phoenix Framework](http://www.phoenixframework.org/), a port/inspiration of [ActiveAdmin](http://activeadmin.info/) for Elixir. 
 
@@ -28,7 +34,9 @@ mix.exs
 
 Fetch and compile the dependency
 
-```mix do deps.get, deps.compile```
+```
+mix do deps.get, deps.compile
+```
 
 Configure ExAdmin:
 
