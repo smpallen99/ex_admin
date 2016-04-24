@@ -21,7 +21,7 @@ mix.exs
 ```elixir
   defp deps do
      ...
-     {:ex_admin, github: "smpallen99/ex_admin"}, 
+     {:ex_admin, ~> 0.7"}, 
      ...
   end
 ```

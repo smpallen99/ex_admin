@@ -1,17 +1,24 @@
 defmodule ExAdmin.Mixfile do
   use Mix.Project
 
+  @version "0.7.1"
+
   def project do
-    [app: :ex_admin,
-     version: "0.7.0",
-     elixir: "~> 1.2",
-     elixirc_paths: elixirc_paths(Mix.env),
-     compilers: [:phoenix] ++ Mix.compilers,
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     name: "ExAdmin",
-     docs: [extras: ["README.md"], main: "ExAdmin"],
-     deps: deps]
+    [ app: :ex_admin,
+      version: @version,
+      elixir: "~> 1.2",
+      elixirc_paths: elixirc_paths(Mix.env),
+      compilers: [:phoenix] ++ Mix.compilers,
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      name: "ExAdmin",
+      docs: [extras: ["README.md"], main: "ExAdmin"],
+      deps: deps,
+      package: package,
+      description: """
+      An Elixir Phoenix Auto Administration Package.
+      """
+    ]
   end
 
   def application do
@@ -33,14 +40,20 @@ defmodule ExAdmin.Mixfile do
       {:factory_girl_elixir, "~> 0.1.1"},
       {:pavlov, "~> 0.1.2", only: :test},
       {:inflex, github: "smpallen99/inflex"},
-      {:ex_form, github: "smpallen99/ex_form"},
       {:xain, github: "smpallen99/xain", override: true},
       {:scrivener, "~> 1.0"}, 
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~> 2.2.0"}, 
       {:ex_doc, "~> 0.10.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:ex_queb, github: "E-MetroTel/ex_queb"},
+      {:ex_queb, "~> 0.1"},
     ]
+  end
+
+  defp package do
+    [ maintainers: ["Stephen Pallen"],
+      licenses: ["MIT"],
+      links: %{ "Github" => "https://github.com/smpallen99/ex_admin" },
+      files: ~w(lib priv web README.md package.json mix.exs LICENSE brunch-config.js)]
   end
 end
