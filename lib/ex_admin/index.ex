@@ -111,6 +111,7 @@ defmodule ExAdmin.Index do
   import ExAdmin.Helpers
   import Kernel, except: [div: 2, to_string: 1]
   use Xain
+  alias ExAdmin.Schema
 
   @doc false
   defmacro __using__(_) do
@@ -456,7 +457,8 @@ defmodule ExAdmin.Index do
       Enum.with_index(resources) 
       |> Enum.map(fn{resource, inx} -> 
         odd_even = if Integer.is_even(inx), do: "even", else: "odd"
-        id = resource.id
+
+        id = Map.get(resource, Schema.primary_key(resource))
         tr(".#{odd_even}##{model_name}_#{id}") do
           if selectable do
             td(".selectable") do
@@ -483,7 +485,7 @@ defmodule ExAdmin.Index do
     # name = controller_name(conn)
     resource_model = resource.__struct__
     base_class = "member_link"
-    id = resource.id
+    id = ExAdmin.Schema.get_id(resource)
 
     links = case actions do
       [] -> [:show, :edit, :destroy]

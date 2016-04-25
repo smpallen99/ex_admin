@@ -593,6 +593,24 @@ defmodule ExAdmin.Register do
           show: [preload: [:group, messages: [receiver: [:category, :phone_numbers]]]]
         }
       end
+
+  Change the index page default sort order to ascending.
+
+      query do
+        %{index: [default_sort_order: :asc]}
+      end
+
+  Change the index page default sort field and order.
+
+      query do
+        %{index: [default_sort: [asc: :name]]}
+      end
+
+  Change the index page default sort field.
+
+      query do
+        %{index: [default_sort_field: :name]}
+      end
   """
   defmacro query(do: qry) do
     quote do

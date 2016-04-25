@@ -5,7 +5,7 @@ defmodule ExAdmin.AdminController do
   import ExAdmin
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
-  require IEx
+  alias ExAdmin.Schema
 
   plug :set_layout
   
@@ -217,7 +217,7 @@ defmodule ExAdmin.AdminController do
         if changeset.valid? do
           resource = ExAdmin.Repo.insert(changeset) 
           put_flash(conn, :notice, "#{base_name model} was successfully created.")
-          |> redirect(to: get_route_path(resource, :show, resource.id))
+          |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
         else
           conn = put_flash(conn, :inline_error, changeset.errors)
           contents = do_form_view model, conn, changeset.changeset.model, params
@@ -238,9 +238,9 @@ defmodule ExAdmin.AdminController do
         changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
         changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
         if changeset.valid? do
-          ExAdmin.Repo.update(changeset)
+          new_resource = ExAdmin.Repo.update(changeset)
           put_flash(conn, :notice, "#{base_name model} was successfully updated")
-          |> redirect(to: get_route_path(resource, :show, resource.id))
+          |> redirect(to: get_route_path(resource, :show, Schema.get_id(new_resource)))
         else
           conn = put_flash(conn, :inline_error, changeset.errors)
           contents = do_form_view model, conn, changeset.changeset.model, params
@@ -273,16 +273,29 @@ defmodule ExAdmin.AdminController do
     model = defn.__struct__ 
     resource_model = model.__struct__.resource_model 
 
+    type = case ExAdmin.Schema.primary_key(resource_model) do
+      nil -> :integer
+      key -> resource_model.__schema__(:type, key)
+    end
+
     ids = params[:collection_selection] 
     count = Enum.count ids
     ids
-    |> Enum.map(&(String.to_integer(&1)))
+    |> Enum.map(&(to_integer(type, &1)))
     |> Enum.each(fn(id) -> 
       repo.delete repo.get(resource_model, id)
     end)
 
     put_flash(conn, :notice, "Successfully destroyed #{count} #{pluralize params[:resource], count}")
     |> redirect(to: get_route_path(conn, :index))
+  end
+
+  defp to_integer(:string, string), do: string
+  defp to_integer(:integer, string) do
+    case Integer.parse string do
+      {int, ""} -> int
+      _ -> string
+    end 
   end
 
   def csv(conn, params) do
