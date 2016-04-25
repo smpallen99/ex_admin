@@ -1332,7 +1332,8 @@ table.index_table {
   table.index_table td {
     padding: 10px 12px 8px 12px;
     border-bottom: 1px solid #e8e8e8;
-    vertical-align: top; }
+    vertical-align: top;
+    word-break: break-all; }
 
 /* line 65, web/static/css/active_admin/components/_tables.scss */
 .panel_contents table {
