@@ -2,6 +2,7 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
   import ExAdmin.Navigation
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
   use Xain
+  require Logger
 
   def link_to_active(conn, name, path, id, opts \\ []) do
     wrapper = Keyword.get(opts, :wrapper, :li)
@@ -61,13 +62,16 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
     end
   end
 
-  def sidebar_view(conn, {name, _opts, {mod, fun}}, resource) do
+  def sidebar_view(conn, {name, opts, {mod, fun}}, resource) do
+    box_attributes = Keyword.get(opts, :box_attributes, ".box.box-primary")
+    header_attributes = Keyword.get(opts, :header_attributes, ".box-header.with-border")
+    body_attributes = Keyword.get(opts, :body_attributes, ".box-body")
     markup do
-      div ".box.box-primary" do
-        div ".box-header.with-border" do
+      div box_attributes do
+        div header_attributes do
           h3 ".box-title #{name}"
         end
-        div ".box-body" do
+        div body_attributes do
           case apply mod, fun, [conn, resource] do
             {_, rest} -> text rest
             :ok       -> ""

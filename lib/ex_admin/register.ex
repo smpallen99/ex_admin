@@ -450,6 +450,13 @@ defmodule ExAdmin.Register do
           row "author", fn(_) -> { resource.author } end
         end
       end
+
+      # customize the panel
+
+      sidebar "Expert Administration", box_attributes: ".box.box-warning",
+                  header_attributes: ".box-header.with-border.text-yellow" do
+        Phoenix.View.render MyApp.AdminView, "sidebar_warning.html", []
+      end
   """
   defmacro sidebar(name, opts \\ [], [do: block]) do
     contents = quote do
