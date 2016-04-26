@@ -66,7 +66,7 @@ defmodule ExAdmin.Filter do
     end
   end
 
-  def build_field({name, type}, q, _) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time] do
+  def build_field({name, type}, q, _) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time, Timex.Ecto.DateTime, Timex.Ecto.Date, Timex.Ecto.Time, Timex.Ecto.DateTimeWithTimezone] do
     gte_value = get_value("#{name}_gte", q)
     lte_value = get_value("#{name}_lte", q)
     div ".filter_form_field.filter_date_range" do
