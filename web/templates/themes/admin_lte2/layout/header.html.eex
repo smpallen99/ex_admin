@@ -10,7 +10,6 @@
     <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
       <span class="sr-only">Toggle navigation</span>
     </a>
-    <%= if ExAdmin.Theme.AdminLte2.Layout.theme_selector? do %>
       <ul class="nav navbar-nav pull-right">
         <%= if use_authentication?(@conn) do %>
           <li class="dropdown">
@@ -24,16 +23,17 @@
             </ul>
           </li>
         <% end %>
-        <li class="dropdown" style="width: 100px">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            Themes <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu" role="menu">
-          <%= ExAdmin.Theme.AdminLte2.Layout.theme_selector %>
-          </ul>
-        </li>
+        <%= if ExAdmin.Theme.AdminLte2.Layout.theme_selector? do %>
+          <li class="dropdown" style="width: 100px">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              Themes <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+              <%= ExAdmin.Theme.AdminLte2.Layout.theme_selector %>
+            </ul>
+          </li>
+        <% end %>
       </ul>
-    <% end %>
   </nav>
 </header>
 <aside class="main-sidebar">
