@@ -1,6 +1,6 @@
 # ExAdmin
 
-[![Hex Version][hex-img]][hex] [![License][license-img]][license]
+[![Build Status](https://travis-ci.org/smpallen99/ex_admin.png?branch=master)](https://travis-ci.org/smpallen99/ex_admin) [![Hex Version][hex-img]][hex] [![License][license-img]][license]
 
 [hex-img]: https://img.shields.io/hexpm/v/ex_admin.svg
 [hex]: https://hex.pm/packages/ex_admin
