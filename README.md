@@ -21,6 +21,8 @@ ExAdmin is an add on for an application using the [Phoenix Framework](http://www
 
 Before using ExAdmin, you will need a Phoenix project and an Ecto model created. 
 
+![ExAdmin](http://exadmin.info/doc/ex_admin.png)
+
 ### Installation
 
 Add ex_admin to your deps:
