@@ -137,6 +137,7 @@ defmodule MyProject.ExAdmin.MyModel do
 
       column :id
       column :name
+      actions       # display the default actions column
     end
   end
 end
