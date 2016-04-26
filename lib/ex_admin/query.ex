@@ -5,6 +5,7 @@ defmodule ExAdmin.Query do
   require Logger
   # alias ExAdmin.Helpers
   import ExQueb
+  alias ExAdmin.Schema
   
   @doc false
   def get_scope(scopes, nil) do
@@ -114,7 +115,12 @@ defmodule ExAdmin.Query do
     end
   end
   defp build_wheres(query, _, _action, id, _defn) do
-    where(query, [c], c.id == ^id)
+    {id, key} = case Schema.primary_key(query) do
+      nil -> {:id, id}
+      key -> 
+        if Schema.type(query, key) == :string, do: {"#{id}", key}, else: {id, key}
+    end
+    where(query, [c], field(c, ^key) == ^id)
   end
 
   defp get_from_all(opts, key, default \\ []), do: get_from(opts, :all, key, default)

@@ -7,6 +7,7 @@ defmodule ExAdmin.Table do
   import ExAdmin.Utils
   import ExAdmin.Render
   import Kernel, except: [to_string: 1]
+  alias ExAdmin.Schema
 
   def attributes_table(conn, resource, schema) do
     resource_model = model_name(resource)
@@ -23,8 +24,9 @@ defmodule ExAdmin.Table do
   end
 
   defp _attributes_table_for(conn, resource, resource_model, schema) do
+    primary_key = Schema.get_id(resource)
     div(".panel_contents") do
-      id = "attributes_table_#{resource_model}_#{resource.id}"
+      id = "attributes_table_#{resource_model}_#{primary_key}"
       div(".attributes_table.#{resource_model}#{id}") do
         table(border: "0", cellspacing: "0", cellpadding: "0") do
           tbody do

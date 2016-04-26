@@ -1,7 +1,7 @@
 defmodule ExAdmin.Mixfile do
   use Mix.Project
 
-  @version "0.8.0"
+  @version "0.8.1"
 
   def project do
     [ app: :ex_admin,
@@ -22,7 +22,14 @@ defmodule ExAdmin.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :ex_queb]]
+    [ applications: applications(Mix.env)]
+  end
+
+  defp applications(:test) do
+    [:plug | applications(:prod)]
+  end
+  defp applications(_) do
+    [:phoenix, :ecto, :logger, :ex_queb, :xain]
   end
 
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
@@ -32,8 +39,9 @@ defmodule ExAdmin.Mixfile do
     [
       {:decimal, "~> 1.0"},
       {:phoenix, "~> 1.1"},
-      {:ecto, "~> 2.0"},
-      {:phoenix_ecto, "~> 3.0"},
+      {:ecto, "~> 2.0-rc", override: true},
+      {:phoenix_ecto, "~> 3.0-rc", override: true},
+      {:postgrex, ">= 0.0.0", only: :test},
       {:cowboy, "~> 1.0"},
       {:phoenix_html, "~> 2.5"},
       {:factory_girl_elixir, "~> 0.1.1"},
