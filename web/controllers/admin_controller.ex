@@ -7,8 +7,23 @@ defmodule ExAdmin.AdminController do
   import ExAdmin.ParamsToAtoms
   alias ExAdmin.Schema
 
+  plug :handle_root_req
   plug :set_theme
   plug :set_layout
+
+  # A temporary fix to handle a get "/" request.
+  # TODO: Refactor the way we assume path_info has the "/admin" prefix
+  def handle_root_req(conn, params) do
+    case conn.path_info do
+      [] ->
+        case ExAdmin.Utils.get_route_path(:dashboard, :index) |> String.split("/") do
+          [_, prefix | _] ->
+            struct(conn, path_info: [prefix])
+          _ -> conn
+        end
+      _ -> conn
+    end
+  end
 
   def set_theme(conn, _) do
     assign(conn, :theme, ExAdmin.theme)
@@ -112,7 +127,6 @@ defmodule ExAdmin.AdminController do
   end
 
   def index(conn, params) do
-    require Logger
     defn = get_registered_by_controller_route!(params[:resource], conn)
     {contents, page, scope_counts} = case defn do
       %{type: :page} = defn ->
