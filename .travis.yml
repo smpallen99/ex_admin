@@ -1,5 +1,13 @@
+services:
+  - postgresql
+before_script:
+  - psql -c 'create database ex_admin_test;' -U postgres
 language: elixir
 elixir:
-  - 1.0
+  - 1.2.0
 otp_release:
-  - 18.0
+  - 18.2.1
+sudo: false
+notification:
+  recipients:
+    - smpallen99@yahoo.com
