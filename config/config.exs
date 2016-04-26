@@ -15,6 +15,8 @@ use Mix.Config
 #   nest_resources: false,
 #   nest_scopes: false,
 #   scopes_index_page: false,
+#   logo_mini: "Ex<b>A</b>",
+#   logo_full: "Ex<b>Admin</b>",
 #   theme: ExAdmin.Theme.ActiveAdmin,
 #   skin_color: :blue, # ~w(blue black purple green red yellow blue-light
 #                      # black-light purple-light green-light red-light yellow-light)
