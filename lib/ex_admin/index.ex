@@ -25,6 +25,7 @@ defmodule ExAdmin.Index do
 
             column :id
             column :name
+            actions       # display the default actions column
           end
         end
       end

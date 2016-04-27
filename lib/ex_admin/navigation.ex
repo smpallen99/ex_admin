@@ -2,6 +2,7 @@ defmodule ExAdmin.Navigation do
   @moduledoc false
   require Logger
   import ExAdmin.Utils
+  import ExAdmin.Theme.Helpers
   use Xain
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
 
@@ -32,7 +33,7 @@ defmodule ExAdmin.Navigation do
     menu = Map.get registered, :menu, %{}
     name = Map.get menu, :label, (controller_name |> titleize |> Inflex.pluralize)
 
-    Module.concat(conn.assigns.theme, Navigation).link_to_active conn, 
+    theme_module(conn, Navigation).link_to_active conn, 
       name, path, (Inflex.parameterize(controller_name, "_") |> Inflex.pluralize), opts
   end
   def nav_link(conn, %{controller: controller, resource_model: resource_model} = registered, opts) do
@@ -40,7 +41,7 @@ defmodule ExAdmin.Navigation do
     path = get_route_path(resource_model, :index)
     menu = Map.get registered, :menu, %{}
     name = Map.get menu, :label, (controller_name |> titleize |> Inflex.pluralize)
-    Module.concat(conn.assigns.theme, Navigation).link_to_active conn, 
+    theme_module(conn, Navigation).link_to_active conn, 
       name, path, (Inflex.parameterize(controller_name, "_") |> Inflex.pluralize), opts
   end
 
