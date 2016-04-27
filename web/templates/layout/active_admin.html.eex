@@ -25,7 +25,7 @@
   <body class="index admin_<%= resource_label %> active_admin logged_in admin_namespace">
       <div id="wrapper">
         <%= render ExAdmin.ActiveAdmin.LayoutView, "header.html", conn: @conn, scope_counts: assigns[:scope_counts] %>
-        <%= title_bar(@conn, @resource) %>
+        <%= ExAdmin.Theme.ActiveAdmin.Layout.title_bar(@conn, @resource) %>
         <%= ExAdmin.ViewHelpers.flashes(@conn) %>
         <% {sidebars?, klass} = check_for_sidebars(@conn, @filters, @defn) %>
         <div id="active_admin_content" class="<%= klass %>">

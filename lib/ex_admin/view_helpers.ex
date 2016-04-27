@@ -2,6 +2,7 @@ defmodule ExAdmin.ViewHelpers do
   @moduledoc false
   use Xain
   import ExAdmin.Utils
+  import ExAdmin.Theme.Helpers
 
   @endpoint Application.get_env(:ex_admin, :endpoint)
 
@@ -11,23 +12,6 @@ defmodule ExAdmin.ViewHelpers do
   #   import unquote(__MODULE__)
   #   import UcxNotifier.Admin.ViewHelpers.Table 
   # end
-
-  # def title_bar(conn, resource) do
-  #   markup do
-  #     div("#title_bar.title_bar") do
-  #       title_bar_left(conn, resource)
-  #       title_bar_right(conn)
-  #     end
-  #   end
-  # end
-  def title_bar(conn, resource) do
-    markup do
-      section("#title_bar.content-header") do
-        title_bar_left(conn, resource)
-        title_bar_right(conn)
-      end
-    end
-  end
 
   def flashes(conn) do
     markup do
@@ -79,26 +63,7 @@ defmodule ExAdmin.ViewHelpers do
   def status_tag(status) do
     span ".status_tag.#{status} #{status}"
   end
-  def title_bar_left(conn, resource) do
-    div("#titlebar_left") do
-      h1("#page_title #{page_title(conn, resource)}")
-      ExAdmin.BreadCrumb.get_breadcrumbs(conn, resource)
-      |> render_breadcrumbs
-
-    end
-  end
   
-  defp render_breadcrumbs([]), do: nil
-  defp render_breadcrumbs(list) do
-    ol(".breadcrumb") do
-      Enum.each list, fn({link, name}) -> 
-        li do
-          a(name, href: link)
-          # span(".breadcrumb_sep /")
-        end
-      end
-    end
-  end
 
   def build_link(action, opts, html_opts \\ [])
   def build_link(_action, opts, _) when opts in [nil, []], do: ""
@@ -110,32 +75,7 @@ defmodule ExAdmin.ViewHelpers do
     end)
     Phoenix.HTML.raw "<a #{attrs}>#{name}</a>"
   end
-  # defp render_breadcrumbs(list) do
-  #   span(".breadcrumb") do
-  #     Enum.each list, fn({link, name}) -> 
-  #       a(name, href: link)
-  #       span(".breadcrumb_sep /")
-  #     end
-  #   end
-  # end
 
-  defp title_bar_right(conn) do
-    #controller = controller_name(conn)
-    #try do
-      div("#titlebar_right") do
-        ExAdmin.get_title_actions(conn)
-        # div(".action_items") do
-        #   span(".action_item") do
-        #     a("New #{controller}", href: get_route_path(conn, controller, :new))
-        #   end
-        # end
-      end
-    # rescue 
-    #   _ -> 
-    #     div(acc, "#titlebar_right") 
-    # end
-  end
-  
   @js_escape_map Enum.into([{"^", ""}, { ~S(\\), ~S(\\\\)}, {~S(</), ~S(<\/)}, {"\r\n", ~S(\n)}, {"\n", ~S(\n)}, {"\r", ~S(\n)}, 
     {~S("), ~S(\")}, 
     {"'", "\\'" }], %{})

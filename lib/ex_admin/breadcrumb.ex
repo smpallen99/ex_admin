@@ -3,9 +3,6 @@ defmodule ExAdmin.BreadCrumb do
   require Logger
 
   def get_breadcrumbs(conn, resource) do
-    # action = conn.private[:phoenix_action]
-    # page_name = Map.get defn, :page_name
-    # get_breadcrumbs(conn, resource, defn, page_name, action)
     defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
     get_breadcrumbs conn, resource, defn,
      Map.get(defn, :page_name), conn.private[:phoenix_action]

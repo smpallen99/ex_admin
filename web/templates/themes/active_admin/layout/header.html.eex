@@ -6,7 +6,7 @@
     </ul>
   </ol>
   <p class="header-item" style="float: right;">
-    <%= ExAdmin.Theme.ActiveAdmin.Navigation.theme_selector %>
+    <%= ExAdmin.Theme.ActiveAdmin.Layout.theme_selector %>
   </p>
   <%= if use_authentication?(@conn) do %>
     <p class="header-item" id="utility_nav">

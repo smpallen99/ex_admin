@@ -1,6 +1,7 @@
-defmodule ExAdmin.Theme.AdminLte2.Navigation do
+defmodule ExAdmin.Theme.AdminLte2.Layout do
   import ExAdmin.Navigation 
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
+  use Xain
 
   def link_to_active(conn, name, path, id, opts \\ []) do
     wrapper = Keyword.get(opts, :wrapper, :li)
@@ -40,6 +41,23 @@ defmodule ExAdmin.Theme.AdminLte2.Navigation do
       content_tag :li, class: active  do
         content_tag :a, name, href: "/admin/select_theme/#{inx}"
       end
+    end
+  end
+
+  def render_breadcrumbs([]), do: nil
+  def render_breadcrumbs(list) do
+    ol(".breadcrumb") do
+      Enum.each list, fn({link, name}) -> 
+        li do
+          a(name, href: link)
+        end
+      end
+    end
+  end
+
+  def wrap_title_bar(fun) do
+    section("#title_bar.content-header") do
+      fun.()
     end
   end
 end
