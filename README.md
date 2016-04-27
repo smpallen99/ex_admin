@@ -31,7 +31,7 @@ mix.exs
 ```elixir
   defp deps do
      ...
-     {:ex_admin, ~> "0.7.1"}, 
+     {:ex_admin, "~> 0.7.1"}, 
      ...
   end
 ```
