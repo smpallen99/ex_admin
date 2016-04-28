@@ -12,7 +12,7 @@
     </a>
     <%= if ExAdmin.Theme.AdminLte2.Layout.theme_selector? do %>
       <ul class="nav navbar-nav pull-right">
-        <li class="dropdown">
+        <li class="dropdown" style="width: 100px">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             Themes <span class="caret"></span>
           </a>
@@ -38,7 +38,7 @@
             <%= ExAdmin.Navigation.nav_view(@conn) %>
           </ul>
         </li>
-      <% else %> 
+      <% else %>
         <%= ExAdmin.Navigation.nav_view(@conn) %>
       <% end %>
 
