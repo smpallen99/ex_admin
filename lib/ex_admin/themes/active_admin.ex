@@ -11,12 +11,6 @@ defmodule ExAdmin.Theme.ActiveAdmin do
     unless error == "", do: ".has-error", else: ""
   end
 
-  def build_form_error(error) do
-    label ".control-label" do
-      i ".fa.fa-times-circle-o"
-      text " #{ExAdmin.Form.error_messages(error)}"
-    end
-  end
 
   def wrap_item_type(:boolean, label, ext_name, contents, error) do
     error = get_form_error_class(error)
@@ -44,5 +38,5 @@ defimpl ExAdmin.Theme, for: ExAdmin.Theme.ActiveAdmin do
   use Xain
   import ExAdmin.Utils
   import ExAdmin.ViewHelpers
-  
+
 end

@@ -75,12 +75,15 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
       div ".form-group" do
         label ".label #{humanize name}", for: "#{name}_numeric"
         div ".row" do
-          div ".col-xs-6" do
+          div ".col-xs-6", style: "padding-right: 0"  do
             span ".input-group-addon" do
-              select onchange: ~s|document.getElementById('#{name}_numeric').name = 'q[' + this.value + ']';| do
-                for {suffix, text} <- integer_options do
-                  build_option(text, "#{name}_#{suffix}", selected_name)
+              div ".filter-select" do
+                select onchange: ~s|document.getElementById('#{name}_numeric').name = 'q[' + this.value + ']';| do
+                  for {suffix, text} <- integer_options do
+                    build_option(text, "#{name}_#{suffix}", selected_name)
+                  end
                 end
+                i ".fa.fa-sort", style: "margin-left: -20px"
               end
             end
           end
