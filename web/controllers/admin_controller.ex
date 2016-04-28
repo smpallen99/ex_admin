@@ -1,14 +1,14 @@
 defmodule ExAdmin.AdminController do
   @moduledoc false
   use ExAdmin.Web, :controller
-  # require Logger
+  require Logger
   import ExAdmin
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
   alias ExAdmin.Schema
 
   plug :set_layout
-  
+
   def action(%{private: %{phoenix_action: action}} = conn, _options) do
     handle_action(conn, action, conn.params["resource"])
   end
@@ -18,14 +18,14 @@ defmodule ExAdmin.AdminController do
     |> Enum.sort(&(elem(&1,1).menu[:priority] < elem(&2,1).menu[:priority]))
     |> hd
     |> case do
-      {_, %{controller_route: resource}} -> 
+      {_, %{controller_route: resource}} ->
         conn = scrub_params(conn, resource, action)
         params = filter_params(conn.params)
         conn
         |> struct(path_info: conn.path_info ++ [resource])
-        |> struct(params: Map.put(conn.params, "resource", resource)) 
+        |> struct(params: Map.put(conn.params, "resource", resource))
         |> handle_action(action, resource)
-      _other -> 
+      _other ->
         throw :invalid_route
     end
   end
@@ -33,21 +33,21 @@ defmodule ExAdmin.AdminController do
     conn = scrub_params(conn, resource, action)
     params = filter_params(conn.params)
     case get_registered_by_controller_route(resource) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      %{__struct__: _} = defn -> 
+      %{__struct__: _} = defn ->
         conn
         |> handle_plugs(action, defn)
         |> handle_before_filter(action, defn, params)
         |> handle_custom_actions(action, defn, params)
-      _ -> 
+      _ ->
         apply(__MODULE__, action, [conn, params])
     end
   end
 
   defp scrub_params(conn, required_key, action) when action in [:create, :update] do
     if conn.params[required_key] do
-      Phoenix.Controller.scrub_params conn, required_key   
+      Phoenix.Controller.scrub_params conn, required_key
     else
       conn
     end
@@ -60,24 +60,24 @@ defmodule ExAdmin.AdminController do
   def handle_custom_actions(conn, action, defn, params) do
     %{member_actions: member_actions, collection_actions: collection_actions} = defn
     cond do
-      member_action = Keyword.get(member_actions, action) -> 
+      member_action = Keyword.get(member_actions, action) ->
         member_action.(conn, params)
-      collection_action = Keyword.get(collection_actions, action) -> 
+      collection_action = Keyword.get(collection_actions, action) ->
         collection_action.(conn, params)
-      true -> 
+      true ->
         apply(__MODULE__, action, [conn, params])
     end
   end
 
   def handle_before_filter(conn, action, defn, params) do
     case defn.controller_filters[:before_filter] do
-      nil -> 
+      nil ->
         conn
-      {name, opts} -> 
+      {name, opts} ->
         filter = cond do
-          opts[:only] -> 
+          opts[:only] ->
             if action in opts[:only], do: true, else: false
-          opts[:except] -> 
+          opts[:except] ->
             if not action in opts[:except], do: true, else: false
           true -> true
         end
@@ -92,14 +92,14 @@ defmodule ExAdmin.AdminController do
       item -> [{item, []}]
     end
     |> Keyword.merge(defn.plugs)
-    |> Enum.reduce(conn, fn({name, opts}, conn) -> 
-      apply(name, :call, [conn, opts]) 
+    |> Enum.reduce(conn, fn({name, opts}, conn) ->
+      apply(name, :call, [conn, opts])
     end)
     |> authorized?
   end
 
   defp authorized?(%{assigns: %{authorized: true}} = conn), do: conn
-  defp authorized?(%{assigns: %{authorized: false}}) do 
+  defp authorized?(%{assigns: %{authorized: false}}) do
     throw :unauthorized
   end
   defp authorized?(conn), do: conn
@@ -112,17 +112,17 @@ defmodule ExAdmin.AdminController do
     require Logger
     defn = get_registered_by_controller_route(params[:resource])
     {contents, page} = case defn do
-      nil -> 
+      nil ->
         throw :invalid_route
-      %{type: :page} = defn -> 
+      %{type: :page} = defn ->
         {defn.__struct__ |> apply(:page_view, [conn]), nil}
-      defn -> 
-        model = defn.__struct__ 
+      defn ->
+        model = defn.__struct__
 
         page = case conn.assigns[:page] do
-          nil -> 
+          nil ->
             model.run_query(repo, defn, :index, params |> Map.to_list)
-          page -> 
+          page ->
             page
         end
         counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
@@ -140,23 +140,22 @@ defmodule ExAdmin.AdminController do
   def show(conn, params) do
 
     {contents, resource, defn} = case get_registered_by_controller_route(params[:resource]) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      defn -> 
-        model = defn.__struct__ 
+      defn ->
+        model = defn.__struct__
 
         resource = unless Application.get_all_env(:auth_ex) == [] do
           resource_name = AuthEx.Utils.resource_name conn, model: defn.resource_model
           case conn.assigns[resource_name] do
-            nil -> 
+            nil ->
               model.run_query(repo, defn, :show, params[:id])
-            res -> 
+            res ->
               res
           end
         else
           model.run_query(repo, defn, :show, params[:id])
         end
-
         if function_exported? model, :show_view, 2 do
           {apply(model, :show_view, [conn, resource]), resource, defn}
         else
@@ -168,10 +167,10 @@ defmodule ExAdmin.AdminController do
 
   def edit(conn, params) do
     {contents, resource, defn} = case get_registered_by_controller_route(params[:resource]) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      defn -> 
-        model = defn.__struct__ 
+      defn ->
+        model = defn.__struct__
         resource = model.run_query(repo, defn, :edit, params[:id])
         if function_exported? model, :form_view, 3 do
           {apply(model, :form_view, [conn, resource, params]), resource, defn}
@@ -184,10 +183,10 @@ defmodule ExAdmin.AdminController do
 
   def new(conn, params) do
     {contents, resource, defn} = case get_registered_by_controller_route(params[:resource]) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      defn -> 
-        model = defn.__struct__ 
+      defn ->
+        model = defn.__struct__
         resource = model.__struct__.resource_model.__struct__
         {do_form_view(model, conn, resource, params), resource, defn}
     end
@@ -204,18 +203,18 @@ defmodule ExAdmin.AdminController do
 
   def create(conn, params) do
     case get_registered_by_controller_route(params[:resource]) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      defn -> 
-        model = defn.__struct__ 
+      defn ->
+        model = defn.__struct__
         resource = model.__struct__.resource_model.__struct__
-        resource_model = model.__struct__.resource_model 
+        resource_model = model.__struct__.resource_model
         |> base_name |> String.downcase |> String.to_atom
         changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
         changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
 
         if changeset.valid? do
-          resource = ExAdmin.Repo.insert(changeset) 
+          resource = ExAdmin.Repo.insert(changeset)
           put_flash(conn, :notice, "#{base_name model} was successfully created.")
           |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
         else
@@ -250,17 +249,17 @@ defmodule ExAdmin.AdminController do
   end
 
   def destroy(conn, params) do
-    resource_model = 
+    resource_model =
     case get_registered_by_controller_route(params[:resource]) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      defn -> 
-        model = defn.__struct__ 
-        resource_model = model.__struct__.resource_model 
+      defn ->
+        model = defn.__struct__
+        resource_model = model.__struct__.resource_model
         |> base_name |> String.downcase |> String.to_atom
 
         model.run_query(repo, defn, :edit, params[:id])
-        |> ExAdmin.Repo.delete(params[resource_model]) 
+        |> ExAdmin.Repo.delete(params[resource_model])
         base_name model
     end
     put_flash(conn, :notice, "#{resource_model} was successfully destroyed.")
@@ -268,21 +267,21 @@ defmodule ExAdmin.AdminController do
   end
 
   def batch_action(conn, %{batch_action: "destroy"} = params) do
-    defn = get_registered_by_controller_route!(params[:resource]) 
+    defn = get_registered_by_controller_route!(params[:resource])
 
-    model = defn.__struct__ 
-    resource_model = model.__struct__.resource_model 
+    model = defn.__struct__
+    resource_model = model.__struct__.resource_model
 
     type = case ExAdmin.Schema.primary_key(resource_model) do
       nil -> :integer
       key -> resource_model.__schema__(:type, key)
     end
 
-    ids = params[:collection_selection] 
+    ids = params[:collection_selection]
     count = Enum.count ids
     ids
     |> Enum.map(&(to_integer(type, &1)))
-    |> Enum.each(fn(id) -> 
+    |> Enum.each(fn(id) ->
       repo.delete repo.get(resource_model, id)
     end)
 
@@ -295,19 +294,19 @@ defmodule ExAdmin.AdminController do
     case Integer.parse string do
       {int, ""} -> int
       _ -> string
-    end 
+    end
   end
 
   def csv(conn, params) do
     case get_registered_by_controller_route(params[:resource]) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      defn -> 
-        model = defn.__struct__ 
+      defn ->
+        model = defn.__struct__
 
         csv = case model.run_query(repo, defn, :csv) do
           [] -> []
-          [resource | resources] -> 
+          [resource | resources] ->
             ExAdmin.View.Adapter.build_csv(resource, resources)
         end
 
@@ -322,14 +321,14 @@ defmodule ExAdmin.AdminController do
 
   def nested(conn, params) do
     contents = case get_registered_by_controller_route(params[:resource]) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      defn -> 
-        model = defn.__struct__ 
+      defn ->
+        model = defn.__struct__
 
         items = apply(model, :get_blocks, [conn, defn.resource_model.__struct__, params])
         block = deep_find(items, String.to_atom(params[:field_name]))
-        
+
         resources = block[:opts][:collection].(conn, defn.resource_model.__struct__)
 
         contents = apply(model, :ajax_view, [conn, params, resources, block])
@@ -343,9 +342,9 @@ defmodule ExAdmin.AdminController do
   end
 
   def deep_find(items, name) do
-    Enum.reduce items, nil, fn(item, acc) -> 
+    Enum.reduce items, nil, fn(item, acc) ->
       case item do
-        %{inputs: inputs} -> 
+        %{inputs: inputs} ->
           case Enum.find inputs, &(&1[:name] == name) do
             nil -> acc
             found -> found
