@@ -5,8 +5,7 @@ defmodule ExAdmin.RepoTest do
   alias ExAdmin.Repo
 
   setup do
-    Application.put_env :ex_admin, :repo, TestExAdmin.Repo
-    :ok
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(TestExAdmin.Repo)
   end
 
   test "changeset supports different primary key" do

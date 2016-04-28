@@ -3,6 +3,9 @@ defmodule ExAdmin.QueryTest do
   require Logger
   import TestExAdmin.TestHelpers
 
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(TestExAdmin.Repo)
+  end
 
   test "run_query with resource with non default primary key" do
     insert_noid name: "query1"

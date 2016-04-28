@@ -2,7 +2,6 @@ defmodule TestExAdmin.ExAdmin.Noid do
   use ExAdmin.Register
 
   register_resource TestExAdmin.Noid do
-
     query do
       %{all: [preload: [:user]]}
     end

@@ -7,6 +7,7 @@ defmodule ExAdminTest.ControllerTest do
   alias TestExAdmin.User
 
   setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(TestExAdmin.Repo)
     user = insert_user()
     {:ok, user: user}
   end
