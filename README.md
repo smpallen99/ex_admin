@@ -1,17 +1,23 @@
-ExAdmin
-=======
+# ExAdmin
+
+[![Build Status](https://travis-ci.org/smpallen99/ex_admin.png?branch=v0.7.3)](https://travis-ci.org/smpallen99/ex_admin) [![Hex Version][hex-img]][hex] [![License][license-img]][license]
+
+[hex-img]: https://img.shields.io/hexpm/v/ex_admin.svg
+[hex]: https://hex.pm/packages/ex_admin
+[license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg
+[license]: http://opensource.org/licenses/MIT
 
 ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) and the [Phoenix Framework](http://www.phoenixframework.org/), a port/inspiration of [ActiveAdmin](http://activeadmin.info/) for Elixir. 
 
 Checkout the [Live Demo](http://demo.exadmin.info/admin). The source code can be found at [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo).
+
+See the [docs](https://hexdocs.pm/ex_admin/) for more information.
 
 ## Usage
 
 ExAdmin is an add on for an application using the [Phoenix Framework](http://www.phoenixframework.org) to create an CRUD administration tool with little or no code. By running a few mix tasks to define which Ecto Models you want to administer, you will have something that works with no additional code. 
 
 Before using ExAdmin, you will need a Phoenix project and an Ecto model created. 
-
-Visit [ExAdmin Docs](http://exadmin.info/doc) to view the documentation.
 
 ### Installation
 
@@ -21,14 +27,16 @@ mix.exs
 ```elixir
   defp deps do
      ...
-     {:ex_admin, github: "smpallen99/ex_admin"}, 
+     {:ex_admin, ~> 0.7"}, 
      ...
   end
 ```
 
 Fetch and compile the dependency
 
-```mix do deps.get, deps.compile```
+```
+mix do deps.get, deps.compile
+```
 
 Configure ExAdmin:
 
@@ -190,7 +198,7 @@ end
 * Detailed Example [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo)
 * For a brief tutorial, please visit [Elixir Survey Tutorial](https://github.com/smpallen99/elixir_survey_tutorial)
 * [Live Demo](http://demo.exadmin.info/admin)
-* [ExAdmin Docs](http://exadmin.info/doc)
+* [Docs](https://hexdocs.pm/ex_admin/)
 
 ## License
 

@@ -8,6 +8,7 @@ defmodule ExAdmin.Table do
   import ExAdmin.Render
   import ExAdmin.Theme.Helpers
   import Kernel, except: [to_string: 1]
+  alias ExAdmin.Schema
 
   def attributes_table(conn, resource, schema) do
     theme_module(conn, Table).theme_attributes_table conn, resource,
@@ -20,8 +21,9 @@ defmodule ExAdmin.Table do
   end
 
   def do_attributes_table_for(conn, resource, resource_model, schema, table_opts) do
+    primary_key = Schema.get_id(resource)
     div(".panel_contents") do
-      id = "attributes_table_#{resource_model}_#{resource.id}"
+      id = "attributes_table_#{resource_model}_#{primary_key}"
       div(".attributes_table.#{resource_model}#{id}") do
         table(table_opts) do
           tbody do
@@ -60,10 +62,10 @@ defmodule ExAdmin.Table do
             for field <- columns do
               case field do
                 {f_name, fun} when is_function(fun) ->
-                  td ".#{f_name} #{fun.(resource)}"
+                  td ".#{parameterize f_name} #{fun.(resource)}"
                 {f_name, opts} ->
                   build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) ->
-                    td ".#{f_name} #{contents}"
+                    td ".#{parameterize f_name} #{contents}"
                   end)
               end
             end
@@ -107,16 +109,16 @@ defmodule ExAdmin.Table do
   def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label),
     do: build_th(label, opts, table_opts)
   def build_th({field_name, _opts}, _table_opts) when is_binary(field_name),
-    do: th(".#{Inflex.parameterize field_name, "_"} #{field_name}")
+    do: th(".#{parameterize field_name} #{field_name}")
   def build_th(field_name, _),
-    do: th(".#{field_name} #{humanize field_name}")
+    do: th(".#{parameterize field_name} #{humanize field_name}")
   def build_th(field_name, opts, %{fields: fields} = table_opts) do
     # require Logger
     # Logger.warn "field_name: #{inspect field_name}, fields: #{inspect fields}"
     if String.to_atom(field_name) in fields and opts in [%{}, %{link: true}] do
       _build_th(field_name, opts, table_opts)
     else
-      th(".#{field_name} #{humanize field_name}")
+      th(".#{parameterize field_name} #{humanize field_name}")
     end
   end
   def build_th(field_name, _, _) when is_binary(field_name) do

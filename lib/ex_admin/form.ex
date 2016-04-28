@@ -165,6 +165,7 @@ defmodule ExAdmin.Form do
   require IEx
   alias ExAdmin.Theme
   import ExAdmin.Theme.Helpers
+  alias ExAdmin.Schema
 
   import Kernel, except: [div: 2]
   use Xain
@@ -491,7 +492,7 @@ defmodule ExAdmin.Form do
       :new ->
         get_route_path(conn, :create)
       :edit ->
-        get_route_path(conn, :update, resource.id)
+        get_route_path(conn, :update, ExAdmin.Schema.get_id(resource))
     end
   end
   defp get_put_fields(:edit) do
@@ -706,10 +707,11 @@ Logger.warn "3. ..."
           ext_name = "#{model_name}_#{field_field_name}_#{inx}"
 
           new_inx = build_has_many_fieldset(conn, res, fields, inx, ext_name, field_field_name, model_name, errors)
+          res_id = ExAdmin.Schema.get_id(res)
 
           Xain.input [id: "#{ext_name}_id",
             name: "#{model_name}[#{field_field_name}][#{new_inx}][id]",
-            value: "#{res.id}", type: :hidden]
+            value: "#{res_id}", type: :hidden]
         end)
         {_, html} = markup :nested do
           ext_name = "#{model_name}_#{field_field_name}_#{new_record_name_var}"
@@ -735,7 +737,7 @@ Logger.warn "2 ............. builditem"
     end
     errors = get_errors(errors, name)
     name_ids = "#{Atom.to_string(name) |> Inflex.singularize}_ids"
-    assoc_ids = Enum.map(get_resource_field2(resource, name), &(&1.id))
+    assoc_ids = Enum.map(get_resource_field2(resource, name), &(Schema.get_id(&1)))
     fieldset(".inputs") do
       ol do
         li ".select.input.optional##{model_name}_#{name}_input" do
@@ -744,8 +746,9 @@ Logger.warn "2 ............. builditem"
           label ".label #{humanize name}", for: "#{model_name}_#{name_ids}"
           select id: "#{model_name}_#{name_ids}", multiple: "multiple", name: name_str do
             for opt <- collection do
-              selected = if opt.id in assoc_ids, do: [selected: "selected"], else: []
-              option "#{opt.name}", [value: "#{opt.id}"] ++ selected
+              opt_id = Schema.get_id(opt)
+              selected = if opt_id in assoc_ids, do: [selected: "selected"], else: []
+              option "#{opt.name}", [value: "#{opt_id}"] ++ selected
             end
           end
           build_errors(errors)
@@ -1007,7 +1010,7 @@ Logger.warn "2 ............. builditem"
   def build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_field_name, model_name, errors) do
     inx = cond do
       is_nil(res) -> orig_inx
-      res.id ->  orig_inx
+      Schema.get_id(res) ->  orig_inx
       true -> timestamp   # case when we have errors. need to remap the inx
     end
 

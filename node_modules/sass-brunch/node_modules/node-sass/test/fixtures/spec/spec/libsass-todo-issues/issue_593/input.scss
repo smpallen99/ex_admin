@@ -1,7 +1,0 @@
-h1:nth-of-type(#{2 + 'n + 1'}) {
-    color: red;
-}
-
-h1:nth-of-type(#{2 + 'n   +  1'}) {
-    color: red;
-}

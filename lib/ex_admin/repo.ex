@@ -1,6 +1,6 @@
 defmodule ExAdmin.Repo do
   @moduledoc false
-  # require Logger
+  require Logger
   alias ExAdmin.Utils
   alias ExAdmin.Helpers
   alias ExAdmin.Changeset
@@ -87,16 +87,21 @@ defmodule ExAdmin.Repo do
 
   def insert(%ExAdmin.Changeset{} = changeset) do
     {:ok, resource} = repo.insert changeset.changeset
-    resource = repo.get(resource.__struct__, resource.id)
 
-    for {cs, fun} <- changeset.dependents do
-      if cs do
-        fun.(resource, repo.insert(cs))
-      else
-        fun.(resource)
-      end
+    case ExAdmin.Schema.primary_key(resource) do
+      nil -> resource
+      key ->
+        resource = repo.get(resource.__struct__, Map.get(resource, key))
+
+        for {cs, fun} <- changeset.dependents do
+          if cs do
+            fun.(resource, repo.insert(cs))
+          else
+            fun.(resource)
+          end
+        end
+        resource
     end
-    resource
   end
 
   def insert(resource, params) do

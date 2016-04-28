@@ -111,6 +111,7 @@ defmodule ExAdmin.Index do
   import ExAdmin.Helpers
   import Kernel, except: [div: 2, to_string: 1]
   use Xain
+  alias ExAdmin.Schema
 
   @doc false
   defmacro __using__(_) do
@@ -364,6 +365,8 @@ defmodule ExAdmin.Index do
   @doc false
   def build_index_links(conn, resource, actions) do
     resource_model = resource.__struct__
+    base_class = "member_link"
+    id = ExAdmin.Schema.get_id(resource)
 
     links = case actions do
       [] -> [:show, :edit, :destroy]

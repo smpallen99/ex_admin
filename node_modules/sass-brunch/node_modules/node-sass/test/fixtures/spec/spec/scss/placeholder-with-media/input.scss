@@ -1,9 +1,0 @@
-%a {
-  @media only screen and (max-width: 100px) {
-    color: red;
-  }
-}
-
-b {
-  @extend %a;
-}
