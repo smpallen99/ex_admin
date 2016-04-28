@@ -1,5 +1,5 @@
 defmodule ExAdmin.Theme.AdminLte2.Layout do
-  import ExAdmin.Navigation 
+  import ExAdmin.Navigation
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
   use Xain
 
@@ -17,7 +17,7 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
     a_tag = content_tag :a, [icon, name_span], href: path
     if wrapper == :none do
       a_tag
-    else 
+    else
       content_tag wrapper, id: id, class: active_class  do
         a_tag
       end
@@ -47,7 +47,7 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
   def render_breadcrumbs([]), do: nil
   def render_breadcrumbs(list) do
     ol(".breadcrumb") do
-      Enum.each list, fn({link, name}) -> 
+      Enum.each list, fn({link, name}) ->
         li do
           a(name, href: link)
         end
@@ -58,6 +58,23 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
   def wrap_title_bar(fun) do
     section("#title_bar.content-header") do
       fun.()
+    end
+  end
+
+  def sidebar_view(conn, {name, opts, {mod, fun}}, resource) do
+    markup do
+      div ".box.box-primary" do
+        div ".box-header.with-border" do
+          h3 ".box-title #{name}"
+        end
+        div ".box-body" do
+          case apply mod, fun, [conn, resource] do
+            {_, rest} -> text rest
+            :ok       -> ""
+            other     -> text other
+          end
+        end
+      end
     end
   end
 end

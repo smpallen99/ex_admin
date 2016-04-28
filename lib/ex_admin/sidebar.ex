@@ -7,7 +7,7 @@ defmodule ExAdmin.Sidebar do
 
   def sidebars_visible?(_conn, %{sidebars: []}), do: false
   def sidebars_visible?(conn, %{sidebars: sidebars}) do
-    Enum.reduce sidebars, false, fn({_, opts, _}, acc) -> 
+    Enum.reduce sidebars, false, fn({_, opts, _}, acc) ->
       acc || visible?(conn, opts)
     end
   end
@@ -21,21 +21,8 @@ defmodule ExAdmin.Sidebar do
 
   defp _sidebar_view(conn, {name, opts, {mod, fun}}, resource) do
     if visible? conn, opts do
-      markup do 
-        # div "#filters_sidebar_sectionl.sidebar_section.panel" do
-        div ".box.box-primary" do
-          div ".box-header.with-border" do
-            h3 ".box-title #{name}"
-          end
-          div ".box-body" do
-            case apply mod, fun, [conn, resource] do
-              {_, rest} -> text rest
-              :ok       -> ""
-              other     -> text other
-            end
-          end
-        end
-      end
+      ExAdmin.Theme.Helpers.theme_module(conn, Layout).sidebar_view(
+        conn, {name, opts, {mod, fun}}, resource)
     else
       ""
     end
@@ -43,7 +30,7 @@ defmodule ExAdmin.Sidebar do
 
   def visible?(conn, opts) do
     Phoenix.Controller.action_name(conn)
-    |> _visible?(Enum.into opts, %{}) 
+    |> _visible?(Enum.into opts, %{})
   end
   def _visible?(action, %{only: only}) when is_atom(only) do
     if action == only, do: true, else: false
