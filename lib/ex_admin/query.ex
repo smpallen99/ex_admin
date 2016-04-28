@@ -6,7 +6,7 @@ defmodule ExAdmin.Query do
   # alias ExAdmin.Helpers
   import ExQueb
   alias ExAdmin.Schema
-  
+
   @doc false
   def get_scope(scopes, nil) do
     (Enum.find(scopes, fn({_, v}) -> v[:default] == true end) || hd(scopes)) |> elem(0)
@@ -41,16 +41,16 @@ defmodule ExAdmin.Query do
     |> filter(params)
     |> repo.paginate(params)
   end
-  defp paginate(query, repo, :nested, _params) do 
+  defp paginate(query, repo, :nested, _params) do
     apply repo, get_method(:nested), [query]
   end
-  defp paginate(query, repo, action, _) do 
+  defp paginate(query, repo, action, _) do
     apply repo, get_method(action), [query]
   end
 
-  defp get_method(:index), do: :all 
-  defp get_method(:csv), do: :all 
-  defp get_method(:nested), do: :all 
+  defp get_method(:index), do: :all
+  defp get_method(:csv), do: :all
+  defp get_method(:nested), do: :all
   defp get_method(_), do: :one
 
   defp build_query(%Ecto.Query{} = query, opts, action, id, defn) do
@@ -58,13 +58,13 @@ defmodule ExAdmin.Query do
     |> build_order_bys(opts, action, id)
     |> build_wheres(opts, action, id, defn)
   end
-  
+
   defp build_query(resource_model, opts, action, id, defn) do
     case get_from opts, action, :query do
       [] ->
         (from r in resource_model)
         |> build_query(opts, action, id, defn)
-      query -> 
+      query ->
         build_query(query, opts, action, id, defn)
     end
   end
@@ -117,7 +117,7 @@ defmodule ExAdmin.Query do
   defp build_wheres(query, _, _action, id, _defn) do
     {id, key} = case Schema.primary_key(query) do
       nil -> {:id, id}
-      key -> 
+      key ->
         if Schema.type(query, key) == :string, do: {"#{id}", key}, else: {id, key}
     end
     where(query, [c], field(c, ^key) == ^id)

@@ -31,9 +31,9 @@ defmodule ExAdmin.Table do
         table(border: "0", cellspacing: "0", cellpadding: "0") do
           tbody do
             for field_name <- Map.get(schema, :rows, []) do
-              build_field(resource, conn, field_name, fn(contents, f_name) -> 
+              build_field(resource, conn, field_name, fn(contents, f_name) ->
                 tr do
-                  field_header field_name 
+                  field_header field_name
                   handle_contents(contents, f_name)
                 end
               end)
@@ -64,16 +64,16 @@ defmodule ExAdmin.Table do
         model_name = get_resource_model resources
 
         Enum.with_index(resources)
-        |> Enum.map(fn({resource, inx}) -> 
+        |> Enum.map(fn({resource, inx}) ->
           odd_even = if Integer.is_even(inx), do: "even", else: "odd"
           tr(".#{odd_even}##{model_name}_#{inx}") do
             for field <- columns do
               case field do
-                {f_name, fun} when is_function(fun) -> 
-                  td ".#{f_name} #{fun.(resource)}"
-                {f_name, opts} -> 
-                  build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) -> 
-                    td ".#{f_name} #{contents}"
+                {f_name, fun} when is_function(fun) ->
+                  td ".#{parameterize f_name} #{fun.(resource)}"
+                {f_name, opts} ->
+                  build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) ->
+                    td ".#{parameterize f_name} #{contents}"
                   end)
               end
             end
@@ -83,7 +83,7 @@ defmodule ExAdmin.Table do
     end
   end
   defp do_panel(_conn, %{contents: %{contents: content}}) do
-    div do 
+    div do
       content |> elem(1) |> Xain.text
     end
   end
@@ -110,31 +110,31 @@ defmodule ExAdmin.Table do
     end
   end
 
-  def build_th({field_name, %{label: label} = opts}, table_opts) when is_atom(field_name) and is_binary(label), 
+  def build_th({field_name, %{label: label} = opts}, table_opts) when is_atom(field_name) and is_binary(label),
     do: build_th(label, opts, table_opts)
   def build_th({field_name, opts}, table_opts) when is_atom(field_name),
     do: build_th(Atom.to_string(field_name), opts, table_opts)
-  def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label), 
+  def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label),
     do: build_th(label, opts, table_opts)
-  def build_th({field_name, _opts}, _table_opts) when is_binary(field_name), 
-    do: th(".#{Inflex.parameterize field_name, "_"} #{field_name}")
+  def build_th({field_name, _opts}, _table_opts) when is_binary(field_name),
+    do: th(".#{parameterize field_name} #{field_name}")
   def build_th(field_name, _),
-    do: th(".#{field_name} #{humanize field_name}")
+    do: th(".#{parameterize field_name} #{humanize field_name}")
   def build_th(field_name, opts, %{fields: fields} = table_opts) do
     if String.to_atom(field_name) in fields and opts in [%{}, %{link: true}] do
       _build_th(field_name, opts, table_opts)
     else
-      th(".#{field_name} #{humanize field_name}") 
+      th(".#{parameterize field_name} #{humanize field_name}")
     end
   end
   def build_th(field_name, _, _) when is_binary(field_name) do
     th(class: to_class(field_name)) do
       text field_name
     end
-  end 
+  end
   def build_th(field_name, _, _), do: build_th(field_name, nil)
 
-  def _build_th(field_name, _opts, %{path_prefix: path_prefix, order: {name, sort}, 
+  def _build_th(field_name, _opts, %{path_prefix: path_prefix, order: {name, sort},
       fields: _fields} = table_opts) when field_name == name do
     link_order = if sort == "desc", do: "asc", else: "desc"
     page_segment = case Map.get table_opts, :page, nil do
@@ -142,8 +142,8 @@ defmodule ExAdmin.Table do
       page -> "&page=#{page.page_number}"
     end
     th(".sortable.sorted-#{sort}.#{field_name}") do
-      a("#{humanize field_name}", href: path_prefix <> 
-        field_name <> "_#{link_order}#{page_segment}" <> 
+      a("#{humanize field_name}", href: path_prefix <>
+        field_name <> "_#{link_order}#{page_segment}" <>
         Map.get(table_opts, :filter, ""))
     end
   end
@@ -154,8 +154,8 @@ defmodule ExAdmin.Table do
       page -> "&page=#{page.page_number}"
     end
     th(".sortable.#{field_name}") do
-      a("#{humanize field_name}", href: path_prefix <> 
-        field_name <> "_#{sort}#{page_segment}" <> 
+      a("#{humanize field_name}", href: path_prefix <>
+        field_name <> "_#{sort}#{page_segment}" <>
         Map.get(table_opts, :filter, ""))
     end
   end
