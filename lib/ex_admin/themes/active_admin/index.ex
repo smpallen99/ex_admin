@@ -7,6 +7,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
   require Integer
   import ExAdmin.Helpers
   require Logger
+  alias ExAdmin.Schema
 
   def wrap_index_grid(fun) do
     div ".box", style: "min-height: 400px" do
@@ -101,7 +102,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
 
   def handle_action_links(list, conn, resource)  do
     base_class = "member_link"
-    id = resource.id
+    id = Map.get(resource, Schema.primary_key(resource))
     list
     |> Enum.reduce([], fn(item, acc) ->
       link = case item do
@@ -191,7 +192,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
       Enum.with_index(resources)
       |> Enum.map(fn{resource, inx} ->
         odd_even = if Integer.is_even(inx), do: "even", else: "odd"
-        id = resource.id
+        id = Map.get(resource, Schema.primary_key(resource))
         tr(".#{odd_even}##{model_name}_#{id}") do
           if selectable do
             td(".selectable") do

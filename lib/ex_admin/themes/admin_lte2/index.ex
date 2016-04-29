@@ -1,11 +1,12 @@
 defmodule ExAdmin.Theme.AdminLte2.Index do
   import Kernel, except: [div: 2]
   import Xain
-  import ExAdmin.Utils 
+  import ExAdmin.Utils
   import ExAdmin.ViewHelpers
   import ExAdmin.Index
   require Integer
   import ExAdmin.Helpers
+  alias ExAdmin.Schema
 
   def wrap_index_grid(fun) do
     div ".box", style: "min-height: 400px" do
@@ -43,12 +44,12 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
     div ".box-body.table-responsive.no-padding" do
       div ".paginated_collection" do
         table(".table-striped.index.table.index_table") do
-          ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: opts[:href], 
+          ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: opts[:href],
             sort: "desc", order: order, fields: opts[:fields], page: page,
             filter: build_filter_href("", conn.params["q"]),
             selectable_column: selectable})
           build_table_body(conn, resources, columns, %{selectable_column: selectable})
-        end # table          
+        end # table
       end
     end
     do_footer(conn, opts)
@@ -63,9 +64,9 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
           div ".container-fluid" do
             col_width = Kernel.div 12, columns
             Enum.chunk(page.entries, columns, columns, [nil])
-            |> Enum.each(fn(list) -> 
-              div ".row" do 
-                Enum.each(list, fn(item) -> 
+            |> Enum.each(fn(list) ->
+              div ".row" do
+                Enum.each(list, fn(item) ->
                   div ".col-md-#{col_width}.col-sm-#{col_width * 2}.col-xs-12" do
                     if item do
                       opts[:cell].(item)
@@ -84,7 +85,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
   def do_footer(conn, opts) do
     page = opts[:page]
     div ".box-footer.clearfix" do
-      opts[:href] 
+      opts[:href]
       |> build_scope_href(conn.params["scope"])
       |> build_order_href(opts[:order])
       |> build_filter_href(conn.params["q"])
@@ -95,17 +96,17 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
 
   def handle_action_links(list, conn, resource)  do
     base_class = "member_link"
-    id = resource.id
+    id = Map.get(resource, Schema.primary_key(resource))
     list
-    |> Enum.reduce([], fn(item, acc) -> 
+    |> Enum.reduce([], fn(item, acc) ->
       link = case item do
-        :show -> 
+        :show ->
           a("View", href: get_route_path(conn, :show, id), class: base_class <> " view_link")
-        :edit -> 
+        :edit ->
           a("Edit", href: get_route_path(conn, :edit, id), class: base_class <> " edit_link")
-        :destroy -> 
-          a("Delete", href: get_route_path(conn, :delete, id), 
-              class: base_class <> " delete_link", "data-confirm": confirm_message, 
+        :destroy ->
+          a("Delete", href: get_route_path(conn, :delete, id),
+              class: base_class <> " delete_link", "data-confirm": confirm_message,
               "data-csrf": Plug.CSRFProtection.get_csrf_token,
               "data-method": :delete, rel: :nofollow )
       end
@@ -113,7 +114,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
     end)
     |> case do
       [] -> []
-      list -> 
+      list ->
         [{"Actions", list}]
     end
   end
@@ -186,10 +187,10 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
     selectable = Map.get opts, :selectable_column
 
     tbody do
-      Enum.with_index(resources) 
-      |> Enum.map(fn{resource, inx} -> 
+      Enum.with_index(resources)
+      |> Enum.map(fn{resource, inx} ->
         odd_even = if Integer.is_even(inx), do: "even", else: "odd"
-        id = resource.id
+        id = Map.get(resource, Schema.primary_key(resource))
         tr(".#{odd_even}##{model_name}_#{id}") do
           if selectable do
             td(".selectable") do
@@ -200,7 +201,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
             end
           end
           for field <- columns do
-            build_field(resource, conn, field, fn(contents, field_name) -> 
+            build_field(resource, conn, field, fn(contents, field_name) ->
               ExAdmin.Table.handle_contents(contents, field_name)
             end)
           end
