@@ -2,27 +2,27 @@ defmodule ExAdmin.Form do
   @moduledoc """
   Override the default new and edit form pages for an ExAdmin resource.
 
-  By default, ExAdmin renders the form page without any additional 
-  configuration. It renders each column in the model, except the id, 
-  inserted_at, and updated_at columns in an attributes table. 
+  By default, ExAdmin renders the form page without any additional
+  configuration. It renders each column in the model, except the id,
+  inserted_at, and updated_at columns in an attributes table.
 
-  To customize the new and edit pages, use the `form` macro. 
+  To customize the new and edit pages, use the `form` macro.
 
-  For example, the following will show on the id an name fields, as 
+  For example, the following will show on the id an name fields, as
   well place a selection column and batch actions row on the page:
 
       defmodule MyProject.ExAdmin.Contact do
         use ExAdmin.Register
 
         register_resource MyProject.Contact do
-          
+
           form contact do
             inputs do
               input contact, :first_name
-              input contact, :last_name 
+              input contact, :last_name
               input contact, :email
               input contact, :category, collection: MyProject.Category.all
-            end 
+            end
 
             inputs "Groups" do
               inputs :groups, as: :check_boxes, collection: MyProject.Group.all
@@ -38,18 +38,18 @@ defmodule ExAdmin.Form do
   ## The inputs command
 
   Calling inputs with a do block displays a field set with the specified inputs
-  from the block. 
+  from the block.
 
   Adding a label to inputs, labels the field set.
 
   ## The input command
 
-  The first argument is input is alway the resource name give to the form 
-  command. The second argument is the the field name expressed as an atom. 
+  The first argument is input is alway the resource name give to the form
+  command. The second argument is the the field name expressed as an atom.
   Optionally, a third argument can be a keyword list.
-   
+
   ### Override the default label
-      
+
       input resource, :name, label: "Customer Name"
 
   ### Specify a collection
@@ -68,13 +68,13 @@ defmodule ExAdmin.Form do
 
       input user, :start_at, options: [sec: []]
 
-  Most of the options from the `datetime_select` control from 
+  Most of the options from the `datetime_select` control from
   `phoenix_html` should work.
 
   ## Rendering a has_many relationship
 
-  The example at the beginning of the chapter illustrates how to add 
-  a list of roles, displaying them as check boxes. 
+  The example at the beginning of the chapter illustrates how to add
+  a list of roles, displaying them as check boxes.
 
       inputs "Groups" do
         inputs :groups, as: :check_boxes, collection: MyProject.Group.all
@@ -82,43 +82,43 @@ defmodule ExAdmin.Form do
 
   ## Nested attributes
 
-  ExAdmin supports in-line creation of a has_many relationship. The 
-  example below allows the user to add/delete phone numbers on the 
+  ExAdmin supports in-line creation of a has_many relationship. The
+  example below allows the user to add/delete phone numbers on the
   contact form using the has_many command.
 
       form contact do
         inputs do
           input contact, :first_name
-          input contact, :last_name 
+          input contact, :last_name
           input contact, :email
           input contact, :category, collection: UcxNotifier.Category.all
-        end 
+        end
 
         inputs "Phone Numbers" do
-          has_many contact, :phone_numbers, fn(p) -> 
+          has_many contact, :phone_numbers, fn(p) ->
             input p, :label, collection: PhoneNumber.labels
             input p, :number
           end
         end
       end
 
-  # Adding conditional fields  
+  # Adding conditional fields
 
-  The following complicated example illustrates a number of concepts 
-  possible in a form definition. The example allows management of an 
-  authentication token for a user while on the edit page. 
+  The following complicated example illustrates a number of concepts
+  possible in a form definition. The example allows management of an
+  authentication token for a user while on the edit page.
 
   First, the `if params[:id] do` condition ensures that the code block
-  only executes for an edit form, and not a new form. 
+  only executes for an edit form, and not a new form.
 
-  Next, the actions command adds in-line actions to an inputs block. 
+  Next, the actions command adds in-line actions to an inputs block.
   TODO: is this correct??
 
       form user do
         inputs "User Details" do
           input user, :name
           # ...
-        end 
+        end
 
         if params[:id] do
           inputs "Authentication Token" do
@@ -129,7 +129,7 @@ defmodule ExAdmin.Form do
                 content content_tag(:li, token_link("Reset Token", :reset, params[:id]), class: "cancel")
                 content content_tag(:li, token_link("Delete Token", :delete, params[:id]), class: "cancel")
               else
-                content content_tag(:li, token_link("Create Token", :create, params[:id]), 
+                content content_tag(:li, token_link("Create Token", :create, params[:id]),
                   class: "cancel", style: "padding-left: 20px")
               end
             end
@@ -139,10 +139,10 @@ defmodule ExAdmin.Form do
       end
 
   ## The javascript command
-  
-  Use the javascript command to add javascript to the form page. 
 
-  For example, the following adds a change handler to get a list of 
+  Use the javascript command to add javascript to the form page.
+
+  For example, the following adds a change handler to get a list of
   assets using an ajax call:
 
       javascript do
@@ -181,8 +181,8 @@ defmodule ExAdmin.Form do
   @doc """
   Customize the form page.
 
-  Use the form command to customize the new and edit page forms. Pass 
-  a name for the resource to be created or modified. 
+  Use the form command to customize the new and edit page forms. Pass
+  a name for the resource to be created or modified.
   """
   defmacro form(resource, [do: block]) do
     contents = quote do
@@ -190,10 +190,10 @@ defmodule ExAdmin.Form do
     end
 
     quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
-      def form_view(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do 
+      def form_view(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do
         import ExAdmin.Register, except: [actions: 1]
         # var!(query_options) = []
-        var!(input_blocks, ExAdmin.Form) = [] 
+        var!(input_blocks, ExAdmin.Form) = []
         var!(script_block, ExAdmin.Form) = nil
         unquote(contents)
         items = var!(input_blocks, ExAdmin.Form) |> Enum.reverse
@@ -201,18 +201,18 @@ defmodule ExAdmin.Form do
         ExAdmin.Form.build_form(var!(conn), var!(resource), items, var!(params), script_block)
       end
 
-      def get_blocks(var!(conn), unquote(resource) = var!(resource), var!(params) = _params) do 
-        # TODO: do we need the passed params? they are not used. 
+      def get_blocks(var!(conn), unquote(resource) = var!(resource), var!(params) = _params) do
+        # TODO: do we need the passed params? they are not used.
         _ = {var!(conn), var!(resource), var!(params)}
         import ExAdmin.Register, except: [actions: 1]
-        var!(input_blocks, ExAdmin.Form) = [] 
+        var!(input_blocks, ExAdmin.Form) = []
         var!(script_block, ExAdmin.Form) = nil
         unquote(contents)
         var!(input_blocks, ExAdmin.Form) |> Enum.reverse
       end
 
       def ajax_view(conn, params, resources, block) do
-        defn = ExAdmin.get_registered_by_controller_route(params[:resource]) 
+        defn = ExAdmin.get_registered_by_controller_route(params[:resource])
         resource = defn.resource_model.__struct__
         field_name = String.to_atom params[:field_name]
         model_name = model_name(resource)
@@ -242,7 +242,7 @@ defmodule ExAdmin.Form do
   defmacro inputs(name, opts, do: block) do
     quote location: :keep do
       import Xain, except: [input: 1]
-      # inputs_save = var!(inputs, ExAdmin.Form) 
+      # inputs_save = var!(inputs, ExAdmin.Form)
       var!(inputs, ExAdmin.Form) = []
       unquote(block)
       items = var!(inputs, ExAdmin.Form) |> Enum.reverse
@@ -254,14 +254,14 @@ defmodule ExAdmin.Form do
   end
 
   @doc """
-  Add a named fieldset to a form. 
+  Add a named fieldset to a form.
 
   Works the same as inputs/1, but labels the fieldset with name
   """
   defmacro inputs(name, do: block) do
     quote location: :keep do
       import Xain, except: [input: 1]
-      # inputs_save = var!(inputs, ExAdmin.Form) 
+      # inputs_save = var!(inputs, ExAdmin.Form)
       var!(inputs, ExAdmin.Form) = []
       unquote(block)
       items = var!(inputs, ExAdmin.Form) |> Enum.reverse
@@ -284,7 +284,7 @@ defmodule ExAdmin.Form do
   end
 
   @doc """
-  Display an input field on the form. 
+  Display an input field on the form.
 
   Display all types of form inputs.
 
@@ -297,7 +297,7 @@ defmodule ExAdmin.Form do
     * `:collection` - Sets the collection to render for a `belongs_to` relationship
 
     * `:fields` - Sets a list of fields to be used in a select control.
-      For example `input post :user, fields: [:first_name, :last_name]` 
+      For example `input post :user, fields: [:first_name, :last_name]`
       would render a control like:
 
           `<select>`
@@ -308,31 +308,31 @@ defmodule ExAdmin.Form do
     * `:prompt` - Sets a HTML placeholder
 
     * `:change` - Sets change handler to a control. When set to a string,
-      the string is assumed to be javascript and added with the control. 
-      When a keyword list, the list is used to define what should happen 
+      the string is assumed to be javascript and added with the control.
+      When a keyword list, the list is used to define what should happen
       when the input changes. See the section below on valid keywords.
 
     * `:ajax` - Used for ajax controls. See ajax below
 
     * `:display` - When set to false, the control and its label are
-      hidden with `style="display: none"`. Use this to hide inputs 
+      hidden with `style="display: none"`. Use this to hide inputs
       that will later be displayed with javascript or an ajax request
 
     * `:as` - Sets the type of collection. Valid options are:
-      * `:check_boxes` - Use check boxes 
+      * `:check_boxes` - Use check boxes
       * `:radio - Use radio buttons
 
   ## Ajax controls
 
-  Use the ajax: true, change: [...] do allow dynamic updating of 
-  nested collection inputs. 
+  Use the ajax: true, change: [...] do allow dynamic updating of
+  nested collection inputs.
 
-  For example, assume a page for purchasing 
-  a product, where the product has a number of options and each option 
-  has different possible color selections. 
+  For example, assume a page for purchasing
+  a product, where the product has a number of options and each option
+  has different possible color selections.
 
-  When option 1 is selected, they have the choice of red or black. If 
-  option 2 is selected, they have the choice of red or green. So, based 
+  When option 1 is selected, they have the choice of red or black. If
+  option 2 is selected, they have the choice of red or green. So, based
   on the option selected, the color select needs to be dynamically reloaded.
 
   TBD: Complete this
@@ -352,7 +352,7 @@ defmodule ExAdmin.Form do
   Display a nested resource on the form.
 
   Adds management of a has_many resource to the page, allowing in-line
-  addition, editing, and deletion of the nested resource. 
+  addition, editing, and deletion of the nested resource.
 
   """
   defmacro has_many(resource, name, opts \\ [], fun \\ nil) do
@@ -366,7 +366,7 @@ defmodule ExAdmin.Form do
   @doc """
   Add an action block to a form
 
-  TBD: Add more description here 
+  TBD: Add more description here
   """
   defmacro actions(do: block) do
     quote do
@@ -380,7 +380,7 @@ defmodule ExAdmin.Form do
   end
 
   @doc """
-  Add a HTML content block to a form 
+  Add a HTML content block to a form
 
   For example:
 
@@ -402,14 +402,14 @@ defmodule ExAdmin.Form do
   @doc """
   Add HTML content to a form.
 
-  Can be called multiple times to append HTML content for a page 
+  Can be called multiple times to append HTML content for a page
 
   For example:
 
       content content_tag(:li, user.authentication_token, style: "padding: 5px 10px")
       content content_tag(:li, token_link("Reset Token", :reset, params[:id]), class: "cancel")
       content content_tag(:li, token_link("Delete Token", :delete, params[:id]), class: "cancel")
-  
+
   """
   defmacro content(items, opts \\ quote(do: [])) do
     quote do
@@ -419,9 +419,9 @@ defmodule ExAdmin.Form do
   end
 
   @doc """
-  Add javascript to the form 
+  Add javascript to the form
 
-  Adds a block of javascript code to the form. Typically used to add 
+  Adds a block of javascript code to the form. Typically used to add
   change or click handlers to elements on the page
   """
   defmacro javascript(do: block) do
@@ -434,15 +434,15 @@ defmodule ExAdmin.Form do
   # Functions
 
   defp build_item(resource, defn, name) do
-    case translate_field defn, name do 
-      field when field == name -> 
+    case translate_field defn, name do
+      field when field == name ->
         %{type: :input, resource: resource, name: name, opts: %{}}
-      field -> 
+      field ->
         case resource.__struct__.__schema__(:association, field) do
-          %Ecto.Association.BelongsTo{cardinality: :one, queryable: assoc} -> 
+          %Ecto.Association.BelongsTo{cardinality: :one, queryable: assoc} ->
             collection = Application.get_env(:ex_admin, :repo).all assoc
             %{type: :input, resource: resource, name: field, opts: %{collection: collection}}
-          _ -> 
+          _ ->
             nil
         end
     end
@@ -455,16 +455,16 @@ defmodule ExAdmin.Form do
       model_name = model_name resource
       action = get_action(conn, resource, mode)
       # scripts = ""
-      Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "formtastic #{model_name}", 
+      Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "formtastic #{model_name}",
           id: "new_#{model_name}", method: :post, enctype: "multipart/form-data", novalidate: :novalidate  do
 
         resource = setup_resource(resource, params, model_name)
 
         build_hidden_block(conn, mode)
-        scripts = build_main_block(conn, resource, model_name, items) 
+        scripts = build_main_block(conn, resource, model_name, items)
         |> build_scripts
-        build_actions_block(conn, model_name, mode) 
-      end 
+        build_actions_block(conn, model_name, mode)
+      end
       put_script_block(scripts)
       put_script_block(script_block)
     end
@@ -474,7 +474,7 @@ defmodule ExAdmin.Form do
     model_name = String.to_atom(model_name)
     case params[model_name] do
       nil -> resource
-      model_params -> 
+      model_params ->
         struct(resource, Map.to_list(model_params))
     end
   end
@@ -505,10 +505,10 @@ defmodule ExAdmin.Form do
   defp build_script(_other), do: ""
 
   defp get_action(conn, resource, mode) do
-    case mode do 
-      :new -> 
+    case mode do
+      :new ->
         get_route_path(conn, :create)
-      :edit -> 
+      :edit ->
         get_route_path(conn, :update, ExAdmin.Schema.get_id(resource))
     end
   end
@@ -553,25 +553,25 @@ defmodule ExAdmin.Form do
 
   defp params_name(resource, field_name, _params) do
     case resource.__struct__.__schema__(:association, field_name) do
-      %{cardinality: :one, owner_key: owner_key} -> 
+      %{cardinality: :one, owner_key: owner_key} ->
         Atom.to_string(owner_key)
-      %{cardinality: :many, owner_key: owner_key, through: [_, name]} -> 
+      %{cardinality: :many, owner_key: owner_key, through: [_, name]} ->
         Atom.to_string(name) <> "_" <> Inflex.pluralize(Atom.to_string(owner_key))
-      _ -> 
+      _ ->
         Atom.to_string(field_name)
     end
   end
 
   @doc false
   def wrap_item(resource, field_name, model_name, label, error, opts, params, contents) do
-    as = Map.get opts, :as 
+    as = Map.get opts, :as
     ajax = Map.get opts, :ajax
     ext_name = ext_name(model_name, field_name)
-    
+
     display_style = check_display(opts)
     |> check_params(resource, params, model_name, field_name, ajax)
-   
-    {label, hidden}  = case label do 
+
+    {label, hidden}  = case label do
       {:hidden, l} -> {l, @hidden_style}
       l when l in [:none, false] ->  {"", @hidden_style}
       l -> {l, display_style}
@@ -627,9 +627,9 @@ defmodule ExAdmin.Form do
           {value, name} -> {value, name}
           other -> {other, other}
         end
-        selected = if Map.get(resource, field_name) == value, 
+        selected = if Map.get(resource, field_name) == value,
           do: [selected: :selected], else: []
-        option(name, [value: value] ++ selected) 
+        option(name, [value: value] ++ selected)
       end
     end
   end
@@ -637,12 +637,12 @@ defmodule ExAdmin.Form do
 
   @doc false
   def build_item(_conn, %{type: :script, contents: contents}, _resource, _model_name, _errors) do
-    script type: "javascript" do 
+    script type: "javascript" do
       text "\n" <> contents <> "\n"
     end
   end
 
-  def build_item(conn, %{type: :input, name: field_name, resource: ________resource, 
+  def build_item(conn, %{type: :input, name: field_name, resource: ________resource,
        opts: %{collection: collection}} = item, resource, model_name, errors) do
 
     if is_function(collection) do
@@ -662,19 +662,19 @@ defmodule ExAdmin.Form do
 
     binary_tuple = binary_tuple?(collection)
 
-    id = wrap_item(resource, field_name, model_name, label, errors, item[:opts], conn.params, fn(ext_name) -> 
+    id = wrap_item(resource, field_name, model_name, label, errors, item[:opts], conn.params, fn(ext_name) ->
       item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
       if binary_tuple do
-        build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) 
+        build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name)
       else
         input_collection(resource, collection, model_name, field_name, nil, nil, item, conn.params)
       end
       build_errors(errors)
-    end)  
+    end)
     value = case onchange do
-      script when is_binary(script) -> 
+      script when is_binary(script) ->
         {:change, %{id: id <> "_id", script: onchange}}
-      list when is_list(list) -> 
+      list when is_list(list) ->
         update = Keyword.get(list, :update)
         params = Keyword.get(list, :params)
         if update do
@@ -682,10 +682,10 @@ defmodule ExAdmin.Form do
           target = pluralize(field_name)
           nested = pluralize(update)
 
-          # TODO: Need to fix this by looking it up 
+          # TODO: Need to fix this by looking it up
           resource_name = pluralize model_name
 
-          {extra, param_str} = 
+          {extra, param_str} =
           case params do
             atom when is_atom(atom) -> extra_javascript(model_name, atom, atom)
             [{param, attr}]         -> extra_javascript(model_name, param, attr)
@@ -693,8 +693,8 @@ defmodule ExAdmin.Form do
           end
 
           control_id = "#{model_name}_#{update}_input"
-          script = "$('##{control_id}').show();\n" <> 
-                   extra <> 
+          script = "$('##{control_id}').show();\n" <>
+                   extra <>
                    "console.log('show #{control_id}');\n" <>
                    "$.get('/admin/#{resource_name}/#{target}/'+$(this).val()+'/#{nested}/?field_name=#{update}#{param_str}&format=js');\n"
 
@@ -720,17 +720,17 @@ defmodule ExAdmin.Form do
     text elem(content, 1)
   end
 
-  def build_item(conn, %{type: :input, resource: _resource, name: field_name, opts: opts}, 
+  def build_item(conn, %{type: :input, resource: _resource, name: field_name, opts: opts},
        resource, model_name, errors) do
     errors = get_errors(errors, field_name)
     label = get_label(field_name, opts)
-    wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, fn(ext_name) -> 
+    wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, fn(ext_name) ->
       resource.__struct__.__schema__(:type, field_name)
-      |> build_control(resource, opts, model_name, field_name, ext_name, errors) 
+      |> build_control(resource, opts, model_name, field_name, ext_name, errors)
     end)
   end
 
-  def build_item(conn, %{type: :has_many, resource: _resource, name: field_name, 
+  def build_item(conn, %{type: :has_many, resource: _resource, name: field_name,
       opts: %{fun: fun}}, resource, model_name, errors) do
     field_field_name = "#{field_name}_attributes"
     human_label = "#{humanize(field_name) |> Inflex.singularize}"
@@ -739,16 +739,16 @@ defmodule ExAdmin.Form do
       new_record_name_var = new_record_name field_name
       h3 human_label
       li ".input" do
-        get_resource_field2(resource, field_name) 
+        get_resource_field2(resource, field_name)
         |> Enum.with_index
-        |> Enum.each(fn({res, inx}) -> 
+        |> Enum.each(fn({res, inx}) ->
           fields = fun.(res) |> Enum.reverse
           ext_name = "#{model_name}_#{field_field_name}_#{inx}"
 
           new_inx = build_has_many_fieldset(conn, res, fields, inx, ext_name, field_field_name, model_name, errors)
           res_id = ExAdmin.Schema.get_id(res)
-          
-          Xain.input [id: "#{ext_name}_id", 
+
+          Xain.input [id: "#{ext_name}_id",
             name: "#{model_name}[#{field_field_name}][#{new_inx}][id]",
             value: "#{res_id}", type: :hidden]
         end)
@@ -767,7 +767,7 @@ defmodule ExAdmin.Form do
   @doc """
   Handle building an inputs :name, as: ...
   """
-  def build_item(conn, %{type: :inputs, name: name, opts: %{collection: collection}}, 
+  def build_item(conn, %{type: :inputs, name: name, opts: %{collection: collection}},
       resource, model_name, errors) when is_atom(name) do
 
     if is_function(collection) do
@@ -800,7 +800,7 @@ defmodule ExAdmin.Form do
     opts = Map.get(item, :opts, [])
 
     fieldset(".inputs", opts) do
-      build_fieldset_legend(item[:name]) 
+      build_fieldset_legend(item[:name])
       ol do
         ret = for inpt <- item[:inputs] do
           build_item(conn, inpt, resource, model_name, errors)
@@ -810,10 +810,10 @@ defmodule ExAdmin.Form do
     ret
   end
 
-  @doc false 
+  @doc false
   def build_control(:boolean, resource, opts, model_name, field_name, ext_name, errors) do
     Xain.input type: :hidden, value: "false", name: "#{model_name}[#{field_name}]"
-    if Map.get(resource, field_name) do 
+    if Map.get(resource, field_name) do
       Map.put_new(opts, :checked, "checked")
     else
       opts
@@ -895,8 +895,8 @@ defmodule ExAdmin.Form do
 
   defp date_builder(b, _opts) do
     b.(:year, [])
-    text(" / ") 
-    b.(:month, []) 
+    text(" / ")
+    b.(:month, [])
     text(" / ")
     b.(:day, [])
   end
@@ -924,11 +924,11 @@ defmodule ExAdmin.Form do
 
   defp time_builder(b, opts) do
     b.(:hour, [])
-    text(" : ") 
+    text(" : ")
     b.(:min, [])
 
     if Keyword.get(opts, :sec) do
-      text(" : ") 
+      text(" : ")
       b.(:sec, [])
     end
   end
@@ -1004,7 +1004,7 @@ defmodule ExAdmin.Form do
 
   defp build_select(_name, _type, value, opts) do
     value = if Range.range? value do
-      Enum.map value, fn(x) -> 
+      Enum.map value, fn(x) ->
         val = Integer.to_string x
         {val,val}
       end
@@ -1013,7 +1013,7 @@ defmodule ExAdmin.Form do
     end
     select "", opts do
       current_value = "#{opts[:value]}"
-      Enum.each value, fn({k,v}) -> 
+      Enum.each value, fn({k,v}) ->
         selected = if v == current_value, do: [selected: "selected"], else: []
         option k, [{:value, v}| selected]
       end
@@ -1050,9 +1050,9 @@ defmodule ExAdmin.Form do
   @doc false
   def build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_field_name, model_name, errors) do
     inx = cond do
-      is_nil(res) -> orig_inx 
+      is_nil(res) -> orig_inx
       Schema.get_id(res) ->  orig_inx
-      true -> timestamp   # case when we have errors. need to remap the inx 
+      true -> timestamp   # case when we have errors. need to remap the inx
     end
 
     fieldset ".inputs.has_many_fields" do
@@ -1063,7 +1063,7 @@ defmodule ExAdmin.Form do
         li [id: "#{base_id}_input", class: "boolean input optional"] do
           name = "#{base_name}[_destroy]"
           Xain.input type: :hidden, value: "0", name: name
-          label for: base_id do 
+          label for: base_id do
             Xain.input type: :checkbox, id: "#{base_id}", name: name, value: "1"
             text "Remove"
           end
@@ -1075,8 +1075,8 @@ defmodule ExAdmin.Form do
           errors = get_errors(errors, "#{model_name}[#{field_field_name}][#{orig_inx}][#{f_name}]")
           error = if errors in [nil, [], false], do: "", else: ".error"
           case field[:opts] do
-            %{collection: collection} -> 
-              is_function(collection) do
+            %{collection: collection} ->
+              if is_function(collection) do
                 collection = collection.(conn, res)
               end
               li ".select.input.required#{error}", [id: "#{ext_name}_label_input"] do
@@ -1094,13 +1094,13 @@ defmodule ExAdmin.Form do
                 end
                 build_errors(errors)
               end
-            _ -> 
+            _ ->
               li ".string.input.required.stringish#{error}", id: "#{ext_name}_#{f_name}_input"  do
                 label ".label #{humanize f_name}", for: "#{ext_name}_#{f_name}" do
                   abbr "*", title: "required"
                 end
                 val = if res, do: [value: Map.get(res, f_name, "") |> escape_value], else: []
-                Xain.input([type: :text, maxlength: "255", id: "#{ext_name}_#{f_name}", 
+                Xain.input([type: :text, maxlength: "255", id: "#{ext_name}_#{f_name}",
                   name: name] ++ val)
                 build_errors(errors)
               end
@@ -1108,7 +1108,7 @@ defmodule ExAdmin.Form do
         end
         unless res do
           li do
-            a ".button Delete", href: "#", 
+            a ".button Delete", href: "#",
               onclick: ~S|$(this).closest(\".has_many_fields\").remove(); return false;|
           end
         end
@@ -1120,13 +1120,13 @@ defmodule ExAdmin.Form do
   @doc false
   def get_label(field_name, opts) do
     cond do
-      Map.get(opts, :type) in ["hidden", :hidden] -> 
+      Map.get(opts, :type) in ["hidden", :hidden] ->
         :none
-      Map.get(opts, :display) -> 
+      Map.get(opts, :display) ->
         {:hidden, Map.get(opts, :label, field_name) }
-      Map.get(opts, :ajax) -> 
+      Map.get(opts, :ajax) ->
         {:ajax, Map.get(opts, :label, field_name)}
-      true -> 
+      true ->
         Map.get opts, :label, field_name
     end
   end
@@ -1163,11 +1163,11 @@ defmodule ExAdmin.Form do
 
   @doc false
   def build_field_errors(conn, field_name) do
-    conn.private 
+    conn.private
     |> Map.get(:phoenix_flash, %{})
     |> Map.get("inline_error", [])
     |> get_errors(field_name)
-    |> Enum.reduce("", fn(error, acc) -> 
+    |> Enum.reduce("", fn(error, acc) ->
       acc <> """
       <p class="inline-errors">#{error_messages error}</p>
       """
@@ -1176,11 +1176,11 @@ defmodule ExAdmin.Form do
 
   @doc false
   def default_form_view(conn, resource, params) do
-    [_, res | _] = conn.path_info 
+    [_, res | _] = conn.path_info
     case ExAdmin.get_registered_by_controller_route(res) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      %{__struct__: _} = defn -> 
+      %{__struct__: _} = defn ->
         columns = defn.resource_model.__schema__(:fields)
         |> Enum.filter(&(not &1 in [:id, :inserted_at, :updated_at]))
         |> Enum.map(&(build_item resource, defn, &1))
@@ -1207,7 +1207,7 @@ defmodule ExAdmin.Form do
   #   get_errors errors, String.to_atom(field_name)
   # end
   def get_errors(errors, field_name) do
-    Enum.reduce errors, [], fn({k, v}, acc) -> 
+    Enum.reduce errors, [], fn({k, v}, acc) ->
       if k == field_name, do: [v | acc], else: acc
     end
   end
