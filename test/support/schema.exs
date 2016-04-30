@@ -20,11 +20,20 @@ end
 
 defmodule TestExAdmin.Product do
   use Ecto.Schema
+  import Ecto.Changeset
 
   schema "products" do
     field :title, :string
     field :price, :decimal
     belongs_to :user, TestExAdmin.User
+  end
+
+  @required_fields ~w(title price)
+  @optional_fields ~w(user_id)
+
+  def changeset(model, params \\ :empty) do
+    model
+    |> cast(params, @required_fields, @optional_fields)
   end
 end
 

@@ -2,6 +2,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Layout do
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
   import ExAdmin.Navigation
   import ExAdmin.ViewHelpers
+  require Logger
   use Xain
 
   def link_to_active(conn, name, path, id, _opts \\ []) do

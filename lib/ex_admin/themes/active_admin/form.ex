@@ -7,6 +7,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   require Integer
   require Logger
   import ExAdmin.Helpers
+  alias ExAdmin.Schema
 
   @doc false
   def build_form(conn, resource, items, params, script_block) do
@@ -102,5 +103,122 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
 
   def build_form_error(error) do
     p ".inline-errors #{error_messages error}"
+  end
+
+  def build_inputs_collection(model_name, name, name_ids, fun) do
+    fieldset(".inputs") do
+      ol do
+        li ".select.input.optional##{model_name}_#{name}_input" do
+          label ".label #{humanize name}", for: "#{model_name}_#{name_ids}"
+          fun.()
+        end
+      end
+    end
+  end
+
+  def build_inputs_has_many(field_name, human_label, fun) do
+    li ".input" do
+      res = fun.()
+    end
+    res
+  end
+
+  def has_many_insert_item(html, new_record_name_var) do
+    ~s|$(this).siblings("li.input").append("#{html}".replace(/#{new_record_name_var}/g,| <>
+      ~s|new Date().getTime())); return false;|
+  end
+
+  def form_box(_item, _opts, fun) do
+    fun.()
+  end
+
+  # def theme_has_many_fieldset(base_name, base_id, name) do
+  #   fieldset ".inputs.has_many_fields" do
+  #     ol do
+  #       li [id: "#{base_id}_input", class: "boolean input optional"] do
+  #         name = "#{base_name}[_destroy]"
+  #         Xain.input type: :hidden, value: "0", name: name
+  #         label for: base_id do
+  #           Xain.input type: :checkbox, id: "#{base_id}", name: name, value: "1"
+  #           text "Remove"
+  #         end
+  #       end
+
+  # end
+
+  # TODO: Refactor some of this back into ExAdmin.Form
+  def theme_build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_name, field_field_name, model_name, errors) do
+    inx = cond do
+      is_nil(res) -> orig_inx
+      Schema.get_id(res) ->  orig_inx
+      true -> timestamp   # case when we have errors. need to remap the inx
+    end
+
+    fieldset ".inputs.has_many_fields" do
+      ol do
+        humanize(field_name) |> Inflex.singularize |> h3
+
+        # build the destroy field
+        base_name = "#{model_name}[#{field_field_name}][#{inx}]"
+        base_id = "#{ext_name}__destroy"
+        li [id: "#{base_id}_input", class: "boolean input optional"] do
+          name = "#{base_name}[_destroy]"
+          Xain.input type: :hidden, value: "0", name: name
+          label for: base_id do
+            Xain.input type: :checkbox, id: "#{base_id}", name: name, value: "1"
+            text "Remove"
+          end
+        end
+
+        for field <- fields do
+          f_name = field[:name]
+          name = "#{base_name}[#{f_name}]"
+          errors = get_errors(errors, "#{model_name}[#{field_field_name}][#{orig_inx}][#{f_name}]")
+          error = if errors in [nil, [], false], do: "", else: ".error"
+          case field[:opts] do
+            %{collection: collection} ->
+              if is_function(collection) do
+                collection = collection.(conn, res)
+              end
+              li ".select.input.required#{error}", [id: "#{ext_name}_label_input"] do
+                label ".label #{humanize f_name}", for: "#{ext_name}_#{f_name}" do
+                  abbr "*", title: "required"
+                end
+                select "##{ext_name}_#{f_name}", [name: name ] do
+                  for opt <- collection do
+                    if not is_nil(res) and (Map.get(res, f_name) == opt) do
+                      option "#{opt}", [value: escape_value(opt), selected: :selected]
+                    else
+                      option "#{opt}", [value: escape_value(opt)]
+                    end
+                  end
+                end
+                build_errors(errors)
+              end
+            _ ->
+              li ".string.input.required.stringish#{error}", id: "#{ext_name}_#{f_name}_input"  do
+                label ".label #{humanize f_name}", for: "#{ext_name}_#{f_name}" do
+                  abbr "*", title: "required"
+                end
+                val = if res, do: [value: Map.get(res, f_name, "") |> escape_value], else: []
+                Xain.input([type: :text, maxlength: "255", id: "#{ext_name}_#{f_name}",
+                  name: name] ++ val)
+                build_errors(errors)
+              end
+          end
+        end
+        unless res do
+          li do
+            a ".button Delete", href: "#",
+              onclick: ~S|$(this).closest(\".has_many_fields\").remove(); return false;|
+          end
+        end
+      end
+    end
+    inx
+  end
+
+  def theme_button(content, attrs) do
+    a ".button#{content}", attrs
   end
 end
