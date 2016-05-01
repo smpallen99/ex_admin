@@ -26,6 +26,15 @@ defmodule ExAdmin.Filter do
     end
   end
 
+  def fields(%{index_filters: [[{:except, except_filters}]]} = defn) do
+    for field <- defn.resource_model.__schema__(:fields) -- [:id | except_filters] do
+      {field, defn.resource_model.__schema__(:type, field)}
+    end
+  end
+
+  def fields(%{index_filters: [[{:only, filters}]]} = defn),
+    do: fields(Map.put(defn, :index_filters, [filters]))
+
   def fields(%{index_filters: [filters]} = defn) do
     for field <- filters do
       {field, defn.resource_model.__schema__(:type, field)}
