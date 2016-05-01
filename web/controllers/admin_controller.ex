@@ -230,7 +230,6 @@ defmodule ExAdmin.AdminController do
     registered = get_registered_by_controller_route!(params[:resource], conn)
     case registered do
       defn ->
-        IO.inspect defn
         model = defn.__struct__
         resource_model = model.__struct__.resource_model
         |> base_name |> String.downcase |> String.to_atom
