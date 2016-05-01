@@ -146,7 +146,7 @@ defmodule ExAdmin.Table do
       nil -> ""
       page -> "&page=#{page.page_number}"
     end
-    th(".sortable.#{field_name}") do
+    th(".sortable.th-#{field_name}") do
       a("#{humanize field_name}", href: path_prefix <>
         field_name <> "_#{sort}#{page_segment}" <>
         Map.get(table_opts, :filter, ""))

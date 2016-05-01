@@ -836,7 +836,8 @@ defmodule ExAdmin.Form do
     builder =
       Keyword.get(opts, :builder) || fn b ->
         date_builder(b, opts)
-        text " &mdash; "
+        span ".date-time-separator"
+        # text " &mdash; "
         time_builder(b, opts)
       end
 
@@ -851,9 +852,9 @@ defmodule ExAdmin.Form do
 
   defp date_builder(b, _opts) do
     b.(:year, [])
-    text(" / ")
+    span(".date-separator")
     b.(:month, [])
-    text(" / ")
+    span(".date-separator")
     b.(:day, [])
   end
 
@@ -880,11 +881,13 @@ defmodule ExAdmin.Form do
 
   defp time_builder(b, opts) do
     b.(:hour, [])
-    text(" : ")
+    span ".time-separator"
+    # text(" : ")
     b.(:min, [])
 
     if Keyword.get(opts, :sec) do
-      text(" : ")
+      span ".time-separator"
+      # text(" : ")
       b.(:sec, [])
     end
   end
@@ -967,7 +970,7 @@ defmodule ExAdmin.Form do
     else
       value
     end
-    select "", [{:class, "form-control"} |opts] do
+    select "", [{:class, "form-control date-time"} |opts] do
       current_value = "#{opts[:value]}"
       Enum.each value, fn({k,v}) ->
         selected = if v == current_value, do: [selected: "selected"], else: []
