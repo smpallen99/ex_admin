@@ -2440,4 +2440,25 @@ body {
   padding: 0;
   color: #323537; }
 
+.form-control.date-time {
+  display: inline;
+  width: initial;
+}
+
+.date-separator:before {
+  content: "/";
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.time-separator:before {
+  content: ":";
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.date-time-separator:before {
+  content: "\2014";
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
 /*# sourceMappingURL=active_admin.css.css.map */

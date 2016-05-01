@@ -120,7 +120,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
 
   def build_field({name, :boolean}, q, _) do
     name_field = "#{name}_eq"
-    opts = [id: "q_#{name}", name: "q[#{name_field}]", type: :checkbox, value: "true", class: "form-control"]
+    opts = [id: "q_#{name}", name: "q[#{name_field}]", type: :checkbox, value: "true"]
     new_opts = if q do
       if Map.get(q, name_field, nil), do: [{:checked, :checked} | opts], else: opts
     else
