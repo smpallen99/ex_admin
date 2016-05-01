@@ -94,13 +94,13 @@ Start the application with `iex -S mix phoenix.server`
 
 Visit http://localhost:4000/admin
 
-You should be the default Dashboard page.
+You should see the default Dashboard page.
 
 ## Getting Started
 
 ### Adding an Ecto Model to ExAdmin
 
-To add a model, use `admin.gen.resource model` mix task
+To add a model, use `admin.gen.resource` mix task:
 
 ```
 mix admin.gen.resource MyModel
@@ -122,11 +122,11 @@ config :ex_admin,
 
 Start the phoenix server again and browse to `http://localhost:4000/admin/my_model`
 
-You can now list/add/edit/and delete MyModels
+You can now list/add/edit/and delete `MyModel`s.
 
 ### Customizing the index page
 
-Use the index do command to define the fields to be displayed.
+Use the `index do` command to define the fields to be displayed.
 
 admin/my_model.ex
 ```elixir
@@ -147,7 +147,7 @@ end
 
 ### Customizing the form
 
-The following example shows...
+The following example shows how to customize the form with the `form` macro:
 
 ```
 defmodule MyProject.ExAdmin.Contact do
