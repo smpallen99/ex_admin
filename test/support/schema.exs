@@ -79,7 +79,7 @@ end
 defmodule TestExAdmin.Noid do
   use Ecto.Model
   @primary_key {:name, :string, []}
-  @derive {Phoenix.Param, key: :name}
+  # @derive {Phoenix.Param, key: :name}
   schema "noids" do
     field :description, :string
     field :company, :string

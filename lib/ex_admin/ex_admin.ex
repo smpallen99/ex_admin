@@ -155,9 +155,13 @@ defmodule ExAdmin do
   end
 
   @doc false
-  def get_registered_by_controller_route!(name) do
+  def get_registered_by_controller_route!(name, conn \\ %Plug.Conn{}) do
     res = get_registered_by_controller_route(name)
-    if res == %{}, do: throw("Unknown Resource"), else: res
+    if res == %{} do
+      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
+    else
+      res
+    end
   end
 
   @doc false

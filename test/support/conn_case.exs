@@ -27,6 +27,7 @@ defmodule TestExAdmin.ConnCase do
 
       import TestExAdmin.Router.Helpers
       import TestExAdmin.TestHelpers
+      import TestExAdmin.ErrorView
       import ExAdmin.Utils
 
       # The default endpoint for testing

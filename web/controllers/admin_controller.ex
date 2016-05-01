@@ -37,9 +37,7 @@ defmodule ExAdmin.AdminController do
   defp handle_action(conn, action, resource) do
     conn = scrub_params(conn, resource, action)
     params = filter_params(conn.params)
-    case get_registered_by_controller_route(resource) do
-      nil ->
-        throw :invalid_route
+    case get_registered_by_controller_route!(resource, conn) do
       %{__struct__: _} = defn ->
         conn
         |> handle_plugs(action, defn)
@@ -115,10 +113,8 @@ defmodule ExAdmin.AdminController do
 
   def index(conn, params) do
     require Logger
-    defn = get_registered_by_controller_route(params[:resource])
+    defn = get_registered_by_controller_route!(params[:resource], conn)
     {contents, page, scope_counts} = case defn do
-      nil ->
-        throw :invalid_route
       %{type: :page} = defn ->
         {defn.__struct__ |> apply(:page_view, [conn]), nil, []}
       defn ->
@@ -143,10 +139,8 @@ defmodule ExAdmin.AdminController do
   end
 
   def show(conn, params) do
-
-    {contents, resource, defn} = case get_registered_by_controller_route(params[:resource]) do
-      nil ->
-        throw :invalid_route
+    registered = get_registered_by_controller_route!(params[:resource], conn)
+    {contents, resource, defn} = case registered do
       defn ->
         model = defn.__struct__
 
@@ -161,6 +155,11 @@ defmodule ExAdmin.AdminController do
         else
           model.run_query(repo, defn, :show, params[:id])
         end
+
+        if resource == nil do
+          raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
+        end
+
         if function_exported? model, :show_view, 2 do
           {apply(model, :show_view, [conn, resource]), resource, defn}
         else
@@ -171,12 +170,16 @@ defmodule ExAdmin.AdminController do
   end
 
   def edit(conn, params) do
-    {contents, resource, defn} = case get_registered_by_controller_route(params[:resource]) do
-      nil ->
-        throw :invalid_route
+    registered = get_registered_by_controller_route!(params[:resource], conn)
+    {contents, resource, defn} = case registered do
       defn ->
         model = defn.__struct__
         resource = model.run_query(repo, defn, :edit, params[:id])
+
+        if resource == nil do
+          raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
+        end
+
         if function_exported? model, :form_view, 3 do
           {apply(model, :form_view, [conn, resource, params]), resource, defn}
         else
@@ -187,9 +190,8 @@ defmodule ExAdmin.AdminController do
   end
 
   def new(conn, params) do
-    {contents, resource, defn} = case get_registered_by_controller_route(params[:resource]) do
-      nil ->
-        throw :invalid_route
+    registered = get_registered_by_controller_route!(params[:resource], conn)
+    {contents, resource, defn} = case registered do
       defn ->
         model = defn.__struct__
         resource = model.__struct__.resource_model.__struct__
@@ -207,9 +209,8 @@ defmodule ExAdmin.AdminController do
   end
 
   def create(conn, params) do
-    case get_registered_by_controller_route(params[:resource]) do
-      nil ->
-        throw :invalid_route
+    registered = get_registered_by_controller_route!(params[:resource], conn)
+    case registered do
       defn ->
         model = defn.__struct__
         resource = model.__struct__.resource_model.__struct__
@@ -231,14 +232,18 @@ defmodule ExAdmin.AdminController do
   end
 
   def update(conn, params) do
-    case get_registered_by_controller_route(params[:resource]) do
-      nil ->
-        throw :invalid_route
+    registered = get_registered_by_controller_route!(params[:resource], conn)
+    case registered do
       defn ->
         model = defn.__struct__
         resource_model = model.__struct__.resource_model
         |> base_name |> String.downcase |> String.to_atom
         resource = model.run_query(repo, defn, :edit, params[:id])
+
+        if resource == nil do
+          raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
+        end
+
         changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
         changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
         if changeset.valid? do
@@ -254,25 +259,30 @@ defmodule ExAdmin.AdminController do
   end
 
   def destroy(conn, params) do
-    resource_model =
-    case get_registered_by_controller_route(params[:resource]) do
-      nil ->
-        throw :invalid_route
-      defn ->
-        model = defn.__struct__
-        resource_model = model.__struct__.resource_model
-        |> base_name |> String.downcase |> String.to_atom
+    registered = get_registered_by_controller_route!(params[:resource], conn)
 
-        model.run_query(repo, defn, :edit, params[:id])
-        |> ExAdmin.Repo.delete(params[resource_model])
-        base_name model
-    end
+    resource_model =
+      case registered do
+        defn ->
+          model = defn.__struct__
+          resource_model = model.__struct__.resource_model
+          |> base_name |> String.downcase |> String.to_atom
+
+          resource = model.run_query(repo, defn, :edit, params[:id])
+
+          if resource == nil do
+            raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
+          end
+
+          ExAdmin.Repo.delete(resource, params[resource_model])
+          base_name model
+      end
     put_flash(conn, :notice, "#{resource_model} was successfully destroyed.")
     |> redirect(to: get_route_path(conn, :index))
   end
 
   def batch_action(conn, %{batch_action: "destroy"} = params) do
-    defn = get_registered_by_controller_route!(params[:resource])
+    defn = get_registered_by_controller_route!(params[:resource], conn)
 
     model = defn.__struct__
     resource_model = model.__struct__.resource_model
@@ -303,9 +313,8 @@ defmodule ExAdmin.AdminController do
   end
 
   def csv(conn, params) do
-    case get_registered_by_controller_route(params[:resource]) do
-      nil ->
-        throw :invalid_route
+    registered = get_registered_by_controller_route!(params[:resource], conn)
+    case registered do
       defn ->
         model = defn.__struct__
 
@@ -325,20 +334,20 @@ defmodule ExAdmin.AdminController do
   @nested_key_list for i <- 1..5, do: {String.to_atom("nested#{i}"), String.to_atom("id#{i}")}
 
   def nested(conn, params) do
-    contents = case get_registered_by_controller_route(params[:resource]) do
-      nil ->
-        throw :invalid_route
-      defn ->
-        model = defn.__struct__
+    registered = get_registered_by_controller_route!(params[:resource], conn)
+    contents =
+      case registered do
+        defn ->
+          model = defn.__struct__
 
-        items = apply(model, :get_blocks, [conn, defn.resource_model.__struct__, params])
-        block = deep_find(items, String.to_atom(params[:field_name]))
+          items = apply(model, :get_blocks, [conn, defn.resource_model.__struct__, params])
+          block = deep_find(items, String.to_atom(params[:field_name]))
 
-        resources = block[:opts][:collection].(conn, defn.resource_model.__struct__)
+          resources = block[:opts][:collection].(conn, defn.resource_model.__struct__)
 
-        contents = apply(model, :ajax_view, [conn, params, resources, block])
-        contents
-    end
+          contents = apply(model, :ajax_view, [conn, params, resources, block])
+          contents
+      end
     send_resp(conn, conn.status || 200, "text/javascript", contents)
   end
 
