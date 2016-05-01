@@ -1,7 +1,7 @@
 defmodule ExAdmin.AdminLte2.LayoutView do
   require Logger
   import ExAdmin.ViewHelpers
-  # import ExAdmin.Authentication
+  import ExAdmin.Authentication
   import Kernel, except: [div: 2]
   import Xain, except: [tag: 1, tag: 2]
   alias ExAdmin.Utils
