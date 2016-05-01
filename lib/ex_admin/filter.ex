@@ -3,8 +3,8 @@ defmodule ExAdmin.Filter do
   @moduledoc false
   require Logger
   require Ecto.Query
-  import ExAdmin.Utils
   import ExAdmin.Theme.Helpers
+  # import ExAdmin.Utils
   use Xain
 
   @integer_options [eq: "Equal To", gt: "Greater Than", lt: "Less Than" ]

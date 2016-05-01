@@ -79,7 +79,7 @@ div#titlebar_right {
 .btn-cancel {
   margin-left: 8px;
 }
-td.actions a {
+td.td-actions a {
   margin-right: 5px;
   text-decoration: underline;
 }

@@ -1,4 +1,3 @@
-<% theme = "themes/" <> assigns.theme.name %>
 <!DOCTYPE html>
 <html lang="en">
   <head>

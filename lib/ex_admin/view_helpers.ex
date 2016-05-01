@@ -2,7 +2,6 @@ defmodule ExAdmin.ViewHelpers do
   @moduledoc false
   use Xain
   import ExAdmin.Utils
-  import ExAdmin.Theme.Helpers
   require Logger
 
   @endpoint Application.get_env(:ex_admin, :endpoint)
@@ -65,12 +64,9 @@ defmodule ExAdmin.ViewHelpers do
     span ".status_tag.#{status} #{status}"
   end
 
-
   def build_link(action, opts, html_opts \\ [])
   def build_link(_action, opts, _) when opts in [nil, []], do: ""
-  def build_link(action, [{name, opts} | _], html_opts) do
-    require Logger
-    Logger.warn "build_link: action: #{inspect action}, name: #{inspect name}, #{inspect opts}"
+  def build_link(_action, [{name, opts} | _], html_opts) do
     attrs = Enum.reduce(opts ++ html_opts, "", fn({k,v}, acc) ->
       acc <> "#{k}='#{v}' "
     end)

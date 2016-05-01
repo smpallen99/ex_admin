@@ -1,5 +1,4 @@
 defmodule ExAdmin.Theme.AdminLte2.Paginate do
-  import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
   import ExAdmin.Paginate
   use Xain
 
@@ -21,19 +20,19 @@ defmodule ExAdmin.Theme.AdminLte2.Paginate do
   end
   def build_item(_, {:gap, _}) do
     li ".page.gap" do
-      span do 
+      span do
         text " ..."
       end
     end
   end
-  
+
   def build_item(link, {item, num}) when item in [:first, :prev, :next, :last] do
     li do
       a "#{special_name item}", href: "#{link}&page=#{num}"
     end
   end
 
-  def build_item(link, {item, num}) do
+  def build_item(link, {_item, num}) do
     li do
       a "#{num}", href: "#{link}&page=#{num}"
     end

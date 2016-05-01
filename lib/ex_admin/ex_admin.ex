@@ -1,12 +1,12 @@
 defmodule ExAdmin do
   @moduledoc """
-  ExAdmin is a an auto administration tool for the PhoenixFramework, 
+  ExAdmin is a an auto administration tool for the PhoenixFramework,
   providing a quick way to create a CRUD interface for administering
-  Ecto models with little code and the ability to customize the 
-  interface if desired. 
+  Ecto models with little code and the ability to customize the
+  interface if desired.
 
-  After creating one or more Ecto models, the administration tool can 
-  be used by creating a resource model for each model. The basic 
+  After creating one or more Ecto models, the administration tool can
+  be used by creating a resource model for each model. The basic
   resource file for model ... looks like this:
 
       # web/admin/my_model.ex
@@ -23,7 +23,7 @@ defmodule ExAdmin do
       mix admin.gen.resource MyModel
 
   ExAdmin adds a menu item for the model in the admin interface, along
-  with the ability to index, add, edit, show and delete instances of 
+  with the ability to index, add, edit, show and delete instances of
   the model.
 
   Many of the pages in the admin interface can be customized for each
@@ -39,7 +39,7 @@ defmodule ExAdmin do
 
   ### Map Type
 
-  By default, ExAdmin used Poison.encode! to encode `Map` type. To change the 
+  By default, ExAdmin used Poison.encode! to encode `Map` type. To change the
   decoding, add override the protocol. For Example:
 
       defimpl ExAdmin.Render, for: Map do
@@ -49,12 +49,12 @@ defmodule ExAdmin do
         end
       end
 
-  As well as handling the encoding to display the data, you will need to handle 
+  As well as handling the encoding to display the data, you will need to handle
   the params decoding for the `:create` and `:modify` actions. You have a couple
   options for handling this.
 
   * In your changeset, you can update the params field with the decoded value
-  * Add a controller `before_filter` in your admin resource file. 
+  * Add a controller `before_filter` in your admin resource file.
 
   For example:
 
@@ -73,7 +73,7 @@ defmodule ExAdmin do
 
   ## Other Types
 
-  To support other Ecto Types, implement the ExAdmin.Render protocol for the 
+  To support other Ecto Types, implement the ExAdmin.Render protocol for the
   desired type. Here is an example from the ExAdmin code for the `Ecto.Date` type:
 
       defimpl ExAdmin.Render, for: Ecto.Date do
@@ -88,7 +88,7 @@ defmodule ExAdmin do
   import ExAdmin.Utils, only: [base_name: 1, titleize: 1, humanize: 1]
   require ExAdmin.Register
 
-  @filename "/tmp/ex_admin_registered" 
+  @filename "/tmp/ex_admin_registered"
   Code.ensure_compiled ExAdmin.Register
 
   Module.register_attribute __MODULE__, :registered, accumulate: true, persist: true
@@ -104,11 +104,11 @@ defmodule ExAdmin do
 
   # check for old xain.after_callback format and issue a compile time
   # exception if not configured correctly.
-  
+
   case Application.get_env :xain, :after_callback do
     nil -> nil
     {_, _} -> nil
-    _ -> 
+    _ ->
       raise ExAdmin.CompileError, message: "Invalid xain_callback in config. Use {Phoenix.HTML, :raw}"
   end
 
@@ -126,17 +126,17 @@ defmodule ExAdmin do
   end
 
   @doc false
-  def get_all_registered do 
+  def get_all_registered do
     for reg <- registered do
       case get_registered_resource(reg) do
-        %{resource_model: rm} = item -> 
+        %{resource_model: rm} = item ->
           {rm, item}
-        %{type: :page} = item -> 
+        %{type: :page} = item ->
           {nil, item}
       end
     end
   end
-  
+
   @doc false
   def get_registered_resource(name) do
     apply(name, :__struct__, [])
@@ -156,7 +156,7 @@ defmodule ExAdmin do
 
   @doc false
   def get_registered_by_controller_route!(name) do
-    res = get_registered_by_controller_route(name) 
+    res = get_registered_by_controller_route(name)
     if res == %{}, do: throw("Unknown Resource"), else: res
   end
 
@@ -184,7 +184,7 @@ defmodule ExAdmin do
   end
   @doc false
   def get_controller_path(resource_model) when is_atom(resource_model) do
-    get_all_registered 
+    get_all_registered
     |> Keyword.get(resource_model, %{})
     |> Map.get(:controller_route)
   end
@@ -199,9 +199,9 @@ defmodule ExAdmin do
   @doc false
   def get_title_actions(name) do
     case get_registered(name) do
-      nil -> 
+      nil ->
         &__MODULE__.default_page_title_actions/2
-      %{title_actions: actions} -> 
+      %{title_actions: actions} ->
         actions
     end
   end
@@ -209,9 +209,9 @@ defmodule ExAdmin do
   @doc false
   def get_name_from_controller(controller) when is_atom(controller) do
     get_all_registered
-    |> Enum.find_value(fn({name, %{controller: c_name}}) -> 
-      if c_name == controller, do: name 
-    end) 
+    |> Enum.find_value(fn({name, %{controller: c_name}}) ->
+      if c_name == controller, do: name
+    end)
   end
 
   @doc false
@@ -220,20 +220,20 @@ defmodule ExAdmin do
     singular = ExAdmin.Utils.displayable_name_singular(conn) |> titleize
     actions = defn.actions
     case Utils.action_name(conn) do
-      :show -> 
+      :show ->
         id = Map.get(params, "id")
-        for action <- [:edit, :new, :delete], 
+        for action <- [:edit, :new, :delete],
           do: {action, action_button(conn, defn, singular, :show, action, actions, id)}
         # id = Map.get(params, "id")
         # div(".action_items") do
-        #   for action <- [:edit, :new, :delete], 
+        #   for action <- [:edit, :new, :delete],
         #     do: action_button(conn, defn, singular, :show, action, actions, id)
         # end
-        
-      action when action in [:index, :edit] -> 
+
+      action when action in [:index, :edit] ->
         [{action, action_button(conn, defn, singular, action, :new, actions)}]
 
-      _ -> 
+      _ ->
         []
         # div(".action_items")
     end
@@ -242,8 +242,6 @@ defmodule ExAdmin do
 
   @doc false
   def default_page_title_actions(_conn, _) do
-    "<div class='action_items'></div>"
-    # div(".action_items")
     []
   end
 
@@ -251,26 +249,26 @@ defmodule ExAdmin do
   Get current theme name
   """
 
-  def theme do 
+  def theme do
     Application.get_env(:ex_admin, :theme, @default_theme)
   end
 
   # def theme_model, do: theme.__struct__
 
   def theme_name(conn) do
-    conn.assigns.theme.name 
+    conn.assigns.theme.name
   end
 
   defp action_button(conn, defn, name, page, action, actions, id \\ nil) do
     if action in actions do
       if ExAdmin.Utils.authorized_action?(conn, action, defn) do
         [action_link(conn, name, action, id)]
-      else 
+      else
         []
       end
     else
       []
-    end ++ 
+    end ++
     if button = get_custom_action(page, actions) do
       {fun, _} = Code.eval_quoted button, [id: id], __ENV__
       if is_function(fun, 1), do: [text(fun.(id) |> elem(1))], else: []
@@ -280,7 +278,7 @@ defmodule ExAdmin do
 
   @doc false
   def get_custom_action(action, actions) do
-    Enum.find_value actions, fn(x) -> 
+    Enum.find_value actions, fn(x) ->
       case x do
         nil -> nil
         {^action, val} -> val
@@ -290,13 +288,13 @@ defmodule ExAdmin do
   end
 
   defp action_link(conn, name, :delete, id) do
-    {button_name(name, :delete), 
+    {button_name(name, :delete),
       [href: ExAdmin.Utils.get_route_path(conn, :delete, id),
-        "data-confirm": Utils.confirm_message, 
+        "data-confirm": Utils.confirm_message,
         "data-csrf": Plug.CSRFProtection.get_csrf_token,
         "data-method": :delete, rel: :nofollow]}
     # a(href: ExAdmin.Utils.get_route_path(conn, :delete, id),
-    #     "data-confirm": Utils.confirm_message, 
+    #     "data-confirm": Utils.confirm_message,
     #     "data-csrf": Plug.CSRFProtection.get_csrf_token,
     #     "data-method": :delete, rel: :nofollow ) do
     #   button_name(name, :delete)
@@ -319,7 +317,7 @@ defmodule ExAdmin do
 
   @doc false
   def has_action?(conn, defn, action) do
-    if ExAdmin.Utils.authorized_action?(conn, action, defn), 
+    if ExAdmin.Utils.authorized_action?(conn, action, defn),
       do: _has_action?(defn, action), else: false
   end
 

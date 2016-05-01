@@ -2,7 +2,6 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
   import Kernel, except: [div: 2]
   import Xain
   import ExAdmin.Utils
-  import ExAdmin.ViewHelpers
   import ExAdmin.Index
   require Integer
   import ExAdmin.Helpers
@@ -150,19 +149,13 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
             end
             if scopes != [] do
               current_scope = ExAdmin.Query.get_scope scopes, conn.params["scope"]
-              #ul ".scopes.table_tools_segmented_control", style: "width: calc((100% - 10px) - 108px); float: right;" do
               div ".btn-group", style: "width: calc((100% - 10px) - 108px); float: right;" do
                 for {name, _opts} <- scopes do
                   count = scope_counts[name]
-                  selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
-                  # li ".scope.#{name}#{selected}" do
-                    a ".table_tools_button.btn-sm.btn.btn-default", href: get_route_path(conn, :index) <> "?scope=#{name}" do
-                      # button type: :button, class: "btn btn-default" do
-                        text ExAdmin.Utils.humanize("#{name} ")
-                        span ".badge.bg-blue #{count}"
-                      # end
-                    end
-                  # end
+                  a ".table_tools_button.btn-sm.btn.btn-default", href: get_route_path(conn, :index) <> "?scope=#{name}" do
+                    text ExAdmin.Utils.humanize("#{name} ")
+                    span ".badge.bg-blue #{count}"
+                  end
                 end
               end
             end

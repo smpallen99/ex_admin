@@ -2,7 +2,6 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   import Kernel, except: [div: 2]
   import Xain
   import ExAdmin.Utils
-  import ExAdmin.ViewHelpers
   import ExAdmin.Form
   require Integer
   require Logger
@@ -92,14 +91,6 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
     end
   end
 
-  def build_actions_block(conn, model_name, mode) do
-    display_name = ExAdmin.Utils.displayable_name_singular conn
-    label = if mode == :new, do: "Create", else: "Update"
-    div ".box-footer" do
-      Xain.input ".btn.btn-primary", name: "commit", type: :submit, value: escape_value("#{label} #{humanize display_name}")
-      a(".btn.btn-default.btn-cancel Cancel", href: get_route_path(conn, :index))
-    end
-  end
 
   def build_form_error(error) do
     p ".inline-errors #{error_messages error}"
@@ -116,7 +107,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
     end
   end
 
-  def build_inputs_has_many(field_name, human_label, fun) do
+  def build_inputs_has_many(_field_name, _human_label, fun) do
     li ".input" do
       res = fun.()
     end
@@ -131,20 +122,6 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   def form_box(_item, _opts, fun) do
     fun.()
   end
-
-  # def theme_has_many_fieldset(base_name, base_id, name) do
-  #   fieldset ".inputs.has_many_fields" do
-  #     ol do
-  #       li [id: "#{base_id}_input", class: "boolean input optional"] do
-  #         name = "#{base_name}[_destroy]"
-  #         Xain.input type: :hidden, value: "0", name: name
-  #         label for: base_id do
-  #           Xain.input type: :checkbox, id: "#{base_id}", name: name, value: "1"
-  #           text "Remove"
-  #         end
-  #       end
-
-  # end
 
   # TODO: Refactor some of this back into ExAdmin.Form
   def theme_build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_name, field_field_name, model_name, errors) do
@@ -220,5 +197,21 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
 
   def theme_button(content, attrs) do
     a ".button#{content}", attrs
+  end
+
+  def collection_check_box name, name_str, _id, selected do
+    checked = if selected, do: [checked: :checked], else: []
+    li ".checkbox" do
+      label do
+        input [type: :checkbox, name: name_str ] ++ checked
+        text name
+      end
+    end
+  end
+
+  def wrap_collection_check_boxes fun do
+    ol do
+      fun.()
+    end
   end
 end

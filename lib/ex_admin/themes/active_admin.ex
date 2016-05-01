@@ -1,7 +1,7 @@
 defmodule ExAdmin.Theme.ActiveAdmin do
   use Xain
   import ExAdmin.Utils
-  import ExAdmin.ViewHelpers
+  # import ExAdmin.ViewHelpers
 
   @name "active_admin"
 
@@ -31,12 +31,4 @@ defmodule ExAdmin.Theme.ActiveAdmin do
       contents.(ext_name)
     end
   end
-end
-
-defimpl ExAdmin.Theme, for: ExAdmin.Theme.ActiveAdmin do
-  alias ExAdmin.Theme
-  use Xain
-  import ExAdmin.Utils
-  import ExAdmin.ViewHelpers
-
 end

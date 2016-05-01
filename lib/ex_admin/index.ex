@@ -111,7 +111,7 @@ defmodule ExAdmin.Index do
   import ExAdmin.Helpers
   import Kernel, except: [div: 2, to_string: 1]
   use Xain
-  alias ExAdmin.Schema
+  # alias ExAdmin.Schema
 
   @doc false
   defmacro __using__(_) do
@@ -257,7 +257,6 @@ defmodule ExAdmin.Index do
     name = resource_model(conn) |> titleize |> Inflex.pluralize
     defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
     label = get_resource_label(conn) |> Inflex.pluralize
-    count = page.total_entries
 
     opts = %{
       columns: Map.get(page_opts, :columns, 3),
@@ -298,7 +297,6 @@ defmodule ExAdmin.Index do
     page = opts[:page]
     actions = opts[:actions]
     opts = Map.put(opts, :fields, get_resource_fields page.entries)
-    selectable = opts[:selectable_column] and opts[:batch_actions]
     columns = page_opts[:column_list]
     columns = unless Enum.any? columns, &((elem &1, 0) == "Actions") or is_nil(actions) do
       columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
@@ -365,8 +363,6 @@ defmodule ExAdmin.Index do
   @doc false
   def build_index_links(conn, resource, actions) do
     resource_model = resource.__struct__
-    base_class = "member_link"
-    id = ExAdmin.Schema.get_id(resource)
 
     links = case actions do
       [] -> [:show, :edit, :destroy]

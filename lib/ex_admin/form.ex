@@ -163,7 +163,6 @@ defmodule ExAdmin.Form do
   import ExAdmin.Form.Fields
   import ExAdmin.ViewHelpers, only: [escape_javascript: 1]
   require IEx
-  alias ExAdmin.Theme
   import ExAdmin.Theme.Helpers
   alias ExAdmin.Schema
 
@@ -195,7 +194,7 @@ defmodule ExAdmin.Form do
     quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
       def form_view(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do
         import ExAdmin.Register, except: [actions: 1]
-        # var!(query_options) = []
+
         var!(input_blocks, ExAdmin.Form) = []
         var!(script_block, ExAdmin.Form) = nil
         unquote(contents)
@@ -478,7 +477,6 @@ defmodule ExAdmin.Form do
   end
 
   def build_script({:change, %{id: id, script: script}}) do
-    # $('##{id}').change(function() {
     """
     $(document).on('change','##{id}', function() {
       #{script}
@@ -525,8 +523,8 @@ defmodule ExAdmin.Form do
   defp check_display(opts) do
     if Map.get(opts, :display, true), do: [], else: @hidden_style
   end
+
   defp check_params(display_style, resource, params, model_name, field_name, _ajax) do
-    # field_name_str = Atom.to_string(field_name)
     cond do
       params["id"] -> []
       params[model_name][params_name(resource, field_name, params)] -> []
@@ -557,7 +555,6 @@ defmodule ExAdmin.Form do
 
     display_style = check_display(opts)
     |> check_params(resource, params, model_name, field_name, ajax)
-    # Logger.warn "wrap item 1. ... display_style: #{inspect display_style}"
 
     {label, hidden}  = case label do
       {:hidden, l} -> {l, @hidden_style}
@@ -600,10 +597,9 @@ defmodule ExAdmin.Form do
     end
   end
 
-  def build_item(conn, %{type: :input, name: field_name, resource: ________resource,
+  def build_item(conn, %{type: :input, name: field_name, resource: _resource,
        opts: %{collection: collection}} = item, resource, model_name, errors) do
 
-Logger.warn "6. ..."
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
@@ -613,11 +609,11 @@ Logger.warn "6. ..."
     else
       field_name
     end
+
     errors = get_errors(errors, errors_field_name)
 
     label = Map.get item[:opts], :label, field_name
     onchange = Map.get item[:opts], :change
-    # ajax = Map.get item[:opts], :ajax
 
     binary_tuple = binary_tuple?(collection)
 
@@ -630,6 +626,7 @@ Logger.warn "6. ..."
       end
       build_errors(errors)
     end)
+
     value = case onchange do
       script when is_binary(script) ->
         {:change, %{id: id <> "_id", script: onchange}}
@@ -637,7 +634,7 @@ Logger.warn "6. ..."
         update = Keyword.get(list, :update)
         params = Keyword.get(list, :params)
         if update do
-          # TODO: Use route builder for this
+          route_path = get_route_path(resource, :index)
           target = pluralize(field_name)
           nested = pluralize(update)
 
@@ -655,7 +652,7 @@ Logger.warn "6. ..."
           script = "$('##{control_id}').show();\n" <>
                    extra <>
                    "console.log('show #{control_id}');\n" <>
-                   "$.get('/admin/#{resource_name}/#{target}/'+$(this).val()+'/#{nested}/?field_name=#{update}#{param_str}&format=js');\n"
+                   "$.get('#{route_path}/#{target}/'+$(this).val()+'/#{nested}/?field_name=#{update}#{param_str}&format=js');\n"
 
           {:change, %{id: id <> "_id", script: script}}
         end
@@ -665,7 +662,6 @@ Logger.warn "6. ..."
   end
 
   def build_item(conn, %{type: :actions, items: items}, resource, model_name, errors) do
-Logger.warn "5. ..."
     fieldset ".actions" do
       for i <- items do
         build_item(conn, i, resource, model_name, errors)
@@ -674,20 +670,15 @@ Logger.warn "5. ..."
   end
 
   def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors) when is_binary(content) do
-Logger.warn "10. ..."
     text content
   end
   def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors) do
-Logger.warn "11. ..."
     text elem(content, 1)
   end
 
   def build_item(conn, %{type: :input, resource: _resource, name: field_name, opts: opts},
        resource, model_name, errors) do
-Logger.warn "4. ..."
-    Logger.warn "errors: #{inspect errors}"
     errors = get_errors(errors, field_name)
-    Logger.warn "errors: #{inspect errors}"
     label = get_label(field_name, opts)
     wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, fn(ext_name) ->
       resource.__struct__.__schema__(:type, field_name)
@@ -700,11 +691,8 @@ Logger.warn "4. ..."
     field_field_name = "#{field_name}_attributes"
     human_label = "#{humanize(field_name) |> Inflex.singularize}"
     new_record_name_var = new_record_name field_name
-Logger.warn "3. ..."
     div ".has_many.#{field_name}" do
-      # h3 human_label
       {_, html} = theme_module(conn, Form).build_inputs_has_many field_name, human_label, fn ->
-      # li ".input" do
         get_resource_field2(resource, field_name)
         |> Enum.with_index
         |> Enum.each(fn({res, inx}) ->
@@ -725,9 +713,7 @@ Logger.warn "3. ..."
         end
       end
       {_, onclick} = Phoenix.HTML.html_escape  theme_module(conn, Form).has_many_insert_item(html, new_record_name_var)
-      # Logger.warn "onclick: #{onclick}"
       theme_module(conn, Form).theme_button ".btn-primary Add New #{human_label}", href: "#", onclick: onclick
-      # a ".button Add New #{human_label}", href: "#", onclick: onclick
     end
   end
 
@@ -737,7 +723,6 @@ Logger.warn "3. ..."
   def build_item(conn, %{type: :inputs, name: name, opts: %{collection: collection} = opts},
       resource, model_name, errors) when is_atom(name) do
 
-Logger.warn "2. ............. builditem"
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
@@ -746,9 +731,17 @@ Logger.warn "2. ............. builditem"
     assoc_ids = Enum.map(get_resource_field2(resource, name), &(Schema.get_id(&1)))
     name_str = "#{model_name}[#{name_ids}][]"
     theme_module(conn, Form).build_inputs_collection model_name, name, name_ids, fn ->
-      # wrap_item(resource, name, model_name, label, errors, opts, conn.params, fn(ext_name) ->
-        Xain.input name: name_str, type: "hidden", value: ""
-        # label ".label #{humanize name}", for: "#{model_name}_#{name_ids}"
+      Xain.input name: name_str, type: "hidden", value: ""
+      if opts[:as] == :check_boxes do
+        theme_module(conn, Form).wrap_collection_check_boxes fn ->
+          for opt <- collection do
+            opt_id = Schema.get_id(opt)
+            name_str = "#{model_name}[#{name_ids}][#{opt_id}]"
+            selected = opt_id in assoc_ids
+            theme_module(conn, Form).collection_check_box opt.name, name_str, opt_id, selected
+          end
+        end
+      else
         select id: "#{model_name}_#{name_ids}", class: "form-control", multiple: "multiple", name: name_str do
           for opt <- collection do
             opt_id = Schema.get_id(opt)
@@ -756,16 +749,14 @@ Logger.warn "2. ............. builditem"
             option "#{opt.name}", [value: "#{opt_id}"] ++ selected
           end
         end
-        build_errors(errors)
-      # end)
+      end
+      build_errors(errors)
     end
   end
 
   @doc false
-  def build_item(conn, %{type: :inputs, name: field_name} = item, resource, model_name, errors) do
-Logger.warn "12. ... name: #{item[:name]}, otps: #{inspect item[:opts]}"
+  def build_item(conn, %{type: :inputs, name: _field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
-    # label = get_label(field_name, opts)
     theme_module(conn, Form).form_box item, opts, fn ->
       theme_module(conn, Form).theme_build_inputs item, opts, fn ->
         for inpt <- item[:inputs] do
@@ -809,7 +800,6 @@ Logger.warn "12. ... name: #{item[:name]}, otps: #{inspect item[:opts]}"
   end
 
   def build_control(:text, resource, opts, model_name, field_name, ext_name, errors) do
-    # Logger.debug "build_control type: #{inspect _type}"
     value = Map.get(resource, field_name, "") |> escape_value
     options = opts
     |> Map.put(:class, "form-control")
@@ -822,7 +812,6 @@ Logger.warn "12. ... name: #{item[:name]}, otps: #{inspect item[:opts]}"
   end
 
   def build_control(type, resource, opts, model_name, field_name, ext_name, errors) do
-    # Logger.debug "build_control res: #{inspect resource}, name: #{inspect field_name} type: #{inspect _type}"
     {field_type, value} = if type |> Kernel.to_string |> String.ends_with?(".Type") do
       {:file, Map.get(resource, field_name, "")[:file_name]}
     else

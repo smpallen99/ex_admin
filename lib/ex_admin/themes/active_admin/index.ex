@@ -2,7 +2,6 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
   import Kernel, except: [div: 2]
   import Xain
   import ExAdmin.Utils
-  import ExAdmin.ViewHelpers
   import ExAdmin.Index
   require Integer
   import ExAdmin.Helpers
@@ -66,7 +65,6 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
             table(".index_grid", border: "0", cellspacing: "0",
                 cellpadding: "0", paginator: "true") do
               tbody do
-                col_width = Kernel.div 12, columns
                 Enum.chunk(page.entries, columns, columns, [nil])
                 |> Enum.each(fn(list) ->
                   tr do

@@ -4,20 +4,19 @@ defmodule ExAdmin.Navigation do
   import ExAdmin.Utils
   import ExAdmin.Theme.Helpers
   use Xain
-  import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
 
   def nav_view(conn, opts \\ []) do
-    registered = ExAdmin.get_all_registered 
+    registered = ExAdmin.get_all_registered
     |> Enum.map(fn({_, resource}) -> resource end)
     |> Enum.filter(fn(%{menu: menu}) -> menu[:none] != true end)
-    |> Enum.filter(fn(%{menu: menu} = defn) -> 
+    |> Enum.filter(fn(%{menu: menu} = defn) ->
       case menu[:if] do
         nil -> true
         fun when is_function(fun, 2) -> fun.(conn, defn)
         fun -> fun.(conn)
       end
     end)
-    |> Enum.sort(fn(%{menu: menu1}, %{menu: menu2}) -> 
+    |> Enum.sort(fn(%{menu: menu1}, %{menu: menu2}) ->
       menu1[:priority] < menu2[:priority]
     end)
 
@@ -33,7 +32,7 @@ defmodule ExAdmin.Navigation do
     menu = Map.get registered, :menu, %{}
     name = Map.get menu, :label, (controller_name |> titleize |> Inflex.pluralize)
 
-    theme_module(conn, Layout).link_to_active conn, 
+    theme_module(conn, Layout).link_to_active conn,
       name, path, (Inflex.parameterize(controller_name, "_") |> Inflex.pluralize), opts
   end
   def nav_link(conn, %{controller: controller, resource_model: resource_model} = registered, opts) do
@@ -41,7 +40,7 @@ defmodule ExAdmin.Navigation do
     path = get_route_path(resource_model, :index)
     menu = Map.get registered, :menu, %{}
     name = Map.get menu, :label, (controller_name |> titleize |> Inflex.pluralize)
-    theme_module(conn, Layout).link_to_active conn, 
+    theme_module(conn, Layout).link_to_active conn,
       name, path, (Inflex.parameterize(controller_name, "_") |> Inflex.pluralize), opts
   end
 

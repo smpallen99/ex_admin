@@ -1,5 +1,4 @@
 defmodule ExAdmin.Theme.ActiveAdmin.Paginate do
-  import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
   import ExAdmin.Paginate
   use Xain
 
@@ -22,7 +21,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Paginate do
       text "... "
     end
   end
-  
+
   def build_item(link, {item, num}) when item in [:first, :prev, :next, :last] do
     span ".#{item}" do
       a "#{special_name item}", href: "#{link}&page=#{num}"

@@ -16,16 +16,11 @@ defmodule ExAdmin.ActiveAdmin.LayoutView do
   use Phoenix.View, root: file_path
   # use Phoenix.View, root: "web/templates"
 
-  # Import convenience functions from controllers
-  import Phoenix.Controller, only: [view_module: 1]
-
   # Use all HTML functionality (forms, tags, etc)
   use Phoenix.HTML
 
-  import ExAdmin.Router.Helpers
   #import ExAuth
   import ExAdmin.ViewHelpers
-  import ExAdmin.LayoutView, only: [site_title: 0, check_for_sidebars: 3, admin_static_path: 2]
 
 
   def any_actions?([]), do: false
@@ -42,7 +37,7 @@ defmodule ExAdmin.ActiveAdmin.LayoutView do
       _ -> nil
     end
     if icon do
-      [{"<i class='fa #{icon}'></i><span>#{name}</span>", opts} | tail] 
+      [{"<i class='fa #{icon}'></i><span>#{name}</span>", opts} | tail]
     else
       opts_arg
     end
@@ -60,8 +55,8 @@ defmodule ExAdmin.ActiveAdmin.LayoutView do
             |> String.upcase
             |> text
           end
-          span do 
-            text Utils.humanize(name) <> " " 
+          span do
+            text Utils.humanize(name) <> " "
             span ".badge.badge-xs.bg-blue #{count}", style: "margin-top: -2px"
           end
         end
@@ -69,8 +64,8 @@ defmodule ExAdmin.ActiveAdmin.LayoutView do
     end
   end
 
-  def build_scopes(conn, []), do: ""
-  def build_scopes(conn, nil), do: ""
+  def build_scopes(_conn, []), do: ""
+  def build_scopes(_conn, nil), do: ""
   def build_scopes(conn, scope_counts) do
     # require Logger
     # Logger.warn "scope_counts: #{inspect scope_counts}"
@@ -98,11 +93,11 @@ defmodule ExAdmin.ActiveAdmin.LayoutView do
   end
   def flashes(conn) do
     markup do
-      messages = Enum.reduce [:notice, :error], [], fn(which, acc) -> 
+      messages = Enum.reduce [:notice, :error], [], fn(which, acc) ->
         acc ++ get_flash(conn, which)
       end
       unless messages == [] do
-        Enum.each messages, fn({which, message}) -> 
+        Enum.each messages, fn({which, message}) ->
           flash message, which
           # div(".flash.flash_#{which} #{flash}")
         end

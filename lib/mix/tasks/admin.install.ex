@@ -173,42 +173,42 @@ defmodule Mix.Tasks.Admin.Install do
     base_path
   end
 
-  defp copy_file(base_path, path, file_name) do
-    File.cp Path.join([get_package_path, base_path, path, file_name]),
-            Path.join([File.cwd!, base_path, path, file_name])
-    base_path
-  end
+  # defp copy_file(base_path, path, file_name) do
+  #   File.cp Path.join([get_package_path, base_path, path, file_name]),
+  #           Path.join([File.cwd!, base_path, path, file_name])
+  #   base_path
+  # end
 
-  defp copy_vendor_file(base_path, path, file_name) do
-    File.cp Path.join([get_package_path, "web", "static", "vendor", file_name]),
-            Path.join([File.cwd!, base_path, path, file_name])
-    base_path
-  end
+  # defp copy_vendor_file(base_path, path, file_name) do
+  #   File.cp Path.join([get_package_path, "web", "static", "vendor", file_name]),
+  #           Path.join([File.cwd!, base_path, path, file_name])
+  #   base_path
+  # end
 
-  defp do_active_admin_images(base_path) do
-    aa_rel_path = Path.join "images", "active_admin"
-    aa_images_path = Path.join(
-      [File.cwd!, base_path, aa_rel_path])
+  # defp do_active_admin_images(base_path) do
+  #   aa_rel_path = Path.join "images", "active_admin"
+  #   aa_images_path = Path.join(
+  #     [File.cwd!, base_path, aa_rel_path])
 
-    if File.exists? aa_images_path do
-      status_msg("skipping",
-        aa_rel_path <> " files. Directory already exists.")
-    else
-      :ok = File.mkdir(aa_images_path)
-      ~w(admin_notes_icon.png orderable.png)
-      |> Enum.each(&(copy_file base_path, aa_rel_path, &1))
+  #   if File.exists? aa_images_path do
+  #     status_msg("skipping",
+  #       aa_rel_path <> " files. Directory already exists.")
+  #   else
+  #     :ok = File.mkdir(aa_images_path)
+  #     ~w(admin_notes_icon.png orderable.png)
+  #     |> Enum.each(&(copy_file base_path, aa_rel_path, &1))
 
-      aa_dp_rel_path = Path.join aa_rel_path, "datepicker"
-      aa_dp_images_path = Path.join aa_images_path, "datepicker"
+  #     aa_dp_rel_path = Path.join aa_rel_path, "datepicker"
+  #     aa_dp_images_path = Path.join aa_images_path, "datepicker"
 
-      :ok = File.mkdir(aa_dp_images_path)
-      ~w(datepicker-header-bg.png datepicker-input-icon.png) ++
-      ~w(datepicker-next-link-icon.png datepicker-nipple.png) ++
-      ~w(datepicker-prev-link-icon.png)
-      |> Enum.each(&(copy_file base_path, aa_dp_rel_path, &1))
+  #     :ok = File.mkdir(aa_dp_images_path)
+  #     ~w(datepicker-header-bg.png datepicker-input-icon.png) ++
+  #     ~w(datepicker-next-link-icon.png datepicker-nipple.png) ++
+  #     ~w(datepicker-prev-link-icon.png)
+  #     |> Enum.each(&(copy_file base_path, aa_dp_rel_path, &1))
 
-    end
-  end
+  #   end
+  # end
 
   #
   # Build the active_admin_lib.js file.
@@ -216,31 +216,31 @@ defmodule Mix.Tasks.Admin.Install do
   #       compile the js files with the following command
   # `coffee --output web/static/vendor/active_admin/ --compile web/static/js/active_admin/`
   #
-  defp do_active_admin_js(base_path) do
-    src_path = Path.join([get_package_path | ~w(web static vendor active_admin)])
+  # defp do_active_admin_js(base_path) do
+  #   src_path = Path.join([get_package_path | ~w(web static vendor active_admin)])
 
-    lib_files = ~w(batch_actions.js.js checkbox-toggler.js.js dropdown-menu.js.js) ++
-      ~w(flash.js.js has_many.js.js modal_dialog.js.js per_page.js.js) ++
-      ~w(popover.js.js table-checkbox-toggler.js.js)
+  #   lib_files = ~w(batch_actions.js.js checkbox-toggler.js.js dropdown-menu.js.js) ++
+  #     ~w(flash.js.js has_many.js.js modal_dialog.js.js per_page.js.js) ++
+  #     ~w(popover.js.js table-checkbox-toggler.js.js)
 
-    source =
-      ""
-      |> read_active_admin_js(src_path, ~w(application.js.js base.js.js))
-      |> read_active_admin_js(Path.join([src_path, "lib"]), lib_files)
+  #   source =
+  #     ""
+  #     |> read_active_admin_js(src_path, ~w(application.js.js base.js.js))
+  #     |> read_active_admin_js(Path.join([src_path, "lib"]), lib_files)
 
-    File.write! Path.join([base_path, "js", "active_admin_lib.js"]), source
-  end
+  #   File.write! Path.join([base_path, "js", "active_admin_lib.js"]), source
+  # end
 
-  defp read_active_admin_js(source, src_path, files) do
-    files
-    |> Enum.reduce(source, fn(fname, acc) ->
-      acc <> get_file_banner(fname) <> File.read!(Path.join([src_path, fname])) <> "\n\n"
-    end)
-  end
+  # defp read_active_admin_js(source, src_path, files) do
+  #   files
+  #   |> Enum.reduce(source, fn(fname, acc) ->
+  #     acc <> get_file_banner(fname) <> File.read!(Path.join([src_path, fname])) <> "\n\n"
+  #   end)
+  # end
 
-  defp get_file_banner(file_name) do
-    "// File: " <> file_name <> "\n"
-  end
+  # defp get_file_banner(file_name) do
+  #   "// File: " <> file_name <> "\n"
+  # end
 
   defp parse_args(args) do
     {opts, _values, _} = OptionParser.parse args, switches:

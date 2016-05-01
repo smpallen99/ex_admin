@@ -69,7 +69,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Layout do
     require Logger
     div("#titlebar_right") do
       div ".action_items" do
-        for {item, [{text, opts} | _]} <- ExAdmin.get_title_actions(conn) do
+        for {_item, [{text, opts} | _]} <- ExAdmin.get_title_actions(conn) do
           span ".action_item" do
             a text, opts
           end
@@ -78,7 +78,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Layout do
     end
   end
 
-  def sidebar_view(conn, {name, opts, {mod, fun}}, resource) do
+  def sidebar_view(conn, {name, _opts, {mod, fun}}, resource) do
     markup do
       div "#filters_sidebar_sectionl.sidebar_section.panel" do
         h3 "#{name}"

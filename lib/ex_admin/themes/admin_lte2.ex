@@ -1,7 +1,7 @@
 defmodule ExAdmin.Theme.AdminLte2 do
   use Xain
   import ExAdmin.Utils
-  import ExAdmin.ViewHelpers
+  # import ExAdmin.ViewHelpers
 
   @name "admin_lte2"
 
@@ -40,12 +40,4 @@ defmodule ExAdmin.Theme.AdminLte2 do
     end
   end
 
-end
-
-defimpl ExAdmin.Theme, for: ExAdmin.Theme.AdminLte2 do
-  alias ExAdmin.Theme
-  use Xain
-  import ExAdmin.Utils
-  import ExAdmin.ViewHelpers
-  
 end
