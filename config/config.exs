@@ -7,14 +7,25 @@ use Mix.Config
 # file won't be loaded nor affect the parent project. For this reason,
 # if you want to provide default values for your application for third-
 # party users, it should be done in your mix.exs file.
-config :ex_admin, route_prefix: "admin" #,
-# theme: "admin_lte2",
-# nest_resources: false,
-# nest_scopes: false,
-# scopes_index_page: false,
-# skin_color: :blue,   # ~w(blue black purple green red yellow blue-light
+config :ex_admin,
+#
+# config :ex_admin,
+#   route_prefix: "admin",
+#   repo: MyApp.Repo,
+#   module: MyApp,
+#   nest_resources: false,
+#   nest_scopes: false,
+#   scopes_index_page: false,
+#   theme: ExAdmin.Theme.ActiveAdmin,
+#   skin_color: :blue, # ~w(blue black purple green red yellow blue-light
 #                      # black-light purple-light green-light red-light yellow-light)
-#                        
+#   theme_selector: [
+#     {"AdminLte",  ExAdmin.Theme.AdminLte2},
+#     {"ActiveAdmin", ExAdmin.Theme.ActiveAdmin}
+#   ],
+#   modules: [
+#     Nested.ExAdmin.Dashboard,
+#   ]
 
 config :phoenix, :template_engines,
           haml: PhoenixHaml.Engine,
