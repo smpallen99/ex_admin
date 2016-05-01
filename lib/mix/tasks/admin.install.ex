@@ -45,6 +45,7 @@ defmodule Mix.Tasks.Admin.Install do
     |> do_dashboard
     |> do_route
     |> do_paging
+    |> do_endpoint
   end
 
   def do_assets(%Config{assets: true} = config) do
@@ -89,6 +90,20 @@ defmodule Mix.Tasks.Admin.Install do
     config
   end
   def do_route(config) do
+    config
+  end
+
+  def do_endpoint(config) do
+    base = get_module
+    IO.puts ""
+    IO.puts "Add 'themes' to your lib/#{String.downcase base}/endpoint.ex file:"
+    IO.puts """
+
+  plug Plug.Static,
+    at: "/", from: :#{String.downcase base}, gzip: false,
+    only: ~w(css fonts images js themes favicon.ico robots.txt)
+
+ """
     config
   end
 
