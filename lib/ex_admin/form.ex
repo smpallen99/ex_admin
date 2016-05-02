@@ -471,7 +471,7 @@ defmodule ExAdmin.Form do
   end
 
   def build_scripts(list) do
-    head = "$(document).ready(function() {\n"
+    head = "$(function() {\n"
     script = for i <- list, is_tuple(i), into: head, do: build_script(i)
     script <> "});"
   end

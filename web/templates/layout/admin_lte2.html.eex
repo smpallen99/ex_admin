@@ -29,6 +29,11 @@
     <!-- bootstrap wysihtml5 - text editor -->
     <link rel="stylesheet" href="<%= admin_static_path(@conn, "/css/ex_admin.css") %>">
 
+    <!-- jQuery 2.1.4 -->
+    <script src="<%= admin_static_path(@conn, "/plugins/jQuery/jQuery-2.1.4.min.js") %>"></script>
+    <!-- jQuery UI 1.11.4 -->
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -72,11 +77,6 @@
         &nbsp;&copy 2015-2016.
       </footer>
     </div>
-    <!-- jQuery 2.1.4 -->
-    <script src="<%= admin_static_path(@conn, "/plugins/jQuery/jQuery-2.1.4.min.js") %>"></script>
-    <!-- jQuery UI 1.11.4 -->
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
     <script>
       $.widget.bridge('uibutton', $.ui.button);
     </script>

@@ -131,7 +131,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
       true -> timestamp   # case when we have errors. need to remap the inx
     end
 
-    div ".box" do
+    div ".box.has_many_fields" do
       div ".box-header.with-border" do
         title = humanize(field_name) |> Inflex.singularize
         h3 ".box-title #{title}"
