@@ -13,6 +13,8 @@ ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) 
 
 Checkout the [Live Demo](http://demo.exadmin.info/admin). The source code can be found at [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo).
 
+Checkout this [Additional Live Demo](http://demo2.exadmin.info/admin) for examples of many-to-many relationships, nested attributes, and authentication.
+
 See the [docs](https://hexdocs.pm/ex_admin/) for more information.
 
 ## Usage
