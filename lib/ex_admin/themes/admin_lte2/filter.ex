@@ -78,7 +78,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
           div ".col-xs-6", style: "padding-right: 0"  do
             span ".input-group-addon" do
               div ".filter-select" do
-                select onchange: ~s|document.getElementById('#{name}_numeric').name = 'q[' + this.value + ']';| do
+                select onchange: ~s|document.getElementById("#{name}_numeric").name = "q[" + this.value + "]";| do
                   for {suffix, text} <- integer_options do
                     build_option(text, "#{name}_#{suffix}", selected_name)
                   end
