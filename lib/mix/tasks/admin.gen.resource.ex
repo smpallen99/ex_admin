@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Admin.Gen.Resource do
 
 
   defp copy_file(%Config{module: module, package_path: package_path} = config) do
-    filename = String.downcase(module) <> ".ex"
+    filename = Macro.underscore(module) <> ".ex"
     dest_path = Path.join ~w(web admin)
     dest_file_path = Path.join dest_path, filename
     source_file = Path.join([package_path | ~w(priv templates admin.gen.resource resource.exs)] )
