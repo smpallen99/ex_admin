@@ -127,7 +127,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
   end
 
   def build_field({name, type}, _q, _) do
-    Logger.warn "ExAdmin.Filter: unknown type: #{inspect type} for field: #{inspect name}"
+    Logger.debug "ExAdmin.Filter: unknown type: #{inspect type} for field: #{inspect name}"
     nil
   end
 

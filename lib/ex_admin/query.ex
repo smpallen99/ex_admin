@@ -98,7 +98,6 @@ defmodule ExAdmin.Query do
       other ->
         case scopes[other][:fun] do
           nil ->
-            Logger.warn "no fun..."
             where(query, [p], field(p, ^other))
           {module, fun} ->
             apply module, fun, [query]

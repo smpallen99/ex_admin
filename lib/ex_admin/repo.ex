@@ -11,7 +11,6 @@ defmodule ExAdmin.Repo do
 
   def changeset(fun, resource, nil), do: changeset(fun, resource, %{})
   def changeset(fun, resource, params) do
-    Logger.warn ".... params: #{inspect params}"
     %ExAdmin.Changeset{}
     |> changeset(fun, resource, params)
     |> changeset_attributes_for(resource, params)
@@ -32,7 +31,6 @@ defmodule ExAdmin.Repo do
         cs = struct(cs, data: struct(cs.data, params))
         {Changeset.update(acc, valid?: cs.valid?, dependents: {cs, fun}, errors: cs.errors), fields ++ [{field, cs}]}
       end
-    Logger.warn "fields: #{inspect fields}"
     struct(new_changeset, changeset: set_dependents(new_changeset.changeset, fields))
   end
 
@@ -151,7 +149,6 @@ defmodule ExAdmin.Repo do
   end
 
   def do_collection(resource, {assoc, ids}) do
-    # Logger.warn "... assoc: #{inspect assoc}, ids: #{inspect ids}"
     {assoc_model, join_model} = get_assoc_model resource, assoc
     assoc_instance = assoc_model.__struct__
     selected_collection = for id <- ids, do: struct(assoc_instance, id: id)
@@ -163,14 +160,12 @@ defmodule ExAdmin.Repo do
 
       # removes
       for id <- Utils.not_in(existing_ids, ids) do
-        # Logger.warn "remove id: #{id}"
         new_model = struct(assoc_instance, id: id)
         repo.delete_all get_join_model_instance(resource, assoc, join_model, new_model)
       end
 
       # insert adds
       for id <- Utils.not_in(ids, existing_ids) do
-        Logger.warn "add id: #{id}"
         new_model = struct(assoc_instance, id: id)
         repo.insert! join_model_instance(resource, assoc, join_model, new_model)
       end
@@ -179,9 +174,6 @@ defmodule ExAdmin.Repo do
   end
 
   def insert_or_update_attributes_for(resource, params) do
-    # Logger.warn "params: #{inspect params}"
-    # params = translate_attributes_for(params)
-    # Logger.warn "params2: #{inspect get_attrs_list(params)}"
 
     res = get_attrs_list(params)
     |> Enum.reduce([], fn({model, items}, acc1) ->
@@ -191,7 +183,6 @@ defmodule ExAdmin.Repo do
         acc2 ++ [do_attributes_for(resource, model, id, item, inx)]
       end)
     end)
-    Logger.warn "res: #{inspect res}"
     res
   end
 
@@ -205,7 +196,6 @@ defmodule ExAdmin.Repo do
       # repo.insert! join_model_instance(resource, model, join_model, new_model)
       res = join_model_instance(resource, model, join_model, new_model)
 
-      Logger.warn "res: #{inspect res}"
       repo.insert! res
     end
 
@@ -239,7 +229,6 @@ defmodule ExAdmin.Repo do
     {assoc_model, _} = get_assoc_model resource, model
     assoc_resource = repo.get assoc_model, params[:id]
 
-    Logger.warn "params: #{inspect params}"
     cs = assoc_model.changeset(assoc_resource, params)
     |> attributes_for_translate_errors(resource, model, inx)
 
@@ -340,7 +329,6 @@ res
       {k |> Atom.to_string |> String.to_integer, v}
     end)
     |> Enum.sort(&(elem(&1, 0) < elem(&2, 0)))
-    Logger.warn "res: #{inspect res}"
     res
   end
 

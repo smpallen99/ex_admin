@@ -105,7 +105,6 @@ defmodule ExAdmin.Helpers do
   def get_association_owner_key(resource, association) when is_binary(association),
     do: get_association_owner_key(resource, String.to_atom(association))
   def get_association_owner_key(resource, association) do
-    Logger.warn "association: #{inspect association}"
     resource.__struct__.__schema__(:association, association).owner_key
   end
 
