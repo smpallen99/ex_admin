@@ -39,8 +39,8 @@ defmodule ExAdmin.Mixfile do
     [
       {:decimal, "~> 1.0"},
       {:phoenix, "~> 1.1"},
-      {:ecto, "~> 2.0-rc", override: true},
-      {:phoenix_ecto, "~> 3.0-rc", override: true},
+      {:ecto, "~> 2.0-rc"},
+      {:phoenix_ecto, "~> 3.0-rc"},
       {:postgrex, ">= 0.0.0", only: :test},
       {:cowboy, "~> 1.0"},
       {:phoenix_html, "~> 2.5"},
