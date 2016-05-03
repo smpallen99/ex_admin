@@ -67,8 +67,6 @@ defmodule ExAdmin.ActiveAdmin.LayoutView do
   def build_scopes(_conn, []), do: ""
   def build_scopes(_conn, nil), do: ""
   def build_scopes(conn, scope_counts) do
-    # require Logger
-    # Logger.warn "scope_counts: #{inspect scope_counts}"
     defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
     scopes = defn.scopes
     markup  do
