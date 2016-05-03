@@ -24,3 +24,9 @@ defmodule TestExAdmin.ExAdmin.User do
     end
   end
 end
+defmodule TestExAdmin.ExAdmin.Product do
+  use ExAdmin.Register
+
+  register_resource TestExAdmin.Product do
+  end
+end

@@ -23,7 +23,7 @@ ExAdmin is an add on for an application using the [Phoenix Framework](http://www
 
 Before using ExAdmin, you will need a Phoenix project and an Ecto model created.
 
-![ExAdmin](http://exadmin.info/doc/ex_admin.png)
+![ExAdmin](http://exadmin.info/doc/ex_admin_blue.png)
 
 ### Installation
 
@@ -33,7 +33,7 @@ mix.exs
 ```elixir
   defp deps do
      ...
-     {:ex_admin, "~> 0.7.1"},
+     {:ex_admin, ~> 0.7"},
      ...
   end
 ```
@@ -90,7 +90,19 @@ config :ex_admin,
   modules: [
     MyProject.ExAdmin.Dashboard,
   ]
-  ```
+
+```
+
+Add the `priv/static/themes` directory in the `endpoint.ex` file.
+
+lib/my_app/endpoint.ex
+```elixir
+  ...
+  plug Plug.Static,
+    at: "/", from: :nested, gzip: false,
+    only: ~w(css fonts images js themes favicon.ico robots.txt)
+
+```
 
 Start the application with `iex -S mix phoenix.server`
 
@@ -197,6 +209,48 @@ defmodule Survey.ExAdmin.Question do
     end
   end
 end
+```
+
+## Theme Support
+
+ExAdmin supports 2 themes. The new AdminLte2 theme is enabled by default. The old ActiveAdmin theme is also supported for those that want backward compatibility.
+
+### Changing the Theme
+
+To change the theme to ActiveAdmin, at the following to your `config/config.exs` file:
+
+config/config.exs
+```elixir
+config :ex_admin,
+  theme: ExAdmin.Theme.ActiveAdmin,
+  ...
+```
+
+### Changing the AdminLte2 Skin Color
+
+The AdminLte2 theme has a number of different skin colors including blue, black, purple, green, red, yellow, blue-light, black-light, purple-light, green-light, red-light, and yellow-light
+
+To change the skin color to, for example, purple:
+
+config/config.exs
+```elixir
+config :ex_admin,
+  skin_color: :purple,
+  ...
+```
+
+### Enable Theme Selector
+
+You can add a theme selector on the top right of the menu bar by adding the following to your `config/config.exs` file:
+
+config/config.exs
+```elixir
+config :ex_admin,
+  theme_selector: [
+    {"AdminLte",  ExAdmin.Theme.AdminLte2},
+    {"ActiveAdmin", ExAdmin.Theme.ActiveAdmin}
+  ],
+  ...
 ```
 
 ## References

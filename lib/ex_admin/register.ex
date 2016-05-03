@@ -2,11 +2,11 @@ defmodule ExAdmin.Register do
   @moduledoc """
   Allows registering a resource or a page to be displayed with ExAdmin.
 
-  For each model you wanted rendered by ExAdmin, use the 
-  `register_resource` call. For each general page (like a dashboard), 
+  For each model you wanted rendered by ExAdmin, use the
+  `register_resource` call. For each general page (like a dashboard),
   use the `register_page` call.
 
-  To allow ExAdmin to manage the resource with defaults, do not place 
+  To allow ExAdmin to manage the resource with defaults, do not place
   any additional code in the block of `register_resource`.
 
   ## Examples
@@ -20,16 +20,16 @@ defmodule ExAdmin.Register do
         end
       end
 
-  ## Commands available in the register_resource do block 
-  
+  ## Commands available in the register_resource do block
+
   * `menu` - Customize the properties of the menu item
-  * `index` - Customize the index page 
+  * `index` - Customize the index page
   * `show` - Customize the show page
-  * `form` - Customize the form page 
+  * `form` - Customize the form page
   * `query` - Customize the `Ecto` queries for each page
   * `options` - Change various options for a resource
   * `member_action` - Add a custom action for id based requests
-  * `filter` - Disable/Customize the filter pages  
+  * `filter` - Disable/Customize the filter pages
   * `controller` - Override the default controller
   * `actions` - Define which actions are available for a resource
   * `batch_actions` - Customize the batch_actions shown on the index page
@@ -71,7 +71,7 @@ defmodule ExAdmin.Register do
   Register an Ecto model.
 
   Once registered, ExAdmin adds the resource to the administration
-  pages. If no additional code is added to the do block, the resource 
+  pages. If no additional code is added to the do block, the resource
   will be rendered with defaults, including:
 
   * A paginated index page listing all columns in the model's database
@@ -97,14 +97,14 @@ defmodule ExAdmin.Register do
       import ExAdmin.Utils
       require Logger
       Module.register_attribute __MODULE__, :query, accumulate: false, persist: true
-      Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true 
-      Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true 
+      Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true
+      Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true
       Module.register_attribute __MODULE__, :selectable_column, accumulate: false, persist: true
       Module.register_attribute(__MODULE__, :form_items, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :controller_plugs, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :sidebars, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :scopes, accumulate: true, persist: true)
-      module = unquote(mod) 
+      module = unquote(mod)
       Module.put_attribute(__MODULE__, :module, module)
       Module.put_attribute(__MODULE__, :query, nil)
       Module.put_attribute(__MODULE__, :selectable_column, nil)
@@ -112,15 +112,15 @@ defmodule ExAdmin.Register do
 
       alias unquote(mod)
       import Ecto.Query
-      
+
       def config do
         apply __MODULE__, :__struct__, []
       end
-      
+
       unquote(block)
 
       query_opts = case Module.get_attribute(__MODULE__, :query) do
-        nil -> 
+        nil ->
           list = module.__schema__(:associations)
           |> Enum.map(&(ExAdmin.Register.build_query_association module, &1))
           |> Enum.filter(&(not is_nil(&1)))
@@ -131,25 +131,25 @@ defmodule ExAdmin.Register do
       end
 
       controller = case Module.get_attribute(__MODULE__, :controller) do
-        nil -> 
+        nil ->
           controller_mod = String.to_atom("#{module}Controller")
           Module.put_attribute(__MODULE__, :controller, controller_mod)
-        other -> 
+        other ->
           Logger.warn "Should not get here - controller: #{inspect other}"
       end
 
       menu_opts = case Module.get_attribute(__MODULE__, :menu) do
-        nil -> 
-          %{ priority: 10, 
+        nil ->
+          %{ priority: 10,
              label: (base_name(module) |> Inflex.pluralize)}
-        other -> 
+        other ->
           Enum.into other, %{}
       end
       all_options = [:edit, :show, :new, :delete]
       actions = case Module.get_attribute(__MODULE__, :actions) do
         nil -> all_options
         list when is_list(list) -> list
-        opts -> 
+        opts ->
           case Enum.into opts, %{} do
             %{except: except} -> all_options -- except
             %{only: only} -> only
@@ -157,9 +157,9 @@ defmodule ExAdmin.Register do
       end
 
       controller_route = (base_name(module) |> Inflex.underscore |> Inflex.pluralize)
-      case Module.get_attribute(__MODULE__, :options) do 
+      case Module.get_attribute(__MODULE__, :options) do
         nil -> nil
-        options -> 
+        options ->
           controller_route = Keyword.get(options, :controller_route, controller_route)
       end
       plugs = case Module.get_attribute(__MODULE__, :controller_plugs) do
@@ -175,24 +175,24 @@ defmodule ExAdmin.Register do
         list -> Enum.reverse list
       end
 
-      defstruct controller: @controller, 
+      defstruct controller: @controller,
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
                 title_actions: &ExAdmin.default_resource_title_actions/2,
                 type: :resource,
                 resource_model: module,
                 query_opts: query_opts,
                 controller_route: controller_route,
-                menu: menu_opts, 
-                actions: actions, 
+                menu: menu_opts,
+                actions: actions,
                 member_actions: Module.get_attribute(__MODULE__, :member_actions),
                 collection_actions: Module.get_attribute(__MODULE__, :collection_actions),
-                controller_filters: Module.get_attribute(__MODULE__, :controller_filters), 
+                controller_filters: Module.get_attribute(__MODULE__, :controller_filters),
                 index_filters: Module.get_attribute(__MODULE__, :index_filters),
-                selectable_column: Module.get_attribute(__MODULE__, :selectable_column), 
-                batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
-                changesets: Module.get_attribute(__MODULE__, :changesets), 
-                plugs: plugs, 
-                sidebars: sidebars, 
+                selectable_column: Module.get_attribute(__MODULE__, :selectable_column),
+                batch_actions: Module.get_attribute(__MODULE__, :batch_actions),
+                changesets: Module.get_attribute(__MODULE__, :changesets),
+                plugs: plugs,
+                sidebars: sidebars,
                 scopes: scopes
 
 
@@ -216,7 +216,7 @@ defmodule ExAdmin.Register do
   @doc """
   Override the controller for a resource.
 
-  Allows custom actions, filters, and plugs for the controller. Commands 
+  Allows custom actions, filters, and plugs for the controller. Commands
   in the controller block include:
 
   * `define_method` - Create a controller action with the body of
@@ -244,7 +244,7 @@ defmodule ExAdmin.Register do
   @doc """
   Override an action on a controller.
 
-  Allows the customization of controller actions. 
+  Allows the customization of controller actions.
 
   ## Examples
 
@@ -273,7 +273,7 @@ defmodule ExAdmin.Register do
   The before filter is executed before the controller action(s) are
   executed.
 
-  Normally, the function should return the conn struct. However, if you 
+  Normally, the function should return the conn struct. However, if you
   want to modify the params, then return the tuple `{conn, new_parms}`.
 
   ## Examples
@@ -281,7 +281,7 @@ defmodule ExAdmin.Register do
   The following example illustrates how to add a sync action that will
   be run before the index page is loaded.
 
-      controller do 
+      controller do
         before_filter :sync, only: [:index]
 
         def sync(conn, _) do
@@ -290,7 +290,7 @@ defmodule ExAdmin.Register do
         end
       end
 
-      controller do 
+      controller do
         before_filter :no_change, except: [:create, :modify]
 
         def no_change(conn, params) do
@@ -348,7 +348,7 @@ defmodule ExAdmin.Register do
 
   Add custom plugs to a controller.
 
-  ## Example 
+  ## Example
 
       controller do
         plug :my_plug, the_answer: 42
@@ -374,21 +374,21 @@ defmodule ExAdmin.Register do
       use ExAdmin.Page
 
       Module.register_attribute __MODULE__, :query, accumulate: false, persist: true
-      Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true 
-      Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true 
+      Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true
+      Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true
       Module.register_attribute __MODULE__, :selectable_column, accumulate: false, persist: true
       Module.register_attribute __MODULE__, :form_items, accumulate: true, persist: true
-      Module.put_attribute __MODULE__, :controller_plugs, nil 
+      Module.put_attribute __MODULE__, :controller_plugs, nil
       page_name = unquote(name)
       unquote(block)
 
       # query_opts = Module.get_attribute(__MODULE__, :query)
       menu_opts = case Module.get_attribute(__MODULE__, :menu) do
-        :none -> 
+        :none ->
           %{none: true}
-        nil -> 
+        nil ->
           %{label: page_name, priority: 99}
-        other -> 
+        other ->
           Enum.into other, %{}
       end
 
@@ -411,16 +411,16 @@ defmodule ExAdmin.Register do
                 page_name: page_name,
                 title_actions: &ExAdmin.default_page_title_actions/2,
                 controller_route: (page_name |> Inflex.parameterize("_")),
-                menu: menu_opts, 
+                menu: menu_opts,
 
                 member_actions: Module.get_attribute(__MODULE__, :member_actions),
                 collection_actions: Module.get_attribute(__MODULE__, :collection_actions),
-                controller_filters: Module.get_attribute(__MODULE__, :controller_filters), 
+                controller_filters: Module.get_attribute(__MODULE__, :controller_filters),
                 index_filters: [false],
-                # selectable_column: Module.get_attribute(__MODULE__, :selectable_column), 
-                batch_actions: Module.get_attribute(__MODULE__, :batch_actions), 
+                # selectable_column: Module.get_attribute(__MODULE__, :selectable_column),
+                batch_actions: Module.get_attribute(__MODULE__, :batch_actions),
                 plugs: plugs,
-                sidebars: sidebars, 
+                sidebars: sidebars,
                 scopes: []
 
       def plugs(), do: @controller_plugs
@@ -430,12 +430,12 @@ defmodule ExAdmin.Register do
   end
 
   @doc """
-  Add a sidebar to the page. 
+  Add a sidebar to the page.
 
 
   The available options are:
-  
-  * `:only` - Filters the list of actions for the filter. 
+
+  * `:only` - Filters the list of actions for the filter.
   * `:except` - Filters out actions in the except atom or list.
 
   ## Examples
@@ -450,6 +450,13 @@ defmodule ExAdmin.Register do
           row "author", fn(_) -> { resource.author } end
         end
       end
+
+      # customize the panel
+
+      sidebar "Expert Administration", box_attributes: ".box.box-warning",
+                  header_attributes: ".box-header.with-border.text-yellow" do
+        Phoenix.View.render MyApp.AdminView, "sidebar_warning.html", []
+      end
   """
   defmacro sidebar(name, opts \\ [], [do: block]) do
     contents = quote do
@@ -458,27 +465,27 @@ defmodule ExAdmin.Register do
     quote location: :keep, bind_quoted: [name: escape(name), opts: escape(opts), contents: escape(contents)] do
       fun_name = "side_bar_#{name}" |> String.replace(" ", "_") |> String.to_atom
       def unquote(fun_name)(var!(conn), var!(resource)) do
-        _ = var!(conn) 
+        _ = var!(conn)
         _ = var!(resource)
         unquote(contents)
       end
       Module.put_attribute __MODULE__, :sidebars, {name, opts, {__MODULE__, fun_name}}
-    end 
+    end
   end
 
   @doc """
-  Scope the index page. 
+  Scope the index page.
 
   ## Examples
 
         scope :all, default: true
 
-        scope :available, fn(q) -> 
+        scope :available, fn(q) ->
           now = Ecto.Date.utc
           where(q, [p], p.available_on <= ^now)
-        end 
+        end
 
-        scope :drafts, fn(q) -> 
+        scope :drafts, fn(q) ->
           now = Ecto.Date.utc
           where(q, [p], p.available_on > ^now)
         end
@@ -493,7 +500,7 @@ defmodule ExAdmin.Register do
   defmacro scope(name) do
     quote location: :keep  do
       Module.put_attribute __MODULE__, :scopes, {unquote(name), []}
-    end 
+    end
   end
   defmacro scope(name, opts_or_fun) do
     quote location: :keep  do
@@ -503,7 +510,7 @@ defmodule ExAdmin.Register do
       else
         Module.put_attribute __MODULE__, :scopes, {unquote(name), opts_or_fun}
       end
-    end 
+    end
   end
   defmacro scope(name, opts, fun) do
     contents = quote do
@@ -516,13 +523,13 @@ defmodule ExAdmin.Register do
       end
       opts = [{:fun, {__MODULE__, fun_name}} | opts]
       Module.put_attribute __MODULE__, :scopes, {name, opts}
-    end 
+    end
   end
 
   @doc """
   Customize the resource admin page by setting options for the page.
 
-  The available actions are: 
+  The available actions are:
 
   * TBD
   """
@@ -536,9 +543,9 @@ defmodule ExAdmin.Register do
   Customize the menu of a page.
 
   The available options are:
-  
-  * `:priority` - Sets the position of the menu, with 0 being the 
-    left most menu item 
+
+  * `:priority` - Sets the position of the menu, with 0 being the
+    left most menu item
   * `:label` - The name used in the menu
   * `:if` - Only display the menu item if the condition returns non false/nil
 
@@ -557,18 +564,18 @@ defmodule ExAdmin.Register do
   defmacro menu(opts) do
     quote do
       Module.put_attribute __MODULE__, :menu, unquote(opts)
-    end 
+    end
   end
 
   @doc """
   Add query options to the Ecto queries.
 
-  For the most part, use `query` to setup preload options. Query 
-  customization can be done for all pages, or individually specified. 
+  For the most part, use `query` to setup preload options. Query
+  customization can be done for all pages, or individually specified.
 
   ## Examples
-  
-  Load the belongs_to :category, has_many :phone_numbers, and 
+
+  Load the belongs_to :category, has_many :phone_numbers, and
   the has_many :groups for all pages for the resource.
 
       query do
@@ -580,14 +587,14 @@ defmodule ExAdmin.Register do
   Load the has_many :contacts association, as well as the has_many
   :phone_numbers of the contact
 
-      query do 
+      query do
         %{show: [preload: [contacts: [:phone_numbers]]] }
       end
 
-  A more complicated example that defines a default preload, with a 
+  A more complicated example that defines a default preload, with a
   more specific preload for the show page.
 
-      query do 
+      query do
         %{
           all: [preload: [:group]],
           show: [preload: [:group, messages: [receiver: [:category, :phone_numbers]]]]
@@ -621,11 +628,11 @@ defmodule ExAdmin.Register do
   @doc """
   Add a column to a table.
 
-  Can be used on the index page, or in the table attributes on the 
+  Can be used on the index page, or in the table attributes on the
   show page.
 
-  A number of options are valid: 
-  
+  A number of options are valid:
+
   * `label` - Change the name of the column heading
   * `fields` - Add the fields to be included in an association
   * `link` - Set to true to add a link to an association
@@ -679,23 +686,23 @@ defmodule ExAdmin.Register do
   @doc """
   Add an id based action.
 
-  Member actions are those actions that act on an individual record in 
+  Member actions are those actions that act on an individual record in
   the database.
 
   ## Examples
 
-  The following example illustrates how to add a restore action to 
-  a backup and restore page. 
+  The following example illustrates how to add a restore action to
+  a backup and restore page.
 
       member_action :restore,  &__MODULE__.restore_action/2
 
       ...
-          
+
       def restore_action(conn, params) do
         case BackupRestore.restore Repo.get(BackupRestore, params[:id]) do
-          {:ok, filename} -> 
+          {:ok, filename} ->
             Controller.put_flash(conn, :notice, "Restore \#{filename} complete.")
-          {:error, message} -> 
+          {:error, message} ->
             Controller.put_flash(conn, :error, "Restore Failed: \#{message}.")
         end
         |> Controller.redirect(to: ExAdmin.Utils.get_route_path(conn, :index))
@@ -714,7 +721,7 @@ defmodule ExAdmin.Register do
   ## Examples
 
   The following example shows how to add a backup action on the index
-  page. 
+  page.
 
       collection_action :backup, &__MODULE__.backup_action/2
 
@@ -742,15 +749,15 @@ defmodule ExAdmin.Register do
 
   ## Examples
 
-  The following example demonstrates adding a Backup Now link to the 
+  The following example demonstrates adding a Backup Now link to the
   index page, with no other action buttons due to the `clear_action_items!`
   call.
 
-      clear_action_items! 
+      clear_action_items!
 
       action_item :index, fn ->
         ExAdmin.Register.link_to "Backup Now", "/admin/backuprestores/backup", "data-method": :post, id: "backup-now"
-      end 
+      end
   """
   defmacro action_item(opts, fun) do
     fun = Macro.escape(fun, unquote: true)
@@ -772,6 +779,9 @@ defmodule ExAdmin.Register do
   Only show index columns and filters for the specified fields:
 
       filter [:name, :email, :inserted_at]
+      filter only: [:name, :email, :inserted_at]
+      filter except: [:encrypted_password]
+
   """
   defmacro filter(disable) when disable in [nil, false] do
     quote do
@@ -784,7 +794,7 @@ defmodule ExAdmin.Register do
     end
   end
   defmacro filter(field, opts \\ quote(do: [])) do
-    quote do 
+    quote do
       Module.put_attribute __MODULE__, :index_filters, {unquote(field), unquote(opts)}
     end
   end
@@ -792,7 +802,7 @@ defmodule ExAdmin.Register do
   @doc """
   Disable the batch_actions button the index page.
 
-  ## Examples 
+  ## Examples
 
       batch_actions false
   """
@@ -801,14 +811,14 @@ defmodule ExAdmin.Register do
       Module.put_attribute __MODULE__, :batch_actions, false
     end
   end
-  
+
   @doc false
   def build_query_association(module, field) do
     case module.__schema__(:association, field) do
       %Ecto.Association.BelongsTo{cardinality: :one} -> field
-      %Ecto.Association.Has{cardinality: :many} -> 
+      %Ecto.Association.Has{cardinality: :many} ->
         check_preload field, :preload_many
-      _ -> 
+      _ ->
         nil
     end
   end

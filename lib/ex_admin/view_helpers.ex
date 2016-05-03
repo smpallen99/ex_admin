@@ -2,6 +2,7 @@ defmodule ExAdmin.ViewHelpers do
   @moduledoc false
   use Xain
   import ExAdmin.Utils
+  require Logger
 
   @endpoint Application.get_env(:ex_admin, :endpoint)
 
@@ -9,26 +10,17 @@ defmodule ExAdmin.ViewHelpers do
 
   # defmacro __using__(_opts) do
   #   import unquote(__MODULE__)
-  #   import UcxNotifier.Admin.ViewHelpers.Table 
+  #   import UcxNotifier.Admin.ViewHelpers.Table
   # end
-
-  def title_bar(conn, resource) do
-    markup do
-      div("#title_bar.title_bar") do
-        title_bar_left(conn, resource)
-        title_bar_right(conn)
-      end
-    end
-  end
 
   def flashes(conn) do
     markup do
-      messages = Enum.reduce [:notice, :error], [], fn(which, acc) -> 
+      messages = Enum.reduce [:notice, :error], [], fn(which, acc) ->
         acc ++ get_flash(conn, which)
       end
       unless messages == [] do
         div(".flashes") do
-          Enum.each messages, fn({which, flash}) -> 
+          Enum.each messages, fn({which, flash}) ->
             div(".flash.flash_#{which} #{flash}")
           end
         end
@@ -39,7 +31,7 @@ defmodule ExAdmin.ViewHelpers do
   def get_flash(conn, which) do
     case Phoenix.Controller.get_flash(conn, which) do
       nil -> []
-      flash -> 
+      flash ->
         [{which, flash}]
     end
   end
@@ -48,22 +40,22 @@ defmodule ExAdmin.ViewHelpers do
     plural = get_resource_label conn
     singular = Inflex.singularize plural
     case ExAdmin.Utils.action_name(conn) do
-      :index -> 
+      :index ->
         plural
-      :show -> 
+      :show ->
         cond do
-          function_exported?(ExAdmin.get_registered(resource.__struct__).__struct__, :display_name, 1) -> 
+          function_exported?(ExAdmin.get_registered(resource.__struct__).__struct__, :display_name, 1) ->
             apply(ExAdmin.get_registered(resource.__struct__).__struct__, :display_name, [resource])
-          function_exported?(resource.__struct__, :display_name, 1) -> 
+          function_exported?(resource.__struct__, :display_name, 1) ->
             apply(resource.__struct__, :display_name, [resource])
-          true -> 
+          true ->
             ExAdmin.Helpers.resource_identity(resource)
         end
-      :edit -> 
+      action when action in [:edit, :update] ->
         "Edit #{singular}"
-      :new -> 
+      action when action in [:new, :create] ->
         "New #{singular}"
-      _ -> 
+      _ ->
         ""
     end
   end
@@ -71,58 +63,32 @@ defmodule ExAdmin.ViewHelpers do
   def status_tag(status) do
     span ".status_tag.#{status} #{status}"
   end
-  defp title_bar_left(conn, resource) do
-    div("#titlebar_left") do
-      ExAdmin.BreadCrumb.get_breadcrumbs(conn, resource)
-      |> render_breadcrumbs
 
-      h2("#page_title #{page_title(conn, resource)}")
-    end
-  end
-  
-  defp render_breadcrumbs([]), do: nil
-  defp render_breadcrumbs(list) do
-    span(".breadcrumb") do
-      Enum.each list, fn({link, name}) -> 
-        a(name, href: link)
-        span(".breadcrumb_sep /")
-      end
-    end
+  def build_link(action, opts, html_opts \\ [])
+  def build_link(_action, opts, _) when opts in [nil, []], do: ""
+  def build_link(_action, [{name, opts} | _], html_opts) do
+    attrs = Enum.reduce(opts ++ html_opts, "", fn({k,v}, acc) ->
+      acc <> "#{k}='#{v}' "
+    end)
+    Phoenix.HTML.raw "<a #{attrs}>#{name}</a>"
   end
 
-  defp title_bar_right(conn) do
-    #controller = controller_name(conn)
-    #try do
-      div("#titlebar_right") do
-        ExAdmin.get_title_actions(conn)
-        # div(".action_items") do
-        #   span(".action_item") do
-        #     a("New #{controller}", href: get_route_path(conn, controller, :new))
-        #   end
-        # end
-      end
-    # rescue 
-    #   _ -> 
-    #     div(acc, "#titlebar_right") 
-    # end
-  end
-  
-  @js_escape_map Enum.into([{"^", ""}, { ~S(\\), ~S(\\\\)}, {~S(</), ~S(<\/)}, {"\r\n", ~S(\n)}, {"\n", ~S(\n)}, {"\r", ~S(\n)}, 
-    {~S("), ~S(\")}, 
+  @js_escape_map Enum.into([{"^", ""}, { ~S(\\), ~S(\\\\)}, {~S(</), ~S(<\/)}, {"\r\n", ~S(\n)}, {"\n", ~S(\n)}, {"\r", ~S(\n)},
+    {~S("), ~S(\")},
     {"'", "\\'" }], %{})
-    #{~S(\"), ~S(\\")}, 
+    #{~S(\"), ~S(\\")},
 
   def escape_javascript(unescaped) do
-    #Phoenix.HTML.safe _escape_javascript(unescaped) 
+    #Phoenix.HTML.safe _escape_javascript(unescaped)
     #IO.puts "escape_javascript: unescaped: #{inspect unescaped}`"
-    res = Phoenix.HTML.safe_to_string(unescaped) 
+    res = Phoenix.HTML.safe_to_string(unescaped)
     |> String.replace("\n", "")
     |> _escape_javascript
     #IO.puts "escape_javascript: #{inspect res}"
     res
   end
   def _escape_javascript({:safe, list}) do
-    _escape_javascript(list) 
+    _escape_javascript(list)
   end
   def _escape_javascript([h | t]) do
     [_escape_javascript(h) | _escape_javascript(t)]
@@ -136,21 +102,21 @@ defmodule ExAdmin.ViewHelpers do
     del = opts[:delimiter] || "$"
     sep = opts[:seperator] || "."
     rnd = opts[:round] || 2
-    
+
     neg_opts = case opts[:negative] do
       nil -> {"-", ""}
       {pre, post} -> {"#{pre}", "#{post}"}
       pre -> {"#{pre}", ""}
     end
     case Decimal.round(num, rnd) |> Decimal.to_string |> String.split(".") do
-      [int, dec] -> 
+      [int, dec] ->
         del <> wrap_negative(int <> sep <> String.ljust(dec, 2, ?0), neg_opts)
-      [int] -> 
+      [int] ->
         del <> wrap_negative(int <> sep <> "00", neg_opts)
     end
   end
   defp wrap_negative("-" <> num, {neg_pre, neg_post}) do
-    "#{neg_pre}#{num}#{neg_post}" 
+    "#{neg_pre}#{num}#{neg_post}"
   end
   defp wrap_negative(num, _), do: num
 
@@ -166,7 +132,7 @@ defmodule ExAdmin.ViewHelpers do
 
   def auto_link(resource) do
     case resource.__struct__.__schema__(:fields) do
-      [_, field | _] -> 
+      [_, field | _] ->
         name = Map.get resource, field, "Unknown"
         a name, href: get_route_path(resource, :show, resource.id)
       _ -> ""

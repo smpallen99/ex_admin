@@ -7,7 +7,27 @@ defmodule ExAdmin.AdminController do
   import ExAdmin.ParamsToAtoms
   alias ExAdmin.Schema
 
+  plug :handle_root_req
+  plug :set_theme
   plug :set_layout
+
+  # A temporary fix to handle a get "/" request.
+  # TODO: Refactor the way we assume path_info has the "/admin" prefix
+  def handle_root_req(conn, params) do
+    case conn.path_info do
+      [] ->
+        case ExAdmin.Utils.get_route_path(:dashboard, :index) |> String.split("/") do
+          [_, prefix | _] ->
+            struct(conn, path_info: [prefix])
+          _ -> conn
+        end
+      _ -> conn
+    end
+  end
+
+  def set_theme(conn, _) do
+    assign(conn, :theme, ExAdmin.theme)
+  end
 
   def action(%{private: %{phoenix_action: action}} = conn, _options) do
     handle_action(conn, action, conn.params["resource"])
@@ -103,15 +123,14 @@ defmodule ExAdmin.AdminController do
   defp authorized?(conn), do: conn
 
   defp set_layout(conn, _) do
-    put_layout(conn, "admin.html")
+    put_layout(conn, "#{conn.assigns.theme.name}.html")
   end
 
   def index(conn, params) do
-    require Logger
     defn = get_registered_by_controller_route!(params[:resource], conn)
-    {contents, page} = case defn do
+    {contents, page, scope_counts} = case defn do
       %{type: :page} = defn ->
-        {defn.__struct__ |> apply(:page_view, [conn]), nil}
+        {defn.__struct__ |> apply(:page_view, [conn]), nil, []}
       defn ->
         model = defn.__struct__
 
@@ -123,12 +142,12 @@ defmodule ExAdmin.AdminController do
         end
         counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
         if function_exported? model, :index_view, 3 do
-          {apply(model, :index_view, [conn, page, counts]), page}
+          {apply(model, :index_view, [conn, page, counts]), page, counts}
         else
-          {ExAdmin.Index.default_index_view(conn, page, counts), page}
+          {ExAdmin.Index.default_index_view(conn, page, counts), page, counts}
         end
     end
-    conn
+    assign(conn, :scope_counts, scope_counts)
     |> render("admin.html", html: contents, defn: defn, resource: page,
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end
@@ -264,7 +283,7 @@ defmodule ExAdmin.AdminController do
           |> base_name |> String.downcase |> String.to_atom
 
           resource = model.run_query(repo, defn, :edit, params[:id])
-          
+
           if resource == nil do
             raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
           end
@@ -330,7 +349,7 @@ defmodule ExAdmin.AdminController do
 
   def nested(conn, params) do
     registered = get_registered_by_controller_route!(params[:resource], conn)
-    contents = 
+    contents =
       case registered do
         defn ->
           model = defn.__struct__
@@ -348,6 +367,14 @@ defmodule ExAdmin.AdminController do
 
   def dashboard(conn, _) do
     redirect conn, to: "/admin/contacts"
+  end
+
+  def select_theme(conn, %{id: id} = params) do
+    Logger.warn "select theme params: #{inspect params}"
+    {_, theme} = Application.get_env(:ex_admin, :theme_selector, [])
+    |> Enum.at(id)
+    Application.put_env :ex_admin, :theme, theme
+    redirect conn, to: "/admin"
   end
 
   def deep_find(items, name) do

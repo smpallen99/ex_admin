@@ -19,6 +19,7 @@ config :ex_admin,
   modules: [
     TestExAdmin.ExAdmin.Noid,
     TestExAdmin.ExAdmin.User,
+    TestExAdmin.ExAdmin.Product,
   ]
 
 config :xain,

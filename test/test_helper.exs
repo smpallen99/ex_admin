@@ -8,6 +8,7 @@ Code.require_file "./support/router.exs", __DIR__
 Code.require_file "./support/endpoint.exs", __DIR__
 Code.require_file "./support/conn_case.exs", __DIR__
 Code.require_file "./support/test_helpers.exs", __DIR__
+Code.require_file "./support/view.exs", __DIR__
 
 defmodule ExAdmin.RepoSetup do
   use ExUnit.CaseTemplate

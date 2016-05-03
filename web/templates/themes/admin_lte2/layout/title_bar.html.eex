@@ -1,0 +1,18 @@
+<section id="title_bar" class="content-header">
+    <h1 id="page_title"><%= page_title(@conn, @resource) %></h1>
+    <% crumbs = ExAdmin.BreadCrumb.get_breadcrumbs(@conn, @resource) %>
+    <%= unless crumbs == [] do %>
+      <ol class="breadcrumb">
+        <%= for {link, name} <- crumbs do %>
+          <li> 
+            <%= case name do %>
+            <%=   "admin" -> %>
+              <a href="<%= link %>"><i class="fa fa-dashboard"></i><%= name %></a>
+            <%=  _ -> %>
+              <a href="<%= link %>"><%= truncate name , length: 15 %></a>
+            <% end %>
+          </li>  
+        <% end %>
+      </ol>
+    <% end %> 
+</section>

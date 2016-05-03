@@ -7,6 +7,20 @@ defmodule TestExAdmin.Migrations do
       add :email, :string
     end
 
+    create table(:roles) do
+      add :name, :string
+      timestamps
+    end
+
+    create table(:users_roles) do
+      add :user_id, references(:users, on_delete: :delete_all)
+      add :role_id, references(:roles, on_delete: :delete_all)
+      timestamps
+    end
+
+    create index(:users_roles, [:user_id])
+    create index(:users_roles, [:role_id])
+
     create table(:products) do
       add :title, :string
       add :price, :decimal

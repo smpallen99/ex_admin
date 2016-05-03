@@ -1,7 +1,6 @@
 defmodule ExAdmin.RepoTest do
   use ExUnit.Case
   require Logger
-
   alias ExAdmin.Repo
 
   setup do
@@ -15,4 +14,5 @@ defmodule ExAdmin.RepoTest do
     assert res.name == "test"
     assert res.description == "desc"
   end
+
 end
