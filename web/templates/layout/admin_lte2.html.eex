@@ -8,26 +8,12 @@
     <meta name="author" content="">
 
     <title><%= site_title %></title>
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/bootstrap/css/bootstrap.min.css") %>">
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_lte2.css") %>">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/dist/css/AdminLTE.min.css") %>">
-    <!-- AdminLTE Skins. Choose a skin from the css/skins
-         folder instead of downloading all of them to reduce the load. -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/dist/css/skins/_all-skins.min.css") %>">
-    <!-- iCheck -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/plugins/iCheck/flat/blue.css") %>">
-    <!-- Morris chart -->
-    <!-- jvectormap -->
-    <!-- Date Picker -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/plugins/datepicker/datepicker3.css") %>">
-    <!-- Daterange picker -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/plugins/daterangepicker/daterangepicker-bs3.css") %>">
-    <!-- bootstrap wysihtml5 - text editor -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/css/ex_admin.css") %>">
 
     <!-- jQuery 2.1.4 -->
     <script src="<%= admin_static_path(@conn, "/plugins/jQuery/jQuery-2.1.4.min.js") %>"></script>
