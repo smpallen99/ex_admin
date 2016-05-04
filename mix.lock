@@ -5,7 +5,7 @@
   "db_connection": {:hex, :db_connection, "0.2.5"},
   "decimal": {:hex, :decimal, "1.1.2"},
   "earmark": {:hex, :earmark, "0.2.1"},
-  "ecto": {:hex, :ecto, "2.0.0-rc.3"},
+  "ecto": {:hex, :ecto, "2.0.0-rc.4"},
   "ex_doc": {:hex, :ex_doc, "0.11.5"},
   "ex_queb": {:hex, :ex_queb, "0.1.2"},
   "exactor": {:hex, :exactor, "2.2.0"},
@@ -19,5 +19,6 @@
   "poolboy": {:hex, :poolboy, "1.5.1"},
   "postgrex": {:hex, :postgrex, "0.11.1"},
   "ranch": {:hex, :ranch, "1.2.1"},
-  "scrivener": {:hex, :scrivener, "1.1.4"},
+  "scrivener": {:git, "https://github.com/drewolson/scrivener", "b1fa0f77ee2a0a8c5c625383920d00f30337716e", [branch: "v2"]},
+  "scrivener_ecto": {:git, "https://github.com/drewolson/scrivener_ecto.git", "b93f02ea4175f0fbbb5ed80cff7ad43933907b3e", []},
   "xain": {:hex, :xain, "0.5.2"}}

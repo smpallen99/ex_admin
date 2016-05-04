@@ -47,7 +47,7 @@ defmodule ExAdmin.Mixfile do
       {:factory_girl_elixir, "~> 0.1.1"},
       {:inflex, "~> 1.5"},
       {:xain, "~> 0.5.2"},
-      {:scrivener, "~> 1.1.4"},
+      {:scrivener_ecto, github: "drewolson/scrivener_ecto"},
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~> 2.2.0"},
       {:ex_doc, "~> 0.11", only: :dev},
