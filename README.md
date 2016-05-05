@@ -104,6 +104,14 @@ lib/my_app/endpoint.ex
 
 ```
 
+Add `!priv/static/themes` to .gitignore to  Track `priv/static/themes` directory
+
+.gitignore
+```
+...
+!priv/static/themes
+```
+
 Start the application with `iex -S mix phoenix.server`
 
 Visit http://localhost:4000/admin
