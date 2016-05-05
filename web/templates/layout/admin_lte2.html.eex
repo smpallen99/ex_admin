@@ -71,7 +71,6 @@
     <!-- Bootstrap 3.3.5 -->
     <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
     <script src='<%= static_path(@conn, "/js/admin_lte2.js") %>'></script>
-
   </body>
   <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   <script>require("web/static/js/app")</script>

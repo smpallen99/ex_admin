@@ -23,6 +23,7 @@ exports.config = {
           "web/static/vendor/best_in_place.js",
           "web/static/vendor/best_in_place.purr.js",
           "web/static/vendor/jquery-ujs.js.js",
+          "web/static/vendor/themes/admin_lte2/plugins/select2/select2.js",
         ],
         // 'js/active_admin.js': [
         // ]
@@ -54,9 +55,11 @@ exports.config = {
         "web/static/vendor/themes/admin_lte2/css/ionicons.min.css",
         "web/static/vendor/themes/admin_lte2/plugins/datepicker/datepicker3.css",
         "web/static/vendor/themes/admin_lte2/plugins/daterangepicker/daterangepicker-bs3.css",
+        "web/static/vendor/themes/admin_lte2//plugins/select2/select2.css",
       ],
       "css/active_admin.css.css": [
         "web/static/vendor/themes/active_admin/css/active_admin.css.css",
+        "web/static/vendor/themes/admin_lte2//plugins/select2/select2.css",
       ]
     }
     },
