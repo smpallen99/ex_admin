@@ -109,3 +109,9 @@ table.index_table {
 }
 
 .sidebar_section .attributes_table th { width: 50px; }
+
+
+// Tables with sortable rows
+table.sortable .handle {
+  cursor: move;
+}

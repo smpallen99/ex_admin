@@ -157,12 +157,17 @@ defmodule ExAdmin.Show do
       end
 
   """
-  defmacro table_for(resources, do: block) do
+  defmacro table_for(resources, opts, do: block) do
     quote do
       var!(columns, ExAdmin.Show) = []
       unquote(block)
       columns = var!(columns, ExAdmin.Show) |> Enum.reverse
-      var!(table_for, ExAdmin.Show) = %{resources: unquote(resources), columns: columns}
+      var!(table_for, ExAdmin.Show) = %{resources: unquote(resources), columns: columns, opts: unquote(opts)}
+    end
+  end
+  defmacro table_for(resources, do: block) do
+    quote do
+      table_for unquote(resources), [], do: unquote(block)
     end
   end
 
