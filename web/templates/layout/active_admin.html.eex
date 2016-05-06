@@ -53,7 +53,7 @@
     <script type="text/javascript">
       $(function() {
         $('#theme-selector').change(function(e) {
-          let val = $(this).val()
+          var val = $(this).val()
           console.log('selector change', val);
           window.location.href = '/admin/select_theme/'+val;
         });
