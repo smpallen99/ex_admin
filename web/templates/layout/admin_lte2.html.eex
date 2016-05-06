@@ -41,6 +41,13 @@
         <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <%=
+      case Application.get_env(:ex_admin, :head_template) do
+        {layout, template} ->
+          render layout, template, conn: @conn
+        _ -> ""
+      end
+    %>
 
   </head>
 

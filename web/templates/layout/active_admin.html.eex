@@ -17,6 +17,14 @@
     <script src="<%= admin_static_path(@conn, "/js/best_in_place.js") %>"></script>
     <script src="<%= admin_static_path(@conn, "/js/active_admin_lib.js") %>"></script>
     <script src="<%= admin_static_path(@conn, "/js/best_in_place.purr.js") %>"></script>
+    <%=
+      case Application.get_env(:ex_admin, :head_template) do
+        {layout, template} ->
+          render layout, template, conn: @conn
+        _ -> ""
+      end
+    %>
+
   </head>
 
   <% resource_label = ExAdmin.Utils.get_resource_label(@conn) |> String.downcase %>

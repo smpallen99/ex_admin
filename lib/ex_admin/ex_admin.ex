@@ -81,6 +81,32 @@ defmodule ExAdmin do
           Ecto.Date.to_string dt
         end
       end
+
+  ## Adding Custom CSS or JS to the Layout Head
+
+  A configuration item is available to add your own CSS or JS files
+  to the `<head>` section of ExAdmin's layout file.
+
+  Add the following to your project's `config/config.exs` file:
+
+    config :ex_admin,
+      head_template: {ExAdminDemo.AdminView, "admin_layout.html"}
+
+  Where:
+  * `ExAdminDemo.AdminView` is a view in your project
+  * `admin_layout.html` is a template in `web/templates/admin` directory
+
+  For example:
+
+      # file web/templates/admin/admin_layout.html.eex
+      <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_custom.css") %>">
+
+      # file priv/static/css/admin_custom.css
+      .foo {
+        color: green !important;
+        font-weight: 600;
+      }
+
   """
   require Logger
   use Xain
