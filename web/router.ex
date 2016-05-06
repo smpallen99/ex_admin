@@ -49,6 +49,7 @@ defmodule ExAdmin.Router do
       put "/:resource/:id", AdminController, :update
       delete "/:resource/:id", AdminController, :destroy
       post "/:resource/batch_action", AdminController, :batch_action
+      post "/:resource/:id/:association_name/update_positions", AssociationController, :update_positions
     end
   end
 end

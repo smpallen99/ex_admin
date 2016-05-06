@@ -189,6 +189,7 @@ defmodule ExAdmin.Register do
                 controller_filters: Module.get_attribute(__MODULE__, :controller_filters),
                 index_filters: Module.get_attribute(__MODULE__, :index_filters),
                 selectable_column: Module.get_attribute(__MODULE__, :selectable_column),
+                position_column: Module.get_attribute(__MODULE__, :position_column),
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions),
                 changesets: Module.get_attribute(__MODULE__, :changesets),
                 plugs: plugs,
