@@ -108,7 +108,7 @@
   <script type="text/javascript">
     $(function() {
       $('#theme-selector').change(function(e) {
-        let val = $(this).val()
+        var val = $(this).val()
         console.log('selector change', val);
         $.ajax('/admin/select_theme/'+val)
       });
