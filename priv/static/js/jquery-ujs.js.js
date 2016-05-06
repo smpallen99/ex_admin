@@ -26,7 +26,7 @@
       });
       return false;
     });
-    $("a[data-method='delete'").click(function(e) {
+    $("a[data-method='delete']").click(function(e) {
       var href, id;
       e.preventDefault();
       if (!do_confirm($(this))) {
@@ -42,7 +42,7 @@
       $("#" + id).submit();
       return false;
     });
-    $("a[data-method='post'").click(function(e) {
+    $("a[data-method='post']").click(function(e) {
       var href, id;
       e.preventDefault();
       if (!do_confirm($(this))) {
@@ -54,7 +54,7 @@
       $("#" + id).submit();
       return false;
     });
-    return $("a[data-method='put'").click(function(e) {
+    return $("a[data-method='put']").click(function(e) {
       var href, id;
       e.preventDefault();
       if (!do_confirm($(this))) {
