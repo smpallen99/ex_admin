@@ -74,7 +74,7 @@ defmodule ExAdmin.Table do
       end
     end
   end
-  def do_panel(_conn, %{contents: %{contents: content}}, _table_opts) do
+  def do_panel(_conn, %{contents: %{contents: content}}, _tableopts) do
     div do
       content |> elem(1) |> Xain.text
     end
