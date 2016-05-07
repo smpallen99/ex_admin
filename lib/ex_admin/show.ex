@@ -159,10 +159,20 @@ defmodule ExAdmin.Show do
   """
   defmacro table_for(resources, opts, do: block) do
     quote do
+      opts = unquote(opts)
+      new_opts = if opts[:sortable] do
+        [
+          class: "table sortable",
+          "data-sortable-link": opts[:update_positions_path]
+        ] |> Dict.merge(Dict.drop(opts, [:sortable, :update_positions_path]))
+      else
+        opts
+      end
+
       var!(columns, ExAdmin.Show) = []
       unquote(block)
       columns = var!(columns, ExAdmin.Show) |> Enum.reverse
-      var!(table_for, ExAdmin.Show) = %{resources: unquote(resources), columns: columns, opts: unquote(opts)}
+      var!(table_for, ExAdmin.Show) = %{resources: unquote(resources), columns: columns, opts: new_opts}
     end
   end
   defmacro table_for(resources, do: block) do

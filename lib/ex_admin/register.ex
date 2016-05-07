@@ -647,6 +647,21 @@ defmodule ExAdmin.Register do
     end
   end
 
+
+  @doc """
+  Drag&drop control for sortable tables.
+
+  `fa_icon_name` is one of [Font Awesome icons](https://fortawesome.github.io/Font-Awesome/icons/),
+  default - ["bars"](http://fortawesome.github.io/Font-Awesome/icon/bars/)
+  """
+  defmacro sort_handle_column(fa_icon_name \\ "bars") do
+    quote do
+      column "", [], fn(_) ->
+        i "", class: "fa fa-#{unquote(fa_icon_name)} handle", "aria-hidden": "true"
+      end
+    end
+  end
+
   @doc """
   Add a row to the attributes table on the show page.
 
