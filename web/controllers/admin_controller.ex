@@ -6,6 +6,7 @@ defmodule ExAdmin.AdminController do
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
   alias ExAdmin.Schema
+  require IEx
 
   plug :handle_root_req
   plug :set_theme
@@ -13,7 +14,7 @@ defmodule ExAdmin.AdminController do
 
   # A temporary fix to handle a get "/" request.
   # TODO: Refactor the way we assume path_info has the "/admin" prefix
-  def handle_root_req(conn, params) do
+  def handle_root_req(conn, _params) do
     case conn.path_info do
       [] ->
         case ExAdmin.Utils.get_route_path(:dashboard, :index) |> String.split("/") do
@@ -233,14 +234,14 @@ defmodule ExAdmin.AdminController do
         changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
         changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
 
-        if changeset.valid? do
-          resource = ExAdmin.Repo.insert(changeset)
-          put_flash(conn, :notice, "#{base_name model} was successfully created.")
-          |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
-        else
-          conn = put_flash(conn, :inline_error, changeset.errors)
-          contents = do_form_view model, conn, changeset.changeset.data, params
-          conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
+        case ExAdmin.Repo.insert(changeset) do
+          {:error, changeset} ->
+            conn = put_flash(conn, :inline_error, changeset.errors)
+            contents = do_form_view model, conn, changeset.data, params
+            conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
+          resource ->
+            put_flash(conn, :notice, "#{base_name model} was successfully created.")
+            |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
         end
     end
   end
@@ -260,14 +261,14 @@ defmodule ExAdmin.AdminController do
 
         changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
         changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
-        if changeset.valid? do
-          new_resource = ExAdmin.Repo.update(changeset)
-          put_flash(conn, :notice, "#{base_name model} was successfully updated")
-          |> redirect(to: get_route_path(resource, :show, Schema.get_id(new_resource)))
-        else
-          conn = put_flash(conn, :inline_error, changeset.errors)
-          contents = do_form_view model, conn, changeset.changeset.data, params
-          conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
+        case ExAdmin.Repo.update(changeset) do
+          {:error, changeset} ->
+            conn = put_flash(conn, :inline_error, changeset.errors)
+            contents = do_form_view model, conn, changeset.data, params
+            conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
+          resource ->
+            put_flash(conn, :notice, "#{base_name model} was successfully updated")
+            |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
         end
     end
   end

@@ -61,21 +61,24 @@ defmodule ExAdmin.Repo do
   end
 
   def update(%Changeset{} = changeset) do
-    {:ok, resource} = repo.update changeset.changeset
-
-    for {cs, fun} <- changeset.dependents do
-      if cs do
-        dependent = if Map.get(cs.params, "id") do
-          repo.update!(cs)
-        else
-          repo.insert!(cs)
+    case repo.update changeset.changeset do
+      {:ok, resource} ->
+        for {cs, fun} <- changeset.dependents do
+          if cs do
+            dependent = if Map.get(cs.params, "id") do
+              repo.update!(cs)
+            else
+              repo.insert!(cs)
+            end
+            fun.(resource, dependent)
+          else
+            fun.(resource)
+          end
         end
-        fun.(resource, dependent)
-      else
-        fun.(resource)
-      end
+        resource
+      {:error, cs} ->
+        {:error, add_constraints_to_errors(cs)}
     end
-    resource
   end
 
   def update(resource, params) do
@@ -86,21 +89,24 @@ defmodule ExAdmin.Repo do
   end
 
   def insert(%ExAdmin.Changeset{} = changeset) do
-    {:ok, resource} = repo.insert changeset.changeset
+    case repo.insert changeset.changeset do
+      {:ok, resource} ->
+        case ExAdmin.Schema.primary_key(resource) do
+          nil -> resource
+          key ->
+            resource = repo.get(resource.__struct__, Map.get(resource, key))
 
-    case ExAdmin.Schema.primary_key(resource) do
-      nil -> resource
-      key ->
-        resource = repo.get(resource.__struct__, Map.get(resource, key))
-
-        for {cs, fun} <- changeset.dependents do
-          if cs do
-            fun.(resource, repo.insert!(cs))
-          else
-            fun.(resource)
-          end
+            for {cs, fun} <- changeset.dependents do
+              if cs do
+                fun.(resource, repo.insert!(cs))
+              else
+                fun.(resource)
+              end
+            end
+            resource
         end
-        resource
+      {:error, cs} ->
+        {:error, add_constraints_to_errors(cs)}
     end
   end
 
@@ -108,6 +114,19 @@ defmodule ExAdmin.Repo do
     repo.insert!(struct(resource, params))
     |> insert_or_update_collection(params)
     |> insert_or_update_attributes_for(params)
+  end
+
+  # Constraint errors are not listed in errors. Add them to
+  # errors list
+  defp add_constraints_to_errors(cs) do
+    new_errors = Enum.reduce cs.constraints, cs.errors, fn(constraint, acc) ->
+      unless acc[constraint[:field]] do
+        [{constraint[:field], constraint[:message]} | acc]
+      else
+        acc
+      end
+    end
+    %Ecto.Changeset{cs | errors: new_errors}
   end
 
   def delete(resource, _params) do
