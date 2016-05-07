@@ -1,12 +1,29 @@
 exports.config = {
   // See http://brunch.io/#documentation for docs.
   files: {
-    // javascripts: {
-    //   joinTo: {
-    //     'active_admin.js': [
-    //       /^(web\/static\/js\/active_admin\/src)/
-    //     ]
-    //   }
+    javascripts: {
+      joinTo: {
+        'js/admin_lte2.js': [
+          "web/static/vendor/themes/admin_lte2/bootstrap/js/bootstrap.min.js",
+          "web/static/vendor/themes/admin_lte2/plugins/daterangepicker/daterangepicker.js",
+          "web/static/vendor/themes/admin_lte2/plugins/datepicker/bootstrap-datepicker.js",
+          "web/static/vendor/themes/admin_lte2/plugins/slimScroll/jquery.slimscroll.min.js",
+          "web/static/vendor/themes/admin_lte2/plugins/fastclick/fastclick.min.js",
+          "web/static/vendor/themes/admin_lte2/js/active_admin.js",
+          "web/static/vendor/themes/admin_lte2/js/best_in_place.js",
+          "web/static/vendor/themes/admin_lte2/js/best_in_place.purr.js",
+          "web/static/vendor/themes/admin_lte2/js/jquery-ujs.js.js",
+          "web/static/vendor/themes/admin_lte2/js/active_admin_lib.js",
+          "web/static/vendor/themes/admin_lte2/js/ex_admin.js",
+          "web/static/vendor/themes/admin_lte2/js/moment.js",
+          "web/static/vendor/themes/admin_lte2/dist/js/app.js",
+        ],
+        'js/jquery.min.js': [
+          "web/static/vendor/jQuery-2.1.4.min.js",
+          "web/static/vendor/jquery-ui.min.js",
+        ]
+      }
+    },
     //   // To use a separate vendor.js bundle, specify two files path
     //   // https://github.com/brunch/brunch/blob/stable/docs/config.md#files
     //   // joinTo: {
@@ -25,14 +42,14 @@ exports.config = {
     // },
     stylesheets: {
       joinTo: { "css/admin_lte2.css": [
-        "web/static/themes/admin_lte2/css/ex_admin.css",
-        "web/static/themes/admin_lte2/bootstrap/css/bootstrap.min.css",
-        "web/static/themes/admin_lte2/dist/css/AdminLTE.min.css",
-        "web/static/themes/admin_lte2/dist/css/skins/all-skins.min.css",
-        // "web/static/themes/admin_lte2/css/font-awesome.min.css",
-        // "web/static/themes/admin_lte2/css/ionicons.min.css",
-        "web/static/themes/admin_lte2/plugins/datepicker/datepicker3.css",
-        "web/static/themes/admin_lte2/plugins/daterangepicker/daterangepicker-bs3.css"
+        "web/static/vendor/themes/admin_lte2/css/ex_admin.css",
+        "web/static/vendor/themes/admin_lte2/bootstrap/css/bootstrap.min.css",
+        "web/static/vendor/themes/admin_lte2/dist/css/AdminLTE.min.css",
+        "web/static/vendor/themes/admin_lte2/dist/css/skins/all-skins.min.css",
+        "web/static/vendor/themes/admin_lte2/css/font-awesome.min.css",
+        "web/static/vendor/themes/admin_lte2/css/ionicons.min.css",
+        "web/static/vendor/themes/admin_lte2/plugins/datepicker/datepicker3.css",
+        "web/static/vendor/themes/admin_lte2/plugins/daterangepicker/daterangepicker-bs3.css",
       ]}
     },
     // templates: {
@@ -61,7 +78,7 @@ exports.config = {
   plugins: {
     babel: {
       // Do not use ES6 compiler in vendor code
-      ignore: [/^(web\/static\/vendor)/]
+      ignore: [/^(web\/static\/vendor)/, /^(web\/static\/themes)/]
     }
   }
 };
