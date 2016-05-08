@@ -319,6 +319,7 @@ defmodule ExAdmin.AdminController do
     |> redirect(to: get_route_path(conn, :index))
   end
 
+  defp to_integer(:id, string), do: string
   defp to_integer(:string, string), do: string
   defp to_integer(:integer, string) do
     case Integer.parse string do
