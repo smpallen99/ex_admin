@@ -9,17 +9,12 @@
 
     <title><%= site_title %></title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_lte2.css") %>">
-    <!-- Font Awesome -->
-    <%# <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"> %>
     <!-- Ionicons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <%# <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> %>
     <!-- Theme style -->
 
     <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->
     <script src="<%= static_path(@conn, "/js/jquery.min.js") %>"></script>
-    <!-- jQuery UI 1.11.4 -->
-    <!-- <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script> -->
-    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -67,14 +62,9 @@
       $.widget.bridge('uibutton', $.ui.button);
     </script>
     <!-- Bootstrap 3.3.5 -->
+    <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
     <script src='<%= static_path(@conn, "/js/admin_lte2.js") %>'></script>
 
-    <!-- daterangepicker -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script> -->
-
-    <!-- AdminLTE App -->
-    <!-- <script src="<%= admin_static_path(@conn, "/dist/js/app.min.js") %>"></script> -->
-    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
   </body>
   <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   <script>require("web/static/js/app")</script>

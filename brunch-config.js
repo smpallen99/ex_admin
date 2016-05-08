@@ -9,11 +9,6 @@ exports.config = {
           "web/static/vendor/themes/admin_lte2/plugins/datepicker/bootstrap-datepicker.js",
           "web/static/vendor/themes/admin_lte2/plugins/slimScroll/jquery.slimscroll.min.js",
           "web/static/vendor/themes/admin_lte2/plugins/fastclick/fastclick.min.js",
-          "web/static/vendor/themes/admin_lte2/js/active_admin.js",
-          "web/static/vendor/themes/admin_lte2/js/best_in_place.js",
-          "web/static/vendor/themes/admin_lte2/js/best_in_place.purr.js",
-          "web/static/vendor/themes/admin_lte2/js/jquery-ujs.js.js",
-          "web/static/vendor/themes/admin_lte2/js/active_admin_lib.js",
           "web/static/vendor/themes/admin_lte2/js/ex_admin.js",
           "web/static/vendor/themes/admin_lte2/js/moment.js",
           "web/static/vendor/themes/admin_lte2/dist/js/app.js",
@@ -21,7 +16,16 @@ exports.config = {
         'js/jquery.min.js': [
           "web/static/vendor/jQuery-2.1.4.min.js",
           "web/static/vendor/jquery-ui.min.js",
-        ]
+        ],
+        'js/ex_admin_common.js': [
+          "web/static/vendor/active_admin.js",
+          "web/static/vendor/active_admin_lib.js",
+          "web/static/vendor/best_in_place.js",
+          "web/static/vendor/best_in_place.purr.js",
+          "web/static/vendor/jquery-ujs.js.js",
+        ],
+        // 'js/active_admin.js': [
+        // ]
       }
     },
     //   // To use a separate vendor.js bundle, specify two files path
@@ -50,7 +54,11 @@ exports.config = {
         "web/static/vendor/themes/admin_lte2/css/ionicons.min.css",
         "web/static/vendor/themes/admin_lte2/plugins/datepicker/datepicker3.css",
         "web/static/vendor/themes/admin_lte2/plugins/daterangepicker/daterangepicker-bs3.css",
-      ]}
+      ],
+      "active_admin.css.css": [
+        "web/static/vendor/themes/active_admin/css/active_admin.css.css",
+      ]
+    }
     },
     // templates: {
     //   joinTo: 'js/active_admin.js'

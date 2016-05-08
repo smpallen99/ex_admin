@@ -218,7 +218,7 @@ li.page.gap span{
             border-bottom-right-radius: 2px; }
 
 table.index_table th.sortable a {
-      background: url("/themes/admin_lte2/images/orderable.png") no-repeat 0 4px;
+      background: url("/images/ex_admin/orderable.png") no-repeat 0 4px;
       padding-left: 13px; }
 table.index_table th.sorted-asc a {
       background-position: 0 -27px; }

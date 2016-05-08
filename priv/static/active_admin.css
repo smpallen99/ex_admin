@@ -688,7 +688,7 @@ form.filter_form .filter_form_field {
     text-align: center;
     width: 12px; }
   form.filter_form .filter_form_field.filter_date_range input[type=text] {
-    background: #fff url("/images/ex_admin/datepicker/datepicker-input-icon.png") no-repeat 100% 7px;
+    background: #fff url("/images/active_admin/datepicker/datepicker-input-icon.png") no-repeat 100% 7px;
     padding-right: 27px;
     width: 71px; }
 form.filter_form a.clear_filters_btn {
@@ -1104,7 +1104,7 @@ table.index_table {
       white-space: nowrap;
       -webkit-font-smoothing: antialiased; }
     table.index_table th.sortable a {
-      background: url("/images/ex_admin/orderable.png") no-repeat 0 4px;
+      background: url("/images/active_admin/orderable.png") no-repeat 0 4px;
       padding-left: 13px; }
     table.index_table th.sorted-asc a {
       background-position: 0 -27px; }
@@ -2466,3 +2466,6 @@ body {
 }
 
 /*# sourceMappingURL=active_admin.css.css.map */
+
+
+/*# sourceMappingURL=active_admin.css.map*/
