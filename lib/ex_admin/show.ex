@@ -184,6 +184,16 @@ defmodule ExAdmin.Show do
     end
   end
 
+
+  defmacro sortable_table_for(resource, assoc_name, do: block) do
+    quote do
+      resource = unquote(resource)
+      assoc_name = unquote(assoc_name)
+      resources = Map.get(resource, assoc_name)
+      table_for resources, [sortable: [resource: resource, assoc_name: assoc_name]], do: unquote(block)
+    end
+  end
+
   @doc """
   Add a markup block to a form.
   
