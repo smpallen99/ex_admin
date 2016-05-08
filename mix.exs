@@ -46,7 +46,7 @@ defmodule ExAdmin.Mixfile do
       {:phoenix_html, "~> 2.5"},
       {:factory_girl_elixir, "~> 0.1.1"},
       {:inflex, "~> 1.5"},
-      {:xain, "~> 0.5.2"},
+      {:xain, "~> 0.5.3"},
       {:scrivener, "~> 1.0"},
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~> 2.2.0"},
