@@ -1,0 +1,9 @@
+<%= if @attr_value do %>
+  $("<%= "a##{@attr_name}_true_#{@id}" %>").removeClass("btn-default").addClass("btn-primary");
+  $("<%= "a##{@attr_name}_false_#{@id}" %>").removeClass("btn-primary").addClass("btn-default");
+<% else %>
+  $("<%= "a##{@attr_name}_true_#{@id}" %>").removeClass("btn-primary").addClass("btn-default");
+  $("<%= "a##{@attr_name}_false_#{@id}" %>").removeClass("btn-default").addClass("btn-primary");
+<% end %>
+$(".toogle.btn-primary").attr("disabled", true);
+$(".toogle.btn-default").attr("disabled", false);

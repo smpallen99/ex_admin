@@ -143,6 +143,18 @@ defmodule ExAdmin.Helpers do
     "<img src='#{fun.(resource)}'#{attributes} />"
     |> build_link_for(conn, opts, resource, f_name)
   end
+  def build_single_field(resource, _conn, f_name, %{toogle: true}) do
+    path = "/admin/#{ExAdmin.get_controller_path(resource)}/#{resource.id}/toogle?attr_name=#{f_name}&attr_value="
+    current_value = Map.get(resource, f_name)
+    [yes_btn_css, no_btn_css] = case current_value do
+      true -> ["btn-primary", "btn-default"]
+      false -> ["btn-default", "btn-primary"]
+    end
+    [
+    ~s(<a id="#{f_name}_true_#{resource.id}" class="toogle btn btn-sm #{yes_btn_css}" href="#{path}true" data-remote="true" data-method="put" #{if !!current_value, do: "disabled"}>YES</a>),
+    ~s(<a id="#{f_name}_false_#{resource.id}" class="toogle btn btn-sm #{no_btn_css}" href="#{path}false" data-remote="true" data-method="put" #{if !current_value, do: "disabled"}>NO</a>)
+    ] |> Enum.join
+  end
   def build_single_field(resource, conn, f_name, %{fun: fun} = opts) do
     markup :nested do
       fun.(resource)
