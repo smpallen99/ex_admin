@@ -21,4 +21,5 @@
   "ranch": {:hex, :ranch, "1.2.1"},
   "scrivener": {:git, "https://github.com/drewolson/scrivener", "b1fa0f77ee2a0a8c5c625383920d00f30337716e", [branch: "v2"]},
   "scrivener_ecto": {:git, "https://github.com/drewolson/scrivener_ecto.git", "b93f02ea4175f0fbbb5ed80cff7ad43933907b3e", []},
-  "xain": {:hex, :xain, "0.5.2"}}
+  "sass_elixir": {:hex, :sass_elixir, "0.0.1"},
+  "xain": {:hex, :xain, "0.5.3"}}
