@@ -29,4 +29,4 @@
   "ranch": {:hex, :ranch, "1.2.1"},
   "sass_elixir": {:hex, :sass_elixir, "0.0.1"},
   "scrivener": {:hex, :scrivener, "1.1.4"},
-  "xain": {:hex, :xain, "0.5.2"}}
+  "xain": {:hex, :xain, "0.5.3"}}
