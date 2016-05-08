@@ -70,4 +70,22 @@ defmodule ExAdminTest.ControllerTest do
     conn = delete conn(), get_route_path(%User{}, :delete, @wrong_resource_id)
     assert html_response(conn, 404) =~ ~r/not found/
   end
+
+  def batch_action_args(resource, id) do
+    %{batch_action: "destroy", resource: resource, collection_selection: ["#{id}"]}
+  end
+
+  test "batch selection", %{user: user} do
+    params = batch_action_args "users", user.id
+    conn = post conn(), "/admin/users/batch_action", params
+    assert html_response(conn, 302)
+  end
+
+  test "batch selection for binary id" do
+    noid = TestExAdmin.Noid.changeset(%TestExAdmin.Noid{}, %{name: "testing", description: "desc"})
+    |> TestExAdmin.Repo.insert!
+    params = batch_action_args "noids", noid.name
+    conn = post conn(), "/admin/noids/batch_action", params
+    assert html_response(conn, 302)
+  end
 end

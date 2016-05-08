@@ -104,6 +104,13 @@ defmodule TestExAdmin.Noprimary do
     field :index, :integer
     field :name, :string
     field :description, :string
+  end
 
+  @required_fields ~w(name)
+  @optional_fields ~w(index description)
+
+  def changeset(model, params \\ :empty) do
+    model
+    |> cast(params, @required_fields, @optional_fields)
   end
 end
