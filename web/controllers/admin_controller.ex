@@ -371,11 +371,11 @@ defmodule ExAdmin.AdminController do
   end
 
   def select_theme(conn, %{id: id} = params) do
-    Logger.warn "select theme params: #{inspect params}"
     {_, theme} = Application.get_env(:ex_admin, :theme_selector, [])
     |> Enum.at(id)
+    loc = Map.get(params, :loc, "/admin") |> URI.parse |> Map.get(:path)
     Application.put_env :ex_admin, :theme, theme
-    redirect conn, to: "/admin"
+    redirect conn, to: loc
   end
 
   def deep_find(items, name) do

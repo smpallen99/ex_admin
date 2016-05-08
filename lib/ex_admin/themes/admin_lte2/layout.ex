@@ -40,7 +40,7 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
     for {{name, theme}, inx} <- options do
       active = if current == theme, do: "active", else: ""
       content_tag :li, class: active  do
-        content_tag :a, name, href: "/admin/select_theme/#{inx}"
+        content_tag :a, name, href: "#", "data-theme": "#{inx}", class: "theme-selector"
       end
     end
   end

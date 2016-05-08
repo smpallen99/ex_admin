@@ -77,10 +77,10 @@
   <script>require("web/static/js/app")</script>
   <script type="text/javascript">
     $(function() {
-      $('#theme-selector').change(function(e) {
-        var val = $(this).val()
-        console.log('selector change', val);
-        $.ajax('/admin/select_theme/'+val)
+      $('.theme-selector').on('click', function(e) {
+        var val = $(this).attr('data-theme')
+        var prefix = "/<%= Application.get_env(:ex_admin, :route_prefix, "admin") %>";
+        window.location.href = prefix+'/select_theme/'+val+'?loc='+window.location.href;
       });
     });
   </script>

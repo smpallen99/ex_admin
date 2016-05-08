@@ -57,8 +57,8 @@
       $(function() {
         $('#theme-selector').change(function(e) {
           var val = $(this).val()
-          console.log('selector change', val);
-          window.location.href = '/admin/select_theme/'+val;
+          var prefix = "/<%= Application.get_env(:ex_admin, :route_prefix, "admin") %>";
+          window.location.href = prefix+'/select_theme/'+val+'?loc='+window.location.href;
         });
       });
     </script>
