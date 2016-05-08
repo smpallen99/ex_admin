@@ -51,11 +51,17 @@ defmodule Mix.Tasks.Admin.Install do
   def do_assets(%Config{assets: true} = config) do
     base_path = Path.join(~w(priv static))
 
-    # status_msg("creating", "css files")
-    # ~w(active_admin.css active_admin.css.css)
-    # |> Enum.each(&(copy_file base_path, "css", &1))
+    status_msg("creating", "css files")
+    ~w(admin_lte2.css admin_lte2.css.map active_admin.css.css active_admin.css.css.map)
+    |> Enum.each(&(copy_file base_path, "css", &1))
 
-    # status_msg("creating", "js files")
+    status_msg("creating", "js files")
+    ~w(jquery.min.js admin_lte2.js jquery.min.js.map admin_lte2.js.map)
+    ++ ~w(ex_admin_common.js ex_admin_common.js.map)
+    |> Enum.each(&(copy_file base_path, "js", &1))
+
+    copy_r(base_path, "fonts")
+    copy_r(base_path, "images")
 
     # ~w(jquery-ujs.js.js jquery.js jquery-ui.min.js active_admin.js) ++
     # ~w(best_in_place.js best_in_place.purr.js)
@@ -69,7 +75,7 @@ defmodule Mix.Tasks.Admin.Install do
     # ~w(glyphicons-halflings-white.png glyphicons-halflings.png)
     # |> Enum.each(&(copy_file base_path, "images", &1))
 
-    copy_r(base_path, "themes")
+    # copy_r(base_path, "themes")
 
     config
   end
@@ -188,11 +194,11 @@ defmodule Mix.Tasks.Admin.Install do
     base_path
   end
 
-  # defp copy_file(base_path, path, file_name) do
-  #   File.cp Path.join([get_package_path, base_path, path, file_name]),
-  #           Path.join([File.cwd!, base_path, path, file_name])
-  #   base_path
-  # end
+  defp copy_file(base_path, path, file_name) do
+    File.cp Path.join([get_package_path, base_path, path, file_name]),
+            Path.join([File.cwd!, base_path, path, file_name])
+    base_path
+  end
 
   # defp copy_vendor_file(base_path, path, file_name) do
   #   File.cp Path.join([get_package_path, "web", "static", "vendor", file_name]),

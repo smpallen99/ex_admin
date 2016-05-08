@@ -8,32 +8,13 @@
     <meta name="author" content="">
 
     <title><%= site_title %></title>
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/bootstrap/css/bootstrap.min.css") %>">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_lte2.css") %>">
     <!-- Ionicons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <%# <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> %>
     <!-- Theme style -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/dist/css/AdminLTE.min.css") %>">
-    <!-- AdminLTE Skins. Choose a skin from the css/skins
-         folder instead of downloading all of them to reduce the load. -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/dist/css/skins/_all-skins.min.css") %>">
-    <!-- iCheck -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/plugins/iCheck/flat/blue.css") %>">
-    <!-- Morris chart -->
-    <!-- jvectormap -->
-    <!-- Date Picker -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/plugins/datepicker/datepicker3.css") %>">
-    <!-- Daterange picker -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/plugins/daterangepicker/daterangepicker-bs3.css") %>">
-    <!-- bootstrap wysihtml5 - text editor -->
-    <link rel="stylesheet" href="<%= admin_static_path(@conn, "/css/ex_admin.css") %>">
 
-    <!-- jQuery 2.1.4 -->
-    <script src="<%= admin_static_path(@conn, "/plugins/jQuery/jQuery-2.1.4.min.js") %>"></script>
-    <!-- jQuery UI 1.11.4 -->
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->
+    <script src="<%= static_path(@conn, "/js/jquery.min.js") %>"></script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -88,36 +69,18 @@
       $.widget.bridge('uibutton', $.ui.button);
     </script>
     <!-- Bootstrap 3.3.5 -->
-    <script src='<%= admin_static_path(@conn, "/bootstrap/js/bootstrap.min.js") %>'></script>
+    <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
+    <script src='<%= static_path(@conn, "/js/admin_lte2.js") %>'></script>
 
-    <!-- daterangepicker -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
-    <script src="<%= admin_static_path(@conn, "/plugins/daterangepicker/daterangepicker.js") %>"></script>
-    <!-- datepicker -->
-    <script src="<%= admin_static_path(@conn, "/plugins/datepicker/bootstrap-datepicker.js") %>"></script>
-    <!-- Slimscroll -->
-    <script src="<%= admin_static_path(@conn, "/plugins/slimScroll/jquery.slimscroll.min.js") %>"></script>
-    <!-- FastClick -->
-    <script src="<%= admin_static_path(@conn, "/plugins/fastclick/fastclick.min.js") %>"></script>
-
-    <script src='<%= admin_static_path(@conn, "/js/active_admin.js") %>'></script>
-    <script src='<%= admin_static_path(@conn, "/js/best_in_place.js") %>'></script>
-    <script src='<%= admin_static_path(@conn, "/js/best_in_place.purr.js") %>'></script>
-    <script src='<%= admin_static_path(@conn, "/js/jquery-ujs.js.js") %>'></script>
-    <script src='<%= admin_static_path(@conn, "/js/active_admin_lib.js") %>'></script>
-    <script src='<%= admin_static_path(@conn, "/js/ex_admin.js") %>'></script>
-    <!-- AdminLTE App -->
-    <script src="<%= admin_static_path(@conn, "/dist/js/app.min.js") %>"></script>
-    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
   </body>
   <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   <script>require("web/static/js/app")</script>
   <script type="text/javascript">
     $(function() {
-      $('#theme-selector').change(function(e) {
-        var val = $(this).val()
-        console.log('selector change', val);
-        $.ajax('/admin/select_theme/'+val)
+      $('.theme-selector').on('click', function(e) {
+        var val = $(this).attr('data-theme')
+        var prefix = "/<%= Application.get_env(:ex_admin, :route_prefix, "admin") %>";
+        window.location.href = prefix+'/select_theme/'+val+'?loc='+window.location.href;
       });
     });
   </script>

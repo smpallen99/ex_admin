@@ -1,4 +1,5 @@
 defmodule ExAdmin.Theme.AdminLte2.Layout do
+  @moduledoc false
   import ExAdmin.Navigation
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
   use Xain
@@ -40,7 +41,7 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
     for {{name, theme}, inx} <- options do
       active = if current == theme, do: "active", else: ""
       content_tag :li, class: active  do
-        content_tag :a, name, href: "/admin/select_theme/#{inx}"
+        content_tag :a, name, href: "#", "data-theme": "#{inx}", class: "theme-selector"
       end
     end
   end

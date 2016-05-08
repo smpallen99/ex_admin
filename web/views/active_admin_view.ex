@@ -1,4 +1,5 @@
 defmodule ExAdmin.ActiveAdmin.LayoutView do
+  @moduledoc false
   require Logger
   import ExAdmin.ViewHelpers
   import ExAdmin.Authentication

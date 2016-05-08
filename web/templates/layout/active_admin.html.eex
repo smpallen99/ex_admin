@@ -8,15 +8,10 @@
     <meta name="author" content="">
 
     <title><%= site_title %></title>
-    <link rel="stylesheet" media="screen" type="text/css" href="<%= admin_static_path(@conn, "/css/active_admin.css.css") %>">
+    <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/css/active_admin.css.css") %>">
 
-    <script src="<%= admin_static_path(@conn, "/js/jquery.js") %>"></script>
-    <script src="<%= admin_static_path(@conn, "/js/jquery-ui.min.js") %>"></script>
-    <script src="<%= admin_static_path(@conn, "/js/jquery-ujs.js.js") %>"></script>
-    <script src="<%= admin_static_path(@conn, "/js/active_admin.js") %>"></script>
-    <script src="<%= admin_static_path(@conn, "/js/best_in_place.js") %>"></script>
-    <script src="<%= admin_static_path(@conn, "/js/active_admin_lib.js") %>"></script>
-    <script src="<%= admin_static_path(@conn, "/js/best_in_place.purr.js") %>"></script>
+    <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->
+    <script src="<%= static_path(@conn, "/js/jquery.min.js") %>"></script>
     <%=
       case Application.get_env(:ex_admin, :head_template) do
         {layout, template} ->
@@ -24,7 +19,6 @@
         _ -> ""
       end
     %>
-
   </head>
 
   <% resource_label = ExAdmin.Utils.get_resource_label(@conn) |> String.downcase %>
@@ -56,14 +50,15 @@
         </footer>
       </div>
     </body>
+    <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
     <script>require("web/static/js/app")</script>
     <script type="text/javascript">
       $(function() {
         $('#theme-selector').change(function(e) {
           var val = $(this).val()
-          console.log('selector change', val);
-          window.location.href = '/admin/select_theme/'+val;
+          var prefix = "/<%= Application.get_env(:ex_admin, :route_prefix, "admin") %>";
+          window.location.href = prefix+'/select_theme/'+val+'?loc='+window.location.href;
         });
       });
     </script>

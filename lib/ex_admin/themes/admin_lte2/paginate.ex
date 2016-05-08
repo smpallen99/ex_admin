@@ -1,4 +1,5 @@
 defmodule ExAdmin.Theme.AdminLte2.Paginate do
+  @moduledoc false
   import ExAdmin.Paginate
   use Xain
 
