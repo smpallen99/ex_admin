@@ -98,6 +98,7 @@ defmodule TestExAdmin.Noid do
 end
 
 defmodule TestExAdmin.Noprimary do
+  import Ecto.Changeset
   use Ecto.Schema
   @primary_key false
   schema "noprimarys" do
