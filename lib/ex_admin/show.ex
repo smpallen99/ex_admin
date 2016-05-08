@@ -160,13 +160,16 @@ defmodule ExAdmin.Show do
   defmacro table_for(resources, opts, do: block) do
     quote do
       opts = unquote(opts)
-      new_opts = if opts[:sortable] do
-        [
-          class: "table sortable",
-          "data-sortable-link": opts[:update_positions_path]
-        ] |> Dict.merge(Dict.drop(opts, [:sortable, :update_positions_path]))
-      else
-        opts
+      new_opts = case opts[:sortable] do
+        [resource: resource, assoc_name: assoc_name] ->
+          path = "/admin/#{ExAdmin.get_controller_path(resource)}/#{resource.id}/#{assoc_name}/update_positions"
+          [
+            class: "table sortable",
+            "data-sortable-link": path
+          ] |> Dict.merge(Dict.drop(opts, [:sortable]))
+        
+        _ ->
+          opts
       end
 
       var!(columns, ExAdmin.Show) = []
