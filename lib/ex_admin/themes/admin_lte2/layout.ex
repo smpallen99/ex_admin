@@ -1,4 +1,5 @@
 defmodule ExAdmin.Theme.AdminLte2.Layout do
+  @moduledoc false
   import ExAdmin.Navigation
   import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
   use Xain

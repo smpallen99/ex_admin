@@ -1,4 +1,5 @@
 defmodule ExAdmin.Theme.AdminLte2.Table do
+  @moduledoc false
   # import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
   import ExAdmin.Table
   use Xain

@@ -20,7 +20,7 @@ defmodule ExAdmin.Router do
           admin_routes
         end
       end
-  
+
   """
   use ExAdmin.Web, :router
 

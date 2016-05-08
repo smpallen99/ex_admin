@@ -1,4 +1,5 @@
 defmodule ExAdmin.Theme.AdminLte2.Index do
+  @moduledoc false
   import Kernel, except: [div: 2]
   import Xain
   import ExAdmin.Utils

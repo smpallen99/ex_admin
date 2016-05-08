@@ -1,4 +1,5 @@
 defmodule ExAdmin.Theme.ActiveAdmin.Form do
+  @moduledoc false
   import Kernel, except: [div: 2]
   import Xain
   import ExAdmin.Utils

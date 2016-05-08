@@ -1,5 +1,5 @@
 defmodule ExAdmin.Theme.ActiveAdmin.Table do
-  # import Phoenix.HTML.Tag, only: [content_tag: 2, content_tag: 3]
+  @moduledoc false
   import ExAdmin.Table
   use Xain
 

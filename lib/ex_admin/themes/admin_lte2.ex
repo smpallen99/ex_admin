@@ -1,4 +1,5 @@
 defmodule ExAdmin.Theme.AdminLte2 do
+  @moduledoc false
   use Xain
   import ExAdmin.Utils
   # import ExAdmin.ViewHelpers
