@@ -12,6 +12,13 @@
 
     <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->
     <script src="<%= static_path(@conn, "/js/jquery.min.js") %>"></script>
+    <%=
+      case Application.get_env(:ex_admin, :head_template) do
+        {layout, template} ->
+          render layout, template, conn: @conn
+        _ -> ""
+      end
+    %>
   </head>
 
   <% resource_label = ExAdmin.Utils.get_resource_label(@conn) |> String.downcase %>
@@ -49,7 +56,7 @@
     <script type="text/javascript">
       $(function() {
         $('#theme-selector').change(function(e) {
-          let val = $(this).val()
+          var val = $(this).val()
           console.log('selector change', val);
           window.location.href = '/admin/select_theme/'+val;
         });

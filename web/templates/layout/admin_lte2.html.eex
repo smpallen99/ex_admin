@@ -22,6 +22,13 @@
         <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <%=
+      case Application.get_env(:ex_admin, :head_template) do
+        {layout, template} ->
+          render layout, template, conn: @conn
+        _ -> ""
+      end
+    %>
 
   </head>
 
@@ -71,7 +78,7 @@
   <script type="text/javascript">
     $(function() {
       $('#theme-selector').change(function(e) {
-        let val = $(this).val()
+        var val = $(this).val()
         console.log('selector change', val);
         $.ajax('/admin/select_theme/'+val)
       });
