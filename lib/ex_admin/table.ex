@@ -109,7 +109,7 @@ defmodule ExAdmin.Table do
   def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label),
     do: build_th(label, opts, table_opts)
   def build_th({field_name, _opts}, _table_opts) when is_binary(field_name),
-    do: th(".th-#{parameterize field_name} #{field_name}")
+    do: th(".th-#{parameterize field_name} #{humanize field_name}")
   def build_th(field_name, _),
     do: th(".th-#{parameterize field_name} #{humanize field_name}")
   def build_th(field_name, opts, %{fields: fields} = table_opts) do
@@ -122,7 +122,7 @@ defmodule ExAdmin.Table do
   def build_th(field_name, _, _) when is_binary(field_name) do
     th(class: to_class("th-", field_name)) do
     # th do
-      text field_name
+      text humanize(field_name)
     end
   end
   def build_th(field_name, _, _), do: build_th(field_name, nil)
