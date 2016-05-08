@@ -55,7 +55,7 @@ exports.config = {
         "web/static/vendor/themes/admin_lte2/plugins/datepicker/datepicker3.css",
         "web/static/vendor/themes/admin_lte2/plugins/daterangepicker/daterangepicker-bs3.css",
       ],
-      "active_admin.css.css": [
+      "css/active_admin.css.css": [
         "web/static/vendor/themes/active_admin/css/active_admin.css.css",
       ]
     }
@@ -75,7 +75,7 @@ exports.config = {
   // Phoenix paths configuration
   paths: {
     // Which directories to watch
-    watched: ["web/static", "web/static/themes/admin_lte2", "web/static/js", "web/static/js/active_admin", "test/static"],
+    watched: ["web/static", "web/static/js", "test/static"],
 
     // Where to compile files to
     // public: "priv/static"
@@ -86,7 +86,7 @@ exports.config = {
   plugins: {
     babel: {
       // Do not use ES6 compiler in vendor code
-      ignore: [/^(web\/static\/vendor)/, /^(web\/static\/themes)/]
+      ignore: [/^(web\/static\/vendor)/]
     }
   }
 };
