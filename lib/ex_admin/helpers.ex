@@ -152,6 +152,7 @@ defmodule ExAdmin.Helpers do
     [yes_btn_css, no_btn_css] = case current_value do
       true -> ["btn-primary", "btn-default"]
       false -> ["btn-default", "btn-primary"]
+      value -> raise ArgumentError.exception("`toogle` option could be used only with columns of boolean type.\nBut `#{f_name}` is #{inspect(IEx.Info.info(value))}\nwith value == #{inspect(value)}")
     end
     [
     ~s(<a id="#{f_name}_true_#{resource.id}" class="toogle btn btn-sm #{yes_btn_css}" href="#{path}true" data-remote="true" data-method="put" #{if !!current_value, do: "disabled"}>#{yes}</a>),
