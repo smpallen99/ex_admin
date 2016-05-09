@@ -693,7 +693,8 @@ $(document).ready(function() {
             url: $(ui.item).closest("table.sortable").data("sortable-link"),
             type: 'POST',
             beforeSend: function(xhr) {
-              xhr.setRequestHeader('x-csrf-token', ExAdmin.csrf_token);
+              var csrf_token = $('meta[name=csrf-token]').attr('content');
+              xhr.setRequestHeader('x-csrf-token', csrf_token);
             },
             dataType: 'script',
             data: {positions: positions},

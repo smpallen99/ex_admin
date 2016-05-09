@@ -83,6 +83,5 @@
         window.location.href = prefix+'/select_theme/'+val+'?loc='+window.location.href;
       });
     });
-    window.ExAdmin = {csrf_token: "<%= Plug.CSRFProtection.get_csrf_token %>"};
   </script>
 </html>
