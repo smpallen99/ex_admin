@@ -5,5 +5,5 @@
   $("<%= "a##{@attr_name}_true_#{@id}" %>").removeClass("btn-primary").addClass("btn-default");
   $("<%= "a##{@attr_name}_false_#{@id}" %>").removeClass("btn-default").addClass("btn-primary");
 <% end %>
-$(".toogle.btn-primary").attr("disabled", true);
-$(".toogle.btn-default").attr("disabled", false);
+$(".toggle.btn-primary").attr("disabled", true);
+$(".toggle.btn-default").attr("disabled", false);
