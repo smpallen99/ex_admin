@@ -5,10 +5,11 @@ defmodule ExAdmin.AssociationController do
   def update_positions(conn, %{"association_name" => association_name, "positions" => positions} = params) do
     defn = ExAdmin.get_registered_by_controller_route!(params["resource"], conn)
     positions = prepare_positions(defn, positions)
+    association_name = String.to_existing_atom(association_name)
 
     repo.get!(defn.resource_model, params["id"])
-    |> repo.preload(String.to_existing_atom(association_name))
-    |> defn.resource_model.changeset(%{association_name => positions})
+    |> repo.preload(association_name)
+    |> changeset(association_name, positions)
     |> repo.update!
 
     conn |> put_status(200) |> json("Ok")
@@ -38,6 +39,11 @@ defmodule ExAdmin.AssociationController do
     |> Enum.into(%{})
   end
 
+  defp changeset(struct, assoc_name, positions) do
+    struct
+    |> Ecto.Changeset.cast(%{assoc_name => positions}, [], [])
+    |> Ecto.Changeset.cast_assoc(assoc_name)
+  end
 
   defp repo, do: Application.get_env(:ex_admin, :repo)
 end
