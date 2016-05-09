@@ -268,6 +268,10 @@ table.index_table th {
   padding-right: 8px;
 }
 
+table.sortable .handle {
+  cursor: move; 
+}
+
 /*!
  * Bootstrap v3.3.5 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
