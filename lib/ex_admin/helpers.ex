@@ -147,7 +147,8 @@ defmodule ExAdmin.Helpers do
     build_single_field(resource, conn, f_name, %{toggle: ~w(YES NO)})
   end
   def build_single_field(resource, _conn, f_name, %{toggle: [yes, no]}) do
-    path = "/admin/#{ExAdmin.get_controller_path(resource)}/#{resource.id}/toggle?attr_name=#{f_name}&attr_value="
+    path = ExAdmin.Utils.get_route_path(resource, :toggle, resource.id)
+    path = path <> "?attr_name=#{f_name}&attr_value="
     current_value = Map.get(resource, f_name)
     [yes_btn_css, no_btn_css] = case current_value do
       true -> ["btn-primary", "btn-default"]

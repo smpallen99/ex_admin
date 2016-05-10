@@ -192,7 +192,7 @@ defmodule ExAdmin.Show do
   def prepare_sortable_opts(opts) do
     case opts[:sortable] do
       [resource: resource, assoc_name: assoc_name] ->
-        path = "/admin/#{ExAdmin.get_controller_path(resource)}/#{resource.id}/#{assoc_name}/update_positions"
+        path = ExAdmin.Utils.get_route_path(resource, :update_positions, [resource.id, assoc_name])
         [
           class: "table sortable",
           "data-sortable-link": path
