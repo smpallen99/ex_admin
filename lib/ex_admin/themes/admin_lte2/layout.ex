@@ -63,18 +63,6 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
     end
   end
 
-  def logo_mini do
-    default = "Ex<b>A</b>"
-    Application.get_env(:ex_admin, :logo_mini, default)
-    |> Phoenix.HTML.raw
-  end
-
-  def logo_full do
-    default = "Ex<b>Admin</b>"
-    Application.get_env(:ex_admin, :logo_full, default)
-    |> Phoenix.HTML.raw
-  end
-
   def sidebar_view(conn, {name, opts, {mod, fun}}, resource) do
     box_attributes = Keyword.get(opts, :box_attributes, ".box.box-primary")
     header_attributes = Keyword.get(opts, :header_attributes, ".box-header.with-border")

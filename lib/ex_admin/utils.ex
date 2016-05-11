@@ -147,6 +147,8 @@ defmodule ExAdmin.Utils do
   def get_route_path(prefix, :create, _), do: path_append(prefix)
   def get_route_path(prefix, :destroy, id), do: path_append(prefix, ~w(#{id}))
   def get_route_path(prefix, :delete, id), do: path_append(prefix, ~w(#{id}))
+  def get_route_path(prefix, :toggle, id), do: path_append(prefix, ~w(#{id} toggle))
+  def get_route_path(prefix, :update_positions, opts), do: path_append(prefix, opts ++ ["update_positions"])
 
   defp path_append(prefix, rest \\ []) do
     "/" <> Enum.join(prefix ++ rest, "/")

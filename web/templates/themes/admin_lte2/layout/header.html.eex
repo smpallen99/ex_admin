@@ -1,8 +1,8 @@
 <header class="main-header" id="header">
   <a href="#" class="logo">
-    <span class="logo-mini"><%= ExAdmin.Theme.AdminLte2.Layout.logo_mini %></span>
+    <span class="logo-mini"><%= ExAdmin.LayoutView.logo_mini %></span>
     <!-- logo for regular state and mobile devices -->
-    <span class="logo-lg"><%= ExAdmin.Theme.AdminLte2.Layout.logo_full %></span>
+    <span class="logo-lg"><%= ExAdmin.LayoutView.logo_full %></span>
   </a>
 
   <nav class="navbar navbar-static-top" role="navigation">

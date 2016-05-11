@@ -189,6 +189,7 @@ defmodule ExAdmin.Register do
                 controller_filters: Module.get_attribute(__MODULE__, :controller_filters),
                 index_filters: Module.get_attribute(__MODULE__, :index_filters),
                 selectable_column: Module.get_attribute(__MODULE__, :selectable_column),
+                position_column: Module.get_attribute(__MODULE__, :position_column),
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions),
                 changesets: Module.get_attribute(__MODULE__, :changesets),
                 plugs: plugs,
@@ -643,6 +644,21 @@ defmodule ExAdmin.Register do
     quote do
       opts = ExAdmin.DslUtils.fun_to_opts unquote(opts), unquote(fun)
       var!(columns, ExAdmin.Show) = [{unquote(name), (opts)} | var!(columns, ExAdmin.Show)]
+    end
+  end
+
+
+  @doc """
+  Drag&drop control for sortable tables.
+
+  `fa_icon_name` is one of [Font Awesome icons](https://fortawesome.github.io/Font-Awesome/icons/),
+  default - ["bars"](http://fortawesome.github.io/Font-Awesome/icon/bars/)
+  """
+  defmacro sort_handle_column(fa_icon_name \\ "bars") do
+    quote do
+      column "", [], fn(_) ->
+        i "", class: "fa fa-#{unquote(fa_icon_name)} handle", "aria-hidden": "true"
+      end
     end
   end
 

@@ -10,6 +10,19 @@ defmodule ExAdmin.LayoutView do
     end
   end
 
+  def logo_mini do
+    default = "Ex<b>A</b>"
+    Application.get_env(:ex_admin, :logo_mini, default)
+    |> Phoenix.HTML.raw
+  end
+
+  def logo_full do
+    default = "Ex<b>Admin</b>"
+    Application.get_env(:ex_admin, :logo_full, default)
+    |> Phoenix.HTML.raw
+  end
+
+
   def check_for_sidebars(conn, filters, defn) do
     if is_nil(filters) and not ExAdmin.Sidebar.sidebars_visible?(conn, defn) do
       {false, "without_sidebar"}

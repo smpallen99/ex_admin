@@ -49,8 +49,8 @@ defmodule ExAdmin.Table do
     theme_module(conn, Table).theme_panel(conn, schema)
   end
 
-  def do_panel(conn, %{table_for: %{resources: resources, columns: columns}}, table_opts) do
-    table(table_opts) do
+  def do_panel(conn, %{table_for: %{resources: resources, columns: columns, opts: opts}}, table_opts) do
+    table(Dict.merge(table_opts, opts)) do
       table_head(columns)
       tbody do
         model_name = get_resource_model resources
@@ -58,7 +58,8 @@ defmodule ExAdmin.Table do
         Enum.with_index(resources)
         |> Enum.map(fn({resource, inx}) ->
           odd_even = if Integer.is_even(inx), do: "even", else: "odd"
-          tr(".#{odd_even}##{model_name}_#{inx}") do
+          tr_id = if Map.has_key?(resource, :id), do: resource.id, else: inx
+          tr(".#{odd_even}##{model_name}_#{tr_id}") do
             for field <- columns do
               case field do
                 {f_name, fun} when is_function(fun) ->
@@ -74,7 +75,7 @@ defmodule ExAdmin.Table do
       end
     end
   end
-  def do_panel(_conn, %{contents: %{contents: content}}) do
+  def do_panel(_conn, %{contents: %{contents: content}}, _table_opts) do
     div do
       content |> elem(1) |> Xain.text
     end
