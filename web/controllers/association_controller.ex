@@ -1,4 +1,5 @@
 defmodule ExAdmin.AssociationController do
+  @moduledoc false
   use ExAdmin.Web, :controller
   require Logger
 
@@ -32,7 +33,7 @@ defmodule ExAdmin.AssociationController do
   defp prepare_positions(%{position_column: nil}, positions), do: positions
   defp prepare_positions(%{position_column: position_column}, positions) do
     position_column = to_string(position_column)
-    positions 
+    positions
     |> Enum.map(fn({idx, %{"id" => id, "position" => position}}) ->
       {idx, %{"id" => id, position_column => position}}
     end)
