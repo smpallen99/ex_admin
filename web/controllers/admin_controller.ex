@@ -14,7 +14,7 @@ defmodule ExAdmin.AdminController do
 
   # A temporary fix to handle a get "/" request.
   # TODO: Refactor the way we assume path_info has the "/admin" prefix
-  def handle_root_req(conn, params) do
+  def handle_root_req(conn, _params) do
     case conn.path_info do
       [] ->
         case ExAdmin.Utils.get_route_path(:dashboard, :index) |> String.split("/") do
@@ -292,7 +292,7 @@ defmodule ExAdmin.AdminController do
           ExAdmin.Repo.delete(resource, params[resource_model])
           base_name model
       end
-    
+
     case get_req_header(conn, "x-requested-with") do
       ["XMLHttpRequest"] ->
         render conn, "destroy.js", tr_id: String.downcase("#{resource_model}_#{params[:id]}")
