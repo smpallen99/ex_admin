@@ -267,3 +267,7 @@ table.index_table th {
   padding-left: 8px;
   padding-right: 8px;
 }
+
+table.sortable .handle {
+  cursor: move; 
+}

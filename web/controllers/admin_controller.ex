@@ -292,8 +292,14 @@ defmodule ExAdmin.AdminController do
           ExAdmin.Repo.delete(resource, params[resource_model])
           base_name model
       end
-    put_flash(conn, :notice, "#{resource_model} was successfully destroyed.")
-    |> redirect(to: get_route_path(conn, :index))
+    
+    case get_req_header(conn, "x-requested-with") do
+      ["XMLHttpRequest"] ->
+        render conn, "destroy.js", tr_id: String.downcase("#{resource_model}_#{params[:id]}")
+      _ ->
+        put_flash(conn, :notice, "#{resource_model} was successfully destroyed.")
+        |> redirect(to: get_route_path(conn, :index))
+    end
   end
 
   def batch_action(conn, %{batch_action: "destroy"} = params) do

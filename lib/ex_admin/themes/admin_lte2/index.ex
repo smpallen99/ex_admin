@@ -107,7 +107,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
         :destroy ->
           a("Delete", href: get_route_path(conn, :delete, id),
               class: base_class <> " delete_link", "data-confirm": confirm_message,
-              "data-csrf": Plug.CSRFProtection.get_csrf_token,
+              "data-remote": true,
               "data-method": :delete, rel: :nofollow )
       end
       [link | acc]
@@ -177,7 +177,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
     tbody
   end
   def build_table_body(conn, resources, columns, opts) do
-    model_name = resources |> List.first |> Map.get(:__struct__)
+    model_name = get_resource_model(resources)
     selectable = Map.get opts, :selectable_column
 
     tbody do

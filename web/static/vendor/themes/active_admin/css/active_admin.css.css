@@ -2465,4 +2465,20 @@ body {
   margin-left: 10px;
 }
 
-/*# sourceMappingURL=active_admin.css.css.map */
+table.sortable .handle {
+  cursor: move; 
+}
+a.btn-sm {
+  text-decoration: none;
+  padding: 5px;
+  border: 1px #38678b solid;
+  display: inline-block;
+}
+a.btn-primary {  
+  background: #38678b;
+  color: #eee;
+}
+a.btn-default {  
+  background: #dfe1e2;
+  color: #38678b;
+} 
