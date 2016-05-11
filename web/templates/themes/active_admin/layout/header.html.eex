@@ -1,5 +1,5 @@
 <div class="header" id="header">
-  <h1 class="site_title" id="site_title">ExAdminDemo</h1>
+  <h1 class="site_title" id="site_title"><%= ExAdmin.LayoutView.site_title %></h1>
   <ul class="header-item" id="tabs">
     <%= ExAdmin.Navigation.nav_view(@conn) %>
   </ul>
