@@ -2,6 +2,17 @@ defmodule TestExAdmin.Migrations do
   use Ecto.Migration
 
   def change do
+
+    create table(:posts) do
+      add :title, :string, size: 100
+      add :text, :binary
+    end
+
+    create table(:comments) do
+      add :text, :string
+      add :post_id, references(:posts, on_delete: :delete_all)
+    end
+
     create table(:users) do
       add :name, :string
       add :email, :string
@@ -9,7 +20,6 @@ defmodule TestExAdmin.Migrations do
 
     create table(:roles) do
       add :name, :string
-      timestamps
     end
 
     create table(:users_roles) do

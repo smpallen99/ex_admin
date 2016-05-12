@@ -1,3 +1,13 @@
+
+defmodule TestExAdmin.ExAdmin.Post do
+  use ExAdmin.Register
+  register_resource TestExAdmin.Post do
+    query do
+      %{all: [preload: [:comments]]}
+    end
+  end
+end
+
 defmodule TestExAdmin.ExAdmin.Noid do
   use ExAdmin.Register
 

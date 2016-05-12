@@ -2,22 +2,25 @@ defmodule TestExAdmin.TestHelpers do
   alias TestExAdmin.Repo
 
   def insert_noid(attrs \\ %{}) do
-    changes = Dict.merge(%{
+    %{
       name: "test name",
       description: "test description",
       company: "test company"
-    }, attrs)
-
-    TestExAdmin.Noid.changeset(%TestExAdmin.Noid{}, changes)
-    |> Repo.insert!()
+    }
+    |> insert(attrs, TestExAdmin.Noid)
   end
 
   def insert_user(attrs \\ %{}) do
-    changes = Dict.merge(%{
+    %{
       name: "user one",
       email: "userone@example.com"
-      }, attrs)
-    TestExAdmin.User.changeset(%TestExAdmin.User{}, changes)
+    }
+    |> insert(attrs, TestExAdmin.User)
+  end
+
+  defp insert(defaults, attrs, module) do
+    changes = Dict.merge(defaults, attrs)
+    module.changeset(module.__struct__, changes)
     |> Repo.insert!()
   end
 end

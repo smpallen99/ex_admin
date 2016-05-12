@@ -1,3 +1,35 @@
+
+defmodule TestExAdmin.Comment do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "comments" do
+    field :text, :string
+    belongs_to :post, TestExAdmin.Post
+  end
+
+  def changeset(model, params \\ %{}) do
+    model
+    |> cast(params, ~w(text post_id))
+  end
+end
+
+defmodule TestExAdmin.Post do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "posts" do
+    field :title, :string
+    field :text, :string
+    has_many :comments, TestExAdmin.Comment
+  end
+
+  def changeset(model, params \\ %{}) do
+    model
+    |> cast(params, ~w(title text))
+  end
+end
+
 defmodule TestExAdmin.User do
   use Ecto.Schema
   import Ecto.Changeset
