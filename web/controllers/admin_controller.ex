@@ -31,6 +31,7 @@ defmodule ExAdmin.AdminController do
   end
 
   def action(%{private: %{phoenix_action: action}} = conn, _options) do
+    conn = conn |> assign(:xhr, get_req_header(conn, "x-requested-with") == ["XMLHttpRequest"])
     handle_action(conn, action, conn.params["resource"])
   end
 
@@ -127,7 +128,7 @@ defmodule ExAdmin.AdminController do
     put_layout(conn, "#{conn.assigns.theme.name}.html")
   end
 
-  def index(conn, params) do
+  def index(%{assigns: %{xhr: false}} = conn, params) do
     defn = get_registered_by_controller_route!(params[:resource], conn)
     {contents, page, scope_counts} = case defn do
       %{type: :page} = defn ->
@@ -151,6 +152,18 @@ defmodule ExAdmin.AdminController do
     assign(conn, :scope_counts, scope_counts)
     |> render("admin.html", html: contents, defn: defn, resource: page,
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
+  end
+
+  def index(%{assigns: %{xhr: true}} = conn, params) do
+    defn = get_registered_by_controller_route!(params[:resource], conn)
+    model = defn.__struct__
+    page = defn.resource_model.admin_search_query(params[:keywords]) |> repo.paginate(params)
+
+    results = page.entries
+    |> Enum.map(fn(r) -> %{id: r.id, pretty_name: r.name} end)
+
+    resp = %{results: results, more: page.page_number < page.total_pages}
+    conn |> json(resp)
   end
 
   def show(conn, params) do
