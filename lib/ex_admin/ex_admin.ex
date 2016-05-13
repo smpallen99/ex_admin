@@ -162,10 +162,14 @@ defmodule ExAdmin do
   def get_registered_by_controller_route(%Plug.Conn{params: params}) do
     get_registered_by_controller_route params["resource"]
   end
+
+  @doc false
+  def get_namespace, do: Application.get_env(:ex_admin, :namespace, "admin")
+
   @doc false
   def get_registered_by_controller_route(path_info) when is_list(path_info) do
     case path_info do
-      ["admin", route | _] -> route
+      [get_namespace, route | _] -> route
       _ -> ""
     end
     |> get_registered_by_controller_route
