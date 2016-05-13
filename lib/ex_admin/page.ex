@@ -1,7 +1,7 @@
 defmodule ExAdmin.Page do
   @moduledoc """
-  Define pages in ExAdmin that don't render models, like a dashboard 
-  page. 
+  Define pages in ExAdmin that don't render models, like a dashboard
+  page.
 
   """
 
@@ -16,10 +16,10 @@ defmodule ExAdmin.Page do
 
 
   @doc """
-  Display contents on a page. Use Xain markup to create the page. 
+  Display contents on a page. Use Xain markup to create the page.
 
-  For example, the dashboard page: 
-  
+  For example, the dashboard page:
+
       defmodule <%= base %>.ExAdmin.Dashboard do
         use ExAdmin.Register
 
@@ -44,7 +44,7 @@ defmodule ExAdmin.Page do
 
     quote location: :keep, bind_quoted: [opts: escape(opts), bdy: escape(bdy)] do
 
-      def page_view(conn) do
+      def page_view(var!(conn)) do
         import Kernel, except: [div: 2, to_string: 1]
         use Xain
         markup do
@@ -54,5 +54,5 @@ defmodule ExAdmin.Page do
     end
 
   end
-  
+
 end
