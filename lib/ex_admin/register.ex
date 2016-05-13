@@ -379,6 +379,7 @@ defmodule ExAdmin.Register do
       Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true
       Module.register_attribute __MODULE__, :selectable_column, accumulate: false, persist: true
       Module.register_attribute __MODULE__, :form_items, accumulate: true, persist: true
+      Module.register_attribute(__MODULE__, :sidebars, accumulate: true, persist: true)
       Module.put_attribute __MODULE__, :controller_plugs, nil
       page_name = unquote(name)
       unquote(block)

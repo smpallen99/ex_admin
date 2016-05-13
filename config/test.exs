@@ -17,6 +17,7 @@ config :ex_admin,
   repo: TestExAdmin.Repo,
   module: TestExAdmin,
   modules: [
+    TestExAdmin.ExAdmin.Dashboard,
     TestExAdmin.ExAdmin.Noid,
     TestExAdmin.ExAdmin.User,
     TestExAdmin.ExAdmin.Product,
