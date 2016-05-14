@@ -246,7 +246,10 @@ defmodule ExAdmin.Show do
       resource = unquote(resource)
       opts = unquote(opts)
       path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
-      Xain.form name: "select_#{opts[:assoc_name]}", method: "post", action: path do
+
+      hr
+      h4(opts[:label] || "Enter new #{opts[:assoc_name]}")
+      Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
         Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
         Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
         Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
