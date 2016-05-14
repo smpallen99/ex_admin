@@ -24,6 +24,7 @@ exports.config = {
           "web/static/vendor/best_in_place.purr.js",
           "web/static/vendor/jquery-ujs.js.js",
           "web/static/vendor/themes/admin_lte2/plugins/select2/select2.js",
+          "web/static/vendor/association_filler_opts.js",
         ],
         // 'js/active_admin.js': [
         // ]

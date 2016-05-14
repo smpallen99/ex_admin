@@ -269,5 +269,9 @@ table.index_table th {
 }
 
 table.sortable .handle {
-  cursor: move; 
+  cursor: move;
+}
+
+.association_filler {
+  width: 80%;
 }

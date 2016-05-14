@@ -240,6 +240,36 @@ defmodule ExAdmin.Show do
     end
   end
 
+
+  defmacro association_filler(resource, opts) do
+    quote do
+      resource = unquote(resource)
+      opts = unquote(opts)
+      path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
+      Xain.form name: "select_#{opts[:assoc_name]}", method: "post", action: path do
+        Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
+        Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
+        Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
+
+        Xain.select class: "association_filler", multiple: "multiple", name: "selected_ids[]" do
+          option ""
+        end
+        Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
+      end
+
+      associations_path = ExAdmin.Utils.get_route_path(resource, :show, ExAdmin.Schema.get_id(resource)) <> "/#{opts[:assoc_name]}"
+      script type: "text/javascript" do
+        text """
+        $(document).ready(function() {
+          ExAdmin.association_filler_opts.ajax.url = "#{associations_path}";
+          $(".association_filler").select2(ExAdmin.association_filler_opts);
+        });
+        """
+      end
+    end
+  end
+
+
   @doc false
   def default_show_view(conn, resource) do
     markup do
