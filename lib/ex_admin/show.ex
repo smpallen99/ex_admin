@@ -127,12 +127,12 @@ defmodule ExAdmin.Show do
   """
   defmacro panel(name \\ "", do: block) do
     quote do
-      var!(table_for, ExAdmin.Show) = []
-      var!(contents, ExAdmin.Show) = []
+      var!(elements, ExAdmin.Show) = []
       unquote(block)
-      ExAdmin.Table.panel(var!(conn), %{name: unquote(name),
-        table_for: var!(table_for, ExAdmin.Show),
-        contents: var!(contents, ExAdmin.Show)})
+      ExAdmin.Table.panel(
+        var!(conn),
+        [ {:name, unquote(name)} | var!(elements, ExAdmin.Show) ]
+      )
     end
   end
 
@@ -171,7 +171,10 @@ defmodule ExAdmin.Show do
       unquote(block)
       columns = var!(columns, ExAdmin.Show) |> Enum.reverse
 
-      var!(table_for, ExAdmin.Show) = %{resources: unquote(resources), columns: columns, opts: opts}
+      var!(elements, ExAdmin.Show) = var!(elements, ExAdmin.Show) ++ [{
+        :table_for,
+        %{resources: unquote(resources), columns: columns, opts: opts}
+      }]
     end
   end
   defmacro table_for(resources, do: block) do
@@ -236,7 +239,9 @@ defmodule ExAdmin.Show do
       content = markup :nested do
         unquote(block)
       end
-      var!(contents, ExAdmin.Show) = %{contents: content}
+      var!(elements, ExAdmin.Show) = var!(elements, ExAdmin.Show) ++ [{
+        :contents, %{contents: content}
+      }]
     end
   end
 
