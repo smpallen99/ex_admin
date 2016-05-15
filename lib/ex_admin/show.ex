@@ -246,21 +246,85 @@ defmodule ExAdmin.Show do
     end
   end
 
+  @doc """
+  Add a select box to add N:M associations to the resource on show page.
 
-  defmacro association_filler(resource, opts) do
-    required_opts = [:resource_key, :assoc_name, :assoc_key, :assoc_model]
-    unless MapSet.subset?(MapSet.new(required_opts), MapSet.new(Dict.keys(opts))) do
-      raise ArgumentError.exception("""
-        `association_filler` macro requires following options:
-        #{inspect(required_opts)}
-        For example:
-        association_filler(category, resource_key: "category_id", assoc_name: "properties",
-          assoc_key: "property_id", assoc_model: Synergy.Property, autocomplete: false)
-      """)
+  *Note:* If you have custom keys in intersection table, please use association_filler/2 to specify them explicit.
+
+  ## Examples
+
+      show post do
+        attributes_table
+
+        panel "Tags" do
+          table_for(post, :post_tags) do
+            column :tag
+          end
+          markup_contents do
+            association_filler post, :tags, autocomplete: true
+          end
+        end
+      end
+  """
+  defmacro association_filler(resource, assoc_name, opts) do
+    quote bind_quoted: [resource: resource, assoc_name: assoc_name, opts: opts] do
+      resource_model = resource.__struct__
+      resource_key = Inflex.singularize(resource_model.__schema__(:source))<>"_id"
+      assoc_name = to_string(assoc_name)
+      assoc_key = Inflex.singularize(assoc_name)<>"_id"
+      assoc_model_str = assoc_name |> Inflex.singularize |> Inflex.camelize
+      assoc_model = [to_string(Application.get_env(:ex_admin, :module)), assoc_model_str]
+      |> Enum.join(".")
+      |> String.to_atom
+
+      opts = Dict.merge([
+        resource_key: resource_key, assoc_name: assoc_name,
+        assoc_key: assoc_key, assoc_model: assoc_model
+        ], opts)
+
+      association_filler(resource, opts)
     end
-    quote do
-      resource = unquote(resource)
-      opts = unquote(opts)
+  end
+
+  @doc """
+  Add a select box to add N:M associations to the resource on show page.
+
+  ## Options
+
+  * `resource_key` - foreign key in the intersection table for resource model
+  * `assoc_name` - name of association
+  * `assoc_key` - foreign key in the intersection table for association model
+  * `assoc_model` - association Ecto model
+  * `autocomplete` - preload all possible associations if `false` and use autocomplete if `true`
+
+  ## Examples
+
+      show post do
+        attributes_table
+
+        panel "Tags" do
+          table_for(post, :post_tags) do
+            column :tag
+          end
+          markup_contents do
+            association_filler(post, resource_key: "post_id", assoc_name: "tags",
+              assoc_key: "tag_id", assoc_model: MyApp.Tag, autocomplete: false)
+          end
+        end
+      end
+  """
+  defmacro association_filler(resource, opts) do
+    quote bind_quoted: [resource: resource, opts: opts] do
+      required_opts = [:resource_key, :assoc_name, :assoc_key, :assoc_model]
+      unless MapSet.subset?(MapSet.new(required_opts), MapSet.new(Dict.keys(opts))) do
+        raise ArgumentError.exception("""
+          `association_filler` macro requires following options:
+          #{inspect(required_opts)}
+          For example:
+          association_filler(category, resource_key: "category_id", assoc_name: "properties",
+            assoc_key: "property_id", assoc_model: MyApp.Property, autocomplete: false)
+        """)
+      end
 
       hr
       h4(opts[:label] || "Enter new #{opts[:assoc_name]}")
