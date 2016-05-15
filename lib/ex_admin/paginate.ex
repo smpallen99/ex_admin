@@ -1,17 +1,19 @@
 defmodule ExAdmin.Paginate do
   @moduledoc false
   use Xain
+  import ExAdmin.Theme.Helpers
+
 
   def paginate(_, nil, _, _, _, _, _), do: []
   def paginate(link, page_number, page_size, total_pages, record_count, name) do
-    nav ".pagination" do
+    theme_module(Paginate).wrap_pagination1 fn -> 
       if total_pages > 1 do
         for item <- items(page_number, page_size, total_pages) do
-          build_item link, item
+          theme_module(Paginate).build_item link, item
         end
       end
     end
-    div ".pagination_information" do
+    theme_module(Paginate).wrap_pagination2 fn -> 
       record_number = (page_number - 1) * page_size + 1
       display_pagination name, (page_number - 1) * page_size + 1, page_size, 
                          record_count, record_number + page_size - 1
@@ -51,26 +53,6 @@ defmodule ExAdmin.Paginate do
     text " #{name}"
   end
 
-  def build_item(_, {:current, num}) do
-    span ".current.page #{num}"
-  end
-  def build_item(_, {:gap, _}) do
-    span ".page.gap" do
-      text "... "
-    end
-  end
-  
-  def build_item(link, {item, num}) when item in [:first, :prev, :next, :last] do
-    span ".#{item}" do
-      a "#{special_name item}", href: "#{link}&page=#{num}"
-    end
-  end
-
-  def build_item(link, {item, num}) do
-    span ".#{item}" do
-      a "#{num}", href: "#{link}&page=#{num}"
-    end
-  end
 
   def special_name(:first), do: "« First"
   def special_name(:prev), do: "‹ Prev"

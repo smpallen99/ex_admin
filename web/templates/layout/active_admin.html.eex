@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="csrf-param" content="_csrf_token" />
+    <meta name="csrf-token" id="_csrf_token" content="<%= Plug.CSRFProtection.get_csrf_token %>" />
+
+    <title><%= site_title %></title>
+    <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/css/active_admin.css.css") %>">
+
+    <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->
+    <script src="<%= static_path(@conn, "/js/jquery.min.js") %>"></script>
+    <%=
+      case Application.get_env(:ex_admin, :head_template) do
+        {layout, template} ->
+          render layout, template, conn: @conn
+        _ -> ""
+      end
+    %>
+  </head>
+
+  <% resource_label = ExAdmin.Utils.get_resource_label(@conn) |> String.downcase %>
+
+  <body class="index admin_<%= resource_label %> active_admin logged_in admin_namespace">
+      <div id="wrapper">
+        <%= render ExAdmin.ActiveAdmin.LayoutView, "header.html", conn: @conn, scope_counts: assigns[:scope_counts] %>
+        <%= ExAdmin.Theme.ActiveAdmin.Layout.title_bar(@conn, @resource) %>
+        <%= ExAdmin.ViewHelpers.flashes(@conn) %>
+        <% {sidebars?, klass} = check_for_sidebars(@conn, @filters, @defn) %>
+        <div id="active_admin_content" class="<%= klass %>">
+          <div id="main_content_wrapper">
+            <div id="main_content">
+              <%= render @view_module, @view_template, assigns %>
+            </div>
+          </div>
+          <%= if sidebars? do %>
+            <div id="sidebar">
+              <%= ExAdmin.Filter.filter_view(@conn, @filters, @defn) %>
+              <%= ExAdmin.Sidebar.sidebar_view(@conn, @defn, @resource) %>
+            </div>
+          <% end %>
+        </div>
+        <footer id="footer" style="font-size: 90%">
+          <hr \>
+          Powered by ExAdmin. Licensed by&nbsp;
+          <a href="http://emetrotel.com" target="_blank">E-MetroTel</a>
+          &nbsp;&copy 2013-2016.
+        </footer>
+      </div>
+    </body>
+    <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
+    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+    <script>require("web/static/js/app")</script>
+    <script type="text/javascript">
+      $(function() {
+        $('#theme-selector').change(function(e) {
+          var val = $(this).val()
+          var prefix = "/<%= Application.get_env(:ex_admin, :route_prefix, "admin") %>";
+          window.location.href = prefix+'/select_theme/'+val+'?loc='+window.location.href;
+        });
+      });
+    </script>
+</html>

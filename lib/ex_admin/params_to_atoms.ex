@@ -11,14 +11,13 @@ defmodule ExAdmin.ParamsToAtoms do
   # end
 
   def filter(params) do
-    Logger.warn "#{__MODULE__} filter/1 deprecated! Please use filter_params/1"
     filter_params(params)
   end
 
   def filter_params(params) do
     params_string_fields_to_integer(params)
     |> params_to_atoms
-  end 
+  end
 
   def params_to_atoms(params) do
     list = for {key, value} <- params do
@@ -39,7 +38,7 @@ defmodule ExAdmin.ParamsToAtoms do
 
   defp _to_atom(key) when is_atom(key), do: key
   defp _to_atom(key), do: String.to_atom(key)
-  
+
   defp params_string_fields_to_integer(params) do
     list = for {key,value} <- params, do: _replace_integers(key, value)
     Enum.into list, Map.new
@@ -57,7 +56,7 @@ defmodule ExAdmin.ParamsToAtoms do
     {key, value}
   end
   defp _replace_integers(key, value) when is_binary(key) do
-    if Regex.match?(@integer_keys, key) do 
+    if Regex.match?(@integer_keys, key) do
       case {Regex.match?(~r/^[0-9]+$/, value), value} do
         {false, ""} -> {key, nil}
         {true, _} -> {key, String.to_integer(value)}

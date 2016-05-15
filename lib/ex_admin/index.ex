@@ -2,29 +2,30 @@ defmodule ExAdmin.Index do
   @moduledoc """
   Override the default index page for an ExAdmin resource
 
-  By default, ExAdmin renders the index table without any additional 
-  configuration. It renders each column in the model, except the id, 
-  inserted_at, and updated_at columns. 
+  By default, ExAdmin renders the index table without any additional
+  configuration. It renders each column in the model, except the id,
+  inserted_at, and updated_at columns.
 
   ## Default Table Type
 
   ExAdmin displays a selection checkbox column on the left with a batch
-  action control that enables when a checkbox is selected. 
+  action control that enables when a checkbox is selected.
 
-  To customize the index page, use the `index` macro. 
+  To customize the index page, use the `index` macro.
 
-  For example, the following will show on the id an name fields, as 
+  For example, the following will show on the id an name fields, as
   well place a selection column and batch actions row on the page:
 
       defmodule MyProject.ExAdmin.MyModel do
         use ExAdmin.Register
         register_resource MyProject.MyModel do
 
-          index do 
+          index do
             selectable_column
 
             column :id
             column :name
+            actions       # display the default actions column
           end
         end
       end
@@ -33,7 +34,7 @@ defmodule ExAdmin.Index do
 
   For image fields, use the `image: true` option. For example:
 
-      index do 
+      index do
         column :name
         column :image, [image: true, height: 100], &(ExAdminDemo.Image.url({&1.image, &1}, :thumb))
       end
@@ -43,13 +44,13 @@ defmodule ExAdmin.Index do
   Columns can be customized with column/2 where the second argument is
   an anonymous function called with model. Here are a couple examples:
 
-      index do 
-        column :id 
-        column :name, fn(category) -> 
-          Phoenix.HTML.Tag.content_tag :span, category.name, 
+      index do
+        column :id
+        column :name, fn(category) ->
+          Phoenix.HTML.Tag.content_tag :span, category.name,
             "data-id": category.id, class: "category"
         end
-        column "Created", fn(category) -> 
+        column "Created", fn(category) ->
           category.created_at
         end
       end
@@ -58,10 +59,10 @@ defmodule ExAdmin.Index do
 
   The Actions column can be customized by adding `column "Actions", fn(x) -> ...`
 
-      column "Actions", fn(r) -> 
-        safe_concat link_to("Restore", "/admin/backuprestores/restore/#\{r.id}", "data-method": :put, 
+      column "Actions", fn(r) ->
+        safe_concat link_to("Restore", "/admin/backuprestores/restore/#\{r.id}", "data-method": :put,
             "data-confirm": "You are about to restore #\{r.file_name}. Are you sure?",
-            class: "member_link restore-link"), 
+            class: "member_link restore-link"),
           link_to("Delete", "/admin/backuprestores/#\{r.id}", "data-method": :delete,
             "data-confirm": "Are you sure you want to delete this?",
             class: "member_link")
@@ -69,10 +70,10 @@ defmodule ExAdmin.Index do
 
   ### Associations
 
-  By default, ExAdmin will attempt to render a belongs_to association with a 
-  select control, using name field in the association. If you would like to 
-  render an association with another field name, or would like to use more than 
-  one field, use the :field option. 
+  By default, ExAdmin will attempt to render a belongs_to association with a
+  select control, using name field in the association. If you would like to
+  render an association with another field name, or would like to use more than
+  one field, use the :field option.
 
       column :account, fields: [:username]
 
@@ -85,13 +86,13 @@ defmodule ExAdmin.Index do
 
   ## As Grid
 
-  By providing option `as: :grid` to the `index` macro, a grid index page 
-  is rendered. 
+  By providing option `as: :grid` to the `index` macro, a grid index page
+  is rendered.
 
-  ### For Example: 
+  ### For Example:
 
       index as: :grid, default: true do
-        cell fn(p) -> 
+        cell fn(p) ->
           div do
             a href: get_route_path(conn, :show, p.id) do
               img(src: ExAdminDemo.Image.url({p.image_file_name, p}, :thumb), height: 100)
@@ -107,11 +108,10 @@ defmodule ExAdmin.Index do
   require Integer
   import ExAdmin.Utils
   import ExAdmin.DslUtils
-  #import UcxCallout.Admin.ViewHelpers, only: [get_route_path: 3]
   import ExAdmin.Helpers
   import Kernel, except: [div: 2, to_string: 1]
   use Xain
-  alias ExAdmin.Schema
+  # alias ExAdmin.Schema
 
   @doc false
   defmacro __using__(_) do
@@ -120,10 +120,8 @@ defmodule ExAdmin.Index do
     end
   end
 
-
   @doc """
-  The index macro is used to customize the index page of a resource. 
-  
+  The index macro is used to customize the index page of a resource.
   """
   defmacro index(opts \\ [], do: block) do
 
@@ -144,31 +142,29 @@ defmodule ExAdmin.Index do
         opts = unquote(options)
         unquote(contents)
 
-        columns = var!(columns, ExAdmin.Show) |> Enum.reverse
         selectable = case var!(selectable_column, ExAdmin.Index) do
           nil -> false
           other -> other
         end
 
+        opts = Enum.into(opts, %{})
+        |> Map.put(:column_list, var!(columns, ExAdmin.Show) |> Enum.reverse)
+        |> Map.put(:selectable_column, selectable)
+        |> Map.put(:actions, var!(actions, ExAdmin.Index))
+
         markup do
-          cond do 
-            opts[:as] == :grid -> 
-              ExAdmin.Index.render_index_grid(var!(conn), page, scope_counts, var!(cell, ExAdmin.Index), opts)
-            true -> 
-              ExAdmin.Index.render_index_table(var!(conn), page, columns, 
-                 %{selectable_column: selectable}, scope_counts, var!(actions, ExAdmin.Index))
-          end
+          ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, var!(cell, ExAdmin.Index), opts)
         end
       end
     end
   end
-  
+
   @doc """
   Define which actions will be displayed in the index view.
 
   ## Examples
 
-      actions 
+      actions
       actions [:new, :destroy]
   """
   defmacro actions(opts \\ quote(do: [])) do
@@ -177,8 +173,29 @@ defmodule ExAdmin.Index do
     end
   end
 
+  @doc """
+  Define a grid cell for grid view.
+
+  ## Example
+
+      index as: :grid, default: true, columns: 6 do
+        import Kernel, except: [div: 2]
+        cell fn(p) ->
+          div ".box" do
+            div ".box-body" do
+              a href: get_route_path(conn, :show, p.id) do
+                img(src: ExAdminDemo.Image.url({p.image_file_name, p}, :thumb), height: 100)
+              end
+            end
+            div ".box-footer" do
+              a truncate(p.title), href: get_route_path(conn, :show, p.id)
+            end
+          end
+        end
+      end
+  """
   defmacro cell(fun) do
-    quote do 
+    quote do
       var!(cell, ExAdmin.Index) = unquote(fun)
     end
   end
@@ -197,19 +214,19 @@ defmodule ExAdmin.Index do
 
   @doc false
   def default_index_view(conn, page, scope_counts) do
-    [_, resource] = conn.path_info 
+    [_, resource] = conn.path_info
 
     case ExAdmin.get_registered_by_controller_route(resource) do
-      nil -> 
+      nil ->
         throw :invalid_route
-      %{__struct__: _} = defn -> 
+      %{__struct__: _} = defn ->
         columns = case defn.index_filters do
           [] -> []
           [false] -> []
           [f] -> f
         end
         |> case do
-          [] -> 
+          [] ->
             columns = defn.resource_model.__schema__(:fields)
             |> Enum.filter(&(not &1 in [:inserted_at, :updated_at]))
           other ->
@@ -221,9 +238,13 @@ defmodule ExAdmin.Index do
           columns = Keyword.put columns, :id, %{link: true}
         end
 
+        opts = %{}
+        |> Map.put(:column_list, columns)
+        |> Map.put(:selectable_column, true)
+        |> Map.put(:actions, [])
+
         markup do
-          ExAdmin.Index.render_index_table(var!(conn), page, columns, 
-            %{selectable_column: true}, scope_counts, [])
+          ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, nil, opts)
         end
     end
   end
@@ -231,200 +252,95 @@ defmodule ExAdmin.Index do
   defp get_resource_fields([]), do: []
   defp get_resource_fields([resource | _]), do: resource.__struct__.__schema__(:fields)
 
-  def render_index_grid(conn, page, scope_counts, cell, opts) do
-    columns = Keyword.get opts, :columns, 3
-    # resources = page.entries
-    # fields = get_resource_fields resources
-    count = page.total_entries
+  @doc false
+  def render_index_pages(conn, page, scope_counts, cell, page_opts) do
     name = resource_model(conn) |> titleize |> Inflex.pluralize
-    order = ExQueb.get_sort_order(conn.params["order"]) 
-    href = get_route_path(conn, :index) <> "?order="
     defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
-    batch_actions = not false in defn.batch_actions
-    scopes = defn.scopes
-    # selectable = selectable and batch_actions
-
     label = get_resource_label(conn) |> Inflex.pluralize
-    resource_model = conn.params["resource"]
 
-    batch_action_form conn, batch_actions, scopes, resource_model, scope_counts, fn -> 
-      if count == 0 do
-        div ".blank_slate_container" do
-          span ".blank_slate" do
-            if conn.params["q"] do
-              text "No #{humanize label} found."
-            else
-              text "There are no #{humanize label} yet. "
-              if ExAdmin.has_action?(conn, defn, :new) do
-                a "Create one", href: get_route_path(conn, :new)
-              end
-            end
-          end
-        end
-      else
-        div ".paginated_collection" do
-          div ".paginated_collection_contents" do
-            div ".index_content" do
-              div ".index_as_grid.index" do
-                table(".index_grid", border: "0", cellspacing: "0", 
-                    cellpadding: "0", paginator: "true") do
-                  tbody do
-                    Enum.chunk(page.entries, columns, columns, [nil])
-                    |> Enum.each(fn(list) -> 
-                      tr do 
-                        Enum.each(list, fn(item) -> 
-                          td do
-                            if item do
-                              cell.(item)
-                            end
-                          end
-                        end)
-                      end
-                    end)
-                  end
-                end # table          
-              end
-            end # .index_content
-          end
-          div "#index_footer" do
-            href 
-            |> build_scope_href(conn.params["scope"])
-            |> build_order_href(order)
-            |> build_filter_href(conn.params["q"])
-            |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, count, name)
-            download_links(conn)
-          end
+    opts = %{
+      columns: Map.get(page_opts, :columns, 3),
+      column_list: Map.get(page_opts, :column_list),
+      count: page.total_entries,
+      name: name,
+      order: ExQueb.get_sort_order(conn.params["order"]),
+      href: get_route_path(conn, :index) <> "?order=",
+      defn: defn,
+      batch_actions: not false in defn.batch_actions,
+      scopes: defn.scopes,
+      label: label,
+      resource_model: conn.params["resource"],
+      page: page,
+      cell: cell,
+      scope_counts: scope_counts,
+      opts: page_opts,
+      resources: page.entries,
+      selectable_column: page_opts[:selectable_column],
+      actions: page_opts[:actions]
+    }
+    _render_index_page(conn, opts, page_opts)
+  end
+
+  defp _render_index_page(conn, opts, %{as: :grid}) do
+    Module.concat(conn.assigns.theme, Index).wrap_index_grid fn ->
+      Module.concat(conn.assigns.theme, Index).batch_action_form conn,
+          false, opts[:scopes], opts[:resource_model], opts[:scope_counts], fn ->
+        if opts[:count] == 0 do
+          Module.concat(conn.assigns.theme, Index).blank_slate_page(conn, opts)
+        else
+          Module.concat(conn.assigns.theme, Index).paginated_collection_grid(conn, opts)
         end
       end
     end
-    
   end
-  
-  @doc false
-  def render_index_table(conn, page, columns, %{selectable_column: selectable}, scope_counts, actions) do
-    resources = page.entries
-    fields = get_resource_fields resources
-    count = page.total_entries
-    name = resource_model(conn) |> titleize |> Inflex.pluralize
-    order = ExQueb.get_sort_order(conn.params["order"]) 
-    href = get_route_path(conn, :index) <> "?order="
-    defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
-    batch_actions = not false in defn.batch_actions
-    scopes = defn.scopes
-    selectable = selectable and batch_actions
+  defp _render_index_page(conn, opts, page_opts) do
+    page = opts[:page]
+    actions = opts[:actions]
+    opts = Map.put(opts, :fields, get_resource_fields page.entries)
+    columns = page_opts[:column_list]
     columns = unless Enum.any? columns, &((elem &1, 0) == "Actions") or is_nil(actions) do
       columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
     else
       columns
     end
+    opts = Map.put opts, :column_list, columns
 
-    label = get_resource_label(conn) |> Inflex.pluralize
-    resource_model = conn.params["resource"]
-
-    batch_action_form conn, batch_actions, scopes, resource_model, scope_counts, fn -> 
-      if count == 0 do
-        div ".blank_slate_container" do
-          span ".blank_slate" do
-            if conn.params["q"] do
-              text "No #{humanize label} found."
-            else
-              text "There are no #{humanize label} yet. "
-              if ExAdmin.has_action?(conn, defn, :new) do
-                a "Create one", href: get_route_path(conn, :new)
-              end
-            end
-          end
-        end
-      else
-        div ".paginated_collection" do
-          div ".paginated_collection_contents" do
-            div ".index_content" do
-              div ".index_as_table" do
-                table("#contacts.index_table.index", border: "0", cellspacing: "0", 
-                    cellpadding: "0", paginator: "true") do
-                  ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: href, 
-                    sort: "desc", order: order, fields: fields, page: page,
-                    filter: build_filter_href("", conn.params["q"]),
-                    selectable_column: selectable})
-                  build_table_body(conn, resources, columns, %{selectable_column: selectable})
-                end # table          
-              end
-            end # .index_content
-          end
-          div "#index_footer" do
-            href 
-            |> build_scope_href(conn.params["scope"])
-            |> build_order_href(order)
-            |> build_filter_href(conn.params["q"])
-            |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, count, name)
-            download_links(conn)
-          end
+    Module.concat(conn.assigns.theme, Index).wrap_index_grid fn ->
+      Module.concat(conn.assigns.theme, Index).batch_action_form conn,
+          opts[:batch_actions], opts[:scopes], opts[:resource_model], opts[:scope_counts], fn ->
+        if opts[:count] == 0 do
+          Module.concat(conn.assigns.theme, Index).blank_slate_page(conn, opts)
+        else
+          Module.concat(conn.assigns.theme, Index).paginated_collection_table(conn, opts)
         end
       end
     end
   end
 
-  defp build_scope_href(href, nil), do: href
-  defp build_scope_href(href, scope) do
+  @doc """
+  Build the scope link.
+  """
+  def build_scope_href(href, nil), do: href
+  def build_scope_href(href, scope) do
     String.replace(href, "?", "?scope=#{scope}&")
   end
 
-  defp build_order_href(href, {name, sort}), do: href <> "#{name}_#{sort}"
-  defp build_order_href(href, _), do: href
+  @doc """
+  Build the order link.
+  """
+  def build_order_href(href, {name, sort}), do: href <> "#{name}_#{sort}"
+  def build_order_href(href, _), do: href
 
-  defp build_filter_href(href, nil), do: href
-  defp build_filter_href(href, q) do 
+  @doc """
+  Build the filter link.
+  """
+  def build_filter_href(href, nil), do: href
+  def build_filter_href(href, q) do
     q
     |> Map.to_list
-    |> Enum.reduce(href, fn({name, value}, acc) -> 
+    |> Enum.reduce(href, fn({name, value}, acc) ->
       acc <> "&q%5B" <> name <> "%5D=" <> value
     end)
-  end
-
-  @doc false
-  def batch_action_form conn, enabled?, scopes, name, scope_counts, fun do
-    msg = "Are you sure you want to delete these #{name}? You wont be able to undo this."
-    if enabled? or scopes != [] do
-      form "#collection_selection", action: "/admin/#{name}/batch_action", method: :post, "accept-charset": "UTF-8" do
-        div style: "margin:0;padding:0;display:inline" do
-          input name: "utf8", type: :hidden, value: "✓"
-        end
-        input "#batch_action", name: "batch_action", type: :hidden
-        div ".table_tools" do
-          if enabled? do
-            div "#batch_actions_selector.dropdown_menu" do
-              a ".disabled.dropdown_menu_button Batch Actions", href: "#"
-              div ".dropdown_menu_list_wrapper", style: "display: none;" do
-                div ".dropdown_menu_nipple"
-                ul ".dropdown_menu_list" do
-                  li do
-                    a ".batch_action Delete Selected", href: "#", "data-action": :destroy, "data-confirm": msg
-                  end
-                end
-              end
-            end
-          end
-          if scopes != [] do
-            current_scope = ExAdmin.Query.get_scope scopes, conn.params["scope"]
-            ul ".scopes.table_tools_segmented_control", style: "width: calc((100% - 10px) - 108px); float: right;" do
-              for {name, _opts} <- scopes do
-                count = scope_counts[name]
-                selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
-                li ".scope.#{name}#{selected}" do
-                  a ".table_tools_button", href: get_route_path(conn, :index) <> "?scope=#{name}" do
-                    text ExAdmin.Utils.humanize("#{name} ")
-                    span ".count (#{count})"
-                  end
-                end
-              end
-            end
-          end
-        end
-        fun.()
-      end
-    else
-      fun.()
-    end
   end
 
   @doc false
@@ -444,48 +360,9 @@ defmodule ExAdmin.Index do
     Inflex.parameterize(string, seperator)
   end
 
-
-  @doc false
-  def build_table_body(_conn, [], _columns, _opts) do
-    tbody
-  end
-  def build_table_body(conn, resources, columns, opts) do
-    model_name = resources |> List.first |> Map.get(:__struct__)
-    selectable = Map.get opts, :selectable_column
-
-    tbody do
-      Enum.with_index(resources) 
-      |> Enum.map(fn{resource, inx} -> 
-        odd_even = if Integer.is_even(inx), do: "even", else: "odd"
-
-        id = Map.get(resource, Schema.primary_key(resource))
-        tr(".#{odd_even}##{model_name}_#{id}") do
-          if selectable do
-            td(".selectable") do
-              div(".resource_selection_cell") do
-                input(".collection_selection#batch_action_item_#{id}", type: :checkbox, value: "#{id}",
-                  name: "collection_selection[]")
-              end
-            end
-          end
-          for field <- columns do
-            build_field(resource, conn, field, fn(contents, field_name) -> 
-              ExAdmin.Table.handle_contents(contents, field_name)
-            end)
-          end
-        end # tr
-      end)
-    end
-  end
-
-  # TODO: don't like that we can't handle the do block :(
-
   @doc false
   def build_index_links(conn, resource, actions) do
-    # name = controller_name(conn)
     resource_model = resource.__struct__
-    base_class = "member_link"
-    id = ExAdmin.Schema.get_id(resource)
 
     links = case actions do
       [] -> [:show, :edit, :destroy]
@@ -493,33 +370,16 @@ defmodule ExAdmin.Index do
       other -> other
     end
 
-    get_authorized_links(conn, resource_model)
+    list = get_authorized_links(conn, resource_model)
     |> Enum.filter(&(&1 in links))
     |> Enum.reverse
-    |> Enum.reduce([], fn(item, acc) -> 
-      link = case item do
-        :show -> 
-          a("View", href: get_route_path(conn, :show, id), class: base_class <> " view_link")
-        :edit -> 
-          a("Edit", href: get_route_path(conn, :edit, id), class: base_class <> " edit_link")
-        :destroy -> 
-          a("Delete", href: get_route_path(conn, :delete, id), 
-              class: base_class <> " delete_link", "data-confirm": confirm_message, 
-              "data-method": :delete, rel: :nofollow )
-      end
-      [link | acc]
-    end)
-    |> case do
-      [] -> []
-      list -> 
-        [{"Actions", list}]
-    end
 
+    Module.concat(conn.assigns.theme, Index).handle_action_links(list, conn, resource)
   end
 
   @doc false
   def get_authorized_links(conn, resource_model) do
-    Enum.reduce [:show, :edit, :destroy], [], fn(item, acc) -> 
+    Enum.reduce [:show, :edit, :destroy], [], fn(item, acc) ->
       if ExAdmin.Utils.authorized_action?(conn, item, resource_model),
         do: [item | acc], else: acc
     end

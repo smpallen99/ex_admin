@@ -157,12 +157,59 @@ defmodule ExAdmin.Show do
       end
 
   """
-  defmacro table_for(resources, do: block) do
+  defmacro table_for(resources, opts, do: block) do
+    block = if Dict.has_key?(opts, :sortable) do
+      ensure_sort_handle_column(block)
+    else
+      block
+    end
+
     quote do
+      opts = unquote(opts) |> ExAdmin.Show.prepare_sortable_opts
+
       var!(columns, ExAdmin.Show) = []
       unquote(block)
       columns = var!(columns, ExAdmin.Show) |> Enum.reverse
-      var!(table_for, ExAdmin.Show) = %{resources: unquote(resources), columns: columns}
+
+      var!(table_for, ExAdmin.Show) = %{resources: unquote(resources), columns: columns, opts: opts}
+    end
+  end
+  defmacro table_for(resources, do: block) do
+    quote do
+      table_for unquote(resources), [], do: unquote(block)
+    end
+  end
+
+  defp ensure_sort_handle_column({:__block__, trace, cols} = block) do
+    has_sort_handle_column = Enum.any?(cols, fn({ctype, _, _}) -> ctype == :sort_handle_column end)
+    if has_sort_handle_column do
+      block
+    else
+      {:__block__, trace, [{:sort_handle_column, [], nil} | cols]}
+    end
+  end
+
+  def prepare_sortable_opts(opts) do
+    case opts[:sortable] do
+      [resource: resource, assoc_name: assoc_name] ->
+        path = ExAdmin.Utils.get_route_path(resource, :update_positions, [resource.id, assoc_name])
+        [
+          class: "table sortable",
+          "data-sortable-link": path
+        ] |> Dict.merge(Dict.drop(opts, [:sortable]))
+      
+      _ ->
+        opts
+    end
+  end
+
+
+  defmacro sortable_table_for(resource, assoc_name, do: block) do
+    quote do
+      resource = unquote(resource)
+      assoc_name = unquote(assoc_name)
+      resources = Map.get(resource, assoc_name)
+      table_for resources, [sortable: [resource: resource, assoc_name: assoc_name]], do: unquote(block)
     end
   end
 

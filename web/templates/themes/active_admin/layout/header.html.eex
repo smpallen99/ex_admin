@@ -1,0 +1,13 @@
+<div class="header" id="header">
+  <h1 class="site_title" id="site_title"><%= ExAdmin.LayoutView.logo_full %></h1>
+  <ul class="header-item" id="tabs">
+    <%= ExAdmin.Navigation.nav_view(@conn) %>
+  </ul>
+  <%= ExAdmin.Theme.ActiveAdmin.Layout.theme_selector %>
+  <%= if use_authentication?(@conn) do %>
+    <p class="header-item" id="utility_nav">
+      <span class="current_user"><%= current_user_name(@conn) %></span>
+      <%= Phoenix.HTML.Link.link "Logout", to: session_path(@conn, :destroy), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
+    </p>
+  <% end %>
+</div>

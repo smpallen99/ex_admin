@@ -1,0 +1,70 @@
+<header class="main-header" id="header">
+  <a href="#" class="logo">
+    <span class="logo-mini"><%= ExAdmin.LayoutView.logo_mini %></span>
+    <!-- logo for regular state and mobile devices -->
+    <span class="logo-lg"><%= ExAdmin.LayoutView.logo_full %></span>
+  </a>
+
+  <nav class="navbar navbar-static-top" role="navigation">
+    <!-- Sidebar toggle button-->
+    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+      <span class="sr-only">Toggle navigation</span>
+    </a>
+      <ul class="nav navbar-nav pull-right">
+        <%= if use_authentication?(@conn) do %>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <%= current_user_name(@conn) %> <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+              <li>
+                <%= Phoenix.HTML.Link.link "Logout", to: session_path(@conn, :destroy), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
+              </li>
+            </ul>
+          </li>
+        <% end %>
+        <%= if ExAdmin.Theme.AdminLte2.Layout.theme_selector? do %>
+          <li class="dropdown" style="width: 100px">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              Themes <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+              <%= ExAdmin.Theme.AdminLte2.Layout.theme_selector %>
+            </ul>
+          </li>
+        <% end %>
+      </ul>
+  </nav>
+</header>
+<aside class="main-sidebar">
+  <section class="sidebar">
+    <!-- Sidebar Menu -->
+    <ul class="sidebar-menu">
+      <li class="header">RESOURCES</li>
+      <!-- Optionally, you can add icons to the links -->
+      <%# <li class="active"><a href="#"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li> %>
+      <%= if Application.get_env(:ex_admin, :nest_resources, false) do %>
+        <li class="treeview active">
+          <a href="#"><i class="fa fa-object-group"></i> <span>Resources</span> <i class="fa fa-angle-left pull-right"></i></a>
+          <ul class="treeview-menu menu-open" style="display: block;">
+            <%= ExAdmin.Navigation.nav_view(@conn) %>
+          </ul>
+        </li>
+      <% else %>
+        <%= ExAdmin.Navigation.nav_view(@conn) %>
+      <% end %>
+
+      <% actions = ExAdmin.get_title_actions(@conn) %>
+      <%= if any_actions?(actions) do %>
+        <li class="header">ACTIONS</li>
+        <%= for {action, opts} <- actions do %>
+          <li>
+            <% opts = build_menu_icon(opts) %>
+            <%= build_link(action, opts) %>
+          </li>
+        <% end %>
+      <% end %>
+      <%= build_scopes @conn, @scope_counts %>
+    </ul><!-- /.sidebar-menu -->
+  </section>
+</aside>

@@ -20,7 +20,7 @@ defmodule ExAdmin.Router do
           admin_routes
         end
       end
-  
+
   """
   use ExAdmin.Web, :router
 
@@ -38,6 +38,7 @@ defmodule ExAdmin.Router do
   defmacro admin_routes(_opts \\ []) do
     quote do
       get "/", AdminController, :index
+      get "/select_theme/:id", AdminController, :select_theme
       get "/:resource/", AdminController, :index
       get "/:resource/new", AdminController, :new
       get "/:resource/csv", AdminController, :csv
@@ -48,6 +49,8 @@ defmodule ExAdmin.Router do
       put "/:resource/:id", AdminController, :update
       delete "/:resource/:id", AdminController, :destroy
       post "/:resource/batch_action", AdminController, :batch_action
+      post "/:resource/:id/:association_name/update_positions", AssociationController, :update_positions, as: :admin_association
+      put "/:resource/:id/toggle", AssociationController, :toggle_attr, as: :admin_association
     end
   end
 end

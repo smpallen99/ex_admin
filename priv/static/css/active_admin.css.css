@@ -688,7 +688,7 @@ form.filter_form .filter_form_field {
     text-align: center;
     width: 12px; }
   form.filter_form .filter_form_field.filter_date_range input[type=text] {
-    background: #fff url("/images/active_admin/datepicker/datepicker-input-icon.png") no-repeat 100% 7px;
+    background: #fff url("/images/ex_admin/datepicker/datepicker-input-icon.png") no-repeat 100% 7px;
     padding-right: 27px;
     width: 71px; }
 form.filter_form a.clear_filters_btn {
@@ -1104,7 +1104,7 @@ table.index_table {
       white-space: nowrap;
       -webkit-font-smoothing: antialiased; }
     table.index_table th.sortable a {
-      background: url("/images/active_admin/orderable.png") no-repeat 0 4px;
+      background: url("/images/ex_admin/orderable.png") no-repeat 0 4px;
       padding-left: 13px; }
     table.index_table th.sorted-asc a {
       background-position: 0 -27px; }
@@ -2440,4 +2440,47 @@ body {
   padding: 0;
   color: #323537; }
 
-/*# sourceMappingURL=active_admin.css.css.map */
+.form-control.date-time {
+  display: inline;
+  width: initial;
+}
+
+.date-separator:before {
+  content: "/";
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.time-separator:before {
+  content: ":";
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.date-time-separator:before {
+  content: "\2014";
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+#theme-selector {
+  margin-left: 10px;
+}
+
+table.sortable .handle {
+  cursor: move; 
+}
+a.btn-sm {
+  text-decoration: none;
+  padding: 5px;
+  border: 1px #38678b solid;
+  display: inline-block;
+}
+a.btn-primary {  
+  background: #38678b;
+  color: #eee;
+}
+a.btn-default {  
+  background: #dfe1e2;
+  color: #38678b;
+} 
+
+/*# sourceMappingURL=active_admin.css.css.map*/

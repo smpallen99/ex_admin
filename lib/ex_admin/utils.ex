@@ -23,16 +23,16 @@ defmodule ExAdmin.Utils do
     |> String.split(".")
     |> List.last
   end
-  
-  @doc """
-  Convert a field name to its human readable form. 
 
-  Converts items like field names to a form suitable for display 
-  labels and menu items. By default, converts _ to space and 
+  @doc """
+  Convert a field name to its human readable form.
+
+  Converts items like field names to a form suitable for display
+  labels and menu items. By default, converts _ to space and
   capitalizes each word.
 
-  The conversion can be customized by passing a from regex and to 
-  regex as the 2nd and 3rd arguments. 
+  The conversion can be customized by passing a from regex and to
+  regex as the 2nd and 3rd arguments.
 
   ## Examples:
 
@@ -49,11 +49,11 @@ defmodule ExAdmin.Utils do
     |> humanize(from, to)
   end
   def humanize(string, from, to) when is_binary(string) do
-    String.split(string, from) 
+    String.split(string, from)
     |> Enum.map(&(String.capitalize(&1)))
     |> Enum.join(to)
   end
-  
+
   @doc """
   Converts camel case items to human readable form.
 
@@ -65,13 +65,13 @@ defmodule ExAdmin.Utils do
   """
   def titleize(atom) when is_atom(atom), do: titleize(Atom.to_string(atom))
   def titleize(string) when is_binary(string) do
-    string 
+    string
     |> Inflex.underscore
     |> humanize
   end
 
   @doc """
-  Add a an or a in front of a word. 
+  Add a an or a in front of a word.
 
   ## Examples
 
@@ -83,11 +83,17 @@ defmodule ExAdmin.Utils do
   """
   def articlize(string) when is_binary(string) do
     if String.at(string, 0) in ~w(A a E e I i O o U u) do
-      "an " 
-    else 
+      "an "
+    else
       "a "
     end <> string
   end
+
+  def parameterize(atom) when is_atom(atom),
+    do: Atom.to_string(atom) |> parameterize
+  def parameterize(str) when is_binary(str),
+    do: Inflex.parameterize(str, "_")
+    # do: str
 
   @doc false
   def action_name(conn) do
@@ -114,7 +120,7 @@ defmodule ExAdmin.Utils do
     |> String.split("Controller")
     |> List.first
   end
-  
+
   @doc false
   def get_route_path(resource_or_conn, method, id \\ nil)
   def get_route_path(%Plug.Conn{path_info: path_info}, action, id) do
@@ -141,6 +147,8 @@ defmodule ExAdmin.Utils do
   def get_route_path(prefix, :create, _), do: path_append(prefix)
   def get_route_path(prefix, :destroy, id), do: path_append(prefix, ~w(#{id}))
   def get_route_path(prefix, :delete, id), do: path_append(prefix, ~w(#{id}))
+  def get_route_path(prefix, :toggle, id), do: path_append(prefix, ~w(#{id} toggle))
+  def get_route_path(prefix, :update_positions, opts), do: path_append(prefix, opts ++ ["update_positions"])
 
   defp path_append(prefix, rest \\ []) do
     "/" <> Enum.join(prefix ++ rest, "/")
@@ -158,13 +166,13 @@ defmodule ExAdmin.Utils do
   @doc """
   Generate html for a link
 
-  ## Syntax 
+  ## Syntax
       iex> link_to("click me", "/something", class: "link btn", style: "some styling")
       {:safe, "<a href='/something' class='link btn' style='some styling'>click me</a>"}
   """
   def link_to(name, path, opts \\[]) do
     attributes = case Keyword.get(opts, :remote) do
-      true -> 
+      true ->
         Keyword.delete(opts, :remote)
         |> Keyword.put(:"data-remote", "true")
       _ -> opts
@@ -193,16 +201,16 @@ defmodule ExAdmin.Utils do
 
   @doc false
   def format_datetime({{y,m,d}, {h,min,s}}) do
-    zero_pad(y, 4) <> "-" <> zero_pad(m, 2) <> "-" <> zero_pad(d, 2) <> " " <> 
-    zero_pad(h, 2) <> ":" <> zero_pad(min, 2) <> ":" <> zero_pad(s, 2) 
+    zero_pad(y, 4) <> "-" <> zero_pad(m, 2) <> "-" <> zero_pad(d, 2) <> " " <>
+    zero_pad(h, 2) <> ":" <> zero_pad(min, 2) <> ":" <> zero_pad(s, 2)
   end
 
   @doc """
-  Return the plural of a term. 
+  Return the plural of a term.
 
   Returns a string give an atom or a string.
   """
-  def pluralize(atom) when is_atom(atom) do 
+  def pluralize(atom) when is_atom(atom) do
     Atom.to_string(atom) |> pluralize
   end
   def pluralize(singular) when is_binary(singular) do
@@ -216,7 +224,7 @@ defmodule ExAdmin.Utils do
   plural.
 
   """
-  def pluralize(atom, count) when is_atom(atom), 
+  def pluralize(atom, count) when is_atom(atom),
     do: pluralize(Atom.to_string(atom), count)
   def pluralize(name, 1), do: Inflex.singularize(name)
   def pluralize(name, _), do: Inflex.pluralize(name)
@@ -226,7 +234,7 @@ defmodule ExAdmin.Utils do
     menu = ExAdmin.get_registered_by_controller_route!(conn).menu
     Map.get menu, :label, resource_model(conn)
   end
-  
+
   @doc false
   def displayable_name_plural(conn) do
     ExAdmin.Utils.get_resource_label(conn) |> Inflex.pluralize

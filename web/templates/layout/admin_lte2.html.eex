@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="csrf-param" content="_csrf_token" />
+    <meta name="csrf-token" id="_csrf_token" content="<%= Plug.CSRFProtection.get_csrf_token %>" />
+
+    <title><%= site_title %></title>
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_lte2.css") %>">
+    <!-- Ionicons -->
+    <%# <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> %>
+    <!-- Theme style -->
+
+    <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->
+    <script src="<%= static_path(@conn, "/js/jquery.min.js") %>"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <%=
+      case Application.get_env(:ex_admin, :head_template) do
+        {layout, template} ->
+          render layout, template, conn: @conn
+        _ -> ""
+      end
+    %>
+
+  </head>
+
+  <% resource_label = ExAdmin.Utils.get_resource_label(@conn) |> String.downcase %>
+  <% color = Application.get_env :ex_admin, :skin_color, :blue %>
+  <body class="index admin_<%= resource_label %> active_admin logged_in skin-<%= color %> sidebar-mini hold-transition">
+    <div class="wrapper">
+      <%= render ExAdmin.AdminLte2.LayoutView, "header.html", conn: @conn, scope_counts: assigns[:scope_counts] %>
+      <div class="content-wrapper">
+        <%= render ExAdmin.AdminLte2.LayoutView, "title_bar.html", conn: @conn, resource: @resource %>
+
+        <section class="content">
+          <%
+            {sidebars?, _klass} = check_for_sidebars(@conn, @filters, @defn)
+            main_width = if sidebars?, do: 9, else: 12
+          %>
+          <div class="row">
+            <div class="col-lg-<%= main_width %>">
+              <%= ExAdmin.AdminLte2.LayoutView.flashes(@conn) %>
+              <%= render @view_module, @view_template, assigns %>
+            </div>
+            <%= if sidebars? do %>
+              <div class="col-lg-3 sidebar_section">
+                <%= ExAdmin.Filter.filter_view(@conn, @filters, @defn) %>
+                <%= ExAdmin.Sidebar.sidebar_view(@conn, @defn, @resource) %>
+              </div>
+            <% end %>
+          </div>
+        </section>
+      </div>
+      <footer id="footer" class="main-footer" style="font-size: 90%">
+        Powered by ExAdmin. Licensed by&nbsp;
+        <a href="http://emetrotel.com" target="_blank">E-MetroTel</a>
+        &nbsp;&copy 2015-2016.
+      </footer>
+    </div>
+    <script>
+      $.widget.bridge('uibutton', $.ui.button);
+    </script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
+    <script src='<%= static_path(@conn, "/js/admin_lte2.js") %>'></script>
+  </body>
+  <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+  <script>require("web/static/js/app")</script>
+  <script type="text/javascript">
+    $(function() {
+      $('.theme-selector').on('click', function(e) {
+        var val = $(this).attr('data-theme')
+        var prefix = "/<%= Application.get_env(:ex_admin, :route_prefix, "admin") %>";
+        window.location.href = prefix+'/select_theme/'+val+'?loc='+window.location.href;
+      });
+    });
+  </script>
+</html>
