@@ -46,6 +46,7 @@ defmodule ExAdmin.Page do
 
       def page_view(var!(conn)) do
         import Kernel, except: [div: 2, to_string: 1]
+        import ExAdmin.ViewHelpers
         use Xain
         markup do
           unquote(bdy)
@@ -53,6 +54,13 @@ defmodule ExAdmin.Page do
       end
     end
 
+  end
+
+  defmacro columns(do: block) do
+    quote do
+      var!(columns, ExAdmin.Show) = []
+      unquote(block)
+    end
   end
 
 end
