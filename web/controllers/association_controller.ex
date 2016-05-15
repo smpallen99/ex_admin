@@ -9,7 +9,7 @@ defmodule ExAdmin.AssociationController do
     apply(__MODULE__, action_name(conn), [conn, defn, resource, conn.params])
   end
 
-  def update_positions(conn, defn, resource, %{"association_name" => association_name, "positions" => positions} = params) do
+  def update_positions(conn, defn, resource, %{"association_name" => association_name, "positions" => positions}) do
     positions = prepare_positions(defn, positions)
     association_name = String.to_existing_atom(association_name)
 
@@ -21,18 +21,12 @@ defmodule ExAdmin.AssociationController do
     conn |> put_status(200) |> json("Ok")
   end
 
-  def index(conn, defn, resource, %{"association_name" => association_name} = params) do
+  def index(conn, _defn, resource, %{"association_name" => association_name} = params) do
     defn_assoc = ExAdmin.get_registered_by_controller_route!(association_name, conn)
-    association_name = String.to_existing_atom(association_name)
-
-    current_assoc_ids = resource
-    |> repo.preload(association_name)
-    |> Map.get(association_name)
-    |> Enum.map(&ExAdmin.Schema.get_id/1)
-
+    assoc_name = String.to_existing_atom(association_name)
     assoc_model = defn_assoc.resource_model
-    search_query = assoc_model.admin_search_query(params["keywords"])
-    page = (from r in search_query, where: not(r.id in ^current_assoc_ids))
+
+    page = ExAdmin.Model.potential_associations_query(resource, assoc_model, assoc_name, params["keywords"])
     |> repo.paginate(params)
 
     results = page.entries
@@ -63,7 +57,7 @@ defmodule ExAdmin.AssociationController do
     |> redirect(to: ExAdmin.Utils.get_route_path(resource, :show, resource_id))
   end
 
-  def toggle_attr(conn, defn, resource, %{"attr_name" => attr_name, "attr_value" => attr_value} = params) do
+  def toggle_attr(conn, defn, resource, %{"attr_name" => attr_name, "attr_value" => attr_value}) do
     attr_name_atom = String.to_existing_atom(attr_name)
 
     resource = resource

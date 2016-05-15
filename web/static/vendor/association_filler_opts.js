@@ -28,3 +28,7 @@ window.ExAdmin.association_filler_opts = {
     return resource.pretty_name;
   }
 }
+
+$(document).ready(function() {
+  $("select.select2").select2();
+});

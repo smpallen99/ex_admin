@@ -7593,5 +7593,9 @@ window.ExAdmin.association_filler_opts = {
   }
 }
 
-;
+$(document).ready(function() {
+  $("select.select2").select2();
+});
+
+
 //# sourceMappingURL=ex_admin_common.js.map

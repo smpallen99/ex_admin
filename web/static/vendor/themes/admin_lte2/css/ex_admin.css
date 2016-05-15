@@ -272,6 +272,6 @@ table.sortable .handle {
   cursor: move;
 }
 
-.association_filler {
+select.association_filler, select.select2 {
   width: 80%;
 }

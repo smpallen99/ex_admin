@@ -32,6 +32,7 @@ defmodule ExAdmin.Show do
   """
   import ExAdmin.DslUtils
   import ExAdmin.Helpers
+  import ExAdmin.Repo, only: [repo: 0]
 
   import Kernel, except: [div: 2]
   use Xain
@@ -247,33 +248,67 @@ defmodule ExAdmin.Show do
 
 
   defmacro association_filler(resource, opts) do
+    required_opts = [:resource_key, :assoc_name, :assoc_key, :assoc_model]
+    unless MapSet.subset?(MapSet.new(required_opts), MapSet.new(Dict.keys(opts))) do
+      raise ArgumentError.exception("""
+        `association_filler` macro requires following options:
+        #{inspect(required_opts)}
+        For example:
+        association_filler(category, resource_key: "category_id", assoc_name: "properties",
+          assoc_key: "property_id", assoc_model: Synergy.Property, autocomplete: false)
+      """)
+    end
     quote do
       resource = unquote(resource)
       opts = unquote(opts)
-      path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
 
       hr
       h4(opts[:label] || "Enter new #{opts[:assoc_name]}")
-      Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
-        Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
-        Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
-        Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
+      ExAdmin.Show.build_association_filler_form(resource, opts[:autocomplete], opts)
+    end
+  end
 
-        Xain.select class: "association_filler", multiple: "multiple", name: "selected_ids[]" do
-          option ""
-        end
-        Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
-      end
+  def build_association_filler_form(resource, true = _autocomplete, opts) do
+    path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
+    Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
+      Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
+      Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
+      Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
 
-      associations_path = ExAdmin.Utils.get_route_path(resource, :show, ExAdmin.Schema.get_id(resource)) <> "/#{opts[:assoc_name]}"
-      script type: "text/javascript" do
-        text """
-        $(document).ready(function() {
-          ExAdmin.association_filler_opts.ajax.url = "#{associations_path}";
-          $(".association_filler").select2(ExAdmin.association_filler_opts);
-        });
-        """
+      Xain.select class: "association_filler", multiple: "multiple", name: "selected_ids[]" do
+        option ""
       end
+      Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
+    end
+
+    associations_path = ExAdmin.Utils.get_route_path(resource, :show, ExAdmin.Schema.get_id(resource)) <> "/#{opts[:assoc_name]}"
+    script type: "text/javascript" do
+      text """
+      $(document).ready(function() {
+        ExAdmin.association_filler_opts.ajax.url = "#{associations_path}";
+        $(".association_filler").select2(ExAdmin.association_filler_opts);
+      });
+      """
+    end
+  end
+
+  def build_association_filler_form(resource, _autocomplete, opts) do
+    path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
+    Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
+      Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
+      Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
+      Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
+
+      Xain.select class: "select2", multiple: "multiple", name: "selected_ids[]" do
+        assoc_model = opts[:assoc_model]
+        assoc_name = String.to_existing_atom(opts[:assoc_name])
+        ExAdmin.Model.potential_associations_query(resource, assoc_model, assoc_name)
+        |> repo.all
+        |> Enum.each(fn(opt) ->
+          option assoc_model.pretty_name(opt), value: ExAdmin.Schema.get_id(opt)
+        end)
+      end
+      Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
     end
   end
 
