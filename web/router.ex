@@ -37,7 +37,7 @@ defmodule ExAdmin.Router do
   """
   defmacro admin_routes(_opts \\ []) do
     quote do
-      get "/", AdminController, :index
+      get "/", AdminController, :dashboard
       get "/select_theme/:id", AdminController, :select_theme
       get "/:resource/", AdminController, :index
       get "/:resource/new", AdminController, :new
