@@ -4,10 +4,16 @@ defmodule ExAdmin.Utils do
   """
   require Logger
   import Ecto.DateTime.Utils, only: [zero_pad: 2]
-  @endpoint Application.get_env(:ex_admin, :endpoint)
+  @module Application.get_env(:ex_admin, :module)
+  if @module do
+    @endpoint [@module, "Endpoint"] |> Enum.join(".") |> String.to_existing_atom
+    @router [@module, "Router", "Helpers"] |> Enum.join(".") |> String.to_existing_atom
+  end
 
   @doc false
   def endpoint, do: @endpoint
+  @doc false
+  def router, do: @router
 
   @doc false
   def to_atom(string) when is_binary(string), do: String.to_atom(string)
@@ -36,10 +42,10 @@ defmodule ExAdmin.Utils do
 
   ## Examples:
 
-      iex> humanize :first_name
+      iex> ExAdmin.Utils.humanize :first_name
       "First Name"
 
-      iex> humanize "last-name", ~r/[-]/
+      iex> ExAdmin.Utils.humanize "last-name", ~r/[-]/
       "Last Name"
 
   """
@@ -59,7 +65,7 @@ defmodule ExAdmin.Utils do
 
   ## Examples
 
-      iex> titleize "MyModel"
+      iex> ExAdmin.Utils.titleize "MyModel"
       "My Model"
 
   """
@@ -75,10 +81,10 @@ defmodule ExAdmin.Utils do
 
   ## Examples
 
-      iex> articlize("hat")
+      iex> ExAdmin.Utils.articlize("hat")
       "a hat"
 
-      iex> articlize("apple")
+      iex> ExAdmin.Utils.articlize("apple")
       "an apple"
   """
   def articlize(string) when is_binary(string) do
@@ -120,6 +126,60 @@ defmodule ExAdmin.Utils do
     |> String.split("Controller")
     |> List.first
   end
+
+  @doc """
+  URL helper to build admin paths for CRUD
+
+  Examples:
+
+      iex> ExAdmin.Utils.admin_path
+      "/admin"
+
+      iex> ExAdmin.Utils.admin_path(TestExAdmin.Product)
+      "/admin/products"
+
+      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{})
+      "/admin/products/new"
+
+      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{id: 1})
+      "/admin/products/1"
+
+      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{id: 1}, :edit)
+      "/admin/products/1/edit"
+
+      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{id: 1}, :update)
+      "/admin/products/1"
+
+      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{id: 1}, :destroy)
+      "/admin/products/1"
+
+      iex> ExAdmin.Utils.admin_path(TestExAdmin.Product, :create)
+      "/admin/products"
+
+      iex> ExAdmin.Utils.admin_path(TestExAdmin.Product, :batch_action)
+      "/admin/products/batch_action"
+
+      iex> ExAdmin.Utils.admin_path(TestExAdmin.Product, :csv)
+      "/admin/products/csv"
+  """
+  def admin_path(resource_model, method \\ nil, args \\ [])
+  def admin_path(resource_model, method, args) when is_atom(resource_model) do
+    apply(router, :admin_path, [endpoint, method || :index, resource_model.__schema__(:source) | args])
+  end
+  def admin_path(resource, method, args) when is_map(resource) do
+    resource_model = resource.__struct__
+    id = ExAdmin.Schema.get_id(resource)
+    case id do
+      nil ->
+        admin_path(resource_model, method || :new, args)
+      _ ->
+        admin_path(resource_model, method || :show, [id | args])
+    end
+  end
+  def admin_path do
+    router.admin_path(endpoint, :dashboard)
+  end
+
 
   @doc false
   def get_route_path(resource_or_conn, method, id \\ nil)
@@ -168,8 +228,8 @@ defmodule ExAdmin.Utils do
   Generate html for a link
 
   ## Syntax
-      iex> link_to("click me", "/something", class: "link btn", style: "some styling")
-      {:safe, "<a href='/something' class='link btn' style='some styling'>click me</a>"}
+      iex> ExAdmin.Utils.link_to("click me", "/something", class: "link btn", style: "some styling")
+      {:safe, "<a href='/something' class='link btn' style='some styling' >click me</a>"}
   """
   def link_to(name, path, opts \\[]) do
     attributes = case Keyword.get(opts, :remote) do

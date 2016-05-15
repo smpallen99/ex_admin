@@ -374,14 +374,14 @@ defmodule ExAdmin.AdminController do
     send_resp(conn, conn.status || 200, "text/javascript", contents)
   end
 
-  def dashboard(conn, _) do
-    redirect conn, to: "/admin/contacts"
+  def dashboard(conn, params) do
+    index(conn, params)
   end
 
   def select_theme(conn, %{id: id} = params) do
-    {_, theme} = Application.get_env(:ex_admin, :theme_selector, [])
-    |> Enum.at(id)
-    loc = Map.get(params, :loc, "/admin") |> URI.parse |> Map.get(:path)
+    {_, theme} = Application.get_env(:ex_admin, :theme_selector, []) |> Enum.at(id)
+    loc = Map.get(params, :loc, admin_path) |> URI.parse |> Map.get(:path)
+
     Application.put_env :ex_admin, :theme, theme
     redirect conn, to: loc
   end
