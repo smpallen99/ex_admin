@@ -257,7 +257,7 @@ defmodule ExAdmin.Show do
         attributes_table
 
         panel "Tags" do
-          table_for(post, :post_tags) do
+          table_for(post.post_tags) do
             column :tag
           end
           markup_contents do
@@ -303,7 +303,7 @@ defmodule ExAdmin.Show do
         attributes_table
 
         panel "Tags" do
-          table_for(post, :post_tags) do
+          table_for(post.post_tags) do
             column :tag
           end
           markup_contents do
