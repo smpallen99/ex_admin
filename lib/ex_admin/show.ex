@@ -268,19 +268,9 @@ defmodule ExAdmin.Show do
   """
   defmacro association_filler(resource, assoc_name, opts) do
     quote bind_quoted: [resource: resource, assoc_name: assoc_name, opts: opts] do
-      resource_model = resource.__struct__
-      resource_key = Inflex.singularize(resource_model.__schema__(:source))<>"_id"
-      assoc_name = to_string(assoc_name)
-      assoc_key = Inflex.singularize(assoc_name)<>"_id"
-      assoc_model_str = assoc_name |> Inflex.singularize |> Inflex.camelize
-      assoc_model = [to_string(Application.get_env(:ex_admin, :module)), assoc_model_str]
-      |> Enum.join(".")
-      |> String.to_atom
-
-      opts = Dict.merge([
-        resource_key: resource_key, assoc_name: assoc_name,
-        assoc_key: assoc_key, assoc_model: assoc_model
-        ], opts)
+      opts = ExAdmin.Schema.get_intersection_keys(resource, assoc_name)
+      |> Dict.merge([assoc_name: to_string(assoc_name)])
+      |> Dict.merge(opts)
 
       association_filler(resource, opts)
     end
@@ -308,21 +298,21 @@ defmodule ExAdmin.Show do
           end
           markup_contents do
             association_filler(post, resource_key: "post_id", assoc_name: "tags",
-              assoc_key: "tag_id", assoc_model: MyApp.Tag, autocomplete: false)
+              assoc_key: "tag_id", autocomplete: false)
           end
         end
       end
   """
   defmacro association_filler(resource, opts) do
     quote bind_quoted: [resource: resource, opts: opts] do
-      required_opts = [:resource_key, :assoc_name, :assoc_key, :assoc_model]
+      required_opts = [:resource_key, :assoc_name, :assoc_key]
       unless MapSet.subset?(MapSet.new(required_opts), MapSet.new(Dict.keys(opts))) do
         raise ArgumentError.exception("""
           `association_filler` macro requires following options:
           #{inspect(required_opts)}
           For example:
           association_filler(category, resource_key: "category_id", assoc_name: "properties",
-            assoc_key: "property_id", assoc_model: MyApp.Property, autocomplete: false)
+            assoc_key: "property_id", autocomplete: false)
         """)
       end
 
@@ -357,19 +347,20 @@ defmodule ExAdmin.Show do
   end
 
   def build_association_filler_form(resource, _autocomplete, opts) do
+    assoc_name = String.to_existing_atom(opts[:assoc_name])
+    assoc_defn = ExAdmin.get_registered_by_association(resource, assoc_name)
     path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
+
     Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
       Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
       Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
       Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
 
       Xain.select class: "select2", multiple: "multiple", name: "selected_ids[]" do
-        assoc_model = opts[:assoc_model]
-        assoc_name = String.to_existing_atom(opts[:assoc_name])
-        ExAdmin.Model.potential_associations_query(resource, assoc_model, assoc_name)
+        ExAdmin.Model.potential_associations_query(resource, assoc_defn.__struct__, assoc_name)
         |> repo.all
         |> Enum.each(fn(opt) ->
-          option assoc_model.pretty_name(opt), value: ExAdmin.Schema.get_id(opt)
+          option ExAdmin.Helpers.display_name(opt), value: ExAdmin.Schema.get_id(opt)
         end)
       end
       Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"

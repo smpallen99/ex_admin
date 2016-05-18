@@ -26,11 +26,11 @@ defmodule ExAdmin.AssociationController do
     assoc_name = String.to_existing_atom(association_name)
     assoc_model = defn_assoc.resource_model
 
-    page = ExAdmin.Model.potential_associations_query(resource, assoc_model, assoc_name, params["keywords"])
+    page = ExAdmin.Model.potential_associations_query(resource, defn_assoc.__struct__, assoc_name, params["keywords"])
     |> repo.paginate(params)
 
     results = page.entries
-    |> Enum.map(fn(r) -> %{id: ExAdmin.Schema.get_id(r), pretty_name: assoc_model.pretty_name(r)} end)
+    |> Enum.map(fn(r) -> %{id: ExAdmin.Schema.get_id(r), pretty_name: ExAdmin.Helpers.dispay_name(r)} end)
 
     resp = %{results: results, more: page.page_number < page.total_pages}
     conn |> json(resp)

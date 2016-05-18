@@ -180,6 +180,20 @@ defmodule ExAdmin do
     |> Keyword.get(resource_model)
   end
 
+
+  def get_registered_by_association(resource, assoc_name) do
+    resource_model = resource.__struct__
+    assoc_model = case resource_model.__schema__(:association, assoc_name) do
+      %{through: [link1, link2]} ->
+        resource |> Ecto.build_assoc(link1) |> Ecto.build_assoc(link2) |> Map.get(:__struct__)
+      %{queryable: assoc_model} ->
+        assoc_model
+      nil ->
+        raise ArgumentError.exception("#{inspect(resource_model)}.__schema__(:association, #{inspect(assoc_name)}) returns nil")
+    end
+    Enum.find get_registered, %{}, &(Map.get(&1, :resource_model) == assoc_model)
+  end
+
   @doc false
   def get_registered_by_controller_route!(name, conn \\ %Plug.Conn{}) do
     res = get_registered_by_controller_route(name)
