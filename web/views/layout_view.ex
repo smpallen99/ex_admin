@@ -24,7 +24,7 @@ defmodule ExAdmin.LayoutView do
 
 
   def check_for_sidebars(conn, filters, defn) do
-    if is_nil(filters) and not ExAdmin.Sidebar.sidebars_visible?(conn, defn) do
+    if (is_nil(filters) or filters == false) and not ExAdmin.Sidebar.sidebars_visible?(conn, defn) do
       {false, "without_sidebar"}
     else
       {true, "with_sidebar"}

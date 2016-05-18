@@ -77,10 +77,15 @@ defmodule ExAdmin.Table do
   end
   def do_panel(_conn, %{contents: %{contents: content}}, _table_opts) do
     div do
-      content |> elem(1) |> Xain.text
+      case content do
+        {:safe, _} -> Phoenix.HTML.safe_to_string(content)
+        content -> content
+      end
+      |> String.replace("\n", "")
+      |> Xain.raw
     end
   end
-  def do_panel(_conn, _schema) do
+  def do_panel(_conn, schema) do
     ""
   end
 

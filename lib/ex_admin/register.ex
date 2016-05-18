@@ -372,6 +372,7 @@ defmodule ExAdmin.Register do
   """
   defmacro register_page(name, [do: block]) do
     quote location: :keep do
+      import ExAdmin.Register, except: [column: 1]
       use ExAdmin.Page
 
       Module.register_attribute __MODULE__, :query, accumulate: false, persist: true
