@@ -8,7 +8,7 @@ defmodule ExAdmin.Theme.AdminLte2.Page do
       markup :nested do
         div html, class: "col-lg-#{count}"
       end
-      |> elem(1) |> raw
+      |> Phoenix.HTML.safe_to_string |> raw
     end
   end
 end

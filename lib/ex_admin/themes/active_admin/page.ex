@@ -12,7 +12,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Page do
             if inx < (col_count - 1), do: " margin-right: 2%;", else: ""
           div html, class: "column", style: style
         end
-        |> elem(1) |> raw
+        |> Phoenix.HTML.safe_to_string |> raw
       end
       div "", style: "clear:both;"
     end
