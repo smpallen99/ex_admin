@@ -6,6 +6,7 @@ defmodule ExAdmin.Page do
   """
 
   import ExAdmin.DslUtils
+  import ExAdmin.Theme.Helpers
 
   defmacro __using__(_) do
     quote do
@@ -43,7 +44,6 @@ defmodule ExAdmin.Page do
     end
 
     quote location: :keep, bind_quoted: [opts: escape(opts), bdy: escape(bdy)] do
-
       def page_view(var!(conn)) do
         import Kernel, except: [div: 2, to_string: 1]
         import ExAdmin.ViewHelpers
@@ -59,7 +59,20 @@ defmodule ExAdmin.Page do
   defmacro columns(do: block) do
     quote do
       var!(columns, ExAdmin.Show) = []
+      var!(columns, ExAdmin.Page) = []
       unquote(block)
+      cols = var!(columns, ExAdmin.Page) |> Enum.reverse
+      theme_module(Page).columns(cols)
+      var!(columns, ExAdmin.Page) = []
+    end
+  end
+
+  defmacro column([do: block]) do
+    quote do
+      html = markup :nested do
+        unquote(block)
+      end
+      var!(columns, ExAdmin.Page) = [html | var!(columns, ExAdmin.Page)]
     end
   end
 
