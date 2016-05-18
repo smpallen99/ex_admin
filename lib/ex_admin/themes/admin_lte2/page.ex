@@ -1,4 +1,5 @@
 defmodule ExAdmin.Theme.AdminLte2.Page do
+  @moduledoc false
   use Xain
 
   def columns(cols) do
