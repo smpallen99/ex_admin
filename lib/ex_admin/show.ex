@@ -159,7 +159,7 @@ defmodule ExAdmin.Show do
 
   """
   defmacro table_for(resources, opts, do: block) do
-    block = if Dict.has_key?(opts, :sortable) do
+    block = if Keyword.has_key?(opts, :sortable) do
       ensure_sort_handle_column(block)
     else
       block
@@ -200,7 +200,7 @@ defmodule ExAdmin.Show do
         [
           class: "table sortable",
           "data-sortable-link": path
-        ] |> Dict.merge(Dict.drop(opts, [:sortable]))
+        ] |> Keyword.merge(Keyword.drop(opts, [:sortable]))
 
       _ ->
         opts
@@ -269,8 +269,8 @@ defmodule ExAdmin.Show do
   defmacro association_filler(resource, assoc_name, opts) do
     quote bind_quoted: [resource: resource, assoc_name: assoc_name, opts: opts] do
       opts = ExAdmin.Schema.get_intersection_keys(resource, assoc_name)
-      |> Dict.merge([assoc_name: to_string(assoc_name)])
-      |> Dict.merge(opts)
+      |> Keyword.merge([assoc_name: to_string(assoc_name)])
+      |> Keyword.merge(opts)
 
       association_filler(resource, opts)
     end
@@ -306,7 +306,7 @@ defmodule ExAdmin.Show do
   defmacro association_filler(resource, opts) do
     quote bind_quoted: [resource: resource, opts: opts] do
       required_opts = [:resource_key, :assoc_name, :assoc_key]
-      unless MapSet.subset?(MapSet.new(required_opts), MapSet.new(Dict.keys(opts))) do
+      unless MapSet.subset?(MapSet.new(required_opts), MapSet.new(Keyword.keys(opts))) do
         raise ArgumentError.exception("""
           `association_filler` macro requires following options:
           #{inspect(required_opts)}
