@@ -233,6 +233,34 @@ defmodule ExAdmin.Helpers do
     end
   end
 
+  def get_name_field(resource_model) do
+    fields = resource_model.__schema__(:fields)
+    name_field = fields |> Enum.find(fn(field) -> field == :name || field == :title end)
+    if name_field do
+      name_field
+    else
+      fields |> Enum.find(fn(field) -> resource_model.__schema__(:type, field) == :string end)
+    end
+  end
+
+  def display_name(resource) do
+    defn = ExAdmin.get_registered(resource.__struct__)
+    cond do
+      function_exported?(defn.__struct__, :display_name, 1) ->
+        apply(defn.__struct__, :display_name, [resource])
+
+      function_exported?(resource.__struct__, :display_name, 1) ->
+        apply(resource.__struct__, :display_name, [resource])
+
+      true ->
+        case defn.name_column do
+          nil -> inspect(resource)
+          name_field -> Map.get(resource, name_field)
+        end
+    end
+  end
+
+
   def resource_identity(resource, field \\ :name)
   def resource_identity(resource, field) when is_map(resource) do
     case Map.get(resource, field) do

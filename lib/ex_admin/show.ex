@@ -32,6 +32,7 @@ defmodule ExAdmin.Show do
   """
   import ExAdmin.DslUtils
   import ExAdmin.Helpers
+  import ExAdmin.Repo, only: [repo: 0]
 
   import Kernel, except: [div: 2]
   use Xain
@@ -127,12 +128,12 @@ defmodule ExAdmin.Show do
   """
   defmacro panel(name \\ "", do: block) do
     quote do
-      var!(table_for, ExAdmin.Show) = []
-      var!(contents, ExAdmin.Show) = []
+      var!(elements, ExAdmin.Show) = []
       unquote(block)
-      ExAdmin.Table.panel(var!(conn), %{name: unquote(name),
-        table_for: var!(table_for, ExAdmin.Show),
-        contents: var!(contents, ExAdmin.Show)})
+      ExAdmin.Table.panel(
+        var!(conn),
+        [ {:name, unquote(name)} | var!(elements, ExAdmin.Show) ]
+      )
     end
   end
 
@@ -158,7 +159,7 @@ defmodule ExAdmin.Show do
 
   """
   defmacro table_for(resources, opts, do: block) do
-    block = if Dict.has_key?(opts, :sortable) do
+    block = if Keyword.has_key?(opts, :sortable) do
       ensure_sort_handle_column(block)
     else
       block
@@ -171,7 +172,10 @@ defmodule ExAdmin.Show do
       unquote(block)
       columns = var!(columns, ExAdmin.Show) |> Enum.reverse
 
-      var!(table_for, ExAdmin.Show) = %{resources: unquote(resources), columns: columns, opts: opts}
+      var!(elements, ExAdmin.Show) = var!(elements, ExAdmin.Show) ++ [{
+        :table_for,
+        %{resources: unquote(resources), columns: columns, opts: opts}
+      }]
     end
   end
   defmacro table_for(resources, do: block) do
@@ -196,7 +200,7 @@ defmodule ExAdmin.Show do
         [
           class: "table sortable",
           "data-sortable-link": path
-        ] |> Dict.merge(Dict.drop(opts, [:sortable]))
+        ] |> Keyword.merge(Keyword.drop(opts, [:sortable]))
 
       _ ->
         opts
@@ -236,9 +240,133 @@ defmodule ExAdmin.Show do
       content = markup :nested do
         unquote(block)
       end
-      var!(contents, ExAdmin.Show) = %{contents: content}
+      var!(elements, ExAdmin.Show) = var!(elements, ExAdmin.Show) ++ [{
+        :contents, %{contents: content}
+      }]
     end
   end
+
+  @doc """
+  Add a select box to add N:M associations to the resource on show page.
+
+  *Note:* If you have custom keys in intersection table, please use association_filler/2 to specify them explicit.
+
+  ## Examples
+
+      show post do
+        attributes_table
+
+        panel "Tags" do
+          table_for(post.post_tags) do
+            column :tag
+          end
+          markup_contents do
+            association_filler post, :tags, autocomplete: true
+          end
+        end
+      end
+  """
+  defmacro association_filler(resource, assoc_name, opts) do
+    quote bind_quoted: [resource: resource, assoc_name: assoc_name, opts: opts] do
+      opts = ExAdmin.Schema.get_intersection_keys(resource, assoc_name)
+      |> Keyword.merge([assoc_name: to_string(assoc_name)])
+      |> Keyword.merge(opts)
+
+      association_filler(resource, opts)
+    end
+  end
+
+  @doc """
+  Add a select box to add N:M associations to the resource on show page.
+
+  ## Options
+
+  * `resource_key` - foreign key in the intersection table for resource model
+  * `assoc_name` - name of association
+  * `assoc_key` - foreign key in the intersection table for association model
+  * `assoc_model` - association Ecto model
+  * `autocomplete` - preload all possible associations if `false` and use autocomplete if `true`
+
+  ## Examples
+
+      show post do
+        attributes_table
+
+        panel "Tags" do
+          table_for(post.post_tags) do
+            column :tag
+          end
+          markup_contents do
+            association_filler(post, resource_key: "post_id", assoc_name: "tags",
+              assoc_key: "tag_id", autocomplete: false)
+          end
+        end
+      end
+  """
+  defmacro association_filler(resource, opts) do
+    quote bind_quoted: [resource: resource, opts: opts] do
+      required_opts = [:resource_key, :assoc_name, :assoc_key]
+      unless MapSet.subset?(MapSet.new(required_opts), MapSet.new(Keyword.keys(opts))) do
+        raise ArgumentError.exception("""
+          `association_filler` macro requires following options:
+          #{inspect(required_opts)}
+          For example:
+          association_filler(category, resource_key: "category_id", assoc_name: "properties",
+            assoc_key: "property_id", autocomplete: false)
+        """)
+      end
+
+      hr
+      h4(opts[:label] || "Enter new #{opts[:assoc_name]}")
+      ExAdmin.Show.build_association_filler_form(resource, opts[:autocomplete], opts)
+    end
+  end
+
+  def build_association_filler_form(resource, true = _autocomplete, opts) do
+    path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
+    Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
+      Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
+      Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
+      Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
+
+      Xain.select class: "association_filler", multiple: "multiple", name: "selected_ids[]" do
+        option ""
+      end
+      Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
+    end
+
+    associations_path = ExAdmin.Utils.get_route_path(resource, :show, ExAdmin.Schema.get_id(resource)) <> "/#{opts[:assoc_name]}"
+    script type: "text/javascript" do
+      text """
+      $(document).ready(function() {
+        ExAdmin.association_filler_opts.ajax.url = "#{associations_path}";
+        $(".association_filler").select2(ExAdmin.association_filler_opts);
+      });
+      """
+    end
+  end
+
+  def build_association_filler_form(resource, _autocomplete, opts) do
+    assoc_name = String.to_existing_atom(opts[:assoc_name])
+    assoc_defn = ExAdmin.get_registered_by_association(resource, assoc_name)
+    path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
+
+    Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
+      Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
+      Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
+      Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
+
+      Xain.select class: "select2", multiple: "multiple", name: "selected_ids[]" do
+        ExAdmin.Model.potential_associations_query(resource, assoc_defn.__struct__, assoc_name)
+        |> repo.all
+        |> Enum.each(fn(opt) ->
+          option ExAdmin.Helpers.display_name(opt), value: ExAdmin.Schema.get_id(opt)
+        end)
+      end
+      Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
+    end
+  end
+
 
   @doc false
   def default_show_view(conn, resource) do

@@ -120,7 +120,7 @@ defmodule Mix.Tasks.Admin.Install do
 
       """
     else
-      status_msg("skipping", "xain config. It already exists.")
+      notice_msg("skipping", "xain config. It already exists.")
       append
     end
   end
@@ -136,10 +136,16 @@ defmodule Mix.Tasks.Admin.Install do
     dest_file_path = Path.join dest_path, "dashboard.ex"
     source = Path.join([config.package_path | ~w(priv templates admin.install dashboard.exs)] )
     |> EEx.eval_file(base: get_module)
-    status_msg "creating", Path.join(~w(web admin dashboard.ex))
-    File.mkdir dest_path
-    File.write! dest_file_path, source
-    dashboard_instructions
+
+    file = Path.join(~w(web admin dashboard.ex))
+    if File.exists?(file) do
+      notice_msg "skipping", "#{file}. It already exists."
+    else
+      status_msg "creating", file
+      File.mkdir dest_path
+      File.write! dest_file_path, source
+      dashboard_instructions
+    end
     config
   end
   def do_dashboard(config) do

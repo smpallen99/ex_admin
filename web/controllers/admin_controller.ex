@@ -31,6 +31,7 @@ defmodule ExAdmin.AdminController do
   end
 
   def action(%{private: %{phoenix_action: action}} = conn, _options) do
+    conn = conn |> assign(:xhr, get_req_header(conn, "x-requested-with") == ["XMLHttpRequest"])
     handle_action(conn, action, conn.params["resource"])
   end
 
