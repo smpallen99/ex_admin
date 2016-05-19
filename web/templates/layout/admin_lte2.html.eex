@@ -75,7 +75,7 @@
     <script src='<%= static_path(@conn, "/js/admin_lte2.js") %>'></script>
   </body>
   <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
-  <script>require("web/static/js/app")</script>
+
   <script type="text/javascript">
     $(function() {
       $('.theme-selector').on('click', function(e) {

@@ -28,6 +28,11 @@ defmodule ExAdminTest.ControllerTest do
     assert String.contains?(conn.resp_body, ">Road Runner (Acme)<")
   end
 
+  test "shows multiple table_for and markup_contents sections", %{user: user} do
+    conn = get conn(), get_route_path(%User{}, :show, user.id)
+    assert conn.resp_body =~ ~r(<h3>First table</h3>.*<p>With some No-ID entries</p>.*<table.*</table>.*<table.*</table>.*<h3>\^\^ Second table</h3>)sm
+  end
+
   test "shows new product page" do
     conn = get conn(), get_route_path(%Product{}, :new), []
     assert html_response(conn, 200) =~ "New Product"

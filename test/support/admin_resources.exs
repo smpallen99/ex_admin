@@ -36,8 +36,20 @@ defmodule TestExAdmin.ExAdmin.User do
   register_resource TestExAdmin.User do
     show user do
       panel "No IDs" do
+        markup_contents do
+          h3 "First table"
+        end
+        markup_contents do
+          p "With some No-ID entries"
+        end
         table_for user.noids do
           column "Full name", fn(item) -> text "#{item.name} (#{item.company})" end
+        end
+        table_for user.noids do
+          column "Full name", fn(item) -> text "#{item.name} (#{item.company})" end
+        end
+        markup_contents do
+          h3 "^^ Second table"
         end
       end
     end

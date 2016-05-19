@@ -109,6 +109,8 @@ defmodule ExAdmin.Register do
       Module.put_attribute(__MODULE__, :query, nil)
       Module.put_attribute(__MODULE__, :selectable_column, nil)
       Module.put_attribute(__MODULE__, :changesets, [])
+      @name_column Module.get_attribute(__MODULE__, :name_column) || apply(ExAdmin.Helpers, :get_name_field, [module])
+
 
       alias unquote(mod)
       import Ecto.Query
@@ -190,6 +192,7 @@ defmodule ExAdmin.Register do
                 index_filters: Module.get_attribute(__MODULE__, :index_filters),
                 selectable_column: Module.get_attribute(__MODULE__, :selectable_column),
                 position_column: Module.get_attribute(__MODULE__, :position_column),
+                name_column: @name_column,
                 batch_actions: Module.get_attribute(__MODULE__, :batch_actions),
                 changesets: Module.get_attribute(__MODULE__, :changesets),
                 plugs: plugs,
@@ -206,6 +209,30 @@ defmodule ExAdmin.Register do
         %__MODULE__{}
         |> Map.get(:resource_model)
         |> ExAdmin.Query.run_query_counts(repo, defn, action, id, @query)
+      end
+
+      def build_admin_search_query(keywords) do
+        cond do
+          function_exported?(@module, :admin_search_query, 1) ->
+            apply(@module, :admin_search_query, [keywords])
+          function_exported?(__MODULE__, :admin_search_query, 1) ->
+              apply(__MODULE__, :admin_search_query, [keywords])
+          true ->
+            suggest_admin_search_query(keywords)
+        end
+      end
+
+      defp suggest_admin_search_query(keywords) do
+        field = @name_column
+        query = from r in @module, order_by: ^field
+        case keywords do
+          nil ->
+            query
+          "" ->
+            query
+          keywords ->
+            from r in query, where: ilike(field(r, ^field), ^("%#{keywords}%"))
+        end
       end
 
       def plugs(), do: @controller_plugs
@@ -850,4 +877,3 @@ defmodule ExAdmin.Register do
   end
 
 end
-

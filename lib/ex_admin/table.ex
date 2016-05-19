@@ -49,7 +49,8 @@ defmodule ExAdmin.Table do
     theme_module(conn, Table).theme_panel(conn, schema)
   end
 
-  def do_panel(conn, %{table_for: %{resources: resources, columns: columns, opts: opts}}, table_opts) do
+  def do_panel(_conn, [], _table_opts), do: ""
+  def do_panel(conn, [{:table_for, %{resources: resources, columns: columns, opts: opts}} | tail], table_opts) do
     table(Dict.merge(table_opts, opts)) do
       table_head(columns)
       tbody do
@@ -74,8 +75,9 @@ defmodule ExAdmin.Table do
         end)
       end
     end
+    do_panel(conn, tail, table_opts)
   end
-  def do_panel(_conn, %{contents: %{contents: content}}, _table_opts) do
+  def do_panel(conn, [{:contents, %{contents: content}} | tail], table_opts) do
     div do
       case content do
         {:safe, _} -> Phoenix.HTML.safe_to_string(content)
@@ -84,9 +86,11 @@ defmodule ExAdmin.Table do
       |> String.replace("\n", "")
       |> Xain.raw
     end
+    do_panel(conn, tail, table_opts)
   end
-  def do_panel(_conn, schema) do
-    ""
+  # skip unknown blocks
+  def do_panel(conn, [head|tail], table_opts) do
+    do_panel(conn, tail, table_opts)
   end
 
   def table_head(columns, opts \\ %{}) do
@@ -187,4 +191,3 @@ defmodule ExAdmin.Table do
   end
 
 end
-
