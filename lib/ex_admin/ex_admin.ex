@@ -189,7 +189,9 @@ defmodule ExAdmin do
       %{queryable: assoc_model} ->
         assoc_model
       nil ->
-        raise ArgumentError.exception("#{inspect(resource_model)}.__schema__(:association, #{inspect(assoc_name)}) returns nil")
+        raise ArgumentError.exception("Association #{assoc_name} is not found.\n#{inspect(resource_model)}.__schema__(:association, #{inspect(assoc_name)}) returns nil")
+      _ ->
+        raise ArgumentError.exception("Association type of #{assoc_name} is not supported. Please, fill an issue.")
     end
     Enum.find get_registered, %{}, &(Map.get(&1, :resource_model) == assoc_model)
   end
