@@ -15,8 +15,10 @@ defmodule Mix.ExAdmin.Utils do
   end
 
   @doc "Print a status message to the console"
-  def status_msg(status, message), 
+  def status_msg(status, message),
     do: IO.puts "#{IO.ANSI.green}* #{status}#{IO.ANSI.reset} #{message}"
+  def notice_msg(status, message),
+    do: IO.puts "#{IO.ANSI.yellow}* #{status}#{IO.ANSI.reset} #{message}"
 
   @doc "Print an informational message without color"
   def debug(message), do: IO.puts "==> #{message}"
