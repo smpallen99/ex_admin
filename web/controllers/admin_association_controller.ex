@@ -1,4 +1,4 @@
-defmodule ExAdmin.AssociationController do
+defmodule ExAdmin.AdminAssociationController do
   @moduledoc false
   use ExAdmin.Web, :controller
   require Logger
