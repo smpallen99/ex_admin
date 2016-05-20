@@ -16,22 +16,6 @@ defmodule ExAdmin.AdminResourceController do
     handle_action(conn, action, conn.params["resource"])
   end
 
-  defp handle_action(conn, action, nil) do
-    ExAdmin.get_all_registered
-    |> Enum.sort(&(elem(&1,1).menu[:priority] < elem(&2,1).menu[:priority]))
-    |> hd
-    |> case do
-      {_, %{controller_route: resource}} ->
-        conn = scrub_params(conn, resource, action)
-        params = filter_params(conn.params)
-        conn
-        |> struct(path_info: conn.path_info ++ [resource])
-        |> struct(params: Map.put(conn.params, "resource", resource))
-        |> handle_action(action, resource)
-      _other ->
-        throw :invalid_route
-    end
-  end
   defp handle_action(conn, action, resource) do
     conn = scrub_params(conn, resource, action)
     params = filter_params(conn.params)
@@ -66,7 +50,7 @@ defmodule ExAdmin.AdminResourceController do
       collection_action = Keyword.get(collection_actions, action) ->
         collection_action.(conn, params)
       true ->
-        apply(__MODULE__, action, [conn, params])
+        apply(__MODULE__, action, [conn, defn, params])
     end
   end
 
@@ -106,89 +90,74 @@ defmodule ExAdmin.AdminResourceController do
   defp authorized?(conn), do: conn
 
 
-  def index(conn, params) do
-    defn = get_registered_by_controller_route!(params[:resource], conn)
-    {contents, page, scope_counts} = case defn do
-      defn ->
-        model = defn.__struct__
+  def index(conn, defn, params) do
+    model = defn.__struct__
 
-        page = case conn.assigns[:page] do
-          nil ->
-            model.run_query(repo, defn, :index, params |> Map.to_list)
-          page ->
-            page
-        end
-        counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
-        if function_exported? model, :index_view, 3 do
-          {apply(model, :index_view, [conn, page, counts]), page, counts}
-        else
-          {ExAdmin.Index.default_index_view(conn, page, counts), page, counts}
-        end
+    page = case conn.assigns[:page] do
+      nil ->
+        model.run_query(repo, defn, :index, params |> Map.to_list)
+      page ->
+        page
     end
+    scope_counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
+
+    contents = if function_exported? model, :index_view, 3 do
+      apply(model, :index_view, [conn, page, scope_counts])
+    else
+      ExAdmin.Index.default_index_view(conn, page, scope_counts)
+    end
+
     assign(conn, :scope_counts, scope_counts)
     |> render("admin.html", html: contents, defn: defn, resource: page,
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end
 
-  def show(conn, params) do
-    registered = get_registered_by_controller_route!(params[:resource], conn)
-    {contents, resource, defn} = case registered do
-      defn ->
-        model = defn.__struct__
+  def show(conn, defn, params) do
+    model = defn.__struct__
 
-        resource = unless Application.get_all_env(:auth_ex) == [] do
-          resource_name = AuthEx.Utils.resource_name conn, model: defn.resource_model
-          case conn.assigns[resource_name] do
-            nil ->
-              model.run_query(repo, defn, :show, params[:id])
-            res ->
-              res
-          end
-        else
+    resource = if Application.get_all_env(:auth_ex) != [] do
+      resource_name = AuthEx.Utils.resource_name conn, model: defn.resource_model
+      case conn.assigns[resource_name] do
+        nil ->
           model.run_query(repo, defn, :show, params[:id])
-        end
-
-        if resource == nil do
-          raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
-        end
-
-        if function_exported? model, :show_view, 2 do
-          {apply(model, :show_view, [conn, resource]), resource, defn}
-        else
-          {ExAdmin.Show.default_show_view(conn, resource), resource, defn}
-        end
+        res ->
+          res
+      end
+    else
+      model.run_query(repo, defn, :show, params[:id])
     end
+
+    if resource == nil do
+      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
+    end
+
+    contents = if function_exported? model, :show_view, 2 do
+      apply(model, :show_view, [conn, resource])
+    else
+      ExAdmin.Show.default_show_view(conn, resource)
+    end
+
     render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
   end
 
-  def edit(conn, params) do
-    registered = get_registered_by_controller_route!(params[:resource], conn)
-    {contents, resource, defn} = case registered do
-      defn ->
-        model = defn.__struct__
-        resource = model.run_query(repo, defn, :edit, params[:id])
+  def edit(conn, defn, params) do
+    model = defn.__struct__
+    resource = model.run_query(repo, defn, :edit, params[:id])
 
-        if resource == nil do
-          raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
-        end
-
-        if function_exported? model, :form_view, 3 do
-          {apply(model, :form_view, [conn, resource, params]), resource, defn}
-        else
-          {ExAdmin.Form.default_form_view(conn, resource, params), resource, defn}
-        end
+    if resource == nil do
+      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
     end
+
+    contents = do_form_view(model, conn, resource, params)
+
     render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
   end
 
-  def new(conn, params) do
-    registered = get_registered_by_controller_route!(params[:resource], conn)
-    {contents, resource, defn} = case registered do
-      defn ->
-        model = defn.__struct__
-        resource = model.__struct__.resource_model.__struct__
-        {do_form_view(model, conn, resource, params), resource, defn}
-    end
+  def new(conn, defn, params) do
+    model = defn.__struct__
+    resource = model.__struct__.resource_model.__struct__
+    contents = do_form_view(model, conn, resource, params)
+
     render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
   end
 
@@ -200,58 +169,49 @@ defmodule ExAdmin.AdminResourceController do
     end
   end
 
-  def create(conn, params) do
-    registered = get_registered_by_controller_route!(params[:resource], conn)
-    case registered do
-      defn ->
-        model = defn.__struct__
-        resource = model.__struct__.resource_model.__struct__
-        resource_model = model.__struct__.resource_model
-        |> base_name |> String.downcase |> String.to_atom
-        changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
-        changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
+  def create(conn, defn, params) do
+    model = defn.__struct__
+    resource = model.__struct__.resource_model.__struct__
+    resource_model = model.__struct__.resource_model
+    |> base_name |> String.downcase |> String.to_atom
+    changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
+    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
 
-        case ExAdmin.Repo.insert(changeset) do
-          {:error, changeset} ->
-            conn = put_flash(conn, :inline_error, changeset.errors)
-            contents = do_form_view model, conn, changeset.data, params
-            conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
-          resource ->
-            put_flash(conn, :notice, "#{base_name model} was successfully created.")
-            |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
-        end
+    case ExAdmin.Repo.insert(changeset) do
+      {:error, changeset} ->
+        conn = put_flash(conn, :inline_error, changeset.errors)
+        contents = do_form_view model, conn, changeset.data, params
+        conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
+      resource ->
+        put_flash(conn, :notice, "#{base_name model} was successfully created.")
+        |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
     end
   end
 
-  def update(conn, params) do
-    registered = get_registered_by_controller_route!(params[:resource], conn)
-    case registered do
-      defn ->
-        model = defn.__struct__
-        resource_model = model.__struct__.resource_model
-        |> base_name |> String.downcase |> String.to_atom
-        resource = model.run_query(repo, defn, :edit, params[:id])
+  def update(conn, defn, params) do
+    model = defn.__struct__
+    resource_model = model.__struct__.resource_model
+    |> base_name |> String.downcase |> String.to_atom
+    resource = model.run_query(repo, defn, :edit, params[:id])
 
-        if resource == nil do
-          raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
-        end
+    if resource == nil do
+      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
+    end
 
-        changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
-        changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
-        case ExAdmin.Repo.update(changeset) do
-          {:error, changeset} ->
-            conn = put_flash(conn, :inline_error, changeset.errors)
-            contents = do_form_view model, conn, changeset.data, params
-            conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
-          resource ->
-            put_flash(conn, :notice, "#{base_name model} was successfully updated")
-            |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
-        end
+    changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
+    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
+    case ExAdmin.Repo.update(changeset) do
+      {:error, changeset} ->
+        conn = put_flash(conn, :inline_error, changeset.errors)
+        contents = do_form_view model, conn, changeset.data, params
+        conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
+      resource ->
+        put_flash(conn, :notice, "#{base_name model} was successfully updated")
+        |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
     end
   end
 
-  def toggle_attr(conn, %{attr_name: attr_name, attr_value: attr_value} = params) do
-    defn = get_registered_by_controller_route!(params[:resource], conn)
+  def toggle_attr(conn, defn, %{attr_name: attr_name, attr_value: attr_value} = params) do
     resource = repo.get!(defn.resource_model, params[:id])
     attr_name_atom = String.to_existing_atom(attr_name)
 
@@ -262,38 +222,29 @@ defmodule ExAdmin.AdminResourceController do
     render conn, "toggle_attr.js", attr_name: attr_name, attr_value: Map.get(resource, attr_name_atom), id: ExAdmin.Schema.get_id(resource)
   end
 
-  def destroy(conn, params) do
-    registered = get_registered_by_controller_route!(params[:resource], conn)
+  def destroy(conn, defn, params) do
+    model = defn.__struct__
+    resource_model = model.__struct__.resource_model
+    |> base_name |> String.downcase |> String.to_atom
 
-    resource_model =
-      case registered do
-        defn ->
-          model = defn.__struct__
-          resource_model = model.__struct__.resource_model
-          |> base_name |> String.downcase |> String.to_atom
+    resource = model.run_query(repo, defn, :edit, params[:id])
 
-          resource = model.run_query(repo, defn, :edit, params[:id])
+    if resource == nil do
+      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
+    end
 
-          if resource == nil do
-            raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
-          end
+    ExAdmin.Repo.delete(resource, params[resource_model])
+    resource_model = base_name model
 
-          ExAdmin.Repo.delete(resource, params[resource_model])
-          base_name model
-      end
-
-    case get_req_header(conn, "x-requested-with") do
-      ["XMLHttpRequest"] ->
-        render conn, "destroy.js", tr_id: String.downcase("#{resource_model}_#{params[:id]}")
-      _ ->
-        put_flash(conn, :notice, "#{resource_model} was successfully destroyed.")
-        |> redirect(to: get_route_path(conn, :index))
+    if conn.assigns.xhr do
+      render conn, "destroy.js", tr_id: String.downcase("#{resource_model}_#{params[:id]}")
+    else
+      put_flash(conn, :notice, "#{resource_model} was successfully destroyed.")
+      |> redirect(to: get_route_path(conn, :index))
     end
   end
 
-  def batch_action(conn, %{batch_action: "destroy"} = params) do
-    defn = get_registered_by_controller_route!(params[:resource], conn)
-
+  def batch_action(conn, defn, %{batch_action: "destroy"} = params) do
     model = defn.__struct__
     resource_model = model.__struct__.resource_model
 
@@ -323,42 +274,33 @@ defmodule ExAdmin.AdminResourceController do
     end
   end
 
-  def csv(conn, params) do
-    registered = get_registered_by_controller_route!(params[:resource], conn)
-    case registered do
-      defn ->
-        model = defn.__struct__
+  def csv(conn, defn, params) do
+    model = defn.__struct__
 
-        csv = case model.run_query(repo, defn, :csv) do
-          [] -> []
-          [resource | resources] ->
-            ExAdmin.View.Adapter.build_csv(resource, resources)
-        end
-
-        conn
-        |> put_resp_content_type("text/csv")
-        |> put_resp_header("Content-Disposition", "inline; filename=\"#{params[:resource]}.csv\"")
-        |> send_resp(conn.status || 200, csv)
+    csv = case model.run_query(repo, defn, :csv) do
+      [] -> []
+      [resource | resources] ->
+        ExAdmin.View.Adapter.build_csv(resource, resources)
     end
+
+    conn
+    |> put_resp_content_type("text/csv")
+    |> put_resp_header("Content-Disposition", "inline; filename=\"#{params[:resource]}.csv\"")
+    |> send_resp(conn.status || 200, csv)
   end
 
   @nested_key_list for i <- 1..5, do: {String.to_atom("nested#{i}"), String.to_atom("id#{i}")}
 
-  def nested(conn, params) do
-    registered = get_registered_by_controller_route!(params[:resource], conn)
-    contents =
-      case registered do
-        defn ->
-          model = defn.__struct__
+  def nested(conn, defn, params) do
+    model = defn.__struct__
 
-          items = apply(model, :get_blocks, [conn, defn.resource_model.__struct__, params])
-          block = deep_find(items, String.to_atom(params[:field_name]))
+    items = apply(model, :get_blocks, [conn, defn.resource_model.__struct__, params])
+    block = deep_find(items, String.to_atom(params[:field_name]))
 
-          resources = block[:opts][:collection].(conn, defn.resource_model.__struct__)
+    resources = block[:opts][:collection].(conn, defn.resource_model.__struct__)
 
-          contents = apply(model, :ajax_view, [conn, params, resources, block])
-          contents
-      end
+    contents = apply(model, :ajax_view, [conn, params, resources, block])
+
     send_resp(conn, conn.status || 200, "text/javascript", contents)
   end
 
