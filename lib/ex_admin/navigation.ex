@@ -28,7 +28,7 @@ defmodule ExAdmin.Navigation do
   def nav_link(conn, %{controller: controller, type: :page, page_name: _page_name} = registered, opts) do
     controller_name = controller_name(controller)
     # path = get_route_path(resource_model, :index)
-    path = "/admin/dashboard"
+    path = admin_path
     menu = Map.get registered, :menu, %{}
     name = Map.get menu, :label, (controller_name |> titleize |> Inflex.pluralize)
 

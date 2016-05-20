@@ -132,52 +132,64 @@ defmodule ExAdmin.Utils do
 
   Examples:
 
-      iex> ExAdmin.Utils.admin_path
-      "/admin"
-
-      iex> ExAdmin.Utils.admin_path(TestExAdmin.Product)
+      iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product)
       "/admin/products"
 
-      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{})
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{})
       "/admin/products/new"
 
-      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{id: 1})
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{id: 1})
       "/admin/products/1"
 
-      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{id: 1}, :edit)
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{id: 1}, :edit)
       "/admin/products/1/edit"
 
-      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{id: 1}, :update)
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{id: 1}, :update)
       "/admin/products/1"
 
-      iex> ExAdmin.Utils.admin_path(%TestExAdmin.Product{id: 1}, :destroy)
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{id: 1}, :destroy)
       "/admin/products/1"
 
-      iex> ExAdmin.Utils.admin_path(TestExAdmin.Product, :create)
+      iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product, :create)
       "/admin/products"
 
-      iex> ExAdmin.Utils.admin_path(TestExAdmin.Product, :batch_action)
+      iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product, :batch_action)
       "/admin/products/batch_action"
 
-      iex> ExAdmin.Utils.admin_path(TestExAdmin.Product, :csv)
+      iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product, :csv)
       "/admin/products/csv"
   """
-  def admin_path(resource_model, method \\ nil, args \\ [])
-  def admin_path(resource_model, method, args) when is_atom(resource_model) do
-    apply(router, :admin_path, [endpoint, method || :index, resource_model.__schema__(:source) | args])
+  def admin_resource_path(resource_model, method \\ nil, args \\ [])
+  def admin_resource_path(resource_model, method, args) when is_atom(resource_model) do
+    apply(router, :admin_resource_path, [endpoint, method || :index, resource_model.__schema__(:source) | args])
   end
-  def admin_path(resource, method, args) when is_map(resource) do
+  def admin_resource_path(resource, method, args) when is_map(resource) do
     resource_model = resource.__struct__
     id = ExAdmin.Schema.get_id(resource)
     case id do
       nil ->
-        admin_path(resource_model, method || :new, args)
+        admin_resource_path(resource_model, method || :new, args)
       _ ->
-        admin_path(resource_model, method || :show, [id | args])
+        admin_resource_path(resource_model, method || :show, [id | args])
     end
   end
+
+  @doc """
+  URL helper to build assistant admin paths
+
+  Examples:
+
+      iex> ExAdmin.Utils.admin_path
+      "/admin"
+
+      iex> ExAdmin.Utils.admin_path(:select_theme, [1])
+      "/admin/select_theme/1"
+  """
   def admin_path do
     router.admin_path(endpoint, :dashboard)
+  end
+  def admin_path(method, args \\ []) do
+    apply(router, :admin_path, [endpoint, method | args])
   end
 
   @doc """
