@@ -57,16 +57,6 @@ defmodule ExAdmin.AssociationController do
     |> redirect(to: ExAdmin.Utils.get_route_path(resource, :show, resource_id))
   end
 
-  def toggle_attr(conn, defn, resource, %{"attr_name" => attr_name, "attr_value" => attr_value}) do
-    attr_name_atom = String.to_existing_atom(attr_name)
-
-    resource = resource
-    |> defn.resource_model.changeset(%{attr_name => attr_value})
-    |> repo.update!
-
-    render conn, "toggle_attr.js", attr_name: attr_name, attr_value: Map.get(resource, attr_name_atom), id: ExAdmin.Schema.get_id(resource)
-  end
-
 
   defp prepare_positions(%{position_column: nil}, positions), do: positions
   defp prepare_positions(%{position_column: position_column}, positions) do
