@@ -274,6 +274,18 @@ defmodule ExAdmin.AdminController do
     end
   end
 
+  def toggle_attr(conn, %{attr_name: attr_name, attr_value: attr_value} = params) do
+    defn = get_registered_by_controller_route!(params[:resource], conn)
+    resource = repo.get!(defn.resource_model, params[:id])
+    attr_name_atom = String.to_existing_atom(attr_name)
+
+    resource = resource
+    |> defn.resource_model.changeset(%{attr_name => attr_value})
+    |> repo.update!
+
+    render conn, "toggle_attr.js", attr_name: attr_name, attr_value: Map.get(resource, attr_name_atom), id: ExAdmin.Schema.get_id(resource)
+  end
+
   def destroy(conn, params) do
     registered = get_registered_by_controller_route!(params[:resource], conn)
 

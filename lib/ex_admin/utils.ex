@@ -6,8 +6,8 @@ defmodule ExAdmin.Utils do
   import Ecto.DateTime.Utils, only: [zero_pad: 2]
   @module Application.get_env(:ex_admin, :module)
   if @module do
-    @endpoint [@module, "Endpoint"] |> Enum.join(".") |> String.to_existing_atom
-    @router [@module, "Router", "Helpers"] |> Enum.join(".") |> String.to_existing_atom
+    @endpoint Module.concat([@module, "Endpoint"])
+    @router Module.concat([@module, "Router", "Helpers"])
   end
 
   @doc false
@@ -180,6 +180,22 @@ defmodule ExAdmin.Utils do
     router.admin_path(endpoint, :dashboard)
   end
 
+  @doc """
+  URL helper for routes related to associations
+
+  Examples:
+
+      iex> ExAdmin.Utils.admin_association_path(%TestExAdmin.Product{id: 1}, :tags)
+      "/admin/products/1/tags"
+
+      iex> ExAdmin.Utils.admin_association_path(%TestExAdmin.Product{id: 1}, :tags, :update_positions)
+      "/admin/products/1/tags/update_positions"
+  """
+  def admin_association_path(resource, assoc_name, method \\ nil, args \\ []) do
+    resource_model = resource.__struct__
+    resource_id = ExAdmin.Schema.get_id(resource)
+    apply(router, :admin_association_path, [endpoint, method || :index, resource_model.__schema__(:source), resource_id, assoc_name | args])
+  end
 
   @doc false
   def get_route_path(resource_or_conn, method, id \\ nil)
@@ -207,7 +223,7 @@ defmodule ExAdmin.Utils do
   def get_route_path(prefix, :create, _), do: path_append(prefix)
   def get_route_path(prefix, :destroy, id), do: path_append(prefix, ~w(#{id}))
   def get_route_path(prefix, :delete, id), do: path_append(prefix, ~w(#{id}))
-  def get_route_path(prefix, :toggle, id), do: path_append(prefix, ~w(#{id} toggle))
+  def get_route_path(prefix, :toggle, id), do: path_append(prefix, ~w(#{id} toggle_attr))
   def get_route_path(prefix, :update_positions, opts), do: path_append(prefix, opts ++ ["update_positions"])
   def get_route_path(prefix, :add, opts), do: path_append(prefix, opts)
 
