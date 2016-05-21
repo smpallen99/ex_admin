@@ -24,7 +24,7 @@ defmodule TestExAdmin.Migrations do
     create table(:products) do
       add :title, :string
       add :price, :decimal
-      add :user_id, references(:users, on_delete: :delete_all)
+      add :product_id, references(:products, on_delete: :nothing)
     end
 
     create table(:noids, primary_key: false) do

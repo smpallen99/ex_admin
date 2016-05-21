@@ -59,22 +59,7 @@ defmodule TestExAdmin.ExAdmin.User do
 end
 defmodule TestExAdmin.ExAdmin.Product do
   use ExAdmin.Register
-  alias TestExAdmin.Repo
-  alias TestExAdmin.User
 
   register_resource TestExAdmin.Product do
-    controller do
-      after_filter :do_after, only: [:create, :update]
-
-      def do_after(conn, params, resource, :create) do
-        user = Repo.all(User) |> hd
-        resource = Product.changeset(resource, %{user_id: user.id})
-        |> Repo.update!
-        {Plug.Conn.assign(conn, :product, resource), params, resource}
-      end
-      def do_after(conn, _params, _resource, :update) do
-        Plug.Conn.assign(conn, :answer, 42)
-      end
-    end
   end
 end
