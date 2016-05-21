@@ -3,9 +3,7 @@ defmodule ExAdminTest.ControllerTest do
   require Logger
 
   import TestExAdmin.TestHelpers
-  alias TestExAdmin.Noid
-  alias TestExAdmin.User
-  alias TestExAdmin.Product
+  alias TestExAdmin.{Noid, User, Product}
 
   @wrong_resource_id 100500
   @wrong_endpoint "/admin/not_existing"
@@ -93,4 +91,17 @@ defmodule ExAdminTest.ControllerTest do
     conn = post conn(), "/admin/noids/batch_action", params
     assert html_response(conn, 302)
   end
+
+  @valid_attrs %{title: "title", price: "19.99"}
+  test "create and update after callback" do
+    user = Repo.all(User) |> hd
+    conn = post conn(), get_route_path(%Product{}, :create), product: @valid_attrs
+    product = conn.assigns[:product]
+    assert html_response(conn, 302)
+    assert product.user_id == user.id
+
+    conn = put conn(), get_route_path(%Product{}, :update, product.id), product: @valid_attrs
+    assert conn.assigns[:answer] == 42
+  end
+
 end
