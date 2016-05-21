@@ -114,18 +114,7 @@ defmodule ExAdmin.AdminResourceController do
 
   def show(conn, defn, params) do
     model = defn.__struct__
-
-    resource = if Application.get_all_env(:auth_ex) != [] do
-      resource_name = AuthEx.Utils.resource_name conn, model: defn.resource_model
-      case conn.assigns[resource_name] do
-        nil ->
-          model.run_query(repo, defn, :show, params[:id])
-        res ->
-          res
-      end
-    else
-      model.run_query(repo, defn, :show, params[:id])
-    end
+    resource = model.run_query(repo, defn, :show, params[:id])
 
     if resource == nil do
       raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
@@ -155,7 +144,7 @@ defmodule ExAdmin.AdminResourceController do
 
   def new(conn, defn, params) do
     model = defn.__struct__
-    resource = model.__struct__.resource_model.__struct__
+    resource = defn.resource_model.__struct__
     contents = do_form_view(model, conn, resource, params)
 
     render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
@@ -171,9 +160,8 @@ defmodule ExAdmin.AdminResourceController do
 
   def create(conn, defn, params) do
     model = defn.__struct__
-    resource = model.__struct__.resource_model.__struct__
-    resource_model = model.__struct__.resource_model
-    |> base_name |> String.downcase |> String.to_atom
+    resource = defn.resource_model.__struct__
+    resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
     changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
     changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
 
@@ -190,8 +178,7 @@ defmodule ExAdmin.AdminResourceController do
 
   def update(conn, defn, params) do
     model = defn.__struct__
-    resource_model = model.__struct__.resource_model
-    |> base_name |> String.downcase |> String.to_atom
+    resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
     resource = model.run_query(repo, defn, :edit, params[:id])
 
     if resource == nil do
@@ -224,8 +211,7 @@ defmodule ExAdmin.AdminResourceController do
 
   def destroy(conn, defn, params) do
     model = defn.__struct__
-    resource_model = model.__struct__.resource_model
-    |> base_name |> String.downcase |> String.to_atom
+    resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
 
     resource = model.run_query(repo, defn, :edit, params[:id])
 
@@ -245,8 +231,7 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def batch_action(conn, defn, %{batch_action: "destroy"} = params) do
-    model = defn.__struct__
-    resource_model = model.__struct__.resource_model
+    resource_model = defn.resource_model
 
     type = case ExAdmin.Schema.primary_key(resource_model) do
       nil -> :integer
