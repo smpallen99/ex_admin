@@ -196,7 +196,7 @@ defmodule ExAdmin.Show do
   def prepare_sortable_opts(opts) do
     case opts[:sortable] do
       [resource: resource, assoc_name: assoc_name] ->
-        path = ExAdmin.Utils.get_route_path(resource, :update_positions, [resource.id, assoc_name])
+        path = ExAdmin.Utils.admin_association_path(resource, assoc_name, :update_positions)
         [
           class: "table sortable",
           "data-sortable-link": path
@@ -323,7 +323,7 @@ defmodule ExAdmin.Show do
   end
 
   def build_association_filler_form(resource, true = _autocomplete, opts) do
-    path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
+    path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name], :add)
     Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
       Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
       Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
@@ -335,7 +335,7 @@ defmodule ExAdmin.Show do
       Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
     end
 
-    associations_path = ExAdmin.Utils.get_route_path(resource, :show, ExAdmin.Schema.get_id(resource)) <> "/#{opts[:assoc_name]}"
+    associations_path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name])
     script type: "text/javascript" do
       text """
       $(document).ready(function() {
@@ -349,7 +349,7 @@ defmodule ExAdmin.Show do
   def build_association_filler_form(resource, _autocomplete, opts) do
     assoc_name = String.to_existing_atom(opts[:assoc_name])
     assoc_defn = ExAdmin.get_registered_by_association(resource, assoc_name)
-    path = ExAdmin.Utils.get_route_path(resource, :add, [ExAdmin.Schema.get_id(resource), opts[:assoc_name]])
+    path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name], :add)
 
     Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
       Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"

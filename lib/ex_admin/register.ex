@@ -750,7 +750,7 @@ defmodule ExAdmin.Register do
           {:error, message} ->
             Controller.put_flash(conn, :error, "Restore Failed: \#{message}.")
         end
-        |> Controller.redirect(to: ExAdmin.Utils.get_route_path(conn, :index))
+        |> Controller.redirect(to: ExAdmin.Utils.admin_resource_path(conn, :index))
       end
 
   """
@@ -773,7 +773,7 @@ defmodule ExAdmin.Register do
       def backup_action(conn, _params) do
         Repo.insert %BackupRestore{}
         Controller.put_flash(conn, :notice, "Backup complete.")
-        |> Controller.redirect(to: ExAdmin.Utils.get_route_path(conn, :index))
+        |> Controller.redirect(to: ExAdmin.Utils.admin_resource_path(conn, :index))
       end
 
   """

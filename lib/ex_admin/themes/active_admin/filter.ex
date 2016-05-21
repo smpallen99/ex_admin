@@ -12,7 +12,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
       div "#filters_sidebar_sectionl.sidebar_section.panel" do
         h3 "Filters"
         div ".panel_contents" do
-          form "accept-charset": "UTF-8", action: get_route_path(conn, :index), class: "filter_form", id: "q_search", method: "get" do
+          form "accept-charset": "UTF-8", action: admin_resource_path(conn, :index), class: "filter_form", id: "q_search", method: "get" do
             if scope do
               input type: :hidden, name: :scope, value: scope
             end

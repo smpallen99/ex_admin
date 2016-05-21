@@ -47,7 +47,7 @@ defmodule ExAdmin.AdminLte2.LayoutView do
       selected = if "#{name}" == "#{current_scope}", do: "active", else: ""
 
       li class: selected do
-        a href: Utils.get_route_path(conn, :index) <> "?scope=#{name}" do
+        a href: Utils.admin_resource_path(conn, :index, [[scope: name]]) do
           i ".nav-label.label.label-success" do
             String.at("#{name}", 0)
             |> String.upcase

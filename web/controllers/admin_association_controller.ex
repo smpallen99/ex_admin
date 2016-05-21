@@ -54,7 +54,7 @@ defmodule ExAdmin.AdminAssociationController do
 
     conn
     |> put_flash(:notice, "#{through_assoc} was successfully added")
-    |> redirect(to: ExAdmin.Utils.get_route_path(resource, :show, resource_id))
+    |> redirect(to: ExAdmin.Utils.admin_resource_path(resource, :show))
   end
 
 

@@ -26,7 +26,7 @@ defmodule ExAdmin.Helpers do
       nil -> contents
       res when is_map(res) ->
         if ExAdmin.Utils.authorized_action? conn, :index, res.__struct__ do
-          path = get_route_path res, :index
+          path = admin_resource_path res, :index
           "<a href='#{path}'>#{contents}</a>"
         else
           contents
@@ -62,7 +62,7 @@ defmodule ExAdmin.Helpers do
 
   defp build_content_link(link?, conn, resource, contents) do
     if link? && ExAdmin.Utils.authorized_action?(conn, :show, resource.__struct__) do
-      path = get_route_path resource, :show, resource.id
+      path = admin_resource_path resource, :show
       "<a href='#{path}'>#{contents}</a>"
     else
       contents
@@ -147,8 +147,9 @@ defmodule ExAdmin.Helpers do
     build_single_field(resource, conn, f_name, %{toggle: ~w(YES NO)})
   end
   def build_single_field(resource, _conn, f_name, %{toggle: [yes, no]}) do
-    path = ExAdmin.Utils.get_route_path(resource, :toggle, resource.id)
-    path = path <> "?attr_name=#{f_name}&attr_value="
+    path = fn(attr_value) ->
+      admin_resource_path(resource, :toggle_attr, [[attr_name: f_name, attr_value: attr_value]])
+    end
     current_value = Map.get(resource, f_name)
     [yes_btn_css, no_btn_css] = case current_value do
       true -> ["btn-primary", "btn-default"]
@@ -156,8 +157,8 @@ defmodule ExAdmin.Helpers do
       value -> raise ArgumentError.exception("`toggle` option could be used only with columns of boolean type.\nBut `#{f_name}` is #{inspect(IEx.Info.info(value))}\nwith value == #{inspect(value)}")
     end
     [
-    ~s(<a id="#{f_name}_true_#{resource.id}" class="toggle btn btn-sm #{yes_btn_css}" href="#{path}true" data-remote="true" data-method="put" #{if !!current_value, do: "disabled"}>#{yes}</a>),
-    ~s(<a id="#{f_name}_false_#{resource.id}" class="toggle btn btn-sm #{no_btn_css}" href="#{path}false" data-remote="true" data-method="put" #{if !current_value, do: "disabled"}>#{no}</a>)
+    ~s(<a id="#{f_name}_true_#{resource.id}" class="toggle btn btn-sm #{yes_btn_css}" href="#{path.(true)}" data-remote="true" data-method="put" #{if !!current_value, do: "disabled"}>#{yes}</a>),
+    ~s(<a id="#{f_name}_false_#{resource.id}" class="toggle btn btn-sm #{no_btn_css}" href="#{path.(false)}" data-remote="true" data-method="put" #{if !current_value, do: "disabled"}>#{no}</a>)
     ] |> Enum.join
   end
   def build_single_field(resource, conn, f_name, %{fun: fun} = opts) do

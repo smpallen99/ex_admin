@@ -5,7 +5,6 @@ defmodule ExAdmin.AdminResourceController do
   import ExAdmin
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
-  alias ExAdmin.Schema
   require IEx
 
   plug :set_theme
@@ -22,6 +21,7 @@ defmodule ExAdmin.AdminResourceController do
     case get_registered_by_controller_route!(resource, conn) do
       %{__struct__: _} = defn ->
         conn
+        |> load_resource(action, defn, params[:id])
         |> handle_plugs(action, defn)
         |> handle_before_filter(action, defn, params)
         |> handle_custom_actions(action, defn, params)
@@ -38,6 +38,21 @@ defmodule ExAdmin.AdminResourceController do
     end
   end
   defp scrub_params(conn, _required_key, _action), do: conn
+
+  defp load_resource(conn, _action, defn, nil) do
+    resource = defn.resource_model.__struct__
+    assign(conn, :resource, resource)
+  end
+  defp load_resource(conn, action, defn, resource_id) do
+    model = defn.__struct__
+    resource = model.run_query(repo, defn, action, resource_id)
+
+    if resource == nil do
+      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
+    end
+
+    assign(conn, :resource, resource)
+  end
 
   def handle_custom_actions({conn, params}, action, defn, _) do
     handle_custom_actions(conn, action, defn, params)
@@ -108,17 +123,13 @@ defmodule ExAdmin.AdminResourceController do
     end
 
     assign(conn, :scope_counts, scope_counts)
-    |> render("admin.html", html: contents, defn: defn, resource: page,
+    |> render("admin.html", html: contents, defn: defn,# resource: page,
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end
 
-  def show(conn, defn, params) do
+  def show(conn, defn, _params) do
     model = defn.__struct__
-    resource = model.run_query(repo, defn, :show, params[:id])
-
-    if resource == nil do
-      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
-    end
+    resource = conn.assigns.resource
 
     contents = if function_exported? model, :show_view, 2 do
       apply(model, :show_view, [conn, resource])
@@ -131,12 +142,7 @@ defmodule ExAdmin.AdminResourceController do
 
   def edit(conn, defn, params) do
     model = defn.__struct__
-    resource = model.run_query(repo, defn, :edit, params[:id])
-
-    if resource == nil do
-      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
-    end
-
+    resource = conn.assigns.resource
     contents = do_form_view(model, conn, resource, params)
 
     render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
@@ -144,7 +150,7 @@ defmodule ExAdmin.AdminResourceController do
 
   def new(conn, defn, params) do
     model = defn.__struct__
-    resource = defn.resource_model.__struct__
+    resource = conn.assigns.resource
     contents = do_form_view(model, conn, resource, params)
 
     render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
@@ -160,7 +166,7 @@ defmodule ExAdmin.AdminResourceController do
 
   def create(conn, defn, params) do
     model = defn.__struct__
-    resource = defn.resource_model.__struct__
+    resource = conn.assigns.resource
     resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
     changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
     changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
@@ -172,18 +178,14 @@ defmodule ExAdmin.AdminResourceController do
         conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
       resource ->
         put_flash(conn, :notice, "#{base_name model} was successfully created.")
-        |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
+        |> redirect(to: admin_resource_path(resource, :show))
     end
   end
 
   def update(conn, defn, params) do
     model = defn.__struct__
     resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
-    resource = model.run_query(repo, defn, :edit, params[:id])
-
-    if resource == nil do
-      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
-    end
+    resource = conn.assigns.resource
 
     changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
     changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
@@ -194,12 +196,12 @@ defmodule ExAdmin.AdminResourceController do
         conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
       resource ->
         put_flash(conn, :notice, "#{base_name model} was successfully updated")
-        |> redirect(to: get_route_path(resource, :show, Schema.get_id(resource)))
+        |> redirect(to: admin_resource_path(resource, :show))
     end
   end
 
-  def toggle_attr(conn, defn, %{attr_name: attr_name, attr_value: attr_value} = params) do
-    resource = repo.get!(defn.resource_model, params[:id])
+  def toggle_attr(conn, defn, %{attr_name: attr_name, attr_value: attr_value}) do
+    resource = conn.assigns.resource
     attr_name_atom = String.to_existing_atom(attr_name)
 
     resource = resource
@@ -212,12 +214,7 @@ defmodule ExAdmin.AdminResourceController do
   def destroy(conn, defn, params) do
     model = defn.__struct__
     resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
-
-    resource = model.run_query(repo, defn, :edit, params[:id])
-
-    if resource == nil do
-      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
-    end
+    resource = conn.assigns.resource
 
     ExAdmin.Repo.delete(resource, params[resource_model])
     resource_model = base_name model
@@ -226,7 +223,7 @@ defmodule ExAdmin.AdminResourceController do
       render conn, "destroy.js", tr_id: String.downcase("#{resource_model}_#{params[:id]}")
     else
       put_flash(conn, :notice, "#{resource_model} was successfully destroyed.")
-      |> redirect(to: get_route_path(conn, :index))
+      |> redirect(to: admin_resource_path(defn.resource_model, :index))
     end
   end
 
@@ -247,7 +244,7 @@ defmodule ExAdmin.AdminResourceController do
     end)
 
     put_flash(conn, :notice, "Successfully destroyed #{count} #{pluralize params[:resource], count}")
-    |> redirect(to: get_route_path(conn, :index))
+    |> redirect(to: admin_resource_path(resource_model, :index))
   end
 
   defp to_integer(:id, string), do: string

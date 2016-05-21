@@ -111,7 +111,7 @@ defmodule ExAdmin do
   require Logger
   use Xain
   alias ExAdmin.Utils
-  import ExAdmin.Utils, only: [base_name: 1, titleize: 1, humanize: 1]
+  import ExAdmin.Utils, only: [base_name: 1, titleize: 1, humanize: 1, admin_resource_path: 2]
   require ExAdmin.Register
 
   @filename "/tmp/ex_admin_registered"
@@ -333,12 +333,12 @@ defmodule ExAdmin do
     end
   end
 
-  defp action_link(conn, name, :delete, id) do
+  defp action_link(conn, name, :delete, _id) do
     {button_name(name, :delete),
-      [href: ExAdmin.Utils.get_route_path(conn, :delete, id),
+      [href: admin_resource_path(conn, :destroy),
         "data-confirm": Utils.confirm_message,
         "data-method": :delete, rel: :nofollow]}
-    # a(href: ExAdmin.Utils.get_route_path(conn, :delete, id),
+    # a(href: admin_resource_path(conn, :destroy),
     #     "data-confirm": Utils.confirm_message,
     #     "data-csrf": Plug.CSRFProtection.get_csrf_token,
     #     "data-method": :delete, rel: :nofollow ) do
@@ -346,10 +346,10 @@ defmodule ExAdmin do
     #   |> button(class: "btn btn-danger")
     # end
   end
-  defp action_link(conn, name, action, id) do
+  defp action_link(conn, name, action, _id) do
     {button_name(name, action),
-      [href: ExAdmin.Utils.get_route_path(conn, action, id)]}
-    # a(href: ExAdmin.Utils.get_route_path(conn, action, id)) do
+      [href: admin_resource_path(conn, action)]}
+    # a(href: admin_resource_path(conn, action)) do
     #   button_name(name, action)
     #   |> button(class: "btn btn-primary")
     # end

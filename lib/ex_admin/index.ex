@@ -94,11 +94,11 @@ defmodule ExAdmin.Index do
       index as: :grid, default: true do
         cell fn(p) ->
           div do
-            a href: get_route_path(conn, :show, p.id) do
+            a href: admin_resource_path(p, :show) do
               img(src: ExAdminDemo.Image.url({p.image_file_name, p}, :thumb), height: 100)
             end
           end
-          a truncate(p.title), href: get_route_path(conn, :show, p.id)
+          a truncate(p.title), href: admin_resource_path(p, :show)
         end
       end
 
@@ -183,12 +183,12 @@ defmodule ExAdmin.Index do
         cell fn(p) ->
           div ".box" do
             div ".box-body" do
-              a href: get_route_path(conn, :show, p.id) do
+              a href: admin_resource_path(p, :show) do
                 img(src: ExAdminDemo.Image.url({p.image_file_name, p}, :thumb), height: 100)
               end
             end
             div ".box-footer" do
-              a truncate(p.title), href: get_route_path(conn, :show, p.id)
+              a truncate(p.title), href: admin_resource_path(p, :show)
             end
           end
         end
@@ -264,7 +264,7 @@ defmodule ExAdmin.Index do
       count: page.total_entries,
       name: name,
       order: ExQueb.get_sort_order(conn.params["order"]),
-      href: get_route_path(conn, :index) <> "?order=",
+      href: admin_resource_path(conn, :index) <> "?order=",
       defn: defn,
       batch_actions: not false in defn.batch_actions,
       scopes: defn.scopes,
@@ -346,7 +346,7 @@ defmodule ExAdmin.Index do
   @doc false
   def download_links(conn) do
     div ".download_links Download: " do
-      a "CSV", href: "#{get_route_path(conn, :index)}/csv"
+      a "CSV", href: admin_resource_path(conn, :csv)
     end
   end
 
@@ -374,7 +374,7 @@ defmodule ExAdmin.Index do
     |> Enum.filter(&(&1 in links))
     |> Enum.reverse
 
-    Module.concat(conn.assigns.theme, Index).handle_action_links(list, conn, resource)
+    Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource)
   end
 
   @doc false

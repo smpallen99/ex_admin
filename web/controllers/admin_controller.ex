@@ -10,9 +10,15 @@ defmodule ExAdmin.AdminController do
   # workaround for ExAdmin.get_registered_by_controller_route!
   # ToDo: refactoring of ExAdmin.get_registered_by_controller_route!
   def handle_root_req(conn, _params) do
-    conn
-    |> struct(params: %{"resource" => "dashboard"})
-    |> struct(path_info: ["admin", "dashboard"])
+    [_, prefix] = ExAdmin.Utils.admin_path |> String.split("/")
+    case conn.path_info do
+      [prefix] ->
+        conn
+        |> struct(params: %{"resource" => "dashboard"})
+        |> struct(path_info: [prefix, "dashboard"])
+      _ ->
+        conn
+    end
   end
 
   def dashboard(conn, params) do
@@ -25,7 +31,7 @@ defmodule ExAdmin.AdminController do
   end
 
   def select_theme(conn, %{"id" => id} = params) do
-    {id, _} = Integer.parse(id)
+    {id, _} = Integer.parse(params["id"])
     {_, theme} = Application.get_env(:ex_admin, :theme_selector, []) |> Enum.at(id)
     loc = Map.get(params, "loc", admin_path) |> URI.parse |> Map.get(:path)
 

@@ -134,7 +134,7 @@ defmodule ExAdmin.ViewHelpers do
     case resource.__struct__.__schema__(:fields) do
       [_, field | _] ->
         name = Map.get resource, field, "Unknown"
-        a name, href: get_route_path(resource, :show, resource.id)
+        a name, href: admin_resource_path(resource, :show)
       _ -> ""
     end
   end

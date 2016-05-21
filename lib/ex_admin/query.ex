@@ -51,7 +51,7 @@ defmodule ExAdmin.Query do
   defp get_method(:index), do: :all
   defp get_method(:csv), do: :all
   defp get_method(:nested), do: :all
-  defp get_method(_), do: :one
+  defp get_method(_), do: :one!
 
   defp build_query(%Ecto.Query{} = query, opts, action, id, defn) do
     build_preloads(query, opts, action, id)
