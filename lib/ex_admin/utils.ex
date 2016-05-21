@@ -158,10 +158,20 @@ defmodule ExAdmin.Utils do
 
       iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product, :csv)
       "/admin/products/csv"
+
+      iex> ExAdmin.Utils.admin_resource_path(%Plug.Conn{assigns: %{resource: %TestExAdmin.Product{}}}, :index, [[scope: "active"]])
+      "/admin/products?scope=active"
   """
-  def admin_resource_path(resource_model, method \\ nil, args \\ [])
+  def admin_resource_path(resource_or_model, method \\ nil, args \\ [])
+  def admin_resource_path(%Plug.Conn{} = conn, method, args) when method in [:show, :edit, :update, :destroy] do
+    admin_resource_path(conn.assigns.resource, method, args)
+  end
+  def admin_resource_path(%Plug.Conn{} = conn, method, args) do
+    admin_resource_path(conn.assigns.resource.__struct__, method, args)
+  end
   def admin_resource_path(resource_model, method, args) when is_atom(resource_model) do
-    apply(router, :admin_resource_path, [endpoint, method || :index, resource_model.__schema__(:source) | args])
+    resource_name = resource_model |> ExAdmin.Utils.base_name |> Inflex.underscore |> Inflex.pluralize
+    apply(router, :admin_resource_path, [endpoint, method || :index, resource_name | args])
   end
   def admin_resource_path(resource, method, args) when is_map(resource) do
     resource_model = resource.__struct__
@@ -207,40 +217,6 @@ defmodule ExAdmin.Utils do
     resource_model = resource.__struct__
     resource_id = ExAdmin.Schema.get_id(resource)
     apply(router, :admin_association_path, [endpoint, method || :index, resource_model.__schema__(:source), resource_id, assoc_name | args])
-  end
-
-  @doc false
-  def get_route_path(resource_or_conn, method, id \\ nil)
-  def get_route_path(%Plug.Conn{path_info: path_info}, action, id) do
-    get_route_path(Enum.take(path_info, 2), action, id)
-  end
-  def get_route_path(%{} = resource, method, id) do
-    Map.get(resource, :__struct__)
-    |> get_route_path(method, id)
-  end
-  def get_route_path(resource_model, method, id) when is_atom(resource_model) do
-    route_name = ExAdmin.get_controller_path(resource_model)
-    # prefix = UcxCallout.Router.Helpers.admin_path(@endpoint, :index, [])
-    prefix = "/admin"
-    |> String.split("/", trim: true)
-    |> Enum.filter(&(&1 != :resource))
-    get_route_path(prefix ++ [route_name], method, id)
-  end
-
-  def get_route_path(prefix, :index, _), do: path_append(prefix)
-  def get_route_path(prefix, :new, _), do: path_append(prefix, ~w(new))
-  def get_route_path(prefix, :edit, id), do: path_append(prefix, ~w(#{id} edit))
-  def get_route_path(prefix, :show, id), do: path_append(prefix, ~w(#{id}))
-  def get_route_path(prefix, :update, id), do: path_append(prefix, ~w(#{id}))
-  def get_route_path(prefix, :create, _), do: path_append(prefix)
-  def get_route_path(prefix, :destroy, id), do: path_append(prefix, ~w(#{id}))
-  def get_route_path(prefix, :delete, id), do: path_append(prefix, ~w(#{id}))
-  def get_route_path(prefix, :toggle, id), do: path_append(prefix, ~w(#{id} toggle_attr))
-  def get_route_path(prefix, :update_positions, opts), do: path_append(prefix, opts ++ ["update_positions"])
-  def get_route_path(prefix, :add, opts), do: path_append(prefix, opts)
-
-  defp path_append(prefix, rest \\ []) do
-    "/" <> Enum.join(prefix ++ rest, "/")
   end
 
 

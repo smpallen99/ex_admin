@@ -485,12 +485,12 @@ defmodule ExAdmin.Form do
   end
   def build_script(_other), do: ""
 
-  def get_action(conn, resource, mode) do
+  def get_action(resource, mode) do
     case mode do
       :new ->
-        get_route_path(conn, :create)
+        admin_resource_path(resource, :create)
       :edit ->
-        get_route_path(conn, :update, ExAdmin.Schema.get_id(resource))
+        admin_resource_path(resource, :update)
     end
   end
   defp get_put_fields(:edit) do
@@ -636,7 +636,7 @@ defmodule ExAdmin.Form do
         update = Keyword.get(list, :update)
         params = Keyword.get(list, :params)
         if update do
-          route_path = get_route_path(resource, :index)
+          route_path = admin_resource_path(resource, :index)
           target = pluralize(field_name)
           nested = pluralize(update)
 
@@ -1042,7 +1042,7 @@ defmodule ExAdmin.Form do
   #   label = if mode == :new, do: "Create", else: "Update"
   #   div ".box-footer" do
   #     Xain.input ".btn.btn-primary", name: "commit", type: :submit, value: escape_value("#{label} #{humanize display_name}")
-  #     a(".btn.btn-default.btn-cancel Cancel", href: get_route_path(conn, :index))
+  #     a(".btn.btn-default.btn-cancel Cancel", href: admin_resource_path(conn, :index))
   #   end
   # end
 

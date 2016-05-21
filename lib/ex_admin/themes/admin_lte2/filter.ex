@@ -13,7 +13,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
         div ".box-header.with-border" do
           h3 ".box-title Filters"
         end
-        form "accept-charset": "UTF-8", action: get_route_path(conn, :index), class: "filter_form", id: "q_search", method: "get" do
+        form "accept-charset": "UTF-8", action: admin_resource_path(conn, :index), class: "filter_form", id: "q_search", method: "get" do
           div ".box-body.sidebar_section" do
             if scope do
               input type: :hidden, name: :scope, value: scope

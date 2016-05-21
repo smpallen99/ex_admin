@@ -14,7 +14,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
     mode = if params[:id], do: :edit, else: :new
     markup do
       model_name = model_name resource
-      action = get_action(conn, resource, mode)
+      action = get_action(resource, mode)
       # scripts = ""
       Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "formtastic #{model_name}",
           id: "new_#{model_name}", method: :post, enctype: "multipart/form-data", novalidate: :novalidate  do
@@ -86,7 +86,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
           Xain.input name: "commit", type: :submit, value: escape_value("#{label} #{humanize display_name}")
         end
         li(".cancel") do
-          a("Cancel", href: get_route_path(conn, :index))
+          a("Cancel", href: admin_resource_path(conn, :index))
         end
       end
     end
