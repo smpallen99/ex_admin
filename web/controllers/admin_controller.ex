@@ -16,6 +16,9 @@ defmodule ExAdmin.AdminController do
         conn
         |> struct(params: %{"resource" => "dashboard"})
         |> struct(path_info: [prefix, "dashboard"])
+      [prefix, "dashboard"] ->
+        conn
+        |> struct(params: %{"resource" => "dashboard"})
       _ ->
         conn
     end
