@@ -174,7 +174,7 @@ defmodule ExAdmin.AdminResourceController do
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
         conn = put_flash(conn, :inline_error, changeset.errors)
-        contents = do_form_view model, conn, changeset.data, params
+        contents = do_form_view model, conn, changeset.model, params
         conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
       resource ->
         put_flash(conn, :notice, "#{base_name model} was successfully created.")
@@ -192,7 +192,7 @@ defmodule ExAdmin.AdminResourceController do
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
         conn = put_flash(conn, :inline_error, changeset.errors)
-        contents = do_form_view model, conn, changeset.data, params
+        contents = do_form_view model, conn, changeset.model, params
         conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
       resource ->
         put_flash(conn, :notice, "#{base_name model} was successfully updated")
