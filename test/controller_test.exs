@@ -94,12 +94,12 @@ defmodule ExAdminTest.ControllerTest do
   @valid_attrs %{title: "title", price: "19.99"}
   test "create and update after callback" do
     user = Repo.all(User) |> hd
-    conn = post conn(), get_route_path(%Product{}, :create), product: @valid_attrs
+    conn = post conn(), admin_resource_path(Product, :create), product: @valid_attrs
     product = conn.assigns[:product]
     assert html_response(conn, 302)
     assert product.user_id == user.id
 
-    conn = put conn(), get_route_path(%Product{}, :update, product.id), product: @valid_attrs
+    conn = put conn(), admin_resource_path(product, :update), product: @valid_attrs
     assert conn.assigns[:answer] == 42
   end
 

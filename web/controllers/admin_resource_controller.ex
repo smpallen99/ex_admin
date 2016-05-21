@@ -154,7 +154,7 @@ defmodule ExAdmin.AdminResourceController do
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end
 
-  def show(conn, defn, _params) do
+  def show(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
 
