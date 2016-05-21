@@ -29,7 +29,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
         else
           text "There are no #{humanize label} yet. "
           if ExAdmin.has_action?(conn, defn, :new) do
-            a "Create one", href: get_route_path(conn, :new)
+            a "Create one", href: admin_resource_path(conn, :new)
           end
         end
       end
@@ -99,18 +99,17 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
     end
   end
 
-  def handle_action_links(list, conn, resource)  do
+  def handle_action_links(list, resource)  do
     base_class = "member_link"
-    id = Map.get(resource, Schema.primary_key(resource))
     list
     |> Enum.reduce([], fn(item, acc) ->
       link = case item do
         :show ->
-          a("View", href: get_route_path(conn, :show, id), class: base_class <> " view_link")
+          a("View", href: admin_resource_path(resource, :show), class: base_class <> " view_link")
         :edit ->
-          a("Edit", href: get_route_path(conn, :edit, id), class: base_class <> " edit_link")
+          a("Edit", href: admin_resource_path(resource, :edit), class: base_class <> " edit_link")
         :destroy ->
-          a("Delete", href: get_route_path(conn, :delete, id),
+          a("Delete", href: admin_resource_path(resource, :destroy),
               class: base_class <> " delete_link", "data-confirm": confirm_message,
               "data-remote": true,
               "data-method": :delete, rel: :nofollow )
@@ -159,7 +158,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
                   count = scope_counts[name]
                   selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
                   li ".scope.#{name}#{selected}" do
-                    a ".table_tools_button.btn-sm.btn.btn-default", href: get_route_path(conn, :index) <> "?scope=#{name}" do
+                    a ".table_tools_button.btn-sm.btn.btn-default", href: admin_resource_path(conn, :index, [[scope: name]]) do
                       text ExAdmin.Utils.humanize("#{name} ")
                       span ".badge.bg-blue #{count}"
                     end

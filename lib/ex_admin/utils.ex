@@ -4,10 +4,16 @@ defmodule ExAdmin.Utils do
   """
   require Logger
   import Ecto.DateTime.Utils, only: [zero_pad: 2]
-  @endpoint Application.get_env(:ex_admin, :endpoint)
+  @module Application.get_env(:ex_admin, :module)
+  if @module do
+    @endpoint Module.concat([@module, "Endpoint"])
+    @router Module.concat([@module, "Router", "Helpers"])
+  end
 
   @doc false
   def endpoint, do: @endpoint
+  @doc false
+  def router, do: @router
 
   @doc false
   def to_atom(string) when is_binary(string), do: String.to_atom(string)
@@ -36,10 +42,10 @@ defmodule ExAdmin.Utils do
 
   ## Examples:
 
-      iex> humanize :first_name
+      iex> ExAdmin.Utils.humanize :first_name
       "First Name"
 
-      iex> humanize "last-name", ~r/[-]/
+      iex> ExAdmin.Utils.humanize "last-name", ~r/[-]/
       "Last Name"
 
   """
@@ -59,7 +65,7 @@ defmodule ExAdmin.Utils do
 
   ## Examples
 
-      iex> titleize "MyModel"
+      iex> ExAdmin.Utils.titleize "MyModel"
       "My Model"
 
   """
@@ -75,10 +81,10 @@ defmodule ExAdmin.Utils do
 
   ## Examples
 
-      iex> articlize("hat")
+      iex> ExAdmin.Utils.articlize("hat")
       "a hat"
 
-      iex> articlize("apple")
+      iex> ExAdmin.Utils.articlize("apple")
       "an apple"
   """
   def articlize(string) when is_binary(string) do
@@ -121,38 +127,96 @@ defmodule ExAdmin.Utils do
     |> List.first
   end
 
-  @doc false
-  def get_route_path(resource_or_conn, method, id \\ nil)
-  def get_route_path(%Plug.Conn{path_info: path_info}, action, id) do
-    get_route_path(Enum.take(path_info, 2), action, id)
+  @doc """
+  URL helper to build admin paths for CRUD
+
+  Examples:
+
+      iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product)
+      "/admin/products"
+
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{})
+      "/admin/products/new"
+
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{id: 1})
+      "/admin/products/1"
+
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{id: 1}, :edit)
+      "/admin/products/1/edit"
+
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{id: 1}, :update)
+      "/admin/products/1"
+
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{id: 1}, :destroy)
+      "/admin/products/1"
+
+      iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product, :create)
+      "/admin/products"
+
+      iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product, :batch_action)
+      "/admin/products/batch_action"
+
+      iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product, :csv)
+      "/admin/products/csv"
+
+      iex> ExAdmin.Utils.admin_resource_path(%Plug.Conn{assigns: %{resource: %TestExAdmin.Product{}}}, :index, [[scope: "active"]])
+      "/admin/products?scope=active"
+  """
+  def admin_resource_path(resource_or_model, method \\ nil, args \\ [])
+  def admin_resource_path(%Plug.Conn{} = conn, method, args) when method in [:show, :edit, :update, :destroy] do
+    admin_resource_path(conn.assigns.resource, method, args)
   end
-  def get_route_path(%{} = resource, method, id) do
-    Map.get(resource, :__struct__)
-    |> get_route_path(method, id)
+  def admin_resource_path(%Plug.Conn{} = conn, method, args) do
+    admin_resource_path(conn.assigns.resource.__struct__, method, args)
   end
-  def get_route_path(resource_model, method, id) when is_atom(resource_model) do
-    route_name = ExAdmin.get_controller_path(resource_model)
-    # prefix = UcxCallout.Router.Helpers.admin_path(@endpoint, :index, [])
-    prefix = "/admin"
-    |> String.split("/", trim: true)
-    |> Enum.filter(&(&1 != :resource))
-    get_route_path(prefix ++ [route_name], method, id)
+  def admin_resource_path(resource_model, method, args) when is_atom(resource_model) do
+    resource_name = resource_model |> ExAdmin.Utils.base_name |> Inflex.underscore |> Inflex.pluralize
+    apply(router, :admin_resource_path, [endpoint, method || :index, resource_name | args])
+  end
+  def admin_resource_path(resource, method, args) when is_map(resource) do
+    resource_model = resource.__struct__
+    id = ExAdmin.Schema.get_id(resource)
+    case id do
+      nil ->
+        admin_resource_path(resource_model, method || :new, args)
+      _ ->
+        admin_resource_path(resource_model, method || :show, [id | args])
+    end
   end
 
-  def get_route_path(prefix, :index, _), do: path_append(prefix)
-  def get_route_path(prefix, :new, _), do: path_append(prefix, ~w(new))
-  def get_route_path(prefix, :edit, id), do: path_append(prefix, ~w(#{id} edit))
-  def get_route_path(prefix, :show, id), do: path_append(prefix, ~w(#{id}))
-  def get_route_path(prefix, :update, id), do: path_append(prefix, ~w(#{id}))
-  def get_route_path(prefix, :create, _), do: path_append(prefix)
-  def get_route_path(prefix, :destroy, id), do: path_append(prefix, ~w(#{id}))
-  def get_route_path(prefix, :delete, id), do: path_append(prefix, ~w(#{id}))
-  def get_route_path(prefix, :toggle, id), do: path_append(prefix, ~w(#{id} toggle))
-  def get_route_path(prefix, :update_positions, opts), do: path_append(prefix, opts ++ ["update_positions"])
-  def get_route_path(prefix, :add, opts), do: path_append(prefix, opts)
+  @doc """
+  URL helper to build assistant admin paths
 
-  defp path_append(prefix, rest \\ []) do
-    "/" <> Enum.join(prefix ++ rest, "/")
+  Examples:
+
+      iex> ExAdmin.Utils.admin_path
+      "/admin"
+
+      iex> ExAdmin.Utils.admin_path(:select_theme, [1])
+      "/admin/select_theme/1"
+  """
+  def admin_path do
+    router.admin_path(endpoint, :dashboard)
+  end
+  def admin_path(method, args \\ []) do
+    apply(router, :admin_path, [endpoint, method | args])
+  end
+
+  @doc """
+  URL helper for routes related to associations
+
+  Examples:
+
+      iex> ExAdmin.Utils.admin_association_path(%TestExAdmin.Product{id: 1}, :tags)
+      "/admin/products/1/tags"
+
+      iex> ExAdmin.Utils.admin_association_path(%TestExAdmin.Product{id: 1}, :tags, :update_positions)
+      "/admin/products/1/tags/update_positions"
+  """
+  def admin_association_path(resource, assoc_name, method \\ nil, args \\ []) do
+    resource_model = resource.__struct__
+    resource_id = ExAdmin.Schema.get_id(resource)
+    apply(router, :admin_association_path, [endpoint, method || :index, resource_model.__schema__(:source), resource_id, assoc_name | args])
   end
 
 
@@ -168,8 +232,8 @@ defmodule ExAdmin.Utils do
   Generate html for a link
 
   ## Syntax
-      iex> link_to("click me", "/something", class: "link btn", style: "some styling")
-      {:safe, "<a href='/something' class='link btn' style='some styling'>click me</a>"}
+      iex> ExAdmin.Utils.link_to("click me", "/something", class: "link btn", style: "some styling")
+      {:safe, "<a href='/something' class='link btn' style='some styling' >click me</a>"}
   """
   def link_to(name, path, opts \\[]) do
     attributes = case Keyword.get(opts, :remote) do

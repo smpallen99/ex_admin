@@ -14,7 +14,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
     mode = if params[:id], do: :edit, else: :new
     markup do
       model_name = model_name resource
-      action = get_action(conn, resource, mode)
+      action = get_action(resource, mode)
       Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "form-horizontal",
           id: "new_#{model_name}", method: :post, enctype: "multipart/form-data", novalidate: :novalidate  do
 
@@ -79,7 +79,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
     label = if mode == :new, do: "Create", else: "Update"
     div ".box-footer" do
       Xain.input ".btn.btn-primary", name: "commit", type: :submit, value: escape_value("#{label} #{humanize display_name}")
-      a(".btn.btn-default.btn-cancel Cancel", href: get_route_path(conn, :index))
+      a(".btn.btn-default.btn-cancel Cancel", href: admin_resource_path(conn, :index))
     end
   end
 

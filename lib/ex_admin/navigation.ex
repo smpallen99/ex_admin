@@ -27,8 +27,8 @@ defmodule ExAdmin.Navigation do
 
   def nav_link(conn, %{controller: controller, type: :page, page_name: _page_name} = registered, opts) do
     controller_name = controller_name(controller)
-    # path = get_route_path(resource_model, :index)
-    path = "/admin/dashboard"
+    # ToDo: `type: :page` means dashboard atm, but it should be refactored to be more reliable
+    path = admin_path
     menu = Map.get registered, :menu, %{}
     name = Map.get menu, :label, (controller_name |> titleize |> Inflex.pluralize)
 
@@ -37,7 +37,7 @@ defmodule ExAdmin.Navigation do
   end
   def nav_link(conn, %{controller: controller, resource_model: resource_model} = registered, opts) do
     controller_name = controller_name(controller)
-    path = get_route_path(resource_model, :index)
+    path = admin_resource_path(resource_model, :index)
     menu = Map.get registered, :menu, %{}
     name = Map.get menu, :label, (controller_name |> titleize |> Inflex.pluralize)
     theme_module(conn, Layout).link_to_active conn,

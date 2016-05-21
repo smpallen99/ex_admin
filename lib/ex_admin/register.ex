@@ -250,7 +250,6 @@ defmodule ExAdmin.Register do
   * `define_method` - Create a controller action with the body of
     the action
   * `before_filter` - Add a before_filter to the controller
-  * `after_filter` - Add an after callback to the controller
   * `redirect_to` - Redirects to another page
   * `plug` - Add a plug to the controller
 
@@ -327,41 +326,9 @@ defmodule ExAdmin.Register do
         end
       end
   """
-  defmacro before_filter(name, opts \\ []) do
+  defmacro before_filter(name, opts) do
     quote location: :keep do
       Module.put_attribute(__MODULE__, :controller_filters, {:before_filter, {unquote(name), unquote(opts)}})
-    end
-  end
-
-  @doc """
-  Add an after filter to a controller.
-
-  The after filter is executed after the controller action(s) are
-  executed and before the page is rendered/redirected. In the case of `update`
-  and `create`, it is only called on success.
-
-  Normally, the function should return the conn struct. However, you can also
-  return a `{conn, params, resource}` to modify the params and resource.
-
-  ## Examples
-
-      controller do
-        after_filter :do_after, only: [:create, :update]
-
-        def do_after(conn, params, resource, :create) do
-          user = Repo.all(User) |> hd
-          resource = Product.changeset(resource, %{user_id: user.id})
-          |> Repo.update!
-          {Plug.Conn.assign(conn, :product, resource), params, resource}
-        end
-        def do_after(conn, _params, _resource, :update) do
-          Plug.Conn.assign(conn, :answer, 42)
-        end
-      end
-  """
-  defmacro after_filter(name, opts \\ []) do
-    quote location: :keep do
-      Module.put_attribute(__MODULE__, :controller_filters, {:after_filter, {unquote(name), unquote(opts)}})
     end
   end
 
@@ -783,7 +750,7 @@ defmodule ExAdmin.Register do
           {:error, message} ->
             Controller.put_flash(conn, :error, "Restore Failed: \#{message}.")
         end
-        |> Controller.redirect(to: ExAdmin.Utils.get_route_path(conn, :index))
+        |> Controller.redirect(to: ExAdmin.Utils.admin_resource_path(conn, :index))
       end
 
   """
@@ -806,7 +773,7 @@ defmodule ExAdmin.Register do
       def backup_action(conn, _params) do
         Repo.insert %BackupRestore{}
         Controller.put_flash(conn, :notice, "Backup complete.")
-        |> Controller.redirect(to: ExAdmin.Utils.get_route_path(conn, :index))
+        |> Controller.redirect(to: ExAdmin.Utils.admin_resource_path(conn, :index))
       end
 
   """

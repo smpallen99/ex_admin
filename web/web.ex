@@ -19,6 +19,15 @@ defmodule ExAdmin.Web do
       import Ecto.Query, only: [from: 1, from: 2]
 
       import ExAdmin.Router.Helpers
+      import ExAdmin.Utils, only: [admin_path: 0, admin_path: 2, admin_resource_path: 3, admin_association_path: 4]
+
+      defp set_theme(conn, _) do
+        assign(conn, :theme, ExAdmin.theme)
+      end
+
+      defp set_layout(conn, _) do
+        put_layout(conn, "#{conn.assigns.theme.name}.html")
+      end
     end
   end
 

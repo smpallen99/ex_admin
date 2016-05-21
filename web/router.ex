@@ -37,22 +37,23 @@ defmodule ExAdmin.Router do
   """
   defmacro admin_routes(_opts \\ []) do
     quote do
-      get "/", AdminController, :index
+      get "/", AdminController, :dashboard
+      get "/dashboard", AdminController, :dashboard
       get "/select_theme/:id", AdminController, :select_theme
-      get "/:resource/", AdminController, :index
-      get "/:resource/new", AdminController, :new
-      get "/:resource/csv", AdminController, :csv
-      get "/:resource/:id", AdminController, :show
-      get "/:resource/:id/edit", AdminController, :edit
-      post "/:resource/", AdminController, :create
-      patch "/:resource/:id", AdminController, :update
-      put "/:resource/:id", AdminController, :update
-      delete "/:resource/:id", AdminController, :destroy
-      post "/:resource/batch_action", AdminController, :batch_action
-      post "/:resource/:id/:association_name/update_positions", AssociationController, :update_positions, as: :admin_association
-      post "/:resource/:id/:association_name", AssociationController, :add, as: :admin_association
-      get "/:resource/:id/:association_name", AssociationController, :index, as: :admin_association
-      put "/:resource/:id/toggle", AssociationController, :toggle_attr, as: :admin_association
+      get "/:resource/", AdminResourceController, :index
+      get "/:resource/new", AdminResourceController, :new
+      get "/:resource/csv", AdminResourceController, :csv
+      get "/:resource/:id", AdminResourceController, :show
+      get "/:resource/:id/edit", AdminResourceController, :edit
+      post "/:resource/", AdminResourceController, :create
+      patch "/:resource/:id", AdminResourceController, :update
+      put "/:resource/:id", AdminResourceController, :update
+      put "/:resource/:id/toggle_attr", AdminResourceController, :toggle_attr
+      delete "/:resource/:id", AdminResourceController, :destroy
+      post "/:resource/batch_action", AdminResourceController, :batch_action
+      post "/:resource/:id/:association_name/update_positions", AdminAssociationController, :update_positions, as: :admin_association
+      post "/:resource/:id/:association_name", AdminAssociationController, :add, as: :admin_association
+      get "/:resource/:id/:association_name", AdminAssociationController, :index, as: :admin_association
     end
   end
 end
