@@ -85,6 +85,31 @@ defmodule ExAdmin.AdminResourceController do
     end
   end
 
+  def handle_after_filter(conn, action, defn, params, resource) do
+    case defn.controller_filters[:after_filter] do
+      nil ->
+        {conn, params, resource}
+      {name, opts} ->
+        filter = cond do
+          opts[:only] ->
+            if action in opts[:only], do: true, else: false
+          opts[:except] ->
+            if not action in opts[:except], do: true, else: false
+          true -> true
+        end
+        if filter do
+          case apply(defn.__struct__, name, [conn, params, resource, action]) do
+            {_, _, _} = tuple -> tuple
+            %Plug.Conn{} = conn -> {conn, params, resource}
+            error ->
+              raise ExAdmin.RuntimeError, message: "invalid after_filter return: #{inspect error}"
+          end
+        else
+          {conn, params, resource}
+        end
+    end
+  end
+
   defp handle_plugs(conn, :nested, _defn), do: conn
   defp handle_plugs(conn, _action, defn) do
     case Application.get_env(:ex_admin, :plug, []) do
@@ -116,6 +141,8 @@ defmodule ExAdmin.AdminResourceController do
     end
     scope_counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
 
+    {conn, params, page} = handle_after_filter(conn, :index, defn, params, page)
+
     contents = if function_exported? model, :index_view, 3 do
       apply(model, :index_view, [conn, page, scope_counts])
     else
@@ -127,9 +154,11 @@ defmodule ExAdmin.AdminResourceController do
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end
 
-  def show(conn, defn, _params) do
+  def show(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
+
+    {conn, params, resource} = handle_after_filter(conn, :show, defn, params, resource)
 
     contents = if function_exported? model, :show_view, 2 do
       apply(model, :show_view, [conn, resource])
@@ -143,6 +172,7 @@ defmodule ExAdmin.AdminResourceController do
   def edit(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
+    {conn, params, resource} = handle_after_filter(conn, :edit, defn, params, resource)
     contents = do_form_view(model, conn, resource, params)
 
     render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
@@ -151,6 +181,7 @@ defmodule ExAdmin.AdminResourceController do
   def new(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
+    {conn, params, resource} = handle_after_filter(conn, :new, defn, params, resource)
     contents = do_form_view(model, conn, resource, params)
 
     render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
@@ -177,6 +208,7 @@ defmodule ExAdmin.AdminResourceController do
         contents = do_form_view model, conn, changeset.data, params
         conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
       resource ->
+        {conn, _, resource} = handle_after_filter(conn, :create, defn, params, resource)
         put_flash(conn, :notice, "#{base_name model} was successfully created.")
         |> redirect(to: admin_resource_path(resource, :show))
     end
@@ -195,6 +227,7 @@ defmodule ExAdmin.AdminResourceController do
         contents = do_form_view model, conn, changeset.data, params
         conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
       resource ->
+        {conn, _, resource} = handle_after_filter(conn, :update, defn, params, resource)
         put_flash(conn, :notice, "#{base_name model} was successfully updated")
         |> redirect(to: admin_resource_path(resource, :show))
     end
