@@ -1,4 +1,4 @@
-defmodule ExAdmin.ControllerHelpers do
+defmodule ExAdmin.Controller do
   @doc false
   def get_registered_by_controller_route!(%Plug.Conn{} = conn, resource_name \\ nil) do
     resource_name = resource_name || conn.params["resource"]
