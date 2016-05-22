@@ -63,7 +63,7 @@ defmodule ExAdmin.Table do
           tr(".#{odd_even}##{model_name}_#{tr_id}") do
             for field <- columns do
               case field do
-                {f_name, %{fun: fun}} when is_function(fun) ->
+                {f_name, fun} when is_function(fun) ->
                   td ".td-#{parameterize f_name} #{fun.(resource)}"
                 {f_name, opts} ->
                   build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) ->
