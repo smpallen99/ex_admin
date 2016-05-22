@@ -7,7 +7,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Table do
 
   def theme_panel(conn, schema) do
     div(".panel") do
-      h3(Map.get schema, :name, "")
+      h3(Keyword.get schema, :name, "")
       div(".panel_contents") do
         do_panel(conn, schema, @table_opts)
       end
