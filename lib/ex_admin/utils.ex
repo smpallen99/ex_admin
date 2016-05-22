@@ -161,6 +161,12 @@ defmodule ExAdmin.Utils do
 
       iex> ExAdmin.Utils.admin_resource_path(%Plug.Conn{assigns: %{resource: %TestExAdmin.Product{}}}, :index, [[scope: "active"]])
       "/admin/products?scope=active"
+
+      iex> ExAdmin.Utils.admin_resource_path(TestExAdmin.Product, :index)
+      "/admin/products"
+
+      iex> ExAdmin.Utils.admin_resource_path(%TestExAdmin.Product{id: 1}, :index)
+      "/admin/products"
   """
   def admin_resource_path(resource_or_model, method \\ nil, args \\ [])
   def admin_resource_path(%Plug.Conn{} = conn, method, args) when method in [:show, :edit, :update, :destroy] do
@@ -172,6 +178,9 @@ defmodule ExAdmin.Utils do
   def admin_resource_path(resource_model, method, args) when is_atom(resource_model) do
     resource_name = resource_model |> ExAdmin.Utils.base_name |> Inflex.underscore |> Inflex.pluralize
     apply(router, :admin_resource_path, [endpoint, method || :index, resource_name | args])
+  end
+  def admin_resource_path(resource, :index, args) when is_map(resource) do
+    admin_resource_path(resource.__struct__, :index, args)
   end
   def admin_resource_path(resource, method, args) when is_map(resource) do
     resource_model = resource.__struct__
