@@ -214,9 +214,7 @@ defmodule ExAdmin.Index do
 
   @doc false
   def default_index_view(conn, page, scope_counts) do
-    [_, resource] = conn.path_info
-
-    case ExAdmin.get_registered_by_controller_route(resource) do
+    case conn.assigns.defn do
       nil ->
         throw :invalid_route
       %{__struct__: _} = defn ->
@@ -255,7 +253,7 @@ defmodule ExAdmin.Index do
   @doc false
   def render_index_pages(conn, page, scope_counts, cell, page_opts) do
     name = resource_model(conn) |> titleize |> Inflex.pluralize
-    defn = ExAdmin.get_registered_by_controller_route(conn.params["resource"])
+    defn = conn.assigns.defn
     label = get_resource_label(conn) |> Inflex.pluralize
 
     opts = %{

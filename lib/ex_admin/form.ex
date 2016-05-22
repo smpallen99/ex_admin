@@ -215,7 +215,7 @@ defmodule ExAdmin.Form do
       end
 
       def ajax_view(conn, params, resources, block) do
-        defn = ExAdmin.get_registered_by_controller_route(params[:resource])
+        defn = conn.assigns.defn
         resource = defn.resource_model.__struct__
         field_name = String.to_atom params[:field_name]
         model_name = model_name(resource)
@@ -1068,8 +1068,7 @@ defmodule ExAdmin.Form do
 
   @doc false
   def default_form_view(conn, resource, params) do
-    [_, res | _] = conn.path_info
-    case ExAdmin.get_registered_by_controller_route(res) do
+    case conn.assigns.defn do
       nil ->
         throw :invalid_route
       %{__struct__: _} = defn ->
@@ -1116,7 +1115,7 @@ defmodule ExAdmin.Form do
   def error_messages({:too_short, min}), do: "must be longer than #{min - 1}"
   def error_messages({:must_match, field}), do: "must match #{humanize field}"
   def error_messages(:format), do: "has incorrect format"
-  def error_messages({msg, opts}) when is_binary(msg) do 
+  def error_messages({msg, opts}) when is_binary(msg) do
     count = if is_integer(opts[:count]), do: opts[:count], else: 0
     String.replace(msg, "%{count}", Integer.to_string(count))
   end

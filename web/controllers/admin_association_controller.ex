@@ -4,8 +4,9 @@ defmodule ExAdmin.AdminAssociationController do
   require Logger
 
   def action(conn, _options) do
-    defn = ExAdmin.get_registered_by_controller_route!(conn.params["resource"], conn)
+    defn = get_registered_by_controller_route!(conn, conn.params["resource"])
     resource = repo.get!(defn.resource_model, conn.params["id"])
+    #conn = assign(conn, :defn, defn)
     apply(__MODULE__, action_name(conn), [conn, defn, resource, conn.params])
   end
 
@@ -22,7 +23,7 @@ defmodule ExAdmin.AdminAssociationController do
   end
 
   def index(conn, _defn, resource, %{"association_name" => association_name} = params) do
-    defn_assoc = ExAdmin.get_registered_by_controller_route!(association_name, conn)
+    defn_assoc = get_registered_by_controller_route!(conn, association_name)
     assoc_name = String.to_existing_atom(association_name)
     assoc_model = defn_assoc.resource_model
 
