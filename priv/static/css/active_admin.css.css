@@ -1,3 +1,7 @@
+abbr.required {
+  color: red;
+  padding-rigth: 5px;
+}
 span.icon {
   vertical-align: middle;
   display: inline-block; }
@@ -2466,7 +2470,7 @@ body {
 }
 
 table.sortable .handle {
-  cursor: move; 
+  cursor: move;
 }
 a.btn-sm {
   text-decoration: none;
@@ -2474,14 +2478,15 @@ a.btn-sm {
   border: 1px #38678b solid;
   display: inline-block;
 }
-a.btn-primary {  
+a.btn-primary {
   background: #38678b;
   color: #eee;
 }
-a.btn-default {  
+a.btn-default {
   background: #dfe1e2;
   color: #38678b;
-} 
+}
+
 .select2-container {
   box-sizing: border-box;
   display: inline-block;
