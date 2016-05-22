@@ -145,7 +145,7 @@ defmodule ExAdmin.AdminResourceController do
     end
 
     assign(conn, :scope_counts, scope_counts)
-    |> render("admin.html", html: contents, defn: defn,# resource: page,
+    |> render("admin.html", html: contents, page: page,
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end
 
@@ -161,7 +161,7 @@ defmodule ExAdmin.AdminResourceController do
       ExAdmin.Show.default_show_view(conn, resource)
     end
 
-    render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
+    render conn, "admin.html", html: contents, filters: nil
   end
 
   def edit(conn, defn, params) do
@@ -172,7 +172,7 @@ defmodule ExAdmin.AdminResourceController do
     {conn, params, resource} = handle_after_filter(conn, :edit, defn, params, resource)
     contents = do_form_view(model, conn, resource, params)
 
-    render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
+    render conn, "admin.html", html: contents, filters: nil
   end
 
   def new(conn, defn, params) do
@@ -183,7 +183,7 @@ defmodule ExAdmin.AdminResourceController do
     {conn, params, resource} = handle_after_filter(conn, :new, defn, params, resource)
     contents = do_form_view(model, conn, resource, params)
 
-    render conn, "admin.html", html: contents, resource: resource, filters: nil, defn: defn
+    render conn, "admin.html", html: contents, filters: nil
   end
 
   defp do_form_view(model, conn, resource, params) do
@@ -205,7 +205,7 @@ defmodule ExAdmin.AdminResourceController do
       {:error, changeset} ->
         conn = put_flash(conn, :inline_error, changeset.errors)
         contents = do_form_view model, conn, changeset.model, params
-        conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
+        conn |> render("admin.html", html: contents, filters: nil)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :create, defn, params, resource)
         put_flash(conn, :notice, "#{base_name model} was successfully created.")
@@ -224,7 +224,7 @@ defmodule ExAdmin.AdminResourceController do
       {:error, changeset} ->
         conn = put_flash(conn, :inline_error, changeset.errors)
         contents = do_form_view model, conn, changeset.model, params
-        conn |> render("admin.html", html: contents, resource: resource, filters: nil, defn: defn)
+        conn |> render("admin.html", html: contents, filters: nil)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :update, defn, params, resource)
         put_flash(conn, :notice, "#{base_name model} was successfully updated")
