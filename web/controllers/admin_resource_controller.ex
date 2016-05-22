@@ -141,7 +141,7 @@ defmodule ExAdmin.AdminResourceController do
     end
     scope_counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
 
-    {conn, params, page} = handle_after_filter(conn, :index, defn, params, page)
+    {conn, _params, page} = handle_after_filter(conn, :index, defn, params, page)
 
     contents = if function_exported? model, :index_view, 3 do
       apply(model, :index_view, [conn, page, scope_counts])
@@ -158,7 +158,7 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
 
-    {conn, params, resource} = handle_after_filter(conn, :show, defn, params, resource)
+    {conn, _params, resource} = handle_after_filter(conn, :show, defn, params, resource)
 
     contents = if function_exported? model, :show_view, 2 do
       apply(model, :show_view, [conn, resource])
