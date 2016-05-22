@@ -377,8 +377,7 @@ defmodule ExAdmin.Show do
 
   @doc false
   def default_attributes_table(conn, resource) do
-    [_, res | _] = conn.path_info
-    case ExAdmin.get_registered_by_controller_route(res) do
+    case conn.assigns.defn do
       nil ->
         throw :invalid_route
       %{__struct__: _} = defn ->

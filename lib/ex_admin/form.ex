@@ -215,7 +215,7 @@ defmodule ExAdmin.Form do
       end
 
       def ajax_view(conn, params, resources, block) do
-        defn = ExAdmin.get_registered_by_controller_route(params[:resource])
+        defn = conn.assigns.defn
         resource = defn.resource_model.__struct__
         field_name = String.to_atom params[:field_name]
         model_name = model_name(resource)
@@ -1079,8 +1079,7 @@ defmodule ExAdmin.Form do
 
   @doc false
   def default_form_view(conn, resource, params) do
-    [_, res | _] = conn.path_info
-    case ExAdmin.get_registered_by_controller_route(res) do
+    case conn.assigns.defn do
       nil ->
         throw :invalid_route
       %{__struct__: _} = defn ->

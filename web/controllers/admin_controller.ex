@@ -3,31 +3,17 @@ defmodule ExAdmin.AdminController do
   use ExAdmin.Web, :controller
   require Logger
 
-  plug :handle_root_req
   plug :set_theme
   plug :set_layout
 
-  # workaround for ExAdmin.get_registered_by_controller_route!
-  # ToDo: refactoring of ExAdmin.get_registered_by_controller_route!
-  def handle_root_req(conn, _params) do
-    case conn.path_info do
-      [prefix] ->
-        conn
-        |> struct(params: %{"resource" => "dashboard"})
-        |> struct(path_info: [prefix, "dashboard"])
-      [_prefix, "dashboard"] ->
-        conn
-        |> struct(params: %{"resource" => "dashboard"})
-      _ ->
-        conn
-    end
-  end
 
   def dashboard(conn, _params) do
-    defn = ExAdmin.get_registered_by_controller_route!(conn.params["resource"])
+    defn = get_registered_by_controller_route!(conn, "dashboard")
     contents = defn.__struct__ |> apply(:page_view, [conn])
 
-    assign(conn, :scope_counts, [])
+    conn
+    |> assign(:defn, defn)
+    |> assign(:scope_counts, [])
     |> render("admin.html", html: contents, defn: defn, resource: nil,
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
   end
