@@ -196,33 +196,6 @@ defmodule ExAdmin do
     Enum.find get_registered, %{}, &(Map.get(&1, :resource_model) == assoc_model)
   end
 
-  @doc false
-  def get_registered_by_controller_route!(name, conn \\ %Plug.Conn{}) do
-    res = get_registered_by_controller_route(name)
-    if res == %{} do
-      raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
-    else
-      res
-    end
-  end
-
-  @doc false
-  def get_registered_by_controller_route(%Plug.Conn{params: params}) do
-    get_registered_by_controller_route params["resource"]
-  end
-  @doc false
-  def get_registered_by_controller_route(path_info) when is_list(path_info) do
-    case path_info do
-      ["admin", route | _] -> route
-      _ -> ""
-    end
-    |> get_registered_by_controller_route
-  end
-
-  @doc false
-  def get_registered_by_controller_route(route) do
-    Enum.find get_registered, %{}, &(Map.get(&1, :controller_route) == route)
-  end
 
   @doc false
   def get_controller_path(%{} = resource) do
@@ -237,7 +210,7 @@ defmodule ExAdmin do
 
   @doc false
   def get_title_actions(%Plug.Conn{private: _private, path_info: path_info} = conn) do
-    defn = get_registered_by_controller_route(path_info)
+    defn = conn.assigns.defn
     fun = defn |> Map.get(:title_actions)
     fun.(conn, defn)
   end

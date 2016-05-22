@@ -12,22 +12,17 @@ defmodule ExAdmin.AdminResourceController do
 
   def action(%{private: %{phoenix_action: action}} = conn, _options) do
     conn = conn |> assign(:xhr, get_req_header(conn, "x-requested-with") == ["XMLHttpRequest"])
-    handle_action(conn, action, conn.params["resource"])
-  end
-
-  defp handle_action(conn, action, resource) do
+    resource = conn.params["resource"]
     conn = scrub_params(conn, resource, action)
     params = filter_params(conn.params)
-    case get_registered_by_controller_route!(resource, conn) do
-      %{__struct__: _} = defn ->
-        conn
-        |> load_resource(action, defn, params[:id])
-        |> handle_plugs(action, defn)
-        |> handle_before_filter(action, defn, params)
-        |> handle_custom_actions(action, defn, params)
-      _ ->
-        apply(__MODULE__, action, [conn, params])
-    end
+    defn = get_registered_by_controller_route!(conn, resource)
+
+    conn
+    |> assign(:defn, defn)
+    |> load_resource(action, defn, params[:id])
+    |> handle_plugs(action, defn)
+    |> handle_before_filter(action, defn, params)
+    |> handle_custom_actions(action, defn, params)
   end
 
   defp scrub_params(conn, required_key, action) when action in [:create, :update] do

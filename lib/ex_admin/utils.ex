@@ -115,8 +115,8 @@ defmodule ExAdmin.Utils do
   end
 
   @doc false
-  def resource_model(%Plug.Conn{path_info: path_info}) do
-    ExAdmin.get_registered_by_controller_route(path_info)
+  def resource_model(%Plug.Conn{} = conn) do
+    conn.assigns.defn
     |> Map.get(:resource_model)
     |> base_name
   end
@@ -305,7 +305,7 @@ defmodule ExAdmin.Utils do
 
   @doc false
   def get_resource_label(%Plug.Conn{} = conn) do
-    menu = ExAdmin.get_registered_by_controller_route!(conn).menu
+    menu = conn.assigns.defn.menu
     Map.get menu, :label, resource_model(conn)
   end
 
