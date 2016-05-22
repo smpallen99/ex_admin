@@ -510,6 +510,7 @@ defmodule ExAdmin.Form do
   def build_main_block(conn, resource, model_name, schema) do
     errors = Phoenix.Controller.get_flash(conn, :inline_error)
     for item <- schema do
+      item = put_in item, [:required], conn.assigns[:ea_required] || []
       build_item(conn, item, resource, model_name, errors)
     end
     |> flatten
@@ -548,7 +549,7 @@ defmodule ExAdmin.Form do
   end
 
   @doc false
-  def wrap_item(resource, field_name, model_name, label, error, opts, params, contents) do
+  def wrap_item(resource, field_name, model_name, label, error, opts, params, required, contents) do
     as = Map.get opts, :as
     ajax = Map.get opts, :ajax
     ext_name = ext_name(model_name, field_name)
@@ -564,13 +565,13 @@ defmodule ExAdmin.Form do
     error = if error in [nil, [], false], do: "", else: "error "
 
     theme_module(Form).theme_wrap_item(field_type(resource, field_name), ext_name, label, hidden,
-      ajax, error, contents, as)
+      ajax, error, contents, as, required)
     ext_name
   end
 
 
-  def wrap_item_type(type, label, ext_name, contents, error) do
-    ExAdmin.theme.wrap_item_type(type, label, ext_name, contents, error)
+  def wrap_item_type(type, label, ext_name, contents, error, required) do
+    ExAdmin.theme.wrap_item_type(type, label, ext_name, contents, error, required)
   end
 
 
@@ -599,9 +600,15 @@ defmodule ExAdmin.Form do
     end
   end
 
+  @doc """
+  Private: Build a belongs_to control.
+
+  Generate a select box for a belongs_to control.
+  """
   def build_item(conn, %{type: :input, name: field_name, resource: _resource,
        opts: %{collection: collection}} = item, resource, model_name, errors) do
 
+    # IO.puts "build_item 3: #{inspect field_name}"
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
@@ -611,7 +618,7 @@ defmodule ExAdmin.Form do
     else
       field_name
     end
-
+    required = if errors_field_name in (conn.assigns[:ea_required] || []), do: true, else: false
     errors = get_errors(errors, errors_field_name)
 
     label = Map.get item[:opts], :label, field_name
@@ -619,7 +626,7 @@ defmodule ExAdmin.Form do
 
     binary_tuple = binary_tuple?(collection)
 
-    id = wrap_item(resource, field_name, model_name, label, errors, item[:opts], conn.params, fn(ext_name) ->
+    id = wrap_item(resource, field_name, model_name, label, errors, item[:opts], conn.params, required, fn(ext_name) ->
       item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
       if binary_tuple do
         build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name)
@@ -680,9 +687,11 @@ defmodule ExAdmin.Form do
 
   def build_item(conn, %{type: :input, resource: _resource, name: field_name, opts: opts},
        resource, model_name, errors) do
+    # IO.puts "build_item 4: #{inspect field_name}"
     errors = get_errors(errors, field_name)
     label = get_label(field_name, opts)
-    wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, fn(ext_name) ->
+    required = if field_name in (conn.assigns[:ea_required] || []), do: true, else: false
+    wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, required, fn(ext_name) ->
       resource.__struct__.__schema__(:type, field_name)
       |> build_control(resource, opts, model_name, field_name, ext_name, errors)
     end)
@@ -690,6 +699,7 @@ defmodule ExAdmin.Form do
 
   def build_item(conn, %{type: :has_many, resource: _resource, name: field_name,
       opts: %{fun: fun}}, resource, model_name, errors) do
+    # IO.puts "build_item 5: #{inspect field_name}"
     field_field_name = "#{field_name}_attributes"
     human_label = "#{humanize(field_name) |> Inflex.singularize}"
     new_record_name_var = new_record_name field_name
@@ -710,8 +720,9 @@ defmodule ExAdmin.Form do
         end)
         markup :nested do
           ext_name = "#{model_name}_#{field_field_name}_#{new_record_name_var}"
-          fields = fun.(ExAdmin.Repo.get_assoc_model(resource, field_name)) |> Enum.reverse
-          build_has_many_fieldset(conn, nil, fields, new_record_name_var, ext_name, field_name, field_field_name, model_name, errors)
+          {assoc_model, _} = assoc_model_tuple = ExAdmin.Repo.get_assoc_model(resource, field_name)
+          fields = fun.(assoc_model_tuple) |> Enum.reverse
+          build_has_many_fieldset(conn, assoc_model.__struct__, fields, new_record_name_var, ext_name, field_name, field_field_name, model_name, errors)
         end
       end
       {_, onclick} = Phoenix.HTML.html_escape  theme_module(conn, Form).has_many_insert_item(html, new_record_name_var)
@@ -725,6 +736,7 @@ defmodule ExAdmin.Form do
   def build_item(conn, %{type: :inputs, name: name, opts: %{collection: collection} = opts},
       resource, model_name, errors) when is_atom(name) do
 
+    # IO.puts "build_item 6: #{inspect name}"
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
@@ -732,7 +744,8 @@ defmodule ExAdmin.Form do
     name_ids = "#{Atom.to_string(name) |> Inflex.singularize}_ids"
     assoc_ids = Enum.map(get_resource_field2(resource, name), &(Schema.get_id(&1)))
     name_str = "#{model_name}[#{name_ids}][]"
-    theme_module(conn, Form).build_inputs_collection model_name, name, name_ids, fn ->
+    required = get_required name, opts
+    theme_module(conn, Form).build_inputs_collection model_name, name, name_ids, required, fn ->
       Xain.input name: name_str, type: "hidden", value: ""
       if opts[:as] == :check_boxes do
         theme_module(conn, Form).wrap_collection_check_boxes fn ->
@@ -759,6 +772,7 @@ defmodule ExAdmin.Form do
   @doc false
   def build_item(conn, %{type: :inputs, name: _field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
+    # IO.puts "build_item 7: #{inspect _field_name}"
     theme_module(conn, Form).form_box item, opts, fn ->
       theme_module(conn, Form).theme_build_inputs item, opts, fn ->
         for inpt <- item[:inputs] do
@@ -884,12 +898,10 @@ defmodule ExAdmin.Form do
   defp time_builder(b, opts) do
     b.(:hour, [])
     span ".time-separator"
-    # text(" : ")
     b.(:min, [])
 
     if Keyword.get(opts, :sec) do
       span ".time-separator"
-      # text(" : ")
       b.(:sec, [])
     end
   end
@@ -1086,6 +1098,16 @@ defmodule ExAdmin.Form do
   defp binary_tuple?(collection) do
     Enum.all?(collection, &(is_binary(&1) or (is_tuple(&1) and (tuple_size(&1) == 2))))
   end
+
+  def required_abbr(true) do
+    abbr ".required *", title: "required"
+  end
+  def required_abbr(_), do: ""
+
+  def get_required(field_name, %{required: required}) do
+    if field_name in required, do: true, else: false
+  end
+  def get_required(_, _), do: false
 
   @doc false
   def extra_javascript(model_name, param, attr) do

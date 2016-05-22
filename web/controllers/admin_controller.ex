@@ -226,6 +226,9 @@ defmodule ExAdmin.AdminController do
           raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
         end
 
+        conn = Plug.Conn.assign(conn, :ea_required,
+          model.__struct__.resource_model.changeset(resource).required)
+
         {conn, params, resource} = handle_after_filter(conn, :edit, defn, params, resource)
 
         if function_exported? model, :form_view, 3 do
@@ -243,6 +246,8 @@ defmodule ExAdmin.AdminController do
       defn ->
         model = defn.__struct__
         resource = model.__struct__.resource_model.__struct__
+        conn = Plug.Conn.assign(conn, :ea_required,
+           model.__struct__.resource_model.changeset(resource).required)
         {conn, params, resource} = handle_after_filter(conn, :new, defn, params, resource)
         {do_form_view(model, conn, resource, params), resource, defn}
     end

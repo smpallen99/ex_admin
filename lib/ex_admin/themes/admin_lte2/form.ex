@@ -37,7 +37,8 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   end
 
   @doc false
-  def theme_wrap_item(_type, ext_name, label, hidden, ajax, _error, contents, as) when as in [:check_boxes, :radio] do
+  # def theme_wrap_item(type, ext_name, label, hidden, ajax, error, contents, _as, required \\ false)
+  def theme_wrap_item(_type, ext_name, label, hidden, ajax, _error, contents, as, required) when as in [:check_boxes, :radio] do
     div ".form-group", hidden do
       fieldset ".choices" do
         legend ".label" do
@@ -56,11 +57,22 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
     end
   end
 
-  @doc false
-  def theme_wrap_item(type, ext_name, label, hidden, ajax, error, contents, _as) do
+  @doc """
+  Private: Wrap simple controls.
+
+  Wraps simple controls like text inputs in the appropriate div. Adds
+  the label also.
+
+  Does not handle collections.
+  """
+
+  def theme_wrap_item(type, ext_name, label, hidden, ajax, error, contents, _as, required) do
     div ".form-group", hidden do
       if ajax do
-        label(".col-sm-2.control-label #{humanize label}", for: ext_name)
+        label(".col-sm-2.control-label", for: ext_name) do
+          text humanize(label)
+          required_abbr(required)
+        end
         div "##{ext_name}-update" do
           if hidden == [] do
             div ".col-sm-10" do
@@ -69,7 +81,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
           end
         end
       else
-        wrap_item_type(type, label, ext_name, contents, error)
+        wrap_item_type(type, label, ext_name, contents, error, required)
       end
     end
   end
@@ -90,9 +102,12 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
     end
   end
 
-  def build_inputs_collection(model_name, name, name_ids, fun) do
+  def build_inputs_collection(model_name, name, name_ids, required, fun) do
     div(".form-group") do
-      label ".col-sm-2.control-label #{humanize name}", for: "#{model_name}_#{name_ids}"
+      label ".col-sm-2.control-label", for: "#{model_name}_#{name_ids}" do
+        text humanize(name)
+        required_abbr required
+      end
       div ".col-sm-10" do
         fun.()
       end
@@ -128,8 +143,15 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   def theme_build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_name, field_field_name, model_name, errors) do
     inx = cond do
       is_nil(res) -> orig_inx
+      is_nil(res.id) -> orig_inx
       Schema.get_id(res) ->  orig_inx
       true -> timestamp   # case when we have errors. need to remap the inx
+    end
+
+    required_list = if res do
+      res.__struct__.changeset(res).required
+    else
+      []
     end
 
     div ".box.has_many_fields" do
@@ -156,6 +178,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
 
         for field <- fields do
           f_name = field[:name]
+          required = if f_name in required_list, do: true, else: false
           name = "#{base_name}[#{f_name}]"
           errors = get_errors(errors, "#{model_name}[#{field_field_name}][#{orig_inx}][#{f_name}]")
           error = if errors in [nil, [], false], do: "", else: ".has-error"
@@ -165,9 +188,10 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
                 collection = collection.(conn, res)
               end
               div ".form-group", [id: "#{ext_name}_label_input"] do
-                label ".col-sm-2.control-label #{humanize f_name}", for: "#{ext_name}_#{f_name}" # do
-                  # abbr "*", title: "required"
-                # end
+                label ".col-sm-2.control-label", for: "#{ext_name}_#{f_name}" do
+                  text humanize(f_name)
+                  required_abbr required
+                end
                 div ".col-sm-10" do
                   select "##{ext_name}_#{f_name}#{error}.form-control", [name: name ] do
                     for opt <- collection do
@@ -183,9 +207,10 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
               end
             _ ->
               div ".form-group", id: "#{ext_name}_#{f_name}_input"  do
-                label ".col-sm-2.control-label #{humanize f_name}", for: "#{ext_name}_#{f_name}" # do
-                #   abbr "*", title: "required"
-                # end
+                label ".col-sm-2.control-label", for: "#{ext_name}_#{f_name}" do
+                  text humanize(f_name)
+                  required_abbr required
+                end
                 div ".col-sm-10#{error}" do
                   val = if res, do: [value: Map.get(res, f_name, "") |> escape_value], else: []
                   Xain.input([type: :text, maxlength: "255", id: "#{ext_name}_#{f_name}",
