@@ -25,7 +25,6 @@ defmodule ExAdmin.AdminAssociationController do
   def index(conn, _defn, resource, %{"association_name" => association_name} = params) do
     defn_assoc = get_registered_by_controller_route!(conn, association_name)
     assoc_name = String.to_existing_atom(association_name)
-    assoc_model = defn_assoc.resource_model
 
     page = ExAdmin.Model.potential_associations_query(resource, defn_assoc.__struct__, assoc_name, params["keywords"])
     |> repo.paginate(params)

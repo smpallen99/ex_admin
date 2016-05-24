@@ -136,7 +136,7 @@ defmodule ExAdmin.AdminResourceController do
     end
     scope_counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
 
-    {conn, params, page} = handle_after_filter(conn, :index, defn, params, page)
+    {conn, _params, page} = handle_after_filter(conn, :index, defn, params, page)
 
     contents = if function_exported? model, :index_view, 3 do
       apply(model, :index_view, [conn, page, scope_counts])
@@ -153,7 +153,7 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
 
-    {conn, params, resource} = handle_after_filter(conn, :show, defn, params, resource)
+    {conn, _params, resource} = handle_after_filter(conn, :show, defn, params, resource)
 
     contents = if function_exported? model, :show_view, 2 do
       apply(model, :show_view, [conn, resource])
@@ -167,6 +167,8 @@ defmodule ExAdmin.AdminResourceController do
   def edit(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
+    conn = Plug.Conn.assign(conn, :ea_required,
+       model.__struct__.resource_model.changeset(resource).required)
     {conn, params, resource} = handle_after_filter(conn, :edit, defn, params, resource)
     contents = do_form_view(model, conn, resource, params)
 
@@ -176,6 +178,8 @@ defmodule ExAdmin.AdminResourceController do
   def new(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
+    conn = Plug.Conn.assign(conn, :ea_required,
+       model.__struct__.resource_model.changeset(resource).required)
     {conn, params, resource} = handle_after_filter(conn, :new, defn, params, resource)
     contents = do_form_view(model, conn, resource, params)
 

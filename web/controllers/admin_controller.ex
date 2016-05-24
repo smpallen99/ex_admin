@@ -7,7 +7,7 @@ defmodule ExAdmin.AdminController do
   plug :set_layout
 
 
-  def dashboard(conn, params) do
+  def dashboard(conn, _params) do
     defn = get_registered_by_controller_route!(conn, "dashboard")
     conn =  assign(conn, :defn, defn)
     contents = defn.__struct__.page_view(conn)

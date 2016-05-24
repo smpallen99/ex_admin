@@ -1,3 +1,7 @@
+abbr.required {
+  color: red;
+  padding-rigth: 5px;
+}
 span.action_item {
   margin-left: 5px;
 }

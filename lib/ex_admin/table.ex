@@ -89,7 +89,7 @@ defmodule ExAdmin.Table do
     do_panel(conn, tail, table_opts)
   end
   # skip unknown blocks
-  def do_panel(conn, [head|tail], table_opts) do
+  def do_panel(conn, [_head|tail], table_opts) do
     do_panel(conn, tail, table_opts)
   end
 

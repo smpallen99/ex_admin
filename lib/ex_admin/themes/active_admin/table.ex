@@ -7,7 +7,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Table do
 
   def theme_panel(conn, schema) do
     div(".panel") do
-      h3(Keyword.get schema, :name, "")
+      h3(schema[:name] || "")
       div(".panel_contents") do
         do_panel(conn, schema, @table_opts)
       end
@@ -16,7 +16,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Table do
 
   def theme_attributes_table(conn, resource, schema, resource_model) do
     div(".panel") do
-      h3(Map.get schema, :name, "#{String.capitalize resource_model} Details")
+      h3(schema[:name] || "#{String.capitalize resource_model} Details")
       do_attributes_table_for(conn, resource, resource_model, schema, @table_opts)
     end
   end

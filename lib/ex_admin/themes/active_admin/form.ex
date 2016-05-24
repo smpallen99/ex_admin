@@ -40,11 +40,14 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
     end
   end
 
-  def theme_wrap_item(_type, ext_name, label, hidden, ajax, error, contents, as) when as in [:check_boxes, :radio] do
+  def theme_wrap_item(_type, ext_name, label, hidden, ajax, error, contents, as, required) when as in [:check_boxes, :radio] do
     li([class: "#{as} input optional #{error}stringish", id: "#{ext_name}_input"] ++ hidden) do
       fieldset ".choices" do
         legend ".label" do
-          label humanize(label)
+          label do
+            text humanize(label)
+            required_abbr required
+          end
         end
         if ajax do
           div "##{ext_name}-update" do
@@ -60,18 +63,24 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   end
 
   @doc false
-  def theme_wrap_item(_type, ext_name, label, hidden, ajax, error, contents, _) do
+  def theme_wrap_item(_type, ext_name, label, hidden, ajax, error, contents, _, required) do
     # TODO: Fix this to use the correct type, instead of hard coding string
     li([class: "string input optional #{error}stringish", id: "#{ext_name}_input"] ++ hidden) do
       if ajax do
-        label(".label #{humanize label}", for: ext_name)
+        label(".label", for: ext_name) do
+          text humanize(label)
+          required_abbr required
+        end
         div "##{ext_name}-update" do
           if hidden == [] do
             contents.(ext_name)
           end
         end
       else
-        label(".label #{humanize label}", for: ext_name)
+        label(".label", for: ext_name) do
+          text humanize(label)
+          required_abbr required
+        end
         contents.(ext_name)
       end
     end
@@ -97,11 +106,14 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
     p ".inline-errors #{error_messages error}"
   end
 
-  def build_inputs_collection(model_name, name, name_ids, fun) do
+  def build_inputs_collection(model_name, name, name_ids, required, fun) do
     fieldset(".inputs") do
       ol do
         li ".select.input.optional##{model_name}_#{name}_input" do
-          label ".label #{humanize name}", for: "#{model_name}_#{name_ids}"
+          label ".label", for: "#{model_name}_#{name_ids}" do
+            text humanize(name)
+            required_abbr required
+          end
           fun.()
         end
       end
@@ -128,8 +140,15 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   def theme_build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_name, field_field_name, model_name, errors) do
     inx = cond do
       is_nil(res) -> orig_inx
+      is_nil(res.id) -> orig_inx
       Schema.get_id(res) ->  orig_inx
       true -> timestamp   # case when we have errors. need to remap the inx
+    end
+
+    required_list = if res do
+      res.__struct__.changeset(res).required
+    else
+      []
     end
 
     fieldset ".inputs.has_many_fields" do
@@ -150,6 +169,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
 
         for field <- fields do
           f_name = field[:name]
+          required = if f_name in required_list, do: true, else: false
           name = "#{base_name}[#{f_name}]"
           errors = get_errors(errors, "#{model_name}[#{field_field_name}][#{orig_inx}][#{f_name}]")
           error = if errors in [nil, [], false], do: "", else: ".error"
@@ -158,9 +178,10 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
               if is_function(collection) do
                 collection = collection.(conn, res)
               end
-              li ".select.input.required#{error}", [id: "#{ext_name}_label_input"] do
-                label ".label #{humanize f_name}", for: "#{ext_name}_#{f_name}" do
-                  abbr "*", title: "required"
+              li ".select.input#{error}", [id: "#{ext_name}_label_input"] do
+                label ".label", for: "#{ext_name}_#{f_name}" do
+                  text humanize(f_name)
+                  required_abbr required
                 end
                 select "##{ext_name}_#{f_name}", [name: name ] do
                   for opt <- collection do
@@ -174,13 +195,14 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
                 build_errors(errors)
               end
             _ ->
-              li ".string.input.required.stringish#{error}", id: "#{ext_name}_#{f_name}_input"  do
-                label ".label #{humanize f_name}", for: "#{ext_name}_#{f_name}" do
-                  abbr "*", title: "required"
+              li ".string.input.stringish#{error}", id: "#{ext_name}_#{f_name}_input"  do
+                label ".label", for: "#{ext_name}_#{f_name}" do
+                  text humanize(f_name)
+                  required_abbr required
                 end
                 val = if res, do: [value: Map.get(res, f_name, "") |> escape_value], else: []
                 Xain.input([type: :text, maxlength: "255", id: "#{ext_name}_#{f_name}",
-                  name: name] ++ val)
+                  name: name, required: true] ++ val)
                 build_errors(errors)
               end
           end
