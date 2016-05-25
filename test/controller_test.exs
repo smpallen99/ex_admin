@@ -19,6 +19,12 @@ defmodule ExAdminTest.ControllerTest do
     assert html_response(conn, 200) =~ ~r/Noids/
   end
 
+  test "lists noids with user w/o name" do
+    insert_user(%{name: nil, email: "nil@example.com"})
+    conn = get conn(), admin_resource_path(Noid, :index)
+    assert html_response(conn, 200) =~ ~r/Noids/
+  end
+
   test "shows correct name for column name with space", %{user: user} do
     insert_noid(%{user_id: user.id, name: "Road Runner", company: "Acme"})
     conn = get conn(), admin_resource_path(user, :show)
