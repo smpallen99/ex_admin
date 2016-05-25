@@ -99,7 +99,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
     id = "q_#{owner_key}"
     if assoc.__schema__(:type, :name) do
       repo = Application.get_env :ex_admin, :repo
-      resources = repo.all Ecto.Query.select(assoc, [c], {c.id, c.name})
+      resources = repo.all assoc
       selected_key = case q["#{owner_key}_eq"] do
         nil -> nil
         val -> val
@@ -109,7 +109,9 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
         label ".label #{title}", for: "q_#{owner_key}"
         select "##{id}.form-control", [name: "q[#{owner_key}_eq]"] do
           option "Any", value: ""
-          for {id, name} <- resources do
+          for r <- resources do
+            id = ExAdmin.Schema.get_id(r)
+            name = ExAdmin.Helpers.display_name(r)
             selected = if "#{id}" == selected_key, do: [selected: :selected], else: []
             option name, [{:value, "#{id}"} | selected]
           end

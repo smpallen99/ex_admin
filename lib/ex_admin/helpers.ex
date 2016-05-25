@@ -257,7 +257,7 @@ defmodule ExAdmin.Helpers do
       true ->
         case defn.name_column do
           nil -> inspect(resource)
-          name_field -> Map.get(resource, name_field)
+          name_field -> resource |> Map.get(name_field) |> to_string
         end
     end
   end
