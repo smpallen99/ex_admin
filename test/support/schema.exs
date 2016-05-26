@@ -11,8 +11,8 @@ defmodule TestExAdmin.User do
     has_many :roles, through: [:uses_roles, :user]
   end
 
-  @required_fields ~w(name email)
-  @optional_fields ~w()
+  @required_fields ~w(email)
+  @optional_fields ~w(name)
 
   def changeset(model, params \\ :empty) do
     model
