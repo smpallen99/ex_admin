@@ -28,18 +28,10 @@ defmodule ExAdmin.Repo do
     {new_changeset, fields} =
     Enum.reduce insert_or_update_attributes_for(resource, params), {changeset, []},
       fn({cs, fun, field}, {acc, fields}) ->
-        cs = set_cs_data cs, params
+        cs = ExAdmin.Changeset.set_data cs, params
         {Changeset.update(acc, valid?: cs.valid?, dependents: {cs, fun}, errors: cs.errors), fields ++ [{field, cs}]}
       end
     struct(new_changeset, changeset: set_dependents(new_changeset.changeset, fields))
-  end
-
-  def set_cs_data(%{data: data} = cs, params) do
-    struct(cs, data: struct(data, params))
-  end
-
-  def set_cs_data(%{model: data} = cs, params) do
-    struct(cs, model: struct(data, params))
   end
 
   def changeset_collection(%Changeset{} = changeset, resource, params) do
@@ -70,7 +62,7 @@ defmodule ExAdmin.Repo do
       {String.to_atom(k), set_dependents_list(v)}
     end)
 
-    set_cs_data changeset, fields
+    ExAdmin.Changeset.set_data changeset, fields
   end
 
   defp set_dependents_list([]), do: []

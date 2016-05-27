@@ -204,7 +204,8 @@ defmodule ExAdmin.AdminResourceController do
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
         conn = put_flash(conn, :inline_error, changeset.errors)
-        contents = do_form_view model, conn, changeset.data, params
+        contents = do_form_view model, conn,
+          ExAdmin.Changeset.get_data(changeset), params
         conn |> render("admin.html", html: contents, filters: nil)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :create, defn, params, resource)
@@ -223,7 +224,8 @@ defmodule ExAdmin.AdminResourceController do
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
         conn = put_flash(conn, :inline_error, changeset.errors)
-        contents = do_form_view model, conn, changeset.data, params
+        contents = do_form_view model, conn,
+          ExAdmin.Changeset.get_data(changeset), params
         conn |> render("admin.html", html: contents, filters: nil)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :update, defn, params, resource)

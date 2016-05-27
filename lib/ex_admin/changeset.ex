@@ -22,4 +22,16 @@ defmodule ExAdmin.Changeset do
   def update(%Cs{errors: errors} = r, :errors, error) do
     %Cs{r | errors: errors ++ error}
   end
+
+  def set_data(%{data: data} = cs, params) do
+    struct(cs, data: struct(data, params))
+  end
+
+  def set_data(%{model: data} = cs, params) do
+    struct(cs, model: struct(data, params))
+  end
+
+  def get_data(%{data: data}), do: data
+  def get_data(%{model: data}), do: data
+
 end

@@ -28,18 +28,6 @@ defmodule ExAdmin.RepoTest do
     assert res.description == "desc"
   end
 
-  test "sets data for ecto2" do
-    cs = %Cs2{data: %Schema{id: 1, name: "test"}}
-    cs = Repo.set_cs_data(cs, %{name: "test2"})
-    assert cs.data.name == "test2"
-  end
-
-  test "sets data for ecto1" do
-    cs = %Cs1{model: %Schema{id: 1, name: "test"}}
-    cs = Repo.set_cs_data(cs, %{name: "test2"})
-    assert cs.model.name == "test2"
-  end
-
   test "set_dependents ecto2" do
     expected = %ExAdmin.RepoTest.Cs2{changes: %{name: "test"},
       data: %ExAdmin.RepoTest.Schema{id: 0, name: nil}}
