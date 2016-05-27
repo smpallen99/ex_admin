@@ -28,10 +28,18 @@ defmodule ExAdmin.Repo do
     {new_changeset, fields} =
     Enum.reduce insert_or_update_attributes_for(resource, params), {changeset, []},
       fn({cs, fun, field}, {acc, fields}) ->
-        cs = struct(cs, data: struct(cs.data, params))
+        cs = set_cs_data cs, params
         {Changeset.update(acc, valid?: cs.valid?, dependents: {cs, fun}, errors: cs.errors), fields ++ [{field, cs}]}
       end
     struct(new_changeset, changeset: set_dependents(new_changeset.changeset, fields))
+  end
+
+  def set_cs_data(%{data: data} = cs, params) do
+    struct(cs, data: struct(data, params))
+  end
+
+  def set_cs_data(%{model: data} = cs, params) do
+    struct(cs, model: struct(data, params))
   end
 
   def changeset_collection(%Changeset{} = changeset, resource, params) do
@@ -40,24 +48,41 @@ defmodule ExAdmin.Repo do
       fn({coll, fun, field}, {acc, fields}) ->
         {Changeset.update(acc, dependents: {nil, fun}), fields ++ [{field, coll}]}
       end
-
-    data = Enum.reduce fields, new_changeset.changeset.data, fn({k, v}, acc) ->
-      struct(acc, [{String.to_atom(k), v}])
-    end
-
-    struct(new_changeset, changeset: struct(new_changeset.changeset, data: data))
+    set_changeset_collection fields, new_changeset
   end
 
-  defp set_dependents(changeset, list) do
+  def set_changeset_collection(fields, %{changeset: %{data: data}} = changeset) do
+    data = Enum.reduce fields, changeset.changeset.data, fn({k, v}, acc) ->
+      struct(acc, [{String.to_atom(k), v}])
+    end
+    struct(changeset, changeset: struct(changeset.changeset, data: data))
+  end
+  def set_changeset_collection(fields, %{changeset: %{model: data}} = changeset) do
+    data = Enum.reduce fields, changeset.changeset.model, fn({k, v}, acc) ->
+      struct(acc, [{String.to_atom(k), v}])
+    end
+    struct(changeset, changeset: struct(changeset.changeset, model: data))
+  end
+
+  def set_dependents(changeset, list) do
     fields = Helpers.group_by(list, fn({key, _val}) -> key end)
     |> Enum.map(fn({k,v}) ->
-      res = for %{data: data, changes: changes} <- Dict.values(v) do
-        struct(data, Map.to_list(changes))
-      end
-      {String.to_atom(k), res}
+      {String.to_atom(k), set_dependents_list(v)}
     end)
 
-    struct(changeset, data: struct(changeset.data, fields))
+    set_cs_data changeset, fields
+  end
+
+  defp set_dependents_list([]), do: []
+  defp set_dependents_list([{_, %{data: _}} | _] = map) do
+    for %{data: data, changes: changes} <- Keyword.values(map) do
+      struct(data, Map.to_list(changes))
+    end
+  end
+  defp set_dependents_list([{_, %{model: _}} | _] = map) do
+    for %{model: data, changes: changes} <- Keyword.values(map) do
+      struct(data, Map.to_list(changes))
+    end
   end
 
   def update(%Changeset{} = changeset) do

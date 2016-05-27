@@ -7,7 +7,7 @@
 [license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg
 [license]: http://opensource.org/licenses/MIT
 
-Note: This version requires [Ecto 2.0](https://github.com/elixir-lang/ecto). Use [Branch v0.7.2](https://github.com/smpallen99/ex_admin/tree/v0.7.2) for [Hex version 0.7.1](https://hex.pm/packages/ex_admin/0.7.1) if you are still running Ecto 1.1.
+Note: This version has been updated to support both Ecto 1.1 and Ecto 2.0. See [Installation](#installation) for more information.
 
 ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) and the [Phoenix Framework](http://www.phoenixframework.org/), a port/inspiration of [ActiveAdmin](http://activeadmin.info/) for Elixir.
 
@@ -29,11 +29,37 @@ Before using ExAdmin, you will need a Phoenix project and an Ecto model created.
 
 Add ex_admin to your deps:
 
+#### Hex
+
 mix.exs
 ```elixir
   defp deps do
      ...
      {:ex_admin, "~> 0.7"},
+     ...
+  end
+```
+
+#### GitHub with Ecto 2.0
+
+mix.exs
+```elixir
+  defp deps do
+     ...
+     {:ex_admin, github: "smpallen99/ex_admin"},
+     ...
+  end
+```
+
+#### GitHub with Ecto 1.1
+
+mix.exs
+```elixir
+  defp deps do
+     ...
+     {:ex_admin, github: "smpallen99/ex_admin"},
+     {:phoenix_ecto, "~> 2.0.0", override: true}, # the override is necessary
+     {:ecto, "~> 1.1", override: true},           # the override is necessary
      ...
   end
 ```
@@ -101,6 +127,7 @@ lib/my_app/endpoint.ex
   plug Plug.Static,
     at: "/", from: :nested, gzip: false,
     only: ~w(css fonts images js themes favicon.ico robots.txt)
+                                 ------
 
 ```
 

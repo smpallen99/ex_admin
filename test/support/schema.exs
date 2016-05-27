@@ -14,7 +14,7 @@ defmodule TestExAdmin.User do
   @required_fields ~w(email)
   @optional_fields ~w(name)
 
-  def changeset(model, params \\ :empty) do
+  def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
   end
@@ -32,7 +32,7 @@ defmodule TestExAdmin.Role do
   @required_fields ~w(name)
   @optional_fields ~w()
 
-  def changeset(model, params \\ :empty) do
+  def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
   end
@@ -51,7 +51,7 @@ defmodule TestExAdmin.UserRole do
   @required_fields ~w(user_id role_id)
   @optional_fields ~w()
 
-  def changeset(model, params \\ :empty) do
+  def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
   end
@@ -70,7 +70,7 @@ defmodule TestExAdmin.Product do
   @required_fields ~w(title price)
   @optional_fields ~w(user_id)
 
-  def changeset(model, params \\ :empty) do
+  def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
   end
@@ -91,7 +91,7 @@ defmodule TestExAdmin.Noid do
   @required_fields ~w(name description)
   @optional_fields ~w(company user_id)
 
-  def changeset(model, params \\ :empty) do
+  def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
   end
@@ -110,7 +110,7 @@ defmodule TestExAdmin.Noprimary do
   @required_fields ~w(name)
   @optional_fields ~w(index description)
 
-  def changeset(model, params \\ :empty) do
+  def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
   end
