@@ -643,7 +643,7 @@ defmodule ExAdmin.Form do
         update = Keyword.get(list, :update)
         params = Keyword.get(list, :params)
         if update do
-          route_path = admin_resource_path(resource, :index)
+          route_path = admin_resource_path(resource.__struct__, :index)
           target = pluralize(field_name)
           nested = pluralize(update)
 
