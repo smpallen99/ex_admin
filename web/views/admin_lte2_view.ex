@@ -67,7 +67,7 @@ defmodule ExAdmin.AdminLte2.LayoutView do
   def build_scopes(conn, scope_counts) do
     defn = conn.assigns.defn
     scopes = defn.scopes
-    markup  do
+    markup safe: true do
       current_scope = ExAdmin.Query.get_scope scopes, conn.params["scope"]
       # li ".header SCOPES"
       if Application.get_env(:ex_admin, :nest_scopes, false) do
@@ -88,7 +88,7 @@ defmodule ExAdmin.AdminLte2.LayoutView do
     end
   end
   def flashes(conn) do
-    markup do
+    markup safe: true do
       messages = Enum.reduce [:notice, :error], [], fn(which, acc) ->
         acc ++ get_flash(conn, which)
       end

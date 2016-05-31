@@ -14,7 +14,7 @@ defmodule ExAdmin.ViewHelpers do
   # end
 
   def flashes(conn) do
-    markup do
+    markup safe: true do
       messages = Enum.reduce [:notice, :error], [], fn(which, acc) ->
         acc ++ get_flash(conn, which)
       end

@@ -8,7 +8,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
   use Xain
 
   def theme_filter_view(conn, defn, q, order, scope) do
-    markup do
+    markup safe: true do
       div "#filters_sidebar_sectionl.sidebar_section.panel" do
         h3 "Filters"
         div ".panel_contents" do

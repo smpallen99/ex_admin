@@ -52,7 +52,7 @@ defmodule ExAdmin.Show do
         import ExAdmin.Utils
         import ExAdmin.ViewHelpers
 
-        markup do
+        markup safe: true do
           unquote(contents)
         end
       end
@@ -358,7 +358,7 @@ defmodule ExAdmin.Show do
 
   @doc false
   def default_show_view(conn, resource) do
-    markup do
+    markup safe: true do
       default_attributes_table conn, resource
     end
   end

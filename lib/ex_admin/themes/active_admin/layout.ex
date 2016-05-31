@@ -52,7 +52,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Layout do
   end
 
   def title_bar(conn, resource) do
-    markup do
+    markup safe: true do
       div("#title_bar.title_bar") do
         title_bar_left(conn, resource)
         title_bar_right(conn)
@@ -80,7 +80,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Layout do
   end
 
   def sidebar_view(conn, {name, _opts, {mod, fun}}, resource) do
-    markup do
+    markup safe: true do
       div "#filters_sidebar_sectionl.sidebar_section.panel" do
         h3 "#{name}"
         div ".panel_contents" do
