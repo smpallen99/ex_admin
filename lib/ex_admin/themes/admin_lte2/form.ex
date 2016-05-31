@@ -12,7 +12,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   @doc false
   def build_form(conn, resource, items, params, script_block) do
     mode = if params[:id], do: :edit, else: :new
-    markup do
+    markup safe: true do
       model_name = model_name resource
       action = get_action(resource, mode)
       Xain.form "accept-charset": "UTF-8", action: "#{action}", class: "form-horizontal",

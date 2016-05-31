@@ -152,7 +152,7 @@ defmodule ExAdmin.Index do
         |> Map.put(:selectable_column, selectable)
         |> Map.put(:actions, var!(actions, ExAdmin.Index))
 
-        markup do
+        markup safe: true do
           ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, var!(cell, ExAdmin.Index), opts)
         end
       end
@@ -241,7 +241,7 @@ defmodule ExAdmin.Index do
         |> Map.put(:selectable_column, true)
         |> Map.put(:actions, [])
 
-        markup do
+        markup safe: true do
           ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, nil, opts)
         end
     end

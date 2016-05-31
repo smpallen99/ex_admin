@@ -8,7 +8,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
   use Xain
 
   def theme_filter_view(conn, defn, q, order, scope) do
-    markup do
+    markup safe: true do
       div ".box.box-primary" do
         div ".box-header.with-border" do
           h3 ".box-title Filters"

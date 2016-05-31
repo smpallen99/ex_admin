@@ -223,7 +223,7 @@ defmodule ExAdmin.Form do
         if is_function(block[:opts][:collection]) do
           resources = block[:opts][:collection].(conn, resource)
         end
-        view = markup do
+        view = markup safe: true do
           ExAdmin.Form.Fields.input_collection(resource, resources, model_name, field_name, params[:id1], params[:nested2], block, conn.params)
         end
 

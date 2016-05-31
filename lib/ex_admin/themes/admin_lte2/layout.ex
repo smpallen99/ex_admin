@@ -67,7 +67,7 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
     box_attributes = Keyword.get(opts, :box_attributes, ".box.box-primary")
     header_attributes = Keyword.get(opts, :header_attributes, ".box-header.with-border")
     body_attributes = Keyword.get(opts, :body_attributes, ".box-body")
-    markup do
+    markup safe: true do
       div box_attributes do
         div header_attributes do
           h3 ".box-title #{name}"
