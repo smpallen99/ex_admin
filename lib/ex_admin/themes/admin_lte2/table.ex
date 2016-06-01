@@ -9,7 +9,7 @@ defmodule ExAdmin.Theme.AdminLte2.Table do
   def theme_panel(conn, schema) do
     div(".box") do
       div ".box-header.with-border" do
-        h3(Keyword.get schema, :name, "")
+        h3(schema[:name] || "")
       end
       div(".box-body") do
         do_panel(conn, schema, @table_opts)
@@ -20,7 +20,7 @@ defmodule ExAdmin.Theme.AdminLte2.Table do
   def theme_attributes_table(conn, resource, schema, resource_model) do
     div ".box" do
       div ".box-header.with-border"  do
-        h3(Map.get schema, :name, "#{String.capitalize resource_model} Details")
+        h3(schema[:name] || "#{String.capitalize resource_model} Details")
       end
       div ".box-body" do
         do_attributes_table_for(conn, resource, resource_model, schema, @table_opts)
