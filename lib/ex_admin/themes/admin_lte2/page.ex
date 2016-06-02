@@ -4,11 +4,8 @@ defmodule ExAdmin.Theme.AdminLte2.Page do
 
   def columns(cols) do
     count = Kernel.div 12, Enum.count(cols)
-    for {:safe, html} <- cols do
-      markup :nested do
-        div html, class: "col-lg-#{count}"
-      end
-      |> Phoenix.HTML.safe_to_string |> raw
+    for  html <- cols do
+      div html, class: "col-lg-#{count}"
     end
   end
 end
