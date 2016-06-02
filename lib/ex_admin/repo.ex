@@ -43,13 +43,13 @@ defmodule ExAdmin.Repo do
     set_changeset_collection fields, new_changeset
   end
 
-  def set_changeset_collection(fields, %{changeset: %{data: data}} = changeset) do
+  def set_changeset_collection(fields, %{changeset: %{data: _data}} = changeset) do
     data = Enum.reduce fields, changeset.changeset.data, fn({k, v}, acc) ->
       struct(acc, [{String.to_atom(k), v}])
     end
     struct(changeset, changeset: struct(changeset.changeset, data: data))
   end
-  def set_changeset_collection(fields, %{changeset: %{model: data}} = changeset) do
+  def set_changeset_collection(fields, %{changeset: %{model: _data}} = changeset) do
     data = Enum.reduce fields, changeset.changeset.model, fn({k, v}, acc) ->
       struct(acc, [{String.to_atom(k), v}])
     end

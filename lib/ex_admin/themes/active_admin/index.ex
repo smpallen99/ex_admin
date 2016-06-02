@@ -42,18 +42,20 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
     columns = opts[:column_list]
     page = opts[:page]
     order = opts[:order]
-    div ".box-body.table-responsive.no-padding" do
-      div ".paginated_collection" do
-        table(".table-striped.index.table.index_table") do
-          ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: opts[:href],
-            sort: "desc", order: order, fields: opts[:fields], page: page,
-            filter: build_filter_href("", conn.params["q"]),
-            selectable_column: selectable})
-          build_table_body(conn, resources, columns, %{selectable_column: selectable})
-        end # table
+    markup do
+      div ".box-body.table-responsive.no-padding" do
+        div ".paginated_collection" do
+          table(".table-striped.index.table.index_table") do
+            ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: opts[:href],
+              sort: "desc", order: order, fields: opts[:fields], page: page,
+              filter: build_filter_href("", conn.params["q"]),
+              selectable_column: selectable})
+            build_table_body(conn, resources, columns, %{selectable_column: selectable})
+          end # table
+        end
       end
+      do_footer(conn, opts)
     end
-    do_footer(conn, opts)
   end
 
   def paginated_collection_grid(conn, opts) do
@@ -67,9 +69,9 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
                 cellpadding: "0", paginator: "true") do
               tbody do
                 Enum.chunk(page.entries, columns, columns, [nil])
-                |> Enum.each(fn(list) ->
+                |> Enum.map(fn(list) ->
                   tr do
-                    Enum.each(list, fn(item) ->
+                    Enum.map(list, fn(item) ->
                       td do
                         if item do
                           opts[:cell].(item)

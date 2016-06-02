@@ -51,42 +51,46 @@ defmodule ExAdmin.Table do
 
   def do_panel(_conn, [], _table_opts), do: ""
   def do_panel(conn, [{:table_for, %{resources: resources, columns: columns, opts: opts}} | tail], table_opts) do
-    table(Dict.merge(table_opts, opts)) do
-      table_head(columns)
-      tbody do
-        model_name = get_resource_model resources
+    markup do
+      table(Dict.merge(table_opts, opts)) do
+        table_head(columns)
+        tbody do
+          model_name = get_resource_model resources
 
-        Enum.with_index(resources)
-        |> Enum.map(fn({resource, inx}) ->
-          odd_even = if Integer.is_even(inx), do: "even", else: "odd"
-          tr_id = if Map.has_key?(resource, :id), do: resource.id, else: inx
-          tr(".#{odd_even}##{model_name}_#{tr_id}") do
-            for field <- columns do
-              case field do
-                {f_name, fun} when is_function(fun) ->
-                  td ".td-#{parameterize f_name} #{fun.(resource)}"
-                {f_name, opts} ->
-                  build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) ->
-                    td ".td-#{parameterize f_name} #{contents}"
-                  end)
+          Enum.with_index(resources)
+          |> Enum.map(fn({resource, inx}) ->
+            odd_even = if Integer.is_even(inx), do: "even", else: "odd"
+            tr_id = if Map.has_key?(resource, :id), do: resource.id, else: inx
+            tr(".#{odd_even}##{model_name}_#{tr_id}") do
+              for field <- columns do
+                case field do
+                  {f_name, fun} when is_function(fun) ->
+                    td ".td-#{parameterize f_name} #{fun.(resource)}"
+                  {f_name, opts} ->
+                    build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) ->
+                      td ".td-#{parameterize f_name} #{contents}"
+                    end)
+                end
               end
             end
-          end
-        end)
+          end)
+        end
       end
+      do_panel(conn, tail, table_opts)
     end
-    do_panel(conn, tail, table_opts)
   end
   def do_panel(conn, [{:contents, %{contents: content}} | tail], table_opts) do
-    div do
-      case content do
-        {:safe, _} -> Phoenix.HTML.safe_to_string(content)
-        content -> content
+    markup do
+      div do
+        case content do
+          {:safe, _} -> Phoenix.HTML.safe_to_string(content)
+          content -> content
+        end
+        |> String.replace("\n", "")
+        |> Xain.raw
       end
-      |> String.replace("\n", "")
-      |> Xain.raw
+      do_panel(conn, tail, table_opts)
     end
-    do_panel(conn, tail, table_opts)
   end
   # skip unknown blocks
   def do_panel(conn, [_head|tail], table_opts) do

@@ -2,7 +2,6 @@ defmodule ExAdmin.AdminResourceController do
   @moduledoc false
   use ExAdmin.Web, :controller
   require Logger
-  import ExAdmin
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
   require IEx
@@ -204,6 +203,7 @@ defmodule ExAdmin.AdminResourceController do
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
         conn = put_flash(conn, :inline_error, changeset.errors)
+        |> assign(:ea_required, defn.resource_model.changeset(resource).required)
         contents = do_form_view model, conn,
           ExAdmin.Changeset.get_data(changeset), params
         conn |> render("admin.html", html: contents, filters: nil)
@@ -224,6 +224,7 @@ defmodule ExAdmin.AdminResourceController do
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
         conn = put_flash(conn, :inline_error, changeset.errors)
+        |> assign(:ea_required, defn.resource_model.changeset(resource).required)
         contents = do_form_view model, conn,
           ExAdmin.Changeset.get_data(changeset), params
         conn |> render("admin.html", html: contents, filters: nil)

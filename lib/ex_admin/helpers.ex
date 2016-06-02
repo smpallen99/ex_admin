@@ -163,8 +163,10 @@ defmodule ExAdmin.Helpers do
   end
   def build_single_field(resource, conn, f_name, %{fun: fun} = opts) do
     markup :nested do
-      res = fun.(resource)
-      if is_binary(res), do: Xain.text(res), else: res
+      case fun.(resource) do
+        [{_, list}] -> list
+        other -> other
+      end
     end
     |> build_link_for(conn, opts, resource, f_name)
   end

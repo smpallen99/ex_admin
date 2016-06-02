@@ -10,7 +10,9 @@
   "ex_queb": {:hex, :ex_queb, "0.1.2", "a7bea897c490875a716042675cec4013b5075de083c26ec1b7f0e0fb5144f5a1", [:mix], [{:ecto, "~> 1.1", [hex: :ecto, optional: false]}]},
   "exactor": {:hex, :exactor, "2.2.0", "2a7418b82d974fe8276edd62c1facf4a9dc06339cdf11b5dcd10359e107fe5c3", [:mix], []},
   "factory_girl_elixir": {:hex, :factory_girl_elixir, "0.1.1", "2c2b41111a409cf74131cd0f651fe65d77eb60d4b45775192ecde9820dc59ac5", [:mix], []},
+  "floki": {:hex, :floki, "0.8.1", "06aa75bf2d1e01cda7d2ad54f68614be653a11e76b474d8fcb1d838f8c1e0ad1", [:mix], [{:mochiweb_html, "~> 2.15", [hex: :mochiweb_html, optional: false]}]},
   "inflex": {:hex, :inflex, "1.5.0", "e4ff5d900280b2011b24d1ac1c4590986ee5add2ea644c9894e72213cf93ff0b", [:mix], []},
+  "mochiweb_html": {:hex, :mochiweb_html, "2.15.0", "d7402e967d7f9f2912f8befa813c37be62d5eeeddbbcb6fe986c44e01460d497", [:rebar3], []},
   "phoenix": {:hex, :phoenix, "1.1.4", "65809fba92eb94377372a5fb5a561197654bb8406e773cc47ca1a031bbe58019", [:mix], [{:poison, "~> 1.5 or ~> 2.0", [hex: :poison, optional: false]}, {:plug, "~> 1.0", [hex: :plug, optional: false]}, {:cowboy, "~> 1.0", [hex: :cowboy, optional: true]}]},
   "phoenix_ecto": {:hex, :phoenix_ecto, "3.0.0-rc.0", "c4a482a326dd61b7b4fd1a130cc560020fc6e5e1c1ec845b3cb528af93f829c8", [:mix], [{:poison, "~> 1.5 or ~> 2.0", [hex: :poison, optional: true]}, {:phoenix_html, "~> 2.5", [hex: :phoenix_html, optional: true]}, {:ecto, "~> 2.0.0-rc", [hex: :ecto, optional: false]}]},
   "phoenix_html": {:hex, :phoenix_html, "2.5.1", "631053f9e345fecb5c87d9e0ccd807f7266d27e2ee4269817067af425fd81ba8", [:mix], [{:plug, "~> 0.13 or ~> 1.0", [hex: :plug, optional: false]}]},
@@ -21,4 +23,4 @@
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []},
   "scrivener": {:git, "https://github.com/drewolson/scrivener", "edea64662564e9fbc9b5a8f50ed265c93d5dfa67", [branch: "v2"]},
   "scrivener_ecto": {:git, "https://github.com/drewolson/scrivener_ecto.git", "8b0b97c708f31cdf923e439a2759afe5f0c8bbb6", []},
-  "xain": {:hex, :xain, "0.5.3", "0696bf6db7697690f620adf59bd7ced4e4e9ae5eac3240a2a81eae3f93f5ddfe", [:mix], []}}
+  "xain": {:git, "https://github.com/smpallen99/xain.git", "8fe3dafa07e8244c2f4e859c6978148bd0fea6b5", []}}

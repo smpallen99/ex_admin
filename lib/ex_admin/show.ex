@@ -324,25 +324,27 @@ defmodule ExAdmin.Show do
 
   def build_association_filler_form(resource, true = _autocomplete, opts) do
     path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name], :add)
-    Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
-      Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
-      Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
-      Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
+    markup do
+      Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
+        Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
+        Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
+        Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
 
-      Xain.select class: "association_filler", multiple: "multiple", name: "selected_ids[]" do
-        option ""
+        Xain.select class: "association_filler", multiple: "multiple", name: "selected_ids[]" do
+          option ""
+        end
+        Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
       end
-      Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
-    end
 
-    associations_path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name])
-    script type: "text/javascript" do
-      text """
-      $(document).ready(function() {
-        ExAdmin.association_filler_opts.ajax.url = "#{associations_path}";
-        $(".association_filler").select2(ExAdmin.association_filler_opts);
-      });
-      """
+      associations_path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name])
+      script type: "text/javascript" do
+        text """
+        $(document).ready(function() {
+          ExAdmin.association_filler_opts.ajax.url = "#{associations_path}";
+          $(".association_filler").select2(ExAdmin.association_filler_opts);
+        });
+        """
+      end
     end
   end
 
