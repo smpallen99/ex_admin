@@ -3,28 +3,29 @@ defmodule ExAdmin.Paginate do
   use Xain
   import ExAdmin.Theme.Helpers
 
-
   def paginate(_, nil, _, _, _, _, _), do: []
   def paginate(link, page_number, page_size, total_pages, record_count, name) do
-    theme_module(Paginate).wrap_pagination1 fn -> 
-      if total_pages > 1 do
-        for item <- items(page_number, page_size, total_pages) do
-          theme_module(Paginate).build_item link, item
+    markup do
+      theme_module(Paginate).wrap_pagination1 fn ->
+        if total_pages > 1 do
+          for item <- items(page_number, page_size, total_pages) do
+            theme_module(Paginate).build_item link, item
+          end
         end
       end
-    end
-    theme_module(Paginate).wrap_pagination2 fn -> 
-      record_number = (page_number - 1) * page_size + 1
-      display_pagination name, (page_number - 1) * page_size + 1, page_size, 
-                         record_count, record_number + page_size - 1
+      theme_module(Paginate).wrap_pagination2 fn ->
+        record_number = (page_number - 1) * page_size + 1
+        display_pagination name, (page_number - 1) * page_size + 1, page_size,
+                           record_count, record_number + page_size - 1
+      end
     end
   end
 
-  defp display_pagination(name, _record_number, 1, record_count, _) do 
+  defp display_pagination(name, _record_number, 1, record_count, _) do
     pagination_information(name, record_count)
   end
-  defp display_pagination(name, record_number, _page_size, record_count, last_number) 
-      when last_number < record_count do 
+  defp display_pagination(name, record_number, _page_size, record_count, last_number)
+      when last_number < record_count do
     pagination_information(name, record_number, last_number, record_count)
   end
   defp display_pagination(name, record_number, _page_size, record_count, _) do
@@ -32,25 +33,31 @@ defmodule ExAdmin.Paginate do
   end
 
   def pagination_information(name, record_number, record_number, record_count) do
-    text "Displaying " <> Inflex.singularize("#{name}") <> " "
-    b "#{record_number}"
-    text " of "
-    b "#{record_count}"
-    text " in total"
-  end  
+    markup do
+      text "Displaying " <> Inflex.singularize("#{name}") <> " "
+      b "#{record_number}"
+      text " of "
+      b "#{record_count}"
+      text " in total"
+    end
+  end
 
   def pagination_information(name, record_number, last, record_count) do
-    text "Displaying #{name} "
-    b "#{record_number}&nbsp;-&nbsp;#{last}"
-    text " of "
-    b "#{record_count}"
-    text " in total"
+    markup do
+      text "Displaying #{name} "
+      b "#{record_number}&nbsp;-&nbsp;#{last}"
+      text " of "
+      b "#{record_count}"
+      text " in total"
+    end
   end
 
   def pagination_information(name, total) do
-    text "Displaying "
-    b "all #{total}"
-    text " #{name}"
+    markup do
+      text "Displaying "
+      b "all #{total}"
+      text " #{name}"
+    end
   end
 
 
@@ -60,7 +67,7 @@ defmodule ExAdmin.Paginate do
   def special_name(:last), do: "Last »"
 
   def window_size, do: 7
-  
+
   def items(page_number, page_size, total_pages) do
 
     prefix_links(page_number)
@@ -71,7 +78,7 @@ defmodule ExAdmin.Paginate do
   end
 
   def prefix_links(1), do: []
-  def prefix_links(page_number) do 
+  def prefix_links(page_number) do
     prev = if page_number > 1, do: page_number - 1, else: 1
     [first: 1, prev: prev]
   end
@@ -92,9 +99,9 @@ defmodule ExAdmin.Paginate do
     aftr = cond do
       before + half >= total_pages -> total_pages
       page_number + window_size >= total_pages -> total_pages
-      true -> page_number + half 
+      true -> page_number + half
     end
-    before_links = if before > 0 do 
+    before_links = if before > 0 do
       for x <- before..(page_number - 1), do: {:page, x}
     else
       []
@@ -110,7 +117,7 @@ defmodule ExAdmin.Paginate do
   end
 
   def postfix_links(acc, page_number, total_pages) do
-    if page_number == total_pages do 
+    if page_number == total_pages do
       acc
     else
       acc ++ [next: page_number + 1, last: total_pages]
