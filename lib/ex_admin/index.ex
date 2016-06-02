@@ -125,13 +125,8 @@ defmodule ExAdmin.Index do
   @doc """
   The index macro is used to customize the index page of a resource.
   """
-  defmacro index(opts \\ [], do: block) do
-
-    contents = quote do
-      unquote(block)
-    end
-
-    quote location: :keep, bind_quoted: [options: escape(opts), contents: escape(contents)] do
+  defmacro index(opts \\ [], do: contents) do
+    quote location: :keep do
       def index_view(var!(conn), page, scope_counts) do
         import ExAdmin.Register, except: [actions: 1]
         import ExAdmin.Form, except: [actions: 1]
@@ -141,7 +136,7 @@ defmodule ExAdmin.Index do
         var!(selectable_column, ExAdmin.Index) = nil
         var!(actions, ExAdmin.Index) = nil
         var!(cell, ExAdmin.Index) = nil
-        opts = unquote(options)
+        opts = unquote(opts)
         unquote(contents)
 
         selectable = case var!(selectable_column, ExAdmin.Index) do

@@ -45,19 +45,13 @@ defmodule ExAdmin.Show do
 
   @doc """
   Customize the show page.
-
   """
-  defmacro show(resource, [do: block]) do
-    contents = quote do
-      unquote(block)
-    end
-
-    quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
+  defmacro show(resource, [do: contents]) do
+    quote location: :keep do
       def show_view(var!(conn), unquote(resource) = var!(resource)) do
         import ExAdmin.Utils
         import ExAdmin.ViewHelpers
-        _ = var!(resource)
-        #var!(query_options) = []
+
         markup safe: true do
           unquote(contents)
         end
@@ -79,13 +73,7 @@ defmodule ExAdmin.Show do
       var!(rows, ExAdmin.Show) = []
       unquote(block)
       rows = var!(rows, ExAdmin.Show) |> Enum.reverse
-      name = unquote(name)
-      schema = case name do
-        nil ->
-          %{rows: rows}
-        name ->
-          %{name: name, rows: rows}
-      end
+      schema = %{name: unquote(name), rows: rows}
       ExAdmin.Table.attributes_table var!(conn), var!(resource), schema
     end
   end
