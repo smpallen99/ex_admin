@@ -3,7 +3,7 @@ defmodule ExAdminTest.ControllerTest do
   require Logger
 
   import TestExAdmin.TestHelpers
-  alias TestExAdmin.{Noid, User, Product}
+  alias TestExAdmin.{Noid, User, Product, Simple}
 
   @wrong_resource_id 100500
   @wrong_endpoint "/admin/not_existing"
@@ -18,6 +18,9 @@ defmodule ExAdminTest.ControllerTest do
     insert_noid(user_id: user.id, name: "controller 1")
     conn =  get conn(), admin_resource_path(Noid, :index)
     assert html_response(conn, 200) =~ ~r/Noids/
+    assert conn.resp_body =~ ~r/View/
+    assert conn.resp_body =~ ~r/Edit/
+    assert conn.resp_body =~ ~r/Delete/
   end
 
   test "lists noids with user w/o name" do
@@ -110,4 +113,9 @@ defmodule ExAdminTest.ControllerTest do
     assert conn.assigns[:answer] == 42
   end
 
+  test "new form" do
+    conn = get conn(), admin_resource_path(Simple, :new), %{}
+    assert html_response(conn, 200) =~ ~r/New Simple/
+    refute Floki.find(conn.resp_body, "input#simple_name") == []
+  end
 end

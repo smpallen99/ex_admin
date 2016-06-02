@@ -209,7 +209,7 @@ defmodule ExAdmin do
   end
 
   @doc false
-  def get_title_actions(%Plug.Conn{private: _private, path_info: path_info} = conn) do
+  def get_title_actions(%Plug.Conn{private: _private, path_info: _path_info} = conn) do
     defn = conn.assigns.defn
     fun = defn |> Map.get(:title_actions)
     fun.(conn, defn)

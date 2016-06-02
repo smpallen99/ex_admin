@@ -151,7 +151,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
       []
     end
 
-    fieldset ".inputs.has_many_fields" do
+    html = fieldset ".inputs.has_many_fields" do
       ol do
         humanize(field_name) |> Inflex.singularize |> h3
 
@@ -207,7 +207,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
               end
           end
         end
-        unless res do
+        unless Schema.get_id(res) do
           li do
             a ".button Delete", href: "#",
               onclick: ~S|$(this).closest(\".has_many_fields\").remove(); return false;|
@@ -215,7 +215,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
         end
       end
     end
-    inx
+    {inx, html}
   end
 
   def theme_button(content, attrs) do

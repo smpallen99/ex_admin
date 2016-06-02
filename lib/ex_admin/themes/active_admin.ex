@@ -27,12 +27,14 @@ defmodule ExAdmin.Theme.ActiveAdmin do
 
   def wrap_item_type(_type, label, ext_name, contents, error, required) do
     error = get_form_error_class(error)
-    label(".col-sm-2.control-label", for: ext_name) do
-      text humanize(label)
-      required_abbr required
-    end
-    div ".col-sm-10#{error}" do
-      contents.(ext_name)
+    markup do
+      label(".col-sm-2.control-label", for: ext_name) do
+        text humanize(label)
+        required_abbr required
+      end
+      div ".col-sm-10#{error}" do
+        contents.(ext_name)
+      end
     end
   end
 end

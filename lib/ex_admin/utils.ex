@@ -8,6 +8,9 @@ defmodule ExAdmin.Utils do
   if @module do
     @endpoint Module.concat([@module, "Endpoint"])
     @router Module.concat([@module, "Router", "Helpers"])
+  else
+    @endpoint nil
+    @router nil
   end
 
   @doc false

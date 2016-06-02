@@ -22,12 +22,13 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
 
         build_hidden_block(conn, mode)
         div ".box-body" do
-          scripts = build_main_block(conn, resource, model_name, items)
-          |> build_scripts
+          build_main_block(conn, resource, model_name, items)
+          # |> build_scripts
+          # TODO: Need to add support for scripts here
         end
         build_actions_block(conn, model_name, mode)
       end
-      put_script_block(scripts)
+      # put_script_block(scripts)
       put_script_block(script_block)
     end
   end
@@ -37,8 +38,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   end
 
   @doc false
-  # def theme_wrap_item(type, ext_name, label, hidden, ajax, error, contents, _as, required \\ false)
-  def theme_wrap_item(_type, ext_name, label, hidden, ajax, _error, contents, as, required) when as in [:check_boxes, :radio] do
+  def theme_wrap_item(_type, ext_name, label, hidden, ajax, _error, contents, as, _required) when as in [:check_boxes, :radio] do
     div ".form-group", hidden do
       fieldset ".choices" do
         legend ".label" do
@@ -115,10 +115,11 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   end
 
   def build_inputs_has_many(_field_name, _human_label, fun) do
-    div ".input" do
-      res = fun.()
+    {contents, html} = fun.()
+    new_html = div ".input" do
+      html
     end
-    res
+    {contents, new_html}
   end
 
   def has_many_insert_item(html, new_record_name_var) do
@@ -154,7 +155,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
       []
     end
 
-    div ".box.has_many_fields" do
+    html = div ".box.has_many_fields" do
       div ".box-header.with-border" do
         title = humanize(field_name) |> Inflex.singularize
         h3 ".box-title #{title}"
@@ -220,7 +221,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
               end
           end
         end
-        unless res do
+        unless Schema.get_id(res) do
           div ".form-group" do
             a ".btn.btn-default Delete", href: "#",
               onclick: ~S|$(this).closest(\".has_many_fields\").remove(); return false;|
@@ -228,7 +229,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
         end
       end
     end
-    inx
+    {inx, html}
   end
 
   def theme_button(content, attrs) do

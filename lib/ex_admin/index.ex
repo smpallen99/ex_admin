@@ -93,12 +93,14 @@ defmodule ExAdmin.Index do
 
       index as: :grid, default: true do
         cell fn(p) ->
-          div do
-            a href: admin_resource_path(p, :show) do
-              img(src: ExAdminDemo.Image.url({p.image_file_name, p}, :thumb), height: 100)
+          markup do
+            div do
+              a href: admin_resource_path(p, :show) do
+                img(src: ExAdminDemo.Image.url({p.image_file_name, p}, :thumb), height: 100)
+              end
             end
+            a truncate(p.title), href: admin_resource_path(p, :show)
           end
-          a truncate(p.title), href: admin_resource_path(p, :show)
         end
       end
 

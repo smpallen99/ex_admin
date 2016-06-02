@@ -41,18 +41,20 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
     columns = opts[:column_list]
     page = opts[:page]
     order = opts[:order]
-    div ".box-body.table-responsive.no-padding" do
-      div ".paginated_collection" do
-        table(".table-striped.index.table.index_table") do
-          ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: opts[:href],
-            sort: "desc", order: order, fields: opts[:fields], page: page,
-            filter: build_filter_href("", conn.params["q"]),
-            selectable_column: selectable})
-          build_table_body(conn, resources, columns, %{selectable_column: selectable})
-        end # table
+    markup do
+      div ".box-body.table-responsive.no-padding" do
+        div ".paginated_collection" do
+          table(".table-striped.index.table.index_table") do
+            ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: opts[:href],
+              sort: "desc", order: order, fields: opts[:fields], page: page,
+              filter: build_filter_href("", conn.params["q"]),
+              selectable_column: selectable})
+            build_table_body(conn, resources, columns, %{selectable_column: selectable})
+          end # table
+        end
       end
+      do_footer(conn, opts)
     end
-    do_footer(conn, opts)
   end
 
   def paginated_collection_grid(conn, opts) do
@@ -64,9 +66,9 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
           div ".container-fluid" do
             col_width = Kernel.div 12, columns
             Enum.chunk(page.entries, columns, columns, [nil])
-            |> Enum.each(fn(list) ->
+            |> Enum.map(fn(list) ->
               div ".row" do
-                Enum.each(list, fn(item) ->
+                Enum.map(list, fn(item) ->
                   div ".col-md-#{col_width}.col-sm-#{col_width * 2}.col-xs-12" do
                     if item do
                       opts[:cell].(item)
@@ -121,7 +123,6 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
   def batch_action_form conn, enabled?, scopes, name, scope_counts, fun do
     msg = "Are you sure you want to delete these #{name}? You wont be able to undo this."
     scopes = unless Application.get_env(:ex_admin, :scopes_index_page, true), do: [], else: scopes
-    # enabled? = false
     if enabled? or scopes != [] do
       form "#collection_selection", action: "/admin/#{name}/batch_action", method: :post, "accept-charset": "UTF-8" do
         div style: "margin:0;padding:0;display:inline" do

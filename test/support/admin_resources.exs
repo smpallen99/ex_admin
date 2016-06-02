@@ -52,11 +52,23 @@ defmodule TestExAdmin.ExAdmin.User do
         end
       end
     end
+    form user do
+      inputs "User Details" do
+        input user, :name
+        input user, :email
+      end
+
+      inputs "Roles" do
+        inputs :roles, as: :check_boxes, collection: TestExAdmin.Role.all
+      end
+
+    end
     query do
-      %{all: [preload: [:noids]]}
+      %{all: [preload: [:noids, :roles]]}
     end
   end
 end
+
 defmodule TestExAdmin.ExAdmin.Product do
   use ExAdmin.Register
   alias TestExAdmin.Repo
@@ -74,6 +86,33 @@ defmodule TestExAdmin.ExAdmin.Product do
       end
       def do_after(conn, _params, _resource, :update) do
         Plug.Conn.assign(conn, :answer, 42)
+      end
+    end
+  end
+end
+defmodule TestExAdmin.ExAdmin.Simple do
+  use ExAdmin.Register
+
+  register_resource TestExAdmin.Simple do
+  end
+end
+
+defmodule TestExAdmin.ExAdmin.Contact do
+  use ExAdmin.Register
+
+  register_resource TestExAdmin.Contact do
+
+    form contact do
+      inputs do
+        input contact, :first_name
+        input contact, :last_name
+      end
+
+      inputs "Phone Numbers" do
+        has_many contact, :phone_numbers, fn(p) ->
+          input p, :label, collection: TestExAdmin.PhoneNumber.labels
+          input p, :number
+        end
       end
     end
   end
