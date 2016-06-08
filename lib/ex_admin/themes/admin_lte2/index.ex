@@ -79,8 +79,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
             end)
           end
         end # .index_content
-      end
-      do_footer(conn, opts)
+      end <> do_footer(conn, opts)
     end
   end
 
@@ -113,11 +112,12 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
       end
       [link | acc]
     end)
-    |> case do
-      [] -> []
-      list ->
-        [{"Actions", list}]
-    end
+    |> Enum.reverse
+    #|> case do
+    #  [] -> []
+    #  list ->
+    #    [{"Actions", list}]
+    #end
   end
 
   def batch_action_form conn, enabled?, scopes, name, scope_counts, fun do
