@@ -16,11 +16,11 @@ defmodule ExAdmin.HelpersTest do
   test "build_field Actions" do
     resource = %Simple{name: "N", description: "D", id: 1}
     conn = Plug.Conn.assign(%Plug.Conn{}, :theme, ExAdmin.Theme.AdminLte2)
-    expected = "<td class='td-actions'><a href='/admin/simples/1' class=" <>
-      "'member_link delete_link' data-confirm='Are you sure you want to delete this?'" <>
-      " data-remote='true' data-method='delete' rel='nofollow'>Delete</a>" <>
+    expected = "<td class='td-actions'><a href='/admin/simples/1' class='member_link view_link'>View</a>" <>
       "<a href='/admin/simples/1/edit' class='member_link edit_link'>Edit</a>" <>
-      "<a href='/admin/simples/1' class='member_link view_link'>View</a></td>"
+      "<a href='/admin/simples/1' class='member_link delete_link'" <>
+      " data-confirm='Are you sure you want to delete this?'" <>
+      " data-remote='true' data-method='delete' rel='nofollow'>Delete</a></td>"
 
     res = Helpers.build_field(resource, conn, {"Actions", %{fun: fn(res) ->
       ExAdmin.Index.build_index_links(conn, res, []) end}},

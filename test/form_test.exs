@@ -11,7 +11,7 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control string" do
-    res = ExAdmin.Form.build_control(:string, %Simple{}, %{}, "simple", :name, "simple_name", nil)
+    res = ExAdmin.Form.build_control(:string, %Simple{}, %{}, "simple", :name, "simple_name")
     assert res =~ "<input"
     assert res =~ "id='simple_name'"
     assert res =~ "type='text'"
@@ -19,7 +19,7 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control DateTime" do
-    res = ExAdmin.Form.build_control(Ecto.DateTime, %Simple{inserted_at: Ecto.DateTime.utc}, %{}, "simple", :inserted_at, "simple_inserted_at", nil)
+    res = ExAdmin.Form.build_control(Ecto.DateTime, %Simple{inserted_at: Ecto.DateTime.utc}, %{}, "simple", :inserted_at, "simple_inserted_at")
     select = Floki.find(res, "select[name='simple[inserted_at][year]']")
     refute select == []
     options = Floki.find(res, "select[name='simple[inserted_at][year]'] option")
@@ -32,7 +32,7 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control Date" do
-    res = ExAdmin.Form.build_control(Ecto.Date, %Simple{inserted_at: Ecto.DateTime.utc}, %{}, "simple", :inserted_at, "simple_inserted_at", nil)
+    res = ExAdmin.Form.build_control(Ecto.Date, %Simple{inserted_at: Ecto.DateTime.utc}, %{}, "simple", :inserted_at, "simple_inserted_at")
     select = Floki.find(res, "select[name='simple[inserted_at][year]']")
     refute select == []
     options = Floki.find(res, "select[name='simple[inserted_at][month]'] option")
@@ -40,7 +40,7 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control Time" do
-    res = ExAdmin.Form.build_control(Ecto.Time, %Simple{inserted_at: Ecto.DateTime.utc}, %{}, "simple", :inserted_at, "simple_inserted_at", nil)
+    res = ExAdmin.Form.build_control(Ecto.Time, %Simple{inserted_at: Ecto.DateTime.utc}, %{}, "simple", :inserted_at, "simple_inserted_at")
     select = Floki.find(res, "select[name='simple[inserted_at][hour]']")
     refute select == []
     options = Floki.find(res, "select[name='simple[inserted_at][min]'] option")
@@ -48,7 +48,7 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control :boolean" do
-    res = ExAdmin.Form.build_control(:boolean, %User{}, %{}, "user", :active, "user_active", nil)
+    res = ExAdmin.Form.build_control(:boolean, %User{}, %{}, "user", :active, "user_active")
     checkbox = Floki.find(res, "input#user_active[type=checkbox]")
     assert Floki.attribute(checkbox, "name") == ["user[active]"]
   end
