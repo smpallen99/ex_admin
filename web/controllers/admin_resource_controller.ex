@@ -4,6 +4,7 @@ defmodule ExAdmin.AdminResourceController do
   require Logger
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
+  alias ExAdmin.Authorization
   require IEx
 
   plug :set_theme
@@ -39,7 +40,10 @@ defmodule ExAdmin.AdminResourceController do
   end
   defp load_resource(conn, action, defn, resource_id) do
     model = defn.__struct__
-    resource = model.run_query(repo, defn, action, resource_id)
+    query = model.run_query(repo, defn, action, resource_id)
+    resource =
+    Authorization.authorize_query(defn.resource_model.__struct__, conn, query, action, resource_id)
+    |> ExAdmin.Query.execute_query(repo, action, resource_id)
 
     if resource == nil do
       raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__
@@ -129,7 +133,11 @@ defmodule ExAdmin.AdminResourceController do
 
     page = case conn.assigns[:page] do
       nil ->
-        model.run_query(repo, defn, :index, params |> Map.to_list)
+        id = params |> Map.to_list
+        query = model.run_query(repo, defn, :index, id)
+        Authorization.authorize_query(defn.resource_model.__struct__, conn, query, :index, id)
+        |> ExAdmin.Query.execute_query(repo, :index, id)
+
       page ->
         page
     end
@@ -202,8 +210,14 @@ defmodule ExAdmin.AdminResourceController do
 
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
-        conn = put_flash(conn, :inline_error, changeset.errors)
+        errors = if function_exported?(defn.resource_model, :get_errors, 1) do
+          apply(defn.resource_model, :get_errors, [changeset])
+        else
+          changeset.errors
+        end
+        conn = put_flash(conn, :inline_error, errors)
         |> assign(:ea_required, defn.resource_model.changeset(resource).required)
+        |> assign(:changeset, changeset)
         contents = do_form_view model, conn,
           ExAdmin.Changeset.get_data(changeset), params
         conn |> render("admin.html", html: contents, filters: nil)
@@ -223,8 +237,14 @@ defmodule ExAdmin.AdminResourceController do
     changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
-        conn = put_flash(conn, :inline_error, changeset.errors)
+        errors = if function_exported?(defn.resource_model, :get_errors, 1) do
+          apply(defn.resource_model, :get_errors, [changeset])
+        else
+          changeset.errors
+        end
+        conn = put_flash(conn, :inline_error, errors)
         |> assign(:ea_required, defn.resource_model.changeset(resource).required)
+        |> assign(:changeset, changeset)
         contents = do_form_view model, conn,
           ExAdmin.Changeset.get_data(changeset), params
         conn |> render("admin.html", html: contents, filters: nil)
@@ -294,7 +314,10 @@ defmodule ExAdmin.AdminResourceController do
   def csv(conn, defn, params) do
     model = defn.__struct__
 
-    csv = case model.run_query(repo, defn, :csv) do
+    query = model.run_query(repo, defn, :csv)
+    csv = Authorization.authorize_query(defn.resource_model.__struct__, conn, query, :csv, nil)
+    |> ExAdmin.Query.execute_query(repo, :csv, nil)
+    |> case  do
       [] -> []
       [resource | resources] ->
         ExAdmin.View.Adapter.build_csv(resource, resources)
@@ -311,12 +334,21 @@ defmodule ExAdmin.AdminResourceController do
   def nested(conn, defn, params) do
     model = defn.__struct__
 
+    resource = case conn.assigns.resource do
+      [res] -> res
+      other -> other
+    end
     items = apply(model, :get_blocks, [conn, defn.resource_model.__struct__, params])
     block = deep_find(items, String.to_atom(params[:field_name]))
 
-    resources = block[:opts][:collection].(conn, defn.resource_model.__struct__)
+    resources = case block[:opts][:collection] do
+      list when is_list(list) ->
+        list
+      fun when is_function(fun) ->
+        fun.(conn, defn.resource_model.__struct__)
+    end
 
-    contents = apply(model, :ajax_view, [conn, params, resources, block])
+    contents = apply(model, :ajax_view, [conn, params, resource, resources, block])
 
     send_resp(conn, conn.status || 200, "text/javascript", contents)
   end

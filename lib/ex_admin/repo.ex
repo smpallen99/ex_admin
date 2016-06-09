@@ -263,6 +263,8 @@ defmodule ExAdmin.Repo do
   #
   def do_attributes_for(resource, model, _id, params, inx) do
     {assoc_model, _} = get_assoc_model resource, model
+    require IEx
+    IEx.pry
     assoc_resource = repo.get assoc_model, params[:id]
 
     cs = assoc_model.changeset(assoc_resource, params)

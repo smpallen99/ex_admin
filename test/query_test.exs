@@ -12,6 +12,7 @@ defmodule ExAdmin.QueryTest do
     query_opts = %{all: [preload: []]}
     res = ExAdmin.Query.run_query(TestExAdmin.Noid,  TestExAdmin.Repo, %TestExAdmin.ExAdmin.Noid{},
       :show, "query1", query_opts)
+    |> ExAdmin.Query.execute_query(TestExAdmin.Repo, :show, "query1")
     assert res.name == "query1"
   end
 

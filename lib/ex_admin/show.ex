@@ -30,7 +30,6 @@ defmodule ExAdmin.Show do
         end
 
   """
-  import ExAdmin.DslUtils
   import ExAdmin.Helpers
   import ExAdmin.Repo, only: [repo: 0]
 
@@ -114,13 +113,13 @@ defmodule ExAdmin.Show do
 
   * `contents` - Add HTML to a panel
   """
-  defmacro panel(name \\ "", do: block) do
+  defmacro panel(name \\ "", opts \\ [], do: block) do
     quote do
       var!(elements, ExAdmin.Show) = []
       unquote(block)
       ExAdmin.Table.panel(
         var!(conn),
-        [ {:name, unquote(name)} | var!(elements, ExAdmin.Show) ]
+        [ {:name, unquote(name)}, {:opts, unquote(opts)} | var!(elements, ExAdmin.Show) ], unquote(opts)
       )
     end
   end

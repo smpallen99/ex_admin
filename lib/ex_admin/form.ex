@@ -156,7 +156,8 @@ defmodule ExAdmin.Form do
       end
   """
 
-  require Logger
+  use ExAdmin.Adminlog
+
   import ExAdmin.Utils
   import ExAdmin.Helpers
   import ExAdmin.DslUtils
@@ -214,20 +215,16 @@ defmodule ExAdmin.Form do
         var!(input_blocks, ExAdmin.Form) |> Enum.reverse
       end
 
-      def ajax_view(conn, params, resources, block) do
+      def ajax_view(conn, params, resource, resources, block) do
         defn = conn.assigns.defn
-        resource = defn.resource_model.__struct__
         field_name = String.to_atom params[:field_name]
         model_name = model_name(resource)
         ext_name = ext_name model_name, field_name
-        if is_function(block[:opts][:collection]) do
-          resources = block[:opts][:collection].(conn, resource)
-        end
         view = markup safe: true do
-          ExAdmin.Form.Fields.input_collection(resource, resources, model_name, field_name, params[:id1], params[:nested2], block, conn.params)
+          ExAdmin.Form.Fields.ajax_input_collection(resource, resources, model_name, field_name, params[:id1], params[:nested2], block, conn.params)
         end
 
-        ~s/$('##{ext_name}-update').html("#{escape_javascript(view)}");/
+        ~s/$('##{ext_name}_input').html("#{escape_javascript(view)}");/
       end
     end
   end
@@ -437,7 +434,7 @@ defmodule ExAdmin.Form do
   # Functions
 
   defp build_item(resource, defn, name) do
-     #Logger.warn "build_item 10...."
+    Adminlog.debug "build_item 1 ...."
     case translate_field defn, name do
       field when field == name ->
         %{type: :input, resource: resource, name: name, opts: %{}}
@@ -562,11 +559,15 @@ defmodule ExAdmin.Form do
       l when l in [:none, false] ->  {"", @hidden_style}
       l -> {l, display_style}
     end
-    error = if error in [nil, [], false], do: "", else: "error "
+    {error, hidden} =
+      if error in [nil, [], false] do
+        {"", hidden}
+      else
+        {"error ", []}
+      end
 
-    theme_module(Form).theme_wrap_item(field_type(resource, field_name), ext_name, label, hidden,
-      ajax, error, contents, as, required)
-    # ext_name
+    {theme_module(Form).theme_wrap_item(field_type(resource, field_name), ext_name, label, hidden,
+      ajax, error, contents, as, required), ext_name}
   end
 
 
@@ -595,6 +596,7 @@ defmodule ExAdmin.Form do
 
   @doc false
   def build_item(_conn, %{type: :script, contents: contents}, _resource, _model_name, _errors) do
+    Adminlog.debug "build_item 2:"
     script type: "javascript" do
       text "\n" <> contents <> "\n"
     end
@@ -606,12 +608,14 @@ defmodule ExAdmin.Form do
   Generate a select box for a belongs_to control.
   """
   def build_item(conn, %{type: :input, name: field_name, resource: _resource,
-       opts: %{collection: collection}} = item, resource, model_name, errors) do
+       opts: %{collection: collection}} = item, resource, model_name, error) do
 
-    # IO.puts "build_item 3: #{inspect field_name}"
+    Adminlog.debug "build_item 3: #{inspect field_name}"
+
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
+
     module = resource.__struct__
     errors_field_name = if field_name in module.__schema__(:associations) do
       Map.get module.__schema__(:association, field_name), :owner_key
@@ -620,21 +624,21 @@ defmodule ExAdmin.Form do
     end
     required = if errors_field_name in (conn.assigns[:ea_required] || []),
       do: true, else: false
-    errors = get_errors(errors, errors_field_name)
+    errors = get_errors(error, errors_field_name)
 
     label = Map.get item[:opts], :label, field_name
     onchange = Map.get item[:opts], :change
 
     binary_tuple = binary_tuple?(collection)
 
-    id = wrap_item(resource, field_name, model_name, label, errors, item[:opts],
+    {html, id} = wrap_item(resource, field_name, model_name, label, errors, item[:opts],
                                               conn.params, required, fn(ext_name) ->
       item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
       markup do
         if binary_tuple do
           build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name)
         else
-          input_collection(resource, collection, model_name, field_name, nil, nil, item, conn.params)
+          input_collection(resource, collection, model_name, field_name, nil, nil, item, conn.params, error)
         end
         build_errors(errors)
       end
@@ -662,20 +666,30 @@ defmodule ExAdmin.Form do
           end
 
           control_id = "#{model_name}_#{update}_input"
+          get_cmd = if resource.id do
+            "$.get('#{route_path}/#{resource.id}/#{target}/'+$(this).val()+'/#{nested}"
+          else
+            "$.get('#{route_path}/#{target}/'+$(this).val()+'/#{nested}"
+          end
           script = "$('##{control_id}').show();\n" <>
             extra <>
             "console.log('show #{control_id}');\n" <>
-            "$.get('#{route_path}/#{target}/'+$(this).val()+'/#{nested}" <>
+             get_cmd <>
             "/?field_name=#{update}#{param_str}&format=js');\n"
 
           {:change, %{id: id <> "_id", script: script}}
         end
       _ -> nil
     end
-    if onchange, do: value
+    if onchange do
+      {html, value}
+    else
+      html
+    end
   end
 
   def build_item(conn, %{type: :actions, items: items}, resource, model_name, errors) do
+    Adminlog.debug "build_item 4: #{inspect model_name}"
     fieldset ".actions" do
       for i <- items do
         build_item(conn, i, resource, model_name, errors)
@@ -684,27 +698,30 @@ defmodule ExAdmin.Form do
   end
 
   def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors) when is_binary(content) do
+    Adminlog.debug "build_item 5."
     text content
   end
   def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors) do
+    Adminlog.debug "build_item 6."
     text elem(content, 1)
   end
 
   def build_item(conn, %{type: :input, resource: _resource, name: field_name, opts: opts},
        resource, model_name, errors) do
-    # IO.puts "build_item 4: #{inspect field_name}"
+    Adminlog.debug "build_item 7: #{inspect field_name}"
     errors = get_errors(errors, field_name)
     label = get_label(field_name, opts)
     required = if field_name in (conn.assigns[:ea_required] || []), do: true, else: false
-    wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, required, fn(ext_name) ->
+    {html, _id} = wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, required, fn(ext_name) ->
       resource.__struct__.__schema__(:type, field_name)
       |> build_control(resource, opts, model_name, field_name, ext_name, errors)
     end)
+    html
   end
 
   def build_item(conn, %{type: :has_many, resource: _resource, name: field_name,
       opts: %{fun: fun}}, resource, model_name, errors) do
-    # IO.puts "build_item 5: #{inspect field_name}"
+    Adminlog.debug "build_item 8: #{inspect field_name}"
     field_field_name = "#{field_name}_attributes"
     human_label = "#{humanize(field_name) |> Inflex.singularize}"
     new_record_name_var = new_record_name field_name
@@ -749,6 +766,7 @@ defmodule ExAdmin.Form do
   def build_item(conn, %{type: :inputs, name: name, opts: %{collection: collection} = opts},
       resource, model_name, errors) when is_atom(name) do
 
+    Adminlog.debug "build_item 9: #{inspect name}"
     if is_function(collection) do
       collection = collection.(conn, resource)
     end
@@ -787,9 +805,9 @@ defmodule ExAdmin.Form do
 
   require IEx
   @doc false
-  def build_item(conn, %{type: :inputs, name: _field_name} = item, resource, model_name, errors) do
+  def build_item(conn, %{type: :inputs, name: field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
-    # IO.puts "build_item 7: #{inspect _field_name}"
+    Adminlog.debug "build_item 10: #{inspect field_name}"
     theme_module(conn, Form).form_box item, opts, fn ->
       theme_module(conn, Form).theme_build_inputs item, opts, fn ->
         for inpt <- item[:inputs] do
@@ -884,7 +902,6 @@ defmodule ExAdmin.Form do
         markup do
           date_builder(b, opts)
           span ".date-time-separator"
-          # text " &mdash; "
           time_builder(b, opts)
         end
       end

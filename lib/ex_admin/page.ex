@@ -5,7 +5,6 @@ defmodule ExAdmin.Page do
 
   """
 
-  import ExAdmin.DslUtils
   import ExAdmin.Theme.Helpers
 
   defmacro __using__(_) do
@@ -51,7 +50,7 @@ defmodule ExAdmin.Page do
         end
       end
   """
-  defmacro content(opts \\ [], do: block) do
+  defmacro content(_opts \\ [], do: block) do
     quote location: :keep do
       def page_view(var!(conn)) do
         import Kernel, except: [div: 2, to_string: 1]

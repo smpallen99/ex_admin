@@ -7,11 +7,13 @@ defmodule ExAdmin.Theme.AdminLte2.Table do
   @table_opts [class: "table"]
 
   def theme_panel(conn, schema) do
-    div(".box") do
-      div ".box-header.with-border" do
-        h3(schema[:name] || "")
+    div(get_in(schema, [:opts, :box_style]) || ".box") do
+      unless get_in schema, [:opts, :no_header] do
+        div get_in(schema, [:opts, :box_header_style]) || ".box-header.with-border" do
+          h3(Keyword.get schema, :name, "")
+        end
       end
-      div(".box-body") do
+      div(get_in(schema, [:opts, :box_body_style]) || ".box-body") do
         do_panel(conn, schema, @table_opts)
       end
     end

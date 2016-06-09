@@ -5,7 +5,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   import ExAdmin.Utils
   import ExAdmin.Form
   require Integer
-  require Logger
+  use ExAdmin.Adminlog
   import ExAdmin.Helpers
   alias ExAdmin.Schema
 
@@ -19,16 +19,21 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
           id: "new_#{model_name}", method: :post, enctype: "multipart/form-data", novalidate: :novalidate  do
 
         resource = setup_resource(resource, params, model_name)
+        {html, scripts_list} =
+          build_main_block(conn, resource, model_name, items)
+          |> Enum.reduce({[], []}, fn({h, o}, {acc_h, acc_o}) ->
+            {[h | acc_h], o ++ acc_o}
+          end)
+        html = Enum.reverse html
 
+        scripts = build_scripts(scripts_list)
         build_hidden_block(conn, mode)
         div ".box-body" do
-          build_main_block(conn, resource, model_name, items)
-          # |> build_scripts
-          # TODO: Need to add support for scripts here
+          html
         end
         build_actions_block(conn, model_name, mode)
       end
-      # put_script_block(scripts)
+      put_script_block(scripts)
       put_script_block(script_block)
     end
   end
@@ -39,16 +44,15 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
 
   @doc false
   def theme_wrap_item(_type, ext_name, label, hidden, ajax, _error, contents, as, _required) when as in [:check_boxes, :radio] do
-    div ".form-group", hidden do
-      fieldset ".choices" do
-        legend ".label" do
-          label humanize(label)
-        end
+    Adminlog.debug "theme_wrap_item 1 #{ext_name}"
+    div ".form-group##{ext_name}_input", hidden do
+      label ".col-sm-2.control-label", for: "#{ext_name}" do
+        humanize(label)
+      end
+      div ".col-sm-10" do
         if ajax do
-          div "##{ext_name}-update" do
-            if hidden == [] do
-              contents.(ext_name)
-            end
+          if hidden == [] do
+            contents.(ext_name)
           end
         else
           contents.(ext_name)
@@ -67,14 +71,15 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   """
 
   def theme_wrap_item(type, ext_name, label, hidden, ajax, error, contents, _as, required) do
-    div ".form-group", hidden do
+    Adminlog.debug "theme_wrap_item 2 #{inspect ext_name}"
+    div ".form-group##{ext_name}_input", hidden do
       if ajax do
-        label(".col-sm-2.control-label", for: ext_name) do
-          text humanize(label)
-          required_abbr(required)
-        end
-        div "##{ext_name}-update" do
-          if hidden == [] do
+        if hidden == [] do
+          markup do
+            label(".col-sm-2.control-label", for: ext_name) do
+              text humanize(label)
+              required_abbr(required)
+            end
             div ".col-sm-10" do
               contents.(ext_name)
             end
@@ -128,16 +133,24 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   end
 
   def form_box(item, _opts, fun) do
-    div ".box.box-primary" do
+    {html, changes} = Enum.reduce(fun.(), {"", []}, fn(item, {htmls, chgs}) ->
+      case item do
+        bin when is_binary(bin) -> {htmls <> bin, chgs}
+        {bin, change} -> {htmls <> bin, [change | chgs]}
+      end
+    end)
+    changes = Enum.reverse changes
+    res = div ".box.box-primary" do
       div ".box-header.with-border" do
         h3 ".box-title" do
           text item[:name]
         end
       end
       div ".box-body" do
-        fun.()
+        html
       end
     end
+    {res, changes}
   end
 
   # TODO: Refactor some of this back into ExAdmin.Form

@@ -17,7 +17,11 @@ defmodule ExAdmin.Query do
   def run_query(resource_model, repo, defn, action, id, query_opts) do
     resource_model
     |> build_query(query_opts, action, id, defn)
-    |> paginate(repo, action, id)
+    # |> paginate(repo, action, id)
+  end
+
+  def execute_query(query, repo, action, id) do
+    paginate(query, repo, action, id)
   end
 
   @doc false

@@ -13,3 +13,12 @@ defimpl ExAdmin.Authentication, for: Any do
   def session_path(_, _), do: ""
 end
 
+defprotocol ExAdmin.Authorization do
+  @fallback_to_any true
+  def authorize_query(schema, conn, query, action, id)
+end
+
+defimpl ExAdmin.Authorization, for: Any do
+  def authorize_query(_, _, query, _, _), do: query
+end
+

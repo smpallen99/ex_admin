@@ -45,7 +45,7 @@ defmodule ExAdmin.Table do
   def field_header({field_name, _opts}), do: field_header(field_name)
   def field_header(field_name), do: th(humanize field_name)
 
-  def panel(conn, schema) do
+  def panel(conn, schema, _opts \\ []) do
     theme_module(conn, Table).theme_panel(conn, schema)
   end
 
