@@ -692,8 +692,8 @@ defmodule ExAdmin.Form do
     label = get_label(field_name, opts)
     required = if field_name in (conn.assigns[:ea_required] || []), do: true, else: false
     wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, required, fn(ext_name) ->
-      resource.__struct__.__schema__(:type, field_name)
-      |> build_control(resource, opts, model_name, field_name, ext_name, errors)
+      field_type = opts[:type] || resource.__struct__.__schema__(:type, field_name)
+      build_control(field_type, resource, opts, model_name, field_name, ext_name, errors)
     end)
   end
 
