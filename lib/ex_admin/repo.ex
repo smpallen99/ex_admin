@@ -93,8 +93,7 @@ defmodule ExAdmin.Repo do
           end
         end
         resource
-      {:error, cs} ->
-        {:error, add_constraints_to_errors(cs)}
+      error -> error
     end
   end
 
@@ -122,8 +121,7 @@ defmodule ExAdmin.Repo do
             end
             resource
         end
-      {:error, cs} ->
-        {:error, add_constraints_to_errors(cs)}
+      error -> error
     end
   end
 
@@ -131,19 +129,6 @@ defmodule ExAdmin.Repo do
     repo.insert!(struct(resource, params))
     |> insert_or_update_collection(params)
     |> insert_or_update_attributes_for(params)
-  end
-
-  # Constraint errors are not listed in errors. Add them to
-  # errors list
-  defp add_constraints_to_errors(cs) do
-    new_errors = Enum.reduce cs.constraints, cs.errors, fn(constraint, acc) ->
-      unless acc[constraint[:field]] do
-        [{constraint[:field], constraint[:message]} | acc]
-      else
-        acc
-      end
-    end
-    %Ecto.Changeset{cs | errors: new_errors}
   end
 
   def delete(resource, _params) do
