@@ -186,11 +186,7 @@ defmodule ExAdmin.Form do
   Use the form command to customize the new and edit page forms. Pass
   a name for the resource to be created or modified.
   """
-  defmacro form(resource, [do: block]) do
-    contents = quote do
-      unquote(block)
-    end
-
+  defmacro form(resource, [do: contents]) do
     quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
       def form_view(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do
         import ExAdmin.Register, except: [actions: 1]
@@ -219,7 +215,7 @@ defmodule ExAdmin.Form do
         resource = defn.resource_model.__struct__
         field_name = String.to_atom params[:field_name]
         model_name = model_name(resource)
-        ext_name = ext_name model_name, field_name
+        ext_name = ext_name(model_name, field_name)
         if is_function(block[:opts][:collection]) do
           resources = block[:opts][:collection].(conn, resource)
         end
@@ -463,7 +459,6 @@ defmodule ExAdmin.Form do
 
   def put_script_block(script_block) do
     if script_block do
-      Xain.text "\n"
       Xain.script type: "text/javascript" do
         text "\n" <> script_block <> "\n"
       end
@@ -566,7 +561,6 @@ defmodule ExAdmin.Form do
 
     theme_module(Form).theme_wrap_item(field_type(resource, field_name), ext_name, label, hidden,
       ajax, error, contents, as, required)
-    # ext_name
   end
 
 
@@ -627,7 +621,7 @@ defmodule ExAdmin.Form do
 
     binary_tuple = binary_tuple?(collection)
 
-    id = wrap_item(resource, field_name, model_name, label, errors, item[:opts],
+    item_html = wrap_item(resource, field_name, model_name, label, errors, item[:opts],
                                               conn.params, required, fn(ext_name) ->
       item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
       markup do
@@ -640,6 +634,7 @@ defmodule ExAdmin.Form do
       end
     end)
 
+    id = ext_name(model_name, field_name)
     value = case onchange do
       script when is_binary(script) ->
         {:change, %{id: id <> "_id", script: onchange}}
@@ -672,7 +667,7 @@ defmodule ExAdmin.Form do
         end
       _ -> nil
     end
-    if onchange, do: value
+    if onchange, do: value, else: item_html
   end
 
   def build_item(conn, %{type: :actions, items: items}, resource, model_name, errors) do
@@ -697,7 +692,7 @@ defmodule ExAdmin.Form do
     label = get_label(field_name, opts)
     required = if field_name in (conn.assigns[:ea_required] || []), do: true, else: false
     wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, required, fn(ext_name) ->
-      field_type = opts[:type] || resource.__struct__.__schema__(:type, field_name)
+      field_type = opts[:type] || field_type(resource, field_name)
       [
         build_control(field_type, resource, opts, model_name, field_name, ext_name),
         build_errors(errors)
