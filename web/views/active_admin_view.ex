@@ -95,10 +95,9 @@ defmodule ExAdmin.ActiveAdmin.LayoutView do
       messages = Enum.reduce [:notice, :error], [], fn(which, acc) ->
         acc ++ get_flash(conn, which)
       end
-      unless messages == [] do
-        Enum.each messages, fn({which, message}) ->
+      if messages != [] do
+        Enum.map messages, fn({which, message}) ->
           flash message, which
-          # div(".flash.flash_#{which} #{flash}")
         end
       end
     end
