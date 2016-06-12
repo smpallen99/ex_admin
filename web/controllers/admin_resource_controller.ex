@@ -2,10 +2,9 @@ defmodule ExAdmin.AdminResourceController do
   @moduledoc false
   use ExAdmin.Web, :controller
   require Logger
-  import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
+  import ExAdmin.Utils
   alias ExAdmin.Authorization
-  require IEx
 
   plug :set_theme
   plug :set_layout
@@ -17,12 +16,20 @@ defmodule ExAdmin.AdminResourceController do
     params = filter_params(conn.params)
     defn = get_registered_by_controller_route!(conn, resource)
 
-    conn
-    |> assign(:defn, defn)
-    |> load_resource(action, defn, params[:id])
-    |> handle_plugs(action, defn)
-    |> handle_before_filter(action, defn, params)
-    |> handle_custom_actions(action, defn, params)
+    # IO.puts ".... defn: #{defn.__struct__}, action: #{inspect action}"
+    if authorized_action?(conn, action, defn) do
+      conn
+      |> assign(:defn, defn)
+      |> load_resource(action, defn, params[:id])
+      |> handle_plugs(action, defn)
+      |> handle_before_filter(action, defn, params)
+      |> handle_custom_actions(action, defn, params)
+    else
+      conn
+      |> put_layout(false)
+      |> render(ExAdmin.ErrorView, "403.html")
+      |> halt
+    end
   end
 
   defp scrub_params(conn, required_key, action) when action in [:create, :update] do
@@ -42,7 +49,7 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     query = model.run_query(repo, defn, action, resource_id)
     resource =
-    Authorization.authorize_query(defn.resource_model.__struct__, conn, query, action, resource_id)
+    Authorization.authorize_query(defn, conn, query, action, resource_id)
     |> ExAdmin.Query.execute_query(repo, action, resource_id)
 
     if resource == nil do
@@ -135,7 +142,7 @@ defmodule ExAdmin.AdminResourceController do
       nil ->
         id = params |> Map.to_list
         query = model.run_query(repo, defn, :index, id)
-        Authorization.authorize_query(defn.resource_model.__struct__, conn, query, :index, id)
+        Authorization.authorize_query(defn, conn, query, :index, id)
         |> ExAdmin.Query.execute_query(repo, :index, id)
 
       page ->
@@ -234,8 +241,8 @@ defmodule ExAdmin.AdminResourceController do
     resource = conn.assigns.resource
 
     changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
-    case ExAdmin.Repo.update(changeset) do
+    changeset1 = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
+    case ExAdmin.Repo.update(changeset1) do
       {:error, changeset} ->
         errors = if function_exported?(defn.resource_model, :get_errors, 1) do
           apply(defn.resource_model, :get_errors, [changeset])
@@ -315,7 +322,7 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
 
     query = model.run_query(repo, defn, :csv)
-    csv = Authorization.authorize_query(defn.resource_model.__struct__, conn, query, :csv, nil)
+    csv = Authorization.authorize_query(defn, conn, query, :csv, nil)
     |> ExAdmin.Query.execute_query(repo, :csv, nil)
     |> case  do
       [] -> []

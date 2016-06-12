@@ -313,11 +313,16 @@ defmodule ExAdmin.Utils do
 
   @doc false
   def authorized_action?(conn, action, resource_model) when is_atom(resource_model) do
-    fun = Application.get_env(:ex_admin, :authorize)
-    if fun, do: fun.(conn, action, resource_model), else: true
+    # fun = Application.get_env(:ex_admin, :authorize)
+    # if fun, do: fun.(conn, action, resource_model), else: true
+    authorized_action? conn, action, conn.assigns[:defn]
   end
   def authorized_action?(conn, action, defn) do
-    authorized_action?(conn, action, defn.resource_model)
+    # authorized_action?(conn, action, defn.resource_model)
+    ExAdmin.Authorization.authorize_action(defn, conn, action)
+  end
+  def authorized_action?(conn, action) do
+    ExAdmin.Authorization.authorize_action(conn.assigns[:defn], conn, action)
   end
 
   @doc false

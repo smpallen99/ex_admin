@@ -18,6 +18,9 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <li>
+                <%= Phoenix.HTML.Link.link "Profile", to: ExAdmin.Utils.admin_resource_path(current_user(@conn)) %>
+              </li>
+              <li>
                 <%= Phoenix.HTML.Link.link "Logout", to: session_path(@conn, :destroy), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
               </li>
             </ul>

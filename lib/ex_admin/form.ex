@@ -821,7 +821,7 @@ defmodule ExAdmin.Form do
   def build_control(:boolean, resource, opts, model_name, field_name, ext_name, errors) do
     markup do
       Xain.input type: :hidden, value: "false", name: "#{model_name}[#{field_name}]"
-      if Map.get(resource, field_name) do
+      unless Map.get(resource, field_name) in [false, nil, "false"] do
         Map.put_new(opts, :checked, "checked")
       else
         opts

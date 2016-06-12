@@ -241,22 +241,24 @@ defmodule ExAdmin do
     case Utils.action_name(conn) do
       :show ->
         id = Map.get(params, "id")
-        for action <- [:edit, :new, :delete],
-          do: {action, action_button(conn, defn, singular, :show, action, actions, id)}
-        # id = Map.get(params, "id")
-        # div(".action_items") do
-        #   for action <- [:edit, :new, :delete],
-        #     do: action_button(conn, defn, singular, :show, action, actions, id)
-        # end
+        Enum.reduce([:edit, :new, :delete], [], fn(action, acc) ->
+          if Utils.authorized_action?(conn, action, defn) do
+            [{action, action_button(conn, defn, singular, :show, action, actions, id)}|acc]
+          else
+            acc
+          end
 
+        end)
+        |> Enum.reverse
       action when action in [:index, :edit] ->
-        [{action, action_button(conn, defn, singular, action, :new, actions)}]
-
+        if Utils.authorized_action?(conn, action, defn) do
+          [{action, action_button(conn, defn, singular, action, :new, actions)}]
+        else
+          []
+        end
       _ ->
         []
-        # div(".action_items")
     end
-
   end
 
   @doc false
