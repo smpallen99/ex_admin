@@ -79,14 +79,12 @@ defmodule ExAdmin.Table do
     do_panel(conn, tail, table_opts, output)
   end
   def do_panel(conn, [{:contents, %{contents: content}} | tail], table_opts, output) do
-    output = [div do
+    output = [
       case content do
         {:safe, _} -> Phoenix.HTML.safe_to_string(content)
         content -> content
       end
-      |> String.replace("\n", "")
-      |> Xain.raw
-    end | output]
+      |> Xain.raw | output]
     do_panel(conn, tail, table_opts, output)
   end
   # skip unknown blocks
