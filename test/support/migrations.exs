@@ -64,6 +64,11 @@ defmodule TestExAdmin.Migrations do
     end
     create index(:contacts_phone_numbers, [:contact_id])
     create index(:contacts_phone_numbers, [:phone_number_id])
+
+    create table(:uuid_schemas, primary_key: false) do
+      add :key, :uuid, primary_key: true
+      add :name, :string
+    end
   end
 end
 

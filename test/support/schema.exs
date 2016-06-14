@@ -213,3 +213,24 @@ defmodule TestExAdmin.ContactPhoneNumber do
     |> cast(params, @required_fields, @optional_fields)
   end
 end
+
+defmodule TestExAdmin.UUIDSchema do
+  import Ecto.Changeset
+  use Ecto.Schema
+
+  @primary_key {:key, :binary_id, autogenerate: true}
+
+  schema "uuid_schemas" do
+    field :name, :string
+    timestamps
+  end
+
+  @required_fields ~w(name)
+  @optional_fields ~w()
+
+  def changeset(model, params \\ %{}) do
+    model
+    |> cast(params, @required_fields, @optional_fields)
+  end
+
+end

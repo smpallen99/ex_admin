@@ -4,7 +4,7 @@ defmodule ExAdmin.Filter do
   require Logger
   require Ecto.Query
   import ExAdmin.Theme.Helpers
-  # import ExAdmin.Utils
+  import ExAdmin.Utils
   use Xain
 
   @integer_options [eq: "Equal To", gt: "Greater Than", lt: "Less Than" ]
@@ -20,26 +20,61 @@ defmodule ExAdmin.Filter do
     theme_module(conn, Filter).theme_filter_view(conn, defn, q, order, scope)
   end
 
-  def fields(%{index_filters: []} = defn) do
-    for field <- defn.resource_model.__schema__(:fields) -- [:id] do
-      {field, defn.resource_model.__schema__(:type, field)}
+  def fields(%{index_filters: filters} = defn) do
+    filters = case filters do
+      [list] -> list
+      _ -> []
     end
+    except_filters = filters[:except]
+    only_filters = filters[:only]
+    labels = filters[:label]
+    cond do
+      filters == [] ->
+        defn.resource_model.__schema__(:fields) -- [:id]
+      except_filters != nil ->
+        defn.resource_model.__schema__(:fields) -- [:id | except_filters]
+      only_filters != nil ->
+        only_filters
+      labels != nil ->
+        case Enum.filter filters, &(not is_tuple(&1)) do
+          []    -> defn.resource_model.__schema__(:fields) -- [:id]
+          other -> other
+        end
+      filters ->
+        filters
+    end
+    |> _fields(defn)
   end
 
-  def fields(%{index_filters: [[{:except, except_filters}]]} = defn) do
-    for field <- defn.resource_model.__schema__(:fields) -- [:id | except_filters] do
-      {field, defn.resource_model.__schema__(:type, field)}
-    end
-  end
-
-  def fields(%{index_filters: [[{:only, filters}]]} = defn),
-    do: fields(Map.put(defn, :index_filters, [filters]))
-
-  def fields(%{index_filters: [filters]} = defn) do
+  defp _fields(filters, defn) do
     for field <- filters do
-      {field, defn.resource_model.__schema__(:type, field)}
+      {field, field_type(defn.resource_model, field)}
     end
   end
+
+  def field_type(model, field) do
+    case model.__schema__(:type, field) do
+      nil ->
+        case model.__schema__(:association, field) do
+          %Ecto.Association.BelongsTo{} = belongs_to -> belongs_to
+          _ -> nil
+        end
+      other -> other
+    end
+  end
+
+  def field_label(field, %{index_filters: [list]}) do
+    case list[:label] do
+      nil ->
+        humanize field
+      labels ->
+        case labels[field] do
+          nil -> humanize field
+          other -> other
+        end
+    end
+  end
+  def field_label(field, _defn), do: humanize(field)
 
   def associations(defn) do
     Enum.reduce defn.resource_model.__schema__(:associations), [], fn(assoc, acc) ->

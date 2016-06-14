@@ -33,6 +33,7 @@ defmodule TestExAdmin.ExAdmin.User do
   use ExAdmin.Register
 
   register_resource TestExAdmin.User do
+    filter only: [:name, :email]
     show user do
       panel "No IDs" do
         markup_contents do
@@ -90,10 +91,25 @@ defmodule TestExAdmin.ExAdmin.Product do
     end
   end
 end
+
 defmodule TestExAdmin.ExAdmin.Simple do
   use ExAdmin.Register
 
   register_resource TestExAdmin.Simple do
+  end
+end
+
+defmodule TestExAdmin.ExAdmin.UUIDSchema do
+  use ExAdmin.Register
+
+  register_resource TestExAdmin.UUIDSchema do
+  end
+end
+
+defmodule TestExAdmin.ExAdmin.Noprimary do
+  use ExAdmin.Register
+
+  register_resource TestExAdmin.Noprimary do
   end
 end
 

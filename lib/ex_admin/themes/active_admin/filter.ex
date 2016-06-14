@@ -30,20 +30,22 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
 
   end
 
-  def build_field({name, :string}, q, _) do
+  def build_field({name, :string}, q, defn) do
+    name_label = field_label(name, defn)
     name_field = "#{name}_contains"
     value = if q, do: Map.get(q, name_field, ""), else: ""
     div ".filter_form_field.filter_string" do
-      label ".label Search #{humanize name}", for: "q_#{name}"
+      label ".label Search #{name_label}", for: "q_#{name}"
       input id: "q_#{name}", name: "q[#{name_field}]", type: :text, value: value
     end
   end
 
-  def build_field({name, type}, q, _) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time] do
+  def build_field({name, type}, q, defn) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time] do
+    name_label = field_label(name, defn)
     gte_value = get_value("#{name}_gte", q)
     lte_value = get_value("#{name}_lte", q)
     div ".filter_form_field.filter_date_range" do
-      label ".label #{humanize name}", for: "q_#{name}_gte"
+      label ".label #{name_label}", for: "q_#{name}_gte"
       input class: "datepicker", id: "q_#{name}_gte", max: "10", name: "q[#{name}_gte]", size: "12", type: :text, value: gte_value
       span ".seperator -"
       input class: "datepicker", id: "q_#{name}_lte", max: "10", name: "q[#{name}_lte]", size: "12", type: :text, value: lte_value
@@ -52,10 +54,11 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
 
   def build_field({name, num}, q, defn) when num in [:integer, :id, :decimal] do
     unless check_and_build_association(name, q, defn) do
+      name_label = field_label(name, defn)
       selected_name = integer_selected_name(name, q)
       value = get_integer_value name, q
       div ".filter_form_field.filter_numeric" do
-        label ".label #{humanize name}", for: "#{name}_numeric"
+        label ".label #{name_label}", for: "#{name}_numeric"
         select onchange: ~s|document.getElementById("#{name}_numeric").name="q[" + this.value + "]";| do
           for {suffix, text} <- integer_options do
             build_option(text, "#{name}_#{suffix}", selected_name)
@@ -66,8 +69,9 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     end
   end
 
-  def build_field({name, %Ecto.Association.BelongsTo{related: assoc, owner_key: owner_key}}, q, _) do
+  def build_field({name, %Ecto.Association.BelongsTo{related: assoc, owner_key: owner_key}}, q, defn) do
     id = "q_#{owner_key}"
+    name_label = field_label(name, defn)
     if assoc.__schema__(:type, :name) do
       repo = Application.get_env :ex_admin, :repo
       resources = repo.all assoc
@@ -76,7 +80,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
         val -> val
       end
       div ".filter_form_field.filter_select" do
-        title = humanize(name) |> String.replace(" Id", "")
+        title = name_label |> String.replace(" Id", "")
         label ".label #{title}", for: "q_#{owner_key}"
         select "##{id}", [name: "q[#{owner_key}_eq]"] do
           option "Any", value: ""
@@ -91,7 +95,8 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     end
   end
 
-  def build_field({name, :boolean}, q, _) do
+  def build_field({name, :boolean}, q, defn) do
+    name_label = field_label(name, defn)
     name_field = "#{name}_eq"
     opts = [id: "q_#{name}", name: "q[#{name_field}]", type: :checkbox, value: "true"]
     new_opts = if q do
@@ -100,12 +105,13 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
       opts
     end
     div ".filter_form_field.filter_boolean" do
-      label ".label #{humanize name}", for: "q_#{name}"
+      label ".label #{name_label}", for: "q_#{name}"
       input new_opts
     end
   end
 
   def build_field({name, Ecto.UUID}, q, defn) do
+    name_label = field_label(name, defn)
     repo = Application.get_env :ex_admin, :repo
     ids = repo.all(defn.resource_model)
     |> Enum.map(&(Map.get(&1, name)))
@@ -116,8 +122,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     end
 
     div ".filter_form_field.filter_select" do
-      title = humanize(name)
-      label ".label #{title}", for: "q_#{name}"
+      label ".label #{name_label}", for: "q_#{name}"
       select "##{name}", [name: "q[#{name}_eq]"] do
         option "Any", value: ""
         for id <- ids do

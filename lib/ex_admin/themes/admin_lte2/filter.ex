@@ -32,20 +32,22 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
 
   end
 
-  def build_field({name, :string}, q, _) do
+  def build_field({name, :string}, q, defn) do
+    name_label = field_label(name, defn)
     name_field = "#{name}_contains"
     value = if q, do: Map.get(q, name_field, ""), else: ""
     div ".form-group" do
-      label ".label Search #{humanize name}", for: "q_#{name}"
+      label ".label Search #{name_label}", for: "q_#{name}"
       input id: "q_#{name}", name: "q[#{name_field}]", type: :text, value: value, class: "form-control"
     end
   end
 
-  def build_field({name, type}, q, _) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time] do
+  def build_field({name, type}, q, defn) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time] do
     gte_value = get_value("#{name}_gte", q)
     lte_value = get_value("#{name}_lte", q)
+    name_label = field_label(name, defn)
     div ".form-group" do
-      label ".label #{humanize name}", for: "q_#{name}_gte"
+      label ".label #{name_label}", for: "q_#{name}_gte"
       div ".row" do
         div ".col-xs-6", style: "padding-right: 5px;" do
           div ".input-group" do
@@ -72,8 +74,9 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
     unless check_and_build_association(name, q, defn) do
       selected_name = integer_selected_name(name, q)
       value = get_integer_value name, q
+      name_label = field_label(name, defn)
       div ".form-group" do
-        label ".label #{humanize name}", for: "#{name}_numeric"
+        label ".label #{name_label}", for: "#{name}_numeric"
         div ".row" do
           div ".col-xs-6", style: "padding-right: 0"  do
             span ".input-group-addon" do
@@ -95,32 +98,32 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
     end
   end
 
-  def build_field({name, %Ecto.Association.BelongsTo{related: assoc, owner_key: owner_key}}, q, _) do
+  def build_field({name, %Ecto.Association.BelongsTo{related: assoc, owner_key: owner_key}}, q, defn) do
     id = "q_#{owner_key}"
-    if assoc.__schema__(:type, :name) do
-      repo = Application.get_env :ex_admin, :repo
-      resources = repo.all assoc
-      selected_key = case q["#{owner_key}_eq"] do
-        nil -> nil
-        val -> val
-      end
-      div ".form-group" do
-        title = humanize(name) |> String.replace(" Id", "")
-        label ".label #{title}", for: "q_#{owner_key}"
-        select "##{id}.form-control", [name: "q[#{owner_key}_eq]"] do
-          option "Any", value: ""
-          for r <- resources do
-            id = ExAdmin.Schema.get_id(r)
-            name = ExAdmin.Helpers.display_name(r)
-            selected = if "#{id}" == selected_key, do: [selected: :selected], else: []
-            option name, [{:value, "#{id}"} | selected]
-          end
+    name_label = field_label(name, defn)
+    repo = Application.get_env :ex_admin, :repo
+    resources = repo.all assoc
+    selected_key = case q["#{owner_key}_eq"] do
+      nil -> nil
+      val -> val
+    end
+    div ".form-group" do
+      title = name_label |> String.replace(" Id", "")
+      label ".label #{title}", for: "q_#{owner_key}"
+      select "##{id}.form-control", [name: "q[#{owner_key}_eq]"] do
+        option "Any", value: ""
+        for r <- resources do
+          id = ExAdmin.Schema.get_id(r)
+          name = ExAdmin.Helpers.display_name(r)
+          selected = if "#{id}" == selected_key, do: [selected: :selected], else: []
+          option name, [{:value, "#{id}"} | selected]
         end
       end
     end
   end
 
-  def build_field({name, :boolean}, q, _) do
+  def build_field({name, :boolean}, q, defn) do
+    name_label = field_label(name, defn)
     name_field = "#{name}_eq"
     opts = [id: "q_#{name}", name: "q[#{name_field}]", type: :checkbox, value: "true"]
     new_opts = if q do
@@ -129,12 +132,13 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
       opts
     end
     div ".form-group" do
-      label ".label #{humanize name}", for: "q_#{name}"
+      label ".label #{name_label}", for: "q_#{name}"
       input new_opts
     end
   end
 
   def build_field({name, Ecto.UUID}, q, defn) do
+    name_label = field_label(name, defn)
     repo = Application.get_env :ex_admin, :repo
     ids = repo.all(defn.resource_model)
     |> Enum.map(&(Map.get(&1, name)))
@@ -145,8 +149,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
     end
 
     div ".form-group" do
-      title = humanize(name)
-      label ".label #{title}", for: "q_#{name}"
+      label ".label #{name_label}", for: "q_#{name}"
       select "##{name}", [name: "q[#{name}_eq]", class: "form-control"] do
         option "Any", value: ""
         for id <- ids do
