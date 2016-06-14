@@ -366,6 +366,7 @@ defmodule ExAdmin.Index do
 
     list = get_authorized_links(conn, resource_model)
     |> Enum.filter(&(&1 in links))
+    |> Enum.reverse
 
     Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource)
   end
