@@ -187,11 +187,7 @@ defmodule ExAdmin.Form do
   Use the form command to customize the new and edit page forms. Pass
   a name for the resource to be created or modified.
   """
-  defmacro form(resource, [do: block]) do
-    contents = quote do
-      unquote(block)
-    end
-
+  defmacro form(resource, [do: contents]) do
     quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
       def form_view(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do
         import ExAdmin.Register, except: [actions: 1]
@@ -219,7 +215,8 @@ defmodule ExAdmin.Form do
         defn = conn.assigns.defn
         field_name = String.to_atom params[:field_name]
         model_name = model_name(resource)
-        ext_name = ext_name model_name, field_name
+        ext_name = ext_name(model_name, field_name)
+
         view = markup safe: true do
           ExAdmin.Form.Fields.ajax_input_collection(resource, resources, model_name, field_name, params[:id1], params[:nested2], block, conn.params)
         end
@@ -460,7 +457,6 @@ defmodule ExAdmin.Form do
 
   def put_script_block(script_block) do
     if script_block do
-      Xain.text "\n"
       Xain.script type: "text/javascript" do
         text "\n" <> script_block <> "\n"
       end
@@ -644,6 +640,7 @@ defmodule ExAdmin.Form do
       end
     end)
 
+    id = ext_name(model_name, field_name)
     value = case onchange do
       script when is_binary(script) ->
         {:change, %{id: id <> "_id", script: onchange}}
@@ -713,8 +710,11 @@ defmodule ExAdmin.Form do
     label = get_label(field_name, opts)
     required = if field_name in (conn.assigns[:ea_required] || []), do: true, else: false
     {html, _id} = wrap_item(resource, field_name, model_name, label, errors, opts, conn.params, required, fn(ext_name) ->
-      resource.__struct__.__schema__(:type, field_name)
-      |> build_control(resource, opts, model_name, field_name, ext_name, errors)
+      field_type = opts[:type] || field_type(resource, field_name)
+      [
+        build_control(field_type, resource, opts, model_name, field_name, ext_name),
+        build_errors(errors)
+      ]
     end)
     html
   end
@@ -818,47 +818,40 @@ defmodule ExAdmin.Form do
   end
 
   @doc false
-  def build_control(:boolean, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(:boolean, resource, opts, model_name, field_name, ext_name) do
+    opts = unless Map.get(resource, field_name) in [false, nil, "false"] do
+      Map.put_new(opts, :checked, "checked")
+    else
+      opts
+    end
+
+    opts = opts
+    |> Map.put_new(:type, :checkbox)
+    |> Map.put_new(:value, "true")
+    |> Map.put_new(:name, "#{model_name}[#{field_name}]")
+    |> Map.put_new(:id, ext_name)
+    |> Map.to_list
+
     markup do
-      Xain.input type: :hidden, value: "false", name: "#{model_name}[#{field_name}]"
-      unless Map.get(resource, field_name) in [false, nil, "false"] do
-        Map.put_new(opts, :checked, "checked")
-      else
-        opts
-      end
-      |> Map.put_new(:type, :checkbox)
-      |> Map.put_new(:value, "true")
-      |> Map.put_new(:name, "#{model_name}[#{field_name}]")
-      |> Map.put_new(:id, ext_name)
-      |> Map.to_list
-      |> Xain.input
-      build_errors(errors)
+      Xain.input(type: :hidden, value: "false", name: "#{model_name}[#{field_name}]")
+      Xain.input(opts)
     end
   end
 
-  def build_control(Ecto.DateTime, resource, opts, model_name, field_name, _ext_name, errors) do
-    markup do
-      %{name: model_name, model: resource, id: model_name, class: "form-control"}
-      |> datetime_select(field_name, Map.get(opts, :options, []))
-      build_errors(errors)
-    end
+  def build_control(Ecto.DateTime, resource, opts, model_name, field_name, _ext_name) do
+    %{name: model_name, model: resource, id: model_name, class: "form-control"}
+    |> datetime_select(field_name, Map.get(opts, :options, []))
   end
-  def build_control(Ecto.Date, resource, opts, model_name, field_name, _ext_name, errors) do
-    markup do
-      %{name: model_name, model: resource, id: model_name, class: "form-control"}
-      |> date_select(field_name, Map.get(opts, :options, []))
-      build_errors(errors)
-    end
+  def build_control(Ecto.Date, resource, opts, model_name, field_name, _ext_name) do
+    %{name: model_name, model: resource, id: model_name, class: "form-control"}
+    |> date_select(field_name, Map.get(opts, :options, []))
   end
-  def build_control(Ecto.Time, resource, opts, model_name, field_name, _ext_name, errors) do
-    markup do
-      %{name: model_name, model: resource, id: model_name, class: "form-control"}
-      |> time_select(field_name, Map.get(opts, :options, []))
-      build_errors(errors)
-    end
+  def build_control(Ecto.Time, resource, opts, model_name, field_name, _ext_name) do
+    %{name: model_name, model: resource, id: model_name, class: "form-control"}
+    |> time_select(field_name, Map.get(opts, :options, []))
   end
 
-  def build_control(:text, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(:text, resource, opts, model_name, field_name, ext_name) do
     value = Map.get(resource, field_name, "") |> escape_value
     options = opts
     |> Map.put(:class, "form-control")
@@ -866,13 +859,10 @@ defmodule ExAdmin.Form do
     |> Map.put_new(:id, ext_name)
     |> Map.delete(:display)
     |> Map.to_list
-    markup do
-      Xain.textarea value, options
-      build_errors(errors)
-    end
+    Xain.textarea(value, options)
   end
 
-  def build_control(type, resource, opts, model_name, field_name, ext_name, errors) do
+  def build_control(type, resource, opts, model_name, field_name, ext_name) do
     {field_type, value} = if type |> Kernel.to_string |> String.ends_with?(".Type") do
       val = Map.get(resource, field_name, %{}) || %{}
       {:file, Map.get(val, :filename, "")}
@@ -880,18 +870,15 @@ defmodule ExAdmin.Form do
       {:text, Map.get(resource, field_name, "")}
     end
     value = ExAdmin.Render.to_string(value)
-    markup do
-      Map.put_new(opts, :type, field_type)
-      |> Map.put(:class, "form-control")
-      |> Map.put_new(:maxlength, "255")
-      |> Map.put_new(:name, "#{model_name}[#{field_name}]")
-      |> Map.put_new(:id, ext_name)
-      |> Map.put_new(:value, value |> escape_value)
-      |> Map.delete(:display)
-      |> Map.to_list
-      |> Xain.input
-      build_errors(errors)
-    end
+    Map.put_new(opts, :type, field_type)
+    |> Map.put(:class, "form-control")
+    |> Map.put_new(:maxlength, "255")
+    |> Map.put_new(:name, "#{model_name}[#{field_name}]")
+    |> Map.put_new(:id, ext_name)
+    |> Map.put_new(:value, value |> escape_value)
+    |> Map.delete(:display)
+    |> Map.to_list
+    |> Xain.input
   end
 
   def datetime_select(form, field_name, opts \\ []) do

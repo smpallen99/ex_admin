@@ -373,8 +373,7 @@ defmodule ExAdmin.Index do
   @doc false
   def get_authorized_links(conn, resource_model) do
     Enum.reduce [:show, :edit, :destroy], [], fn(item, acc) ->
-      if ExAdmin.Utils.authorized_action?(conn, item, resource_model),
-        do: [item | acc], else: acc
+      if ExAdmin.Utils.authorized_action?(conn, item), do: [item | acc], else: acc
     end
   end
 end

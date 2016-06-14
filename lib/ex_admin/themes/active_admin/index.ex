@@ -118,11 +118,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
       end
       [link | acc]
     end)
-    |> case do
-      [] -> []
-      list ->
-        [{"Actions", list}]
-    end
+    |> Enum.reverse
   end
 
   def batch_action_form conn, enabled?, scopes, name, scope_counts, fun do

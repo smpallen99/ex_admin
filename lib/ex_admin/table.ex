@@ -56,7 +56,6 @@ defmodule ExAdmin.Table do
       table_head(columns)
       tbody do
         model_name = get_resource_model resources
-
         Enum.with_index(resources)
         |> Enum.map(fn({resource, inx}) ->
           odd_even = if Integer.is_even(inx), do: "even", else: "odd"

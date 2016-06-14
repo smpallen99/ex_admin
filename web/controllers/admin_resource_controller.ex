@@ -2,6 +2,7 @@ defmodule ExAdmin.AdminResourceController do
   @moduledoc false
   use ExAdmin.Web, :controller
   require Logger
+  import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
   import ExAdmin.Utils
   alias ExAdmin.Authorization

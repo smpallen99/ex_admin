@@ -18,9 +18,9 @@ defmodule ExAdmin.ViewHelpers do
       messages = Enum.reduce [:notice, :error], [], fn(which, acc) ->
         acc ++ get_flash(conn, which)
       end
-      unless messages == [] do
+      if messages != [] do
         div(".flashes") do
-          Enum.each messages, fn({which, flash}) ->
+          Enum.map messages, fn({which, flash}) ->
             div(".flash.flash_#{which} #{flash}")
           end
         end
