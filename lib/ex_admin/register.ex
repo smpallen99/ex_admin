@@ -856,7 +856,7 @@ defmodule ExAdmin.Register do
 
   Only show index columns and filters for the specified fields:
 
-      filter [:name, :email, :inserted_at
+      filter [:name, :email, :inserted_at]
       filter [:name, :email, :inserted_at, label: [email: "EMail Address"]]
       filter only: [:name, :email, :inserted_at], label: [email: "EMail Address"]
       filter except: [:encrypted_password], label: [name: "Full Name"]
