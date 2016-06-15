@@ -112,6 +112,7 @@ defmodule TestExAdmin.Noprimary do
     field :index, :integer
     field :name, :string
     field :description, :string
+    timestamps
   end
 
   @required_fields ~w(name)

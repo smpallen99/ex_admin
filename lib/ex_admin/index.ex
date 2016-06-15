@@ -217,7 +217,9 @@ defmodule ExAdmin.Index do
         columns = case defn.index_filters do
           [] -> []
           [false] -> []
-          [f] -> f
+          [_] ->
+            ExAdmin.Filter.fields(conn.assigns.defn)
+            |> Keyword.keys
         end
         |> case do
           [] ->

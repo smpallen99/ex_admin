@@ -34,6 +34,11 @@ defmodule ExAdmin.FilterTest do
     assert Filter.fields(defn) == [name: :string, email: :string, active: :boolean]
   end
 
+  test "filters except several fields" do
+    defn = %TestExAdmin.ExAdmin.Noprimary{index_filters: [[except: [:inserted_at, :updated_at]]]}
+    assert Filter.fields(defn) == [index: :integer, name: :string, description: :string]
+  end
+
   ############
   # filters
 
@@ -43,8 +48,8 @@ defmodule ExAdmin.FilterTest do
     assert Filter.field_label(:email, defn) == "Email"
   end
   test "filter_label label" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[labels: [email: "EMail Address"]]]}
-    assert Filter.field_label(:name, defn) == "Name"
+    defn = %TestExAdmin.ExAdmin.User{index_filters: [[labels: [email: "EMail Address", name: "Full Name"]]]}
+    assert Filter.field_label(:name, defn) == "Full Name"
     assert Filter.field_label(:email, defn) == "EMail Address"
   end
 end

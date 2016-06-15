@@ -39,6 +39,7 @@ defmodule TestExAdmin.Migrations do
       add :index, :integer
       add :name, :string
       add :description, :string
+      timestamps
     end
 
     create table(:simple) do

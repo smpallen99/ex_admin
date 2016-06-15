@@ -857,9 +857,12 @@ defmodule ExAdmin.Register do
   Only show index columns and filters for the specified fields:
 
       filter [:name, :email, :inserted_at]
-      filter [:name, :email, :inserted_at, label: [email: "EMail Address"]]
+      filter [:name, :email, :inserted_at, labels: [email: "EMail Address"]]
       filter only: [:name, :email, :inserted_at], label: [email: "EMail Address"]
-      filter except: [:encrypted_password], label: [name: "Full Name"]
+      filter except: [:encrypted_password], labels: [name: "Full Name"]
+
+  Note: Restricting fields with the `filter` macro also removes the field columns
+        from the default index table.
 
   """
   defmacro filter(disable) when disable in [nil, false] do
