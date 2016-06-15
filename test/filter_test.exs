@@ -22,15 +22,15 @@ defmodule ExAdmin.FilterTest do
     assert Filter.fields(defn) == [name: :string, active: :boolean]
   end
   test "filters only field_label" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[only: [:name, :email], label: [email: "EMail Address"]]]}
+    defn = %TestExAdmin.ExAdmin.User{index_filters: [[only: [:name, :email], labels: [email: "EMail Address"]]]}
     assert Filter.fields(defn) == [name: :string, email: :string]
   end
   test "filters except field_label" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[except: [:active], label: [email: "EMail Address"]]]}
+    defn = %TestExAdmin.ExAdmin.User{index_filters: [[except: [:active], labels: [email: "EMail Address"]]]}
     assert Filter.fields(defn) == [name: :string, email: :string]
   end
   test "filters default field_label" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[label: [email: "EMail Address"]]]}
+    defn = %TestExAdmin.ExAdmin.User{index_filters: [[labels: [email: "EMail Address"]]]}
     assert Filter.fields(defn) == [name: :string, email: :string, active: :boolean]
   end
 
@@ -43,7 +43,7 @@ defmodule ExAdmin.FilterTest do
     assert Filter.field_label(:email, defn) == "Email"
   end
   test "filter_label label" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[label: [email: "EMail Address"]]]}
+    defn = %TestExAdmin.ExAdmin.User{index_filters: [[labels: [email: "EMail Address"]]]}
     assert Filter.field_label(:name, defn) == "Name"
     assert Filter.field_label(:email, defn) == "EMail Address"
   end

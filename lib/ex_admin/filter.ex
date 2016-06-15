@@ -27,7 +27,7 @@ defmodule ExAdmin.Filter do
     end
     except_filters = filters[:except]
     only_filters = filters[:only]
-    labels = filters[:label]
+    labels = filters[:labels]
     cond do
       filters == [] ->
         defn.resource_model.__schema__(:fields) -- [:id]
@@ -64,7 +64,7 @@ defmodule ExAdmin.Filter do
   end
 
   def field_label(field, %{index_filters: [list]}) do
-    case list[:label] do
+    case list[:labels] do
       nil ->
         humanize field
       labels ->
