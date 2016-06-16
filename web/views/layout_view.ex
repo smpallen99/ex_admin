@@ -3,10 +3,14 @@ defmodule ExAdmin.LayoutView do
   use ExAdmin.Web, :view
 
   def site_title do
-    case Application.get_env(:ex_admin, :module) |> Module.split do
-      [_, title | _] -> title
-      [title] -> title
-      _ -> "ExAdmin"
+    case Application.get_env(:ex_admin, :title) do
+      nil ->
+        case Application.get_env(:ex_admin, :module) |> Module.split do
+          [_, title | _] -> title
+          [title] -> title
+          _ -> "ExAdmin"
+        end
+      title -> title
     end
   end
 

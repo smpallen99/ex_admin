@@ -12,6 +12,7 @@ use Mix.Config
 #   route_prefix: "admin",
 #   repo: MyApp.Repo,
 #   module: MyApp,
+#   title: "MySiteTitle",      # header title
 #   nest_resources: false,
 #   nest_scopes: false,
 #   scopes_index_page: false,
