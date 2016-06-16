@@ -176,6 +176,9 @@ defmodule ExAdmin.Register do
         nil -> []
         list -> Enum.reverse list
       end
+      controller_filters = (Module.get_attribute(__MODULE__, :controller_filters) || [])
+      |> ExAdmin.Helpers.group_reduce_by_reverse
+
 
       defstruct controller: @controller,
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
@@ -188,7 +191,7 @@ defmodule ExAdmin.Register do
                 actions: actions,
                 member_actions: Module.get_attribute(__MODULE__, :member_actions),
                 collection_actions: Module.get_attribute(__MODULE__, :collection_actions),
-                controller_filters: Module.get_attribute(__MODULE__, :controller_filters),
+                controller_filters: controller_filters,
                 index_filters: Module.get_attribute(__MODULE__, :index_filters),
                 selectable_column: Module.get_attribute(__MODULE__, :selectable_column),
                 position_column: Module.get_attribute(__MODULE__, :position_column),

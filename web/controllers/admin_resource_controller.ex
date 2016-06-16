@@ -76,45 +76,51 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def handle_before_filter(conn, action, defn, params) do
-    case defn.controller_filters[:before_filter] do
-      nil ->
-        conn
-      {name, opts} ->
-        filter = cond do
-          opts[:only] ->
-            if action in opts[:only], do: true, else: false
-          opts[:except] ->
-            if not action in opts[:except], do: true, else: false
-          true -> true
-        end
-        if filter, do: apply(defn.__struct__, name, [conn, params]), else: conn
-    end
+    _handle_before_filter(conn, action, defn, params, defn.controller_filters[:before_filter])
   end
 
-  def handle_after_filter(conn, action, defn, params, resource) do
-    case defn.controller_filters[:after_filter] do
-      nil ->
-        {conn, params, resource}
-      {name, opts} ->
-        filter = cond do
-          opts[:only] ->
-            if action in opts[:only], do: true, else: false
-          opts[:except] ->
-            if not action in opts[:except], do: true, else: false
-          true -> true
-        end
-        if filter do
-          case apply(defn.__struct__, name, [conn, params, resource, action]) do
-            {_, _, _} = tuple -> tuple
-            %Plug.Conn{} = conn -> {conn, params, resource}
-            error ->
-              raise ExAdmin.RuntimeError, message: "invalid after_filter return: #{inspect error}"
-          end
-        else
-          {conn, params, resource}
-        end
+  def _handle_before_filter(conn, action, defn, params, [{name, opts} | t]) do
+    filter = cond do
+      opts[:only] ->
+        if action in opts[:only], do: true, else: false
+      opts[:except] ->
+        if not action in opts[:except], do: true, else: false
+      true -> true
     end
+    if filter do
+      apply(defn.__struct__, name, [conn, params])
+    else
+      conn
+    end
+    |> _handle_before_filter(action, defn, params, t)
   end
+  def _handle_before_filter(conn, _action, _defn, _params, _), do: conn
+
+  def handle_after_filter(conn, action, defn, params, resource) do
+    _handle_after_filter({conn, params, resource}, action, defn, defn.controller_filters[:after_filter])
+  end
+
+  def _handle_after_filter({conn, params, resource}, action, defn, [{name, opts} | t]) do
+    filter = cond do
+      opts[:only] ->
+        if action in opts[:only], do: true, else: false
+      opts[:except] ->
+        if not action in opts[:except], do: true, else: false
+      true -> true
+    end
+    if filter do
+      case apply(defn.__struct__, name, [conn, params, resource, action]) do
+        {_, _, _} = tuple -> tuple
+        %Plug.Conn{} = conn -> {conn, params, resource}
+        error ->
+          raise ExAdmin.RuntimeError, message: "invalid after_filter return: #{inspect error}"
+      end
+    else
+      {conn, params, resource}
+    end
+    |> _handle_after_filter(action, defn, t)
+  end
+  def _handle_after_filter(args, action, defn, _), do: args
 
   defp handle_plugs(conn, :nested, _defn), do: conn
   defp handle_plugs(conn, _action, defn) do

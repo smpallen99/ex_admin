@@ -108,9 +108,19 @@ defmodule ExAdminTest.ControllerTest do
     product = conn.assigns[:product]
     assert html_response(conn, 302)
     assert product.user_id == user.id
+    assert conn.assigns[:before_both] == :yes
+    refute conn.assigns[:before_update] == :yes
+    assert conn.assigns[:after_create] == :yes
+    refute conn.assigns[:after_update] == :yes
+    refute conn.assigns[:after_update2] == :yes
 
     conn = put conn(), admin_resource_path(product, :update), product: @valid_attrs
     assert conn.assigns[:answer] == 42
+    assert conn.assigns[:before_both] == :yes
+    assert conn.assigns[:before_update] == :yes
+    refute conn.assigns[:after_create] == :yes
+    assert conn.assigns[:after_update] == :yes
+    assert conn.assigns[:after_update2] == :yes
   end
 
   test "new form" do
@@ -118,4 +128,5 @@ defmodule ExAdminTest.ControllerTest do
     assert html_response(conn, 200) =~ ~r/New Simple/
     refute Floki.find(conn.resp_body, "input#simple_name") == []
   end
+
 end

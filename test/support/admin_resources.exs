@@ -78,15 +78,32 @@ defmodule TestExAdmin.ExAdmin.Product do
   register_resource TestExAdmin.Product do
     controller do
       after_filter :do_after, only: [:create, :update]
+      after_filter :after2, only: [:update]
+      before_filter :before_both, only: [:create, :update]
+      before_filter :before_update, only: [:update]
 
       def do_after(conn, params, resource, :create) do
         user = Repo.all(User) |> hd
         resource = Product.changeset(resource, %{user_id: user.id})
         |> Repo.update!
-        {Plug.Conn.assign(conn, :product, resource), params, resource}
+        conn = Plug.Conn.assign(conn, :product, resource)
+        |> Plug.Conn.assign(:after_create, :yes)
+        {conn, params, resource}
       end
       def do_after(conn, _params, _resource, :update) do
         Plug.Conn.assign(conn, :answer, 42)
+        |> Plug.Conn.assign(:after_update, :yes)
+      end
+
+      def after2(conn, _params, _resource, _) do
+        Plug.Conn.assign(conn, :after_update2, :yes)
+      end
+
+      def before_both(conn, _) do
+        Plug.Conn.assign(conn, :before_both, :yes)
+      end
+      def before_update(conn, _) do
+        Plug.Conn.assign(conn, :before_update, :yes)
       end
     end
   end

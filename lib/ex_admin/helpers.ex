@@ -318,6 +318,22 @@ defmodule ExAdmin.Helpers do
     end
   end
 
+
+  def group_reduce_by_reverse(collection) do
+    empty = Keyword.keys(collection)
+    |> Enum.reduce([], &(Keyword.put(&2, &1, [])))
+
+    Enum.reduce(collection, empty, fn({k,v}, acc) ->
+      Keyword.put acc, k, [v|acc[k]]
+    end)
+  end
+  def group_reduce_by(collection) do
+    group_reduce_by_reverse(collection)
+    |> Enum.reduce([], fn({k,v},acc) ->
+      Keyword.put(acc, k, Enum.reverse(v))
+    end)
+  end
+
   def to_class(prefix, field_name),
     do: prefix <> to_class(field_name)
 

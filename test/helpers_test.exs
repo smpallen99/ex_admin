@@ -31,4 +31,30 @@ defmodule ExAdmin.HelpersTest do
       end)
     assert res == expected
   end
+
+  test "group_by" do
+    list = [one: 1, two: 2, two: 3]
+    result = Helpers.group_by(list, &(elem(&1,0)))
+    assert result[:one] == [one: 1]
+    assert result[:two] == [two: 2, two: 3]
+  end
+
+  test "group_reduce_by_reverse" do
+    list = [one: 1, two: 2, two: 3]
+    result = Helpers.group_reduce_by_reverse(list)
+    assert result[:one] == [1]
+    assert result[:two] == [3,2]
+  end
+
+  test "group_reduce_by" do
+    list = [one: 1, two: 2, two: 3]
+    result = Helpers.group_reduce_by(list)
+    assert result[:one] == [1]
+    assert result[:two] == [2,3]
+    list = [after_filter: {:three, []}, before_filter: {:two, [only: [:update]]},
+      before_filter: {:one, [only: [:create, :update]]}]
+    result = Helpers.group_reduce_by(list)
+    assert result[:before_filter] == [two: [only: [:update]], one: [only: [:create, :update]]]
+    assert result[:after_filter] == [three: []]
+  end
 end
