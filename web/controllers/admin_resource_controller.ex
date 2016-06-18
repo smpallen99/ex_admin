@@ -2,7 +2,6 @@ defmodule ExAdmin.AdminResourceController do
   @moduledoc false
   use ExAdmin.Web, :controller
   require Logger
-  import ExAdmin
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
   require IEx
@@ -168,7 +167,7 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
     conn = Plug.Conn.assign(conn, :ea_required,
-       model.__struct__.resource_model.changeset(resource).required)
+       defn.resource_model.changeset(resource).required)
     {conn, params, resource} = handle_after_filter(conn, :edit, defn, params, resource)
     contents = do_form_view(model, conn, resource, params)
 
@@ -179,7 +178,7 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
     conn = Plug.Conn.assign(conn, :ea_required,
-       model.__struct__.resource_model.changeset(resource).required)
+       defn.resource_model.changeset(resource).required)
     {conn, params, resource} = handle_after_filter(conn, :new, defn, params, resource)
     contents = do_form_view(model, conn, resource, params)
 
@@ -197,9 +196,10 @@ defmodule ExAdmin.AdminResourceController do
   def create(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
-    resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
+    resource_name = resource_name(defn)
+
     changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
+    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_name])
 
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
@@ -216,11 +216,12 @@ defmodule ExAdmin.AdminResourceController do
 
   def update(conn, defn, params) do
     model = defn.__struct__
-    resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
     resource = conn.assigns.resource
+    resource_name = resource_name(defn)
 
     changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
+    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_name])
+
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
         conn = put_flash(conn, :inline_error, changeset.errors)
@@ -247,16 +248,16 @@ defmodule ExAdmin.AdminResourceController do
 
   def destroy(conn, defn, params) do
     model = defn.__struct__
-    resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
     resource = conn.assigns.resource
+    resource_name = resource_name(defn)
 
-    ExAdmin.Repo.delete(resource, params[resource_model])
-    resource_model = base_name model
+    ExAdmin.Repo.delete(resource, params[resource_name])
+    model_name = base_name model
 
     if conn.assigns.xhr do
-      render conn, "destroy.js", tr_id: String.downcase("#{resource_model}_#{params[:id]}")
+      render conn, "destroy.js", tr_id: String.downcase("#{model_name}_#{params[:id]}")
     else
-      put_flash(conn, :notice, "#{resource_model} was successfully destroyed.")
+      put_flash(conn, :notice, "#{model_name} was successfully destroyed.")
       |> redirect(to: admin_resource_path(defn.resource_model, :index))
     end
   end
@@ -333,6 +334,12 @@ defmodule ExAdmin.AdminResourceController do
       end
     end
   end
+
+
+  defp resource_name(defn) do
+    defn.resource_model |> base_name |> String.downcase |> String.to_atom
+  end
+
   defp send_resp(conn, default_status, default_content_type, body) do
     conn
     |> ensure_resp_content_type(default_content_type)
