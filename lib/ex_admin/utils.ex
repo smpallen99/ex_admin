@@ -8,6 +8,17 @@ defmodule ExAdmin.Utils do
   if @module do
     @endpoint Module.concat([@module, "Endpoint"])
     @router Module.concat([@module, "Router", "Helpers"])
+  else
+    raise """
+    Please, setup ex_admin in your config/config.exs:
+
+      config :ex_admin,
+        repo: MyProject.Repo,
+        module: MyProject,
+        modules: [
+          MyProject.ExAdmin.Dashboard,
+        ]
+    """
   end
 
   @doc false
