@@ -201,10 +201,9 @@ defmodule ExAdmin.AdminResourceController do
   def create(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
-    resource_name = resource_name(defn)
 
     changeset_fn = model.changeset_fn(defn, :create)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_name])
+    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
 
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
@@ -219,10 +218,9 @@ defmodule ExAdmin.AdminResourceController do
   def update(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
-    resource_name = resource_name(defn)
 
     changeset_fn = model.changeset_fn(defn, :update)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_name])
+    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
 
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
@@ -248,9 +246,8 @@ defmodule ExAdmin.AdminResourceController do
   def destroy(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
-    resource_name = resource_name(defn)
 
-    ExAdmin.Repo.delete(resource, params[resource_name])
+    ExAdmin.Repo.delete(resource, params[defn.resource_name])
     model_name = base_name model
 
     if conn.assigns.xhr do
@@ -332,11 +329,6 @@ defmodule ExAdmin.AdminResourceController do
         _ -> acc
       end
     end
-  end
-
-
-  defp resource_name(defn) do
-    defn.resource_model |> base_name |> String.downcase |> String.to_atom
   end
 
   defp send_resp(conn, default_status, default_content_type, body) do

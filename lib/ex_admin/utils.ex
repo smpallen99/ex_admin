@@ -41,6 +41,11 @@ defmodule ExAdmin.Utils do
     |> List.last
   end
 
+  @doc false
+  def resource_name(item) do
+    item |> base_name |> String.downcase |> String.to_atom
+  end
+
   @doc """
   Convert a field name to its human readable form.
 

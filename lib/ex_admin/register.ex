@@ -182,6 +182,7 @@ defmodule ExAdmin.Register do
                 title_actions: &ExAdmin.default_resource_title_actions/2,
                 type: :resource,
                 resource_model: module,
+                resource_name: resource_name(module),
                 query_opts: query_opts,
                 controller_route: controller_route,
                 menu: menu_opts,
@@ -234,7 +235,7 @@ defmodule ExAdmin.Register do
             from r in query, where: ilike(field(r, ^field), ^("%#{keywords}%"))
         end
       end
-      
+
       def changeset_fn(defn, action) do
         Keyword.get(defn.changesets, action, &defn.resource_model.changeset/2)
       end
