@@ -164,33 +164,38 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def edit(conn, defn, params) do
-    model = defn.__struct__
     resource = conn.assigns.resource
     conn = Plug.Conn.assign(conn, :ea_required,
        defn.resource_model.changeset(resource).required)
     {conn, params, resource} = handle_after_filter(conn, :edit, defn, params, resource)
-    contents = do_form_view(model, conn, resource, params)
+    contents = do_form_view(conn, resource, params)
 
     render conn, "admin.html", html: contents, filters: nil
   end
 
   def new(conn, defn, params) do
-    model = defn.__struct__
     resource = conn.assigns.resource
     conn = Plug.Conn.assign(conn, :ea_required,
        defn.resource_model.changeset(resource).required)
     {conn, params, resource} = handle_after_filter(conn, :new, defn, params, resource)
-    contents = do_form_view(model, conn, resource, params)
+    contents = do_form_view(conn, resource, params)
 
     render conn, "admin.html", html: contents, filters: nil
   end
 
-  defp do_form_view(model, conn, resource, params) do
+  defp do_form_view(conn, resource, params) do
+    model = conn.assigns.defn.__struct__
     if function_exported? model, :form_view, 3 do
       apply(model, :form_view, [conn, resource, params])
     else
       ExAdmin.Form.default_form_view conn, resource, params
     end
+  end
+
+  defp handle_changeset_error(conn, changeset, params) do
+    conn = put_flash(conn, :inline_error, changeset.errors)
+    contents = do_form_view(conn, ExAdmin.Changeset.get_data(changeset), params)
+    render(conn, "admin.html", html: contents, filters: nil)
   end
 
   def create(conn, defn, params) do
@@ -203,10 +208,7 @@ defmodule ExAdmin.AdminResourceController do
 
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
-        conn = put_flash(conn, :inline_error, changeset.errors)
-        contents = do_form_view model, conn,
-          ExAdmin.Changeset.get_data(changeset), params
-        conn |> render("admin.html", html: contents, filters: nil)
+        conn |> handle_changeset_error(changeset, params)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :create, defn, params, resource)
         put_flash(conn, :notice, "#{base_name model} was successfully created.")
@@ -224,10 +226,7 @@ defmodule ExAdmin.AdminResourceController do
 
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
-        conn = put_flash(conn, :inline_error, changeset.errors)
-        contents = do_form_view model, conn,
-          ExAdmin.Changeset.get_data(changeset), params
-        conn |> render("admin.html", html: contents, filters: nil)
+        conn |> handle_changeset_error(changeset, params)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :update, defn, params, resource)
         put_flash(conn, :notice, "#{base_name model} was successfully updated")
