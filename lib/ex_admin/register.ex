@@ -234,6 +234,10 @@ defmodule ExAdmin.Register do
             from r in query, where: ilike(field(r, ^field), ^("%#{keywords}%"))
         end
       end
+      
+      def changeset_fn(defn, action) do
+        Keyword.get(defn.changesets, action, &defn.resource_model.changeset/2)
+      end
 
       def plugs(), do: @controller_plugs
 

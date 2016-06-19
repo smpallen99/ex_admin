@@ -203,7 +203,7 @@ defmodule ExAdmin.AdminResourceController do
     resource = conn.assigns.resource
     resource_name = resource_name(defn)
 
-    changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
+    changeset_fn = model.changeset_fn(defn, :create)
     changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_name])
 
     case ExAdmin.Repo.insert(changeset) do
@@ -221,7 +221,7 @@ defmodule ExAdmin.AdminResourceController do
     resource = conn.assigns.resource
     resource_name = resource_name(defn)
 
-    changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
+    changeset_fn = model.changeset_fn(defn, :update)
     changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_name])
 
     case ExAdmin.Repo.update(changeset) do
