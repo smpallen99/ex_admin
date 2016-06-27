@@ -227,8 +227,10 @@ defmodule ExAdmin.Index do
         end
         |> Enum.map(&({translate_field(defn, &1), %{}}))
 
-        if :id in defn.resource_model.__schema__(:fields) and Enum.any?(columns, (&(elem(&1, 0) == :id))) do
-          columns = Keyword.put columns, :id, %{link: true}
+        columns = if :id in defn.resource_model.__schema__(:fields) and Enum.any?(columns, (&(elem(&1, 0) == :id))) do
+          Keyword.put columns, :id, %{link: true}
+        else
+          columns
         end
 
         opts = %{}

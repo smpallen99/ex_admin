@@ -30,7 +30,7 @@ defmodule ExAdmin.AdminAssociationController do
     |> repo.paginate(params)
 
     results = page.entries
-    |> Enum.map(fn(r) -> %{id: ExAdmin.Schema.get_id(r), pretty_name: ExAdmin.Helpers.dispay_name(r)} end)
+    |> Enum.map(fn(r) -> %{id: ExAdmin.Schema.get_id(r), pretty_name: ExAdmin.Helpers.display_name(r)} end)
 
     resp = %{results: results, more: page.page_number < page.total_pages}
     conn |> json(resp)

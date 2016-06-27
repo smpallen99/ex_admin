@@ -159,10 +159,10 @@ defmodule ExAdmin.Register do
       end
 
       controller_route = (base_name(module) |> Inflex.underscore |> Inflex.pluralize)
-      case Module.get_attribute(__MODULE__, :options) do
-        nil -> nil
+      controller_route = case Module.get_attribute(__MODULE__, :options) do
+        nil -> controller_route
         options ->
-          controller_route = Keyword.get(options, :controller_route, controller_route)
+          Keyword.get(options, :controller_route, controller_route)
       end
       plugs = case Module.get_attribute(__MODULE__, :controller_plugs) do
         nil -> []

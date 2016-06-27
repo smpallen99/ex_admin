@@ -20,7 +20,7 @@ defmodule ExAdmin.Theme.AdminLte2 do
     end
   end
 
-  def wrap_item_type(:boolean, label, ext_name, contents, error, required) do
+  def wrap_item_type(:boolean, label, ext_name, contents, error, _required) do
     error = get_form_error_class(error)
     div ".col-sm-offset-2.col-sm-10#{error}" do
       div ".checkbox" do

@@ -111,7 +111,7 @@ defmodule ExAdmin do
   require Logger
   use Xain
   alias ExAdmin.Utils
-  import ExAdmin.Utils, only: [base_name: 1, titleize: 1, humanize: 1, admin_resource_path: 2]
+  import ExAdmin.Utils, only: [titleize: 1, humanize: 1, admin_resource_path: 2]
   require ExAdmin.Register
 
   @filename "/tmp/ex_admin_registered"
@@ -209,7 +209,7 @@ defmodule ExAdmin do
   end
 
   @doc false
-  def get_title_actions(%Plug.Conn{private: _private, path_info: path_info} = conn) do
+  def get_title_actions(%Plug.Conn{private: _private, path_info: _path_info} = conn) do
     defn = conn.assigns.defn
     fun = defn |> Map.get(:title_actions)
     fun.(conn, defn)
