@@ -3,7 +3,7 @@ defmodule ExAdminTest.IndexTest do
   alias ExAdmin.Index
 
   def setup_conn(defn, resource, params \\ %{}) do
-    Plug.Conn.assign(conn(), :defn, defn)
+    Plug.Conn.assign(build_conn(), :defn, defn)
     |> Plug.Conn.assign(:resource, resource)
     |> Plug.Conn.assign(:theme, ExAdmin.Theme.AdminLte2)
     |> struct(params: params)
