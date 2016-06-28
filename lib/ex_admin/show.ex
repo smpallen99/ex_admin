@@ -50,7 +50,7 @@ defmodule ExAdmin.Show do
       def show_view(var!(conn), unquote(resource) = var!(resource)) do
         import ExAdmin.Utils
         import ExAdmin.ViewHelpers
-
+        _ = var!(resource)
         markup safe: true do
           unquote(contents)
         end

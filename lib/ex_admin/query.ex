@@ -14,7 +14,7 @@ defmodule ExAdmin.Query do
   def get_scope(_scopes, scope), do: to_atom(scope)
 
   @doc false
-  def run_query(resource_model, repo, defn, action, id, query_opts) do
+  def run_query(resource_model, _repo, defn, action, id, query_opts) do
     resource_model
     |> build_query(query_opts, action, id, defn)
     # |> paginate(repo, action, id)

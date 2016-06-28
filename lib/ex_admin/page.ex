@@ -56,6 +56,7 @@ defmodule ExAdmin.Page do
         import Kernel, except: [div: 2, to_string: 1]
         import ExAdmin.ViewHelpers
         use Xain
+        _ = var!(conn)
         markup safe: true do
           unquote(block)
         end

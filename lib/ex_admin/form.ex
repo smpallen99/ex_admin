@@ -625,7 +625,7 @@ defmodule ExAdmin.Form do
 
     binary_tuple = binary_tuple?(collection)
 
-    {html, id} = wrap_item(resource, field_name, model_name, label, errors, item[:opts],
+    {html, _id} = wrap_item(resource, field_name, model_name, label, errors, item[:opts],
                                               conn.params, required, fn(ext_name) ->
       item = update_in item[:opts], &(Map.delete(&1, :change) |> Map.delete(:ajax))
       markup do
@@ -801,7 +801,7 @@ defmodule ExAdmin.Form do
 
   require IEx
   @doc false
-  def build_item(conn, %{type: :inputs, name: field_name} = item, resource, model_name, errors) do
+  def build_item(conn, %{type: :inputs, name: _field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
     Adminlog.debug "build_item 10: #{inspect field_name}"
     theme_module(conn, Form).form_box item, opts, fn ->

@@ -25,13 +25,13 @@ defmodule ExAdmin.Form.Fields do
     end
   end
 
-  defp _input_collection(resource, collection, model_name, field_name, item, %{cardinality: :one} = assoc, params, errors) do
+  defp _input_collection(resource, collection, model_name, field_name, item, %{cardinality: :one} = assoc, _params, _errors) do
     Adminlog.debug "1st _input_collection... #{field_name}"
 
     ext_name = ext_name model_name, field_name
     assoc_fields = get_association_fields(item[:opts])
 
-    err = if errors == [], do: false, else: true
+    # err = if errors == [], do: false, else: true
     select(class: "form-control", id: "#{ext_name}_id", name: "#{model_name}[#{assoc.owner_key}]") do
       handle_prompt(field_name, item)
       for item <- collection do

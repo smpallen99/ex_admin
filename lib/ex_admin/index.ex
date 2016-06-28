@@ -223,7 +223,7 @@ defmodule ExAdmin.Index do
         end
         |> case do
           [] ->
-            columns = defn.resource_model.__schema__(:fields)
+            defn.resource_model.__schema__(:fields)
             |> Enum.filter(&(not &1 in [:inserted_at, :updated_at]))
           other ->
             other
@@ -376,7 +376,7 @@ defmodule ExAdmin.Index do
   end
 
   @doc false
-  def get_authorized_links(conn, resource_model) do
+  def get_authorized_links(conn, _resource_model) do
     Enum.reduce [:show, :edit, :destroy], [], fn(item, acc) ->
       if ExAdmin.Utils.authorized_action?(conn, item), do: [item | acc], else: acc
     end

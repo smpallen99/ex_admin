@@ -32,10 +32,18 @@ defmodule TestExAdmin.ConnCase do
 
       # The default endpoint for testing
       @endpoint TestExAdmin.Endpoint
+      unless function_exported?(Phoenix.ConnTest, :build_conn, 0) do
+        def build_conn, do: Phoenix.ConnTest.conn()
+      end
     end
   end
 
   setup _tags do
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    conn = if function_exported? Phoenix.ConnTest, :build_conn, 0 do
+      Phoenix.ConnTest.build_conn()
+    else
+      Phoenix.ConnTest.conn()
+    end
+    {:ok, conn: conn}
   end
 end
