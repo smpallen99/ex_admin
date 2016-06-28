@@ -53,6 +53,19 @@ defmodule ExAdminTest.ControllerTest do
     assert String.contains?(conn.resp_body, "can't be blank")
   end
 
+  test "does not create resource and sets changeset" do
+    conn = post build_conn(), admin_resource_path(Product, :create), product: @invalid_attrs
+    assert html_response(conn, 200) =~ "New Product"
+    assert conn.assigns[:changeset].changes == %{}
+  end
+
+  test "does not create resource and required fields" do
+    conn = post build_conn(), admin_resource_path(Product, :create), product: @invalid_attrs
+    assert html_response(conn, 200) =~ "New Product"
+
+    refute Floki.find(conn.resp_body, "#product_title_input abbr") == []
+  end
+
   test "shows 404 for GET missing endpoint" do
     conn = get build_conn(), @wrong_endpoint
     assert html_response(conn, 404) =~ ~r/not found/

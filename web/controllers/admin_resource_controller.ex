@@ -216,6 +216,7 @@ defmodule ExAdmin.AdminResourceController do
 
   defp handle_changeset_error(conn, defn, changeset, params) do
     conn = put_flash(conn, :inline_error, changeset.errors)
+    |> Plug.Conn.assign(:changeset, changeset)
     |> Plug.Conn.assign(:ea_required,
        defn.resource_model.changeset(conn.assigns.resource).required)
     contents = do_form_view(conn, ExAdmin.Changeset.get_data(changeset), params)
