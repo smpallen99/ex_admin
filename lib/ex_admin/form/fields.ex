@@ -3,29 +3,21 @@ defmodule ExAdmin.Form.Fields do
   use ExAdmin.Adminlog
   import ExAdmin.Utils
   import ExAdmin.Helpers
+  import ExAdmin.Theme.Helpers
   import Xain, except: [input: 1]
 
   def ext_name(model_name, field_name), do: "#{model_name}_#{field_name}"
 
   def input_collection(resource, collection, model_name, field_name, _id, _nested_name, item, params, errors) do
     # ext_name = ext_name model_name, field_name
-    _input_collection(resource, collection, model_name, field_name, item,
+    do_input_collection(resource, collection, model_name, field_name, item,
         resource.__struct__.__schema__(:association, field_name), params, errors)
   end
   def ajax_input_collection(resource, collection, model_name, field_name, _id, _nested_name, item, params) do
-    ext_name = ext_name model_name, field_name
-    markup do
-      label ".col-sm-2.control-label", for: "#{ext_name}" do
-        humanize field_name
-      end
-      Xain.div ".col-sm-10" do
-        _input_collection(resource, collection, model_name, field_name, item,
-            resource.__struct__.__schema__(:association, field_name), params, [])
-      end
-    end
+    theme_module(Fields).theme_ajax_input_collection(resource, collection, model_name, field_name, item, params)
   end
 
-  defp _input_collection(resource, collection, model_name, field_name, item, %{cardinality: :one} = assoc, _params, _errors) do
+  def do_input_collection(resource, collection, model_name, field_name, item, %{cardinality: :one} = assoc, _params, _errors) do
     Adminlog.debug "1st _input_collection... #{field_name}"
 
     ext_name = ext_name model_name, field_name
@@ -98,7 +90,7 @@ defmodule ExAdmin.Form.Fields do
   #     end
   #   end
   # end
-  defp _input_collection(resource, collection, model_name, field_name,
+  def do_input_collection(resource, collection, model_name, field_name,
       %{opts: %{as: :check_boxes} = opts}, %{cardinality: :many, through: [_join_name | _]} = assoc, params, errors) do
     Adminlog.debug "3rd _input_collection... #{field_name}"
 
@@ -123,7 +115,7 @@ defmodule ExAdmin.Form.Fields do
          true ->
           []
       end
-      html = Xain.div ".checkbox" do
+      html = theme_module(Fields).input_checkbox fn ->
         id = id_base <> Integer.to_string(o.id)
         label for: id  do
           input "#" <> id, [value: o.id, name: name, type: :checkbox] ++ checked
@@ -138,7 +130,7 @@ defmodule ExAdmin.Form.Fields do
     end
   end
 
-  defp _input_collection(_resource, _collection, _model_name, field_name, item, assoc, _params, _errors) do
+  def do_input_collection(_resource, _collection, _model_name, field_name, item, assoc, _params, _errors) do
     Logger.error "_input_collection: unknown type for field_name: #{inspect field_name}, item[:opts]: #{inspect item[:opts]}, assoc: #{inspect assoc}"
   end
 
