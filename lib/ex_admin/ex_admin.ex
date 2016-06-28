@@ -111,7 +111,7 @@ defmodule ExAdmin do
   require Logger
   use Xain
   alias ExAdmin.Utils
-  import ExAdmin.Utils, only: [base_name: 1, titleize: 1, humanize: 1, admin_resource_path: 2]
+  import ExAdmin.Utils, only: [titleize: 1, humanize: 1, admin_resource_path: 2]
   require ExAdmin.Register
 
   @filename "/tmp/ex_admin_registered"

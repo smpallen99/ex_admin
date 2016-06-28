@@ -159,10 +159,10 @@ defmodule ExAdmin.Register do
       end
 
       controller_route = (base_name(module) |> Inflex.underscore |> Inflex.pluralize)
-      case Module.get_attribute(__MODULE__, :options) do
-        nil -> nil
+      controller_route = case Module.get_attribute(__MODULE__, :options) do
+        nil -> controller_route
         options ->
-          controller_route = Keyword.get(options, :controller_route, controller_route)
+          Keyword.get(options, :controller_route, controller_route)
       end
       plugs = case Module.get_attribute(__MODULE__, :controller_plugs) do
         nil -> []
@@ -185,6 +185,7 @@ defmodule ExAdmin.Register do
                 title_actions: &ExAdmin.default_resource_title_actions/2,
                 type: :resource,
                 resource_model: module,
+                resource_name: resource_name(module),
                 query_opts: query_opts,
                 controller_route: controller_route,
                 menu: menu_opts,
@@ -236,6 +237,10 @@ defmodule ExAdmin.Register do
           keywords ->
             from r in query, where: ilike(field(r, ^field), ^("%#{keywords}%"))
         end
+      end
+
+      def changeset_fn(defn, action) do
+        Keyword.get(defn.changesets, action, &defn.resource_model.changeset/2)
       end
 
       def plugs(), do: @controller_plugs

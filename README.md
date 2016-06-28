@@ -64,6 +64,19 @@ mix.exs
   end
 ```
 
+Add some admin configuration and the admin modules to the config file
+
+config/config.exs
+```elixir
+config :ex_admin,
+  repo: MyProject.Repo,
+  module: MyProject,
+  modules: [
+    MyProject.ExAdmin.Dashboard,
+  ]
+
+```
+
 Fetch and compile the dependency
 
 ```
@@ -103,19 +116,6 @@ lib/survey/repo.ex
     use Ecto.Repo, otp_app: :survey
     use Scrivener, page_size: 10
   end
-
-```
-
-Add some admin configuration and the admin modules to the config file
-
-config/config.exs
-```elixir
-config :ex_admin,
-  repo: MyProject.Repo,
-  module: MyProject,
-  modules: [
-    MyProject.ExAdmin.Dashboard,
-  ]
 
 ```
 

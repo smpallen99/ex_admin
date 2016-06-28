@@ -608,10 +608,8 @@ defmodule ExAdmin.Form do
 
     Adminlog.debug "build_item 3: #{inspect field_name}"
 
-    if is_function(collection) do
-      collection = collection.(conn, resource)
-    end
-
+    # IO.puts "build_item 3: #{inspect field_name}"
+    collection = if is_function(collection), do: collection.(conn, resource), else: collection
     module = resource.__struct__
     errors_field_name = if field_name in module.__schema__(:associations) do
       Map.get module.__schema__(:association, field_name), :owner_key
@@ -767,9 +765,7 @@ defmodule ExAdmin.Form do
       resource, model_name, errors) when is_atom(name) do
 
     Adminlog.debug "build_item 9: #{inspect name}"
-    if is_function(collection) do
-      collection = collection.(conn, resource)
-    end
+    collection = if is_function(collection), do: collection.(conn, resource), else: collection
     errors = get_errors(errors, name)
     name_ids = "#{Atom.to_string(name) |> Inflex.singularize}_ids"
     assoc_ids = Enum.map(get_resource_field2(resource, name), &(Schema.get_id(&1)))

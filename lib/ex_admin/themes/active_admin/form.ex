@@ -175,9 +175,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
           error = if errors in [nil, [], false], do: "", else: ".error"
           case field[:opts] do
             %{collection: collection} ->
-              if is_function(collection) do
-                collection = collection.(conn, res)
-              end
+              collection = if is_function(collection), do: collection.(conn, res), else: collection
               li ".select.input#{error}", [id: "#{ext_name}_label_input"] do
                 label ".label", for: "#{ext_name}_#{f_name}" do
                   text humanize(f_name)

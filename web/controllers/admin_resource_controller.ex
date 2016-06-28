@@ -120,7 +120,7 @@ defmodule ExAdmin.AdminResourceController do
     end
     |> _handle_after_filter(action, defn, t)
   end
-  def _handle_after_filter(args, action, defn, _), do: args
+  def _handle_after_filter(args, _action, _defn, _), do: args
 
   defp handle_plugs(conn, :nested, _defn), do: conn
   defp handle_plugs(conn, _action, defn) do
@@ -186,28 +186,27 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def edit(conn, defn, params) do
-    model = defn.__struct__
     resource = conn.assigns.resource
     conn = Plug.Conn.assign(conn, :ea_required,
-       model.__struct__.resource_model.changeset(resource).required)
+       defn.resource_model.changeset(resource).required)
     {conn, params, resource} = handle_after_filter(conn, :edit, defn, params, resource)
-    contents = do_form_view(model, conn, resource, params)
+    contents = do_form_view(conn, resource, params)
 
     render conn, "admin.html", html: contents, filters: nil
   end
 
   def new(conn, defn, params) do
-    model = defn.__struct__
     resource = conn.assigns.resource
     conn = Plug.Conn.assign(conn, :ea_required,
-       model.__struct__.resource_model.changeset(resource).required)
+       defn.resource_model.changeset(resource).required)
     {conn, params, resource} = handle_after_filter(conn, :new, defn, params, resource)
-    contents = do_form_view(model, conn, resource, params)
+    contents = do_form_view(conn, resource, params)
 
     render conn, "admin.html", html: contents, filters: nil
   end
 
-  defp do_form_view(model, conn, resource, params) do
+  defp do_form_view(conn, resource, params) do
+    model = conn.assigns.defn.__struct__
     if function_exported? model, :form_view, 3 do
       apply(model, :form_view, [conn, resource, params])
     else
@@ -215,26 +214,24 @@ defmodule ExAdmin.AdminResourceController do
     end
   end
 
+  defp handle_changeset_error(conn, defn, changeset, params) do
+    conn = put_flash(conn, :inline_error, changeset.errors)
+    |> Plug.Conn.assign(:ea_required,
+       defn.resource_model.changeset(conn.assigns.resource).required)
+    contents = do_form_view(conn, ExAdmin.Changeset.get_data(changeset), params)
+    render(conn, "admin.html", html: contents, filters: nil)
+  end
+
   def create(conn, defn, params) do
     model = defn.__struct__
     resource = conn.assigns.resource
-    resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
-    changeset_fn = Keyword.get(defn.changesets, :create, &resource.__struct__.changeset/2)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
+
+    changeset_fn = model.changeset_fn(defn, :create)
+    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
 
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
-        errors = if function_exported?(defn.resource_model, :get_errors, 1) do
-          apply(defn.resource_model, :get_errors, [changeset])
-        else
-          changeset.errors
-        end
-        conn = put_flash(conn, :inline_error, errors)
-        |> assign(:ea_required, defn.resource_model.changeset(resource).required)
-        |> assign(:changeset, changeset)
-        contents = do_form_view model, conn,
-          ExAdmin.Changeset.get_data(changeset), params
-        conn |> render("admin.html", html: contents, filters: nil)
+        conn |> handle_changeset_error(defn, changeset, params)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :create, defn, params, resource)
         put_flash(conn, :notice, "#{base_name model} was successfully created.")
@@ -244,24 +241,14 @@ defmodule ExAdmin.AdminResourceController do
 
   def update(conn, defn, params) do
     model = defn.__struct__
-    resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
     resource = conn.assigns.resource
 
-    changeset_fn = Keyword.get(defn.changesets, :update, &resource.__struct__.changeset/2)
-    changeset1 = ExAdmin.Repo.changeset(changeset_fn, resource, params[resource_model])
-    case ExAdmin.Repo.update(changeset1) do
+    changeset_fn = model.changeset_fn(defn, :update)
+    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
+
+    case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
-        errors = if function_exported?(defn.resource_model, :get_errors, 1) do
-          apply(defn.resource_model, :get_errors, [changeset])
-        else
-          changeset.errors
-        end
-        conn = put_flash(conn, :inline_error, errors)
-        |> assign(:ea_required, defn.resource_model.changeset(resource).required)
-        |> assign(:changeset, changeset)
-        contents = do_form_view model, conn,
-          ExAdmin.Changeset.get_data(changeset), params
-        conn |> render("admin.html", html: contents, filters: nil)
+        conn |> handle_changeset_error(defn, changeset, params)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :update, defn, params, resource)
         put_flash(conn, :notice, "#{base_name model} was successfully updated")
@@ -282,16 +269,15 @@ defmodule ExAdmin.AdminResourceController do
 
   def destroy(conn, defn, params) do
     model = defn.__struct__
-    resource_model = defn.resource_model |> base_name |> String.downcase |> String.to_atom
     resource = conn.assigns.resource
 
-    ExAdmin.Repo.delete(resource, params[resource_model])
-    resource_model = base_name model
+    ExAdmin.Repo.delete(resource, params[defn.resource_name])
+    model_name = base_name model
 
     if conn.assigns.xhr do
-      render conn, "destroy.js", tr_id: String.downcase("#{resource_model}_#{params[:id]}")
+      render conn, "destroy.js", tr_id: String.downcase("#{model_name}_#{params[:id]}")
     else
-      put_flash(conn, :notice, "#{resource_model} was successfully destroyed.")
+      put_flash(conn, :notice, "#{model_name} was successfully destroyed.")
       |> redirect(to: admin_resource_path(defn.resource_model, :index))
     end
   end
@@ -380,6 +366,7 @@ defmodule ExAdmin.AdminResourceController do
       end
     end
   end
+
   defp send_resp(conn, default_status, default_content_type, body) do
     conn
     |> ensure_resp_content_type(default_content_type)

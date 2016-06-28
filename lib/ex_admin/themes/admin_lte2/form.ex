@@ -198,9 +198,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
           error = if errors in [nil, [], false], do: "", else: ".has-error"
           case field[:opts] do
             %{collection: collection} ->
-              if is_function(collection) do
-                collection = collection.(conn, res)
-              end
+              collection = if is_function(collection), do: collection.(conn, res), else: collection
               div ".form-group", [id: "#{ext_name}_label_input"] do
                 label ".col-sm-2.control-label", for: "#{ext_name}_#{f_name}" do
                   text humanize(f_name)

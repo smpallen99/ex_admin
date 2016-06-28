@@ -11,6 +11,16 @@ defmodule ExAdmin.Utils do
   else
     @endpoint nil
     @router nil
+    raise """
+    Please, setup ex_admin in your config/config.exs:
+
+      config :ex_admin,
+        repo: MyProject.Repo,
+        module: MyProject,
+        modules: [
+          MyProject.ExAdmin.Dashboard,
+        ]
+    """
   end
 
   @doc false
@@ -31,6 +41,11 @@ defmodule ExAdmin.Utils do
     item
     |> String.split(".")
     |> List.last
+  end
+
+  @doc false
+  def resource_name(item) do
+    item |> base_name |> String.downcase |> String.to_atom
   end
 
   @doc """
