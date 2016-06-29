@@ -791,7 +791,8 @@ defmodule ExAdmin.Form do
             for opt <- collection do
               opt_id = Schema.get_id(opt)
               selected = if opt_id in assoc_ids, do: [selected: "selected"], else: []
-              option "#{opt.name}", [value: "#{opt_id}"] ++ selected
+              display_name = display_name opt
+              option "#{display_name}", [value: "#{opt_id}"] ++ selected
             end
           end
         end
