@@ -801,8 +801,9 @@ defmodule ExAdmin.Form do
 
   require IEx
   @doc false
-  def build_item(conn, %{type: :inputs, name: _field_name} = item, resource, model_name, errors) do
+  def build_item(conn, %{type: :inputs, name: field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
+    _ = field_name
     Adminlog.debug "build_item 10: #{inspect field_name}"
     theme_module(conn, Form).form_box item, opts, fn ->
       theme_module(conn, Form).theme_build_inputs item, opts, fn ->
