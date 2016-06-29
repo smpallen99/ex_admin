@@ -2,6 +2,14 @@ defmodule ExAdmin.LayoutView do
   @moduledoc false
   use ExAdmin.Web, :view
 
+  def favicon do
+    if File.exists? "priv/static/favicon.ico" do
+      Phoenix.HTML.Tag.tag :link, rel: "shortcut icon", href: "/favicon.ico", type: "image/favicon.ico"
+    else
+      ""
+    end
+  end
+
   def site_title do
     case Application.get_env(:ex_admin, :title) do
       nil ->
