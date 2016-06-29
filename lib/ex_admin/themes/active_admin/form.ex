@@ -131,10 +131,11 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   end
 
   def build_inputs_has_many(_field_name, _human_label, fun) do
-    li ".input" do
-      res = fun.()
+    {contents, html} = fun.()
+    new_html = li ".input" do
+      html
     end
-    res
+    {contents, new_html}
   end
 
   def has_many_insert_item(html, new_record_name_var) do
