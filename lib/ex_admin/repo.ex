@@ -248,8 +248,6 @@ defmodule ExAdmin.Repo do
   #
   def do_attributes_for(resource, model, _id, params, inx) do
     {assoc_model, _} = get_assoc_model resource, model
-    require IEx
-    IEx.pry
     assoc_resource = repo.get assoc_model, params[:id]
 
     cs = assoc_model.changeset(assoc_resource, params)
@@ -338,7 +336,6 @@ res
   def get_assoc_model(resource, field) do
     case get_assoc_join_model(resource, field) do
       {:ok, {assoc, second}} ->
-        # IEx.pry
         {assoc.__schema__(:association, second).related, assoc}
       error ->
         error

@@ -21,9 +21,18 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
 
         resource = setup_resource(resource, params, model_name)
 
+        {html, scripts_list} =
+          build_main_block(conn, resource, model_name, items)
+          |> Enum.reduce({[], []}, fn({h, o}, {acc_h, acc_o}) ->
+            {[h | acc_h], o ++ acc_o}
+          end)
+        html = Enum.reverse html
+
+        scripts = build_scripts(scripts_list)
         build_hidden_block(conn, mode)
-        scripts = build_main_block(conn, resource, model_name, items)
-        |> build_scripts
+        markup do
+          html
+        end
         build_actions_block(conn, model_name, mode)
       end
       put_script_block(scripts)
