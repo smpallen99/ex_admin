@@ -4,7 +4,7 @@ defmodule ExAdmin.LayoutView do
 
   def favicon do
     if File.exists? "priv/static/favicon.ico" do
-      Phoenix.HTML.Tag.tag :link, rel: "shortcut icon", href: "/favicon.ico", type: "image/favicon.ico"
+      Phoenix.HTML.Tag.tag :link, rel: "icon", href: "/favicon.ico", type: "image/x-icon"
     else
       ""
     end
