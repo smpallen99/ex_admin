@@ -57,4 +57,23 @@ defmodule ExAdmin.HelpersTest do
     assert result[:before_filter] == [two: [only: [:update]], one: [only: [:create, :update]]]
     assert result[:after_filter] == [three: []]
   end
+
+  test "get_name_field :name" do
+    assert Helpers.get_name_field(TestExAdmin.User) == :name
+  end
+  test "get_name_field :title" do
+    assert Helpers.get_name_field(TestExAdmin.Product) == :title
+  end
+  test "get_name_field not first" do
+    assert Helpers.get_name_field(TestExAdmin.Noid) == :name
+  end
+  test "get_name_field :first string field" do
+    assert Helpers.get_name_field(TestExAdmin.PhoneNumber) == :number
+  end
+  test "display_name name" do
+    assert Helpers.display_name(%TestExAdmin.User{name: "test"}) == "test"
+  end
+  test "display_name first string field" do
+    assert Helpers.display_name(%TestExAdmin.PhoneNumber{number: "5555"}) == "5555"
+  end
 end

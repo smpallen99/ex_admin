@@ -780,7 +780,8 @@ defmodule ExAdmin.Form do
               opt_id = Schema.get_id(opt)
               name_str = "#{model_name}[#{name_ids}][#{opt_id}]"
               selected = opt_id in assoc_ids
-              theme_module(conn, Form).collection_check_box opt.name, name_str,
+              display_name = display_name opt
+              theme_module(conn, Form).collection_check_box display_name, name_str,
                 opt_id, selected
             end
           end

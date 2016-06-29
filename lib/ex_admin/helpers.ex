@@ -250,6 +250,9 @@ defmodule ExAdmin.Helpers do
   def display_name(resource) do
     defn = ExAdmin.get_registered(resource.__struct__)
     cond do
+      is_nil(defn) ->
+        get_name_column_field(resource)
+
       function_exported?(defn.__struct__, :display_name, 1) ->
         apply(defn.__struct__, :display_name, [resource])
 
@@ -258,12 +261,18 @@ defmodule ExAdmin.Helpers do
 
       true ->
         case defn.name_column do
-          nil -> inspect(resource)
+          nil -> get_name_column_field(resource)
           name_field -> resource |> Map.get(name_field) |> to_string
         end
     end
   end
 
+  defp get_name_column_field(resource) do
+    case get_name_field(resource.__struct__) do
+      nil -> inspect resource
+      field -> Map.get(resource, field)
+    end
+  end
 
   def resource_identity(resource, field \\ :name)
   def resource_identity(resource, field) when is_map(resource) do

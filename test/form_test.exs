@@ -66,7 +66,7 @@ defmodule ExAdmin.FormTest do
     assert Floki.attribute(input, "name") == ["simple[name]"]
   end
 
-  test "build_item :inputs as: :chec_boxes collection", %{conn: conn} do
+  test "build_item :inputs as: :check_boxes collection", %{conn: conn} do
     roles = for name <- ~w(user admin) do
       Repo.insert! Role.changeset(%Role{}, %{name: name})
     end
