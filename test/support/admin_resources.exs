@@ -150,3 +150,18 @@ defmodule TestExAdmin.ExAdmin.Contact do
     end
   end
 end
+
+defmodule TestExAdmin.ExAdmin.ModelDisplayName do
+  use ExAdmin.Register
+  register_resource TestExAdmin.ModelDisplayName do
+  end
+end
+
+defmodule TestExAdmin.ExAdmin.DefnDisplayName do
+  use ExAdmin.Register
+  register_resource TestExAdmin.DefnDisplayName  do
+  end
+  def display_name(resource) do
+    resource.second
+  end
+end

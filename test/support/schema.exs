@@ -235,3 +235,36 @@ defmodule TestExAdmin.UUIDSchema do
   end
 
 end
+
+defmodule TestExAdmin.ModelDisplayName do
+  import Ecto.Changeset
+  use Ecto.Schema
+
+  schema "model_display_name" do
+    field :first, :string
+    field :name, :string
+    field :other, :string
+  end
+
+  @required_fields ~w(name)
+  @optional_fields ~w(first other)
+
+  def display_name(resource) do
+    resource.other
+  end
+end
+
+defmodule TestExAdmin.DefnDisplayName do
+  import Ecto.Changeset
+  use Ecto.Schema
+
+  schema "defn_display_name" do
+    field :first, :string
+    field :second, :string
+    field :name, :string
+  end
+
+  @required_fields ~w(name)
+  @optional_fields ~w(first second)
+
+end
