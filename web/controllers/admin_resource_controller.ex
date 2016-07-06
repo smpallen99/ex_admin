@@ -320,8 +320,8 @@ defmodule ExAdmin.AdminResourceController do
     |> ExAdmin.Query.execute_query(repo, :csv, nil)
     |> case  do
       [] -> []
-      [resource | resources] ->
-        ExAdmin.View.Adapter.build_csv(resource, resources)
+      resources ->
+        ExAdmin.View.Adapter.build_csv(resources)
     end
 
     conn
