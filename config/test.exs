@@ -22,6 +22,8 @@ config :ex_admin,
     TestExAdmin.ExAdmin.User,
     TestExAdmin.ExAdmin.Product,
     TestExAdmin.ExAdmin.Simple,
+    TestExAdmin.ExAdmin.ModelDisplayName,
+    TestExAdmin.ExAdmin.DefnDisplayName
   ]
 
 config :xain,

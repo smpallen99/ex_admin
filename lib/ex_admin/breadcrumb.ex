@@ -22,15 +22,17 @@ defmodule ExAdmin.BreadCrumb do
     end
   end
   defp get_breadcrumbs(conn, resource, defn, nil, action) when action in [:edit, :update] do
-    {id, first} = case resource.__struct__.__schema__(:fields) do
-      [id, first | _] -> {Map.get(resource, id), Map.get(resource, first)}
+    id = case resource.__struct__.__schema__(:primary_key) do
+      [key | _] -> Map.get resource, key
+      _ -> nil
     end
+    display_name = ExAdmin.Helpers.display_name(resource)
     get_breadcrumbs(conn, resource, defn, nil, :new) ++
     case conn.path_info do
       [admin, name | _] ->
         resource_link = admin_link(admin)
         |> resource_link(name)
-        [{resource_link <> "/#{id}", get_name(id, first)}]
+        [{resource_link <> "/#{id}", get_name(id, display_name)}]
       _ -> []
     end
   end
