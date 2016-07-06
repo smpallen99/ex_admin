@@ -1,0 +1,228 @@
+msgid ""
+msgstr ""
+"Language: fr_FR\n"
+
+#: web/controllers/admin_resource_controller.ex:303
+msgid "was successfully destroyed."
+msgid_plural "were successfully destroyed."
+msgstr[0] "a bien été supprimé(e)."
+msgstr[1] "ont bien été supprimé(e)s."
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:63
+msgid "ACTIONS"
+msgstr "ACTIONS"
+
+#: lib/ex_admin/themes/active_admin/index.ex:140
+#: lib/ex_admin/themes/admin_lte2/index.ex:134
+msgid "Batch Actions"
+msgstr "Actions groupées"
+
+#: lib/ex_admin/themes/active_admin/index.ex:33
+#: lib/ex_admin/themes/admin_lte2/index.ex:32
+msgid "Create one"
+msgstr "Créer un nouveau"
+
+#: lib/ex_admin/themes/active_admin/index.ex:113
+#: lib/ex_admin/themes/admin_lte2/index.ex:107 lib/ex_admin/view_helpers.ex:56
+msgid "Edit"
+msgstr "Editer"
+
+#: lib/ex_admin/themes/active_admin/filter.ex:14
+#: lib/ex_admin/themes/admin_lte2/filter.ex:15
+msgid "Filters"
+msgstr "Filtres"
+
+#: lib/ex_admin/view_helpers.ex:58
+msgid "New"
+msgstr "Nouveau"
+
+#: lib/mix/tasks/admin.install.ex:142
+msgid "To add dashboard sections, checkout 'web/admin/dashboards.ex'"
+msgstr "Pour ajouter des sections, utiliser 'web/admin/dashboards.ex'"
+
+#: lib/mix/tasks/admin.install.ex:141
+msgid "Welcome to ExAdmin. This is the default dashboard page."
+msgstr "Bienvenue à ExAdmin. Ceci est le tableau de bord par défaut."
+
+#: web/templates/admin_resource/index.html.eex:7
+msgid "Welcome to Notifier"
+msgstr "Bienvenue dans le Notificateur"
+
+#: web/controllers/admin_resource_controller.ex:116
+msgid "invalid after_filter return:"
+msgstr "Retour de after_filter invalide :"
+
+#: web/controllers/admin_resource_controller.ex:281
+msgid "was successfully destroyed."
+msgstr "a bien été supprimé(e)."
+
+#: web/controllers/admin_resource_controller.ex:255
+msgid "was successfully updated."
+msgstr "a bien été mis(e) à jour."
+
+#: lib/ex_admin/themes/active_admin/index.ex:126
+#: lib/ex_admin/themes/admin_lte2/index.ex:120
+msgid "Are you sure you want to delete these %{name}? You wont be able to undo this."
+msgstr "Voulez-vous vraiment supprimer tous ces %{name} ? Cette action ne pourra pas être annulée."
+
+#: lib/ex_admin/themes/admin_lte2/filter.ex:26
+msgid "Clear Filters"
+msgstr "Effacer les filtres"
+
+#: lib/ex_admin/themes/active_admin/form.ex:245
+#: lib/ex_admin/themes/active_admin/index.ex:115
+#: lib/ex_admin/themes/admin_lte2/form.ex:238
+#: lib/ex_admin/themes/admin_lte2/index.ex:109
+msgid "Delete"
+msgstr "Supprimer"
+
+#: lib/ex_admin/themes/active_admin/filter.ex:22
+#: lib/ex_admin/themes/admin_lte2/filter.ex:25
+msgid "Filter"
+msgstr "Filter"
+
+#: lib/ex_admin/themes/active_admin/index.ex:111
+#: lib/ex_admin/themes/admin_lte2/index.ex:105
+msgid "View"
+msgstr "Voir"
+
+#: lib/ex_admin/themes/active_admin/index.ex:147
+#: lib/ex_admin/themes/admin_lte2/index.ex:141
+msgid "Delete Selected"
+msgstr "Supprimer les éléments sélectionnés"
+
+#: web/controllers/admin_resource_controller.ex:238
+msgid "%{model_name} was successfully created."
+msgstr "%{model_name} a bien été créé(e)."
+
+#: web/controllers/admin_association_controller.ex:57
+msgid "%{through_assoc} was successfully added."
+msgstr "%{through_assoc} a bien été ajouté(e)."
+
+#: lib/ex_admin/utils.ex:272
+msgid "Are you sure you want to delete this?"
+msgstr "Voulez-vous vraiment supprimer ceci ?"
+
+#: lib/ex_admin/themes/active_admin/form.ex:109
+#: lib/ex_admin/themes/admin_lte2/form.ex:100
+msgid "Cancel"
+msgstr "Annuler"
+
+#: lib/ex_admin/themes/active_admin/form.ex:102
+#: lib/ex_admin/themes/admin_lte2/form.ex:97
+msgid "Create"
+msgstr "Créer"
+
+#: lib/ex_admin/index.ex:347
+msgid "Download:"
+msgstr "Télécharger :"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:25
+msgid "Logout"
+msgstr "Se déconnecter"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:22
+msgid "Profile"
+msgstr "Profil"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:47
+msgid "RESOURCES"
+msgstr "RESSOURCES"
+
+#: lib/ex_admin/themes/active_admin/form.ex:201
+#: lib/ex_admin/themes/admin_lte2/form.ex:188
+msgid "Remove"
+msgstr "Retirer"
+
+#: lib/ex_admin/themes/active_admin/filter.ex:39
+#: lib/ex_admin/themes/admin_lte2/filter.ex:41
+msgid "Search %{name_label}"
+msgstr "Rechercher %{name_label}"
+
+#: lib/ex_admin/themes/active_admin/form.ex:102
+#: lib/ex_admin/themes/admin_lte2/form.ex:97
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: lib/ex_admin/themes/active_admin/table.ex:20
+#: lib/ex_admin/themes/admin_lte2/table.ex:26
+msgid "%{resource_model} Details"
+msgstr "Détails de %{resource_model}"
+
+#: lib/mix/tasks/admin.install.ex:140
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#: lib/ex_admin/paginate.ex:38
+msgid "Displaying"
+msgstr "Affichage"
+
+#: lib/ex_admin/paginate.ex:58
+msgid "Displaying "
+msgstr "Affichage"
+
+#: lib/ex_admin/paginate.ex:48
+msgid "Displaying %{name}"
+msgstr "Affichage des %{name}"
+
+#: lib/ex_admin/filter.ex:11
+msgid "Equal To"
+msgstr "Egal à"
+
+#: lib/ex_admin/filter.ex:11
+msgid "Greater Than"
+msgstr "Supérieur à"
+
+#: lib/ex_admin/paginate.ex:68
+msgid "Last »"
+msgstr "Dernières »"
+
+#: lib/ex_admin/filter.ex:11
+msgid "Less Than"
+msgstr "Inférieur à"
+
+#: lib/ex_admin/paginate.ex:67
+msgid "Next ›"
+msgstr "Suivantes ›"
+
+#: lib/ex_admin/paginate.ex:59
+msgid "all %{total}"
+msgstr "Tous les %{total}"
+
+#: lib/ex_admin/paginate.ex:42 lib/ex_admin/paginate.ex:52
+msgid "in total"
+msgstr "au total"
+
+#: lib/ex_admin/paginate.ex:40 lib/ex_admin/paginate.ex:50
+msgid "of"
+msgstr "sur"
+
+#: lib/ex_admin/paginate.ex:65
+msgid "« First"
+msgstr "« Premières"
+
+#: lib/ex_admin/paginate.ex:66
+msgid "‹ Prev"
+msgstr "‹ Précédentes"
+
+#: lib/ex_admin/form/fields.ex:150
+msgid "Select %{nm}"
+msgstr "Sélectionner %{nm}"
+
+#: lib/ex_admin/themes/active_admin/index.ex:29
+#: lib/ex_admin/themes/admin_lte2/index.ex:28
+msgid "No %{label} found."
+msgstr "Aucun(e) %{label} trouvé(e)."
+
+#: lib/ex_admin/themes/active_admin/index.ex:31
+#: lib/ex_admin/themes/admin_lte2/index.ex:30
+msgid "There are no %{label} yet. "
+msgstr "Il n'y a pas encore de %{label}"
+
+#: lib/ex_admin/utils.ex:113
+msgid "a"
+msgstr "un(e)"
+
+#: lib/ex_admin/utils.ex:111
+msgid "an"
+msgstr "un(e)"
