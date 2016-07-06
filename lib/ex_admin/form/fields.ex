@@ -4,6 +4,7 @@ defmodule ExAdmin.Form.Fields do
   import ExAdmin.Utils
   import ExAdmin.Helpers
   import ExAdmin.Theme.Helpers
+  import ExAdmin.Gettext
   import Xain, except: [input: 1]
 
   def ext_name(model_name, field_name), do: "#{model_name}_#{field_name}"
@@ -146,7 +147,7 @@ defmodule ExAdmin.Form.Fields do
       nil ->
         nm = humanize("#{field_name}")
         |> articlize
-        "Select #{nm}"
+        (gettext "Select %{nm}",nm: nm)
       other -> other
     end
   end

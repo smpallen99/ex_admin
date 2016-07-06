@@ -4,7 +4,7 @@ defmodule ExAdmin.AdminResourceController do
   require Logger
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
-  import ExAdmin.Utils
+  import ExAdmin.Gettext
   alias ExAdmin.Authorization
 
   plug :set_theme
@@ -113,7 +113,7 @@ defmodule ExAdmin.AdminResourceController do
         {_, _, _} = tuple -> tuple
         %Plug.Conn{} = conn -> {conn, params, resource}
         error ->
-          raise ExAdmin.RuntimeError, message: "invalid after_filter return: #{inspect error}"
+          raise ExAdmin.RuntimeError, message: (gettext "invalid after_filter return:") <> " #{inspect error}"
       end
     else
       {conn, params, resource}
@@ -235,7 +235,7 @@ defmodule ExAdmin.AdminResourceController do
         conn |> handle_changeset_error(defn, changeset, params)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :create, defn, params, resource)
-        put_flash(conn, :notice, "#{base_name model} was successfully created.")
+        put_flash(conn, :notice, (gettext "%{model_name} was successfully created.", model_name: (base_name model) ))
         |> redirect(to: admin_resource_path(resource, :show))
     end
   end
@@ -252,7 +252,7 @@ defmodule ExAdmin.AdminResourceController do
         conn |> handle_changeset_error(defn, changeset, params)
       resource ->
         {conn, _, resource} = handle_after_filter(conn, :update, defn, params, resource)
-        put_flash(conn, :notice, "#{base_name model} was successfully updated")
+        put_flash(conn, :notice, "#{base_name model} " <> (gettext "was successfully updated."))
         |> redirect(to: admin_resource_path(resource, :show))
     end
   end
@@ -278,7 +278,7 @@ defmodule ExAdmin.AdminResourceController do
     if conn.assigns.xhr do
       render conn, "destroy.js", tr_id: String.downcase("#{model_name}_#{params[:id]}")
     else
-      put_flash(conn, :notice, "#{model_name} was successfully destroyed.")
+      put_flash(conn, :notice, "#{model_name} " <> (gettext "was successfully destroyed."))
       |> redirect(to: admin_resource_path(defn.resource_model, :index))
     end
   end
@@ -299,7 +299,8 @@ defmodule ExAdmin.AdminResourceController do
       repo.delete repo.get(resource_model, id)
     end)
 
-    put_flash(conn, :notice, "Successfully destroyed #{count} #{pluralize params[:resource], count}")
+    put_flash(conn, :notice, "#{count} #{pluralize params[:resource], count} "
+              <> (ngettext "was successfully destroyed.", "were successfully destroyed.", count))
     |> redirect(to: admin_resource_path(resource_model, :index))
   end
 

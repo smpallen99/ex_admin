@@ -7,6 +7,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   require Integer
   require Logger
   import ExAdmin.Helpers
+  import ExAdmin.Gettext
   alias ExAdmin.Schema
 
   @doc false
@@ -98,14 +99,14 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
 
   def build_actions_block(conn, model_name, mode) do
     display_name = ExAdmin.Utils.displayable_name_singular conn
-    label = if mode == :new, do: "Create", else: "Update"
+    label = if mode == :new, do: (gettext "Create"), else: (gettext "Update")
     fieldset(".actions") do
       ol do
         li(".action.input_action##{model_name}_submit_action") do
           Xain.input name: "commit", type: :submit, value: escape_value("#{label} #{humanize display_name}")
         end
         li(".cancel") do
-          a("Cancel", href: admin_resource_path(conn, :index))
+          a((gettext "Cancel"), href: admin_resource_path(conn, :index))
         end
       end
     end
@@ -197,7 +198,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
           Xain.input type: :hidden, value: "0", name: name
           label for: base_id do
             Xain.input type: :checkbox, id: "#{base_id}", name: name, value: "1"
-            text "Remove"
+            text (gettext "Remove")
           end
         end
 
@@ -241,7 +242,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
         end
         unless Schema.get_id(res) do
           li do
-            a ".button Delete", href: "#",
+            a ".button " <> (gettext "Delete"), href: "#",
               onclick: ~S|$(this).closest(\".has_many_fields\").remove(); return false;|
           end
         end

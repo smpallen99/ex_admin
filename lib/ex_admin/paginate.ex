@@ -2,6 +2,7 @@ defmodule ExAdmin.Paginate do
   @moduledoc false
   use Xain
   import ExAdmin.Theme.Helpers
+  import ExAdmin.Gettext
 
   def paginate(_, nil, _, _, _, _, _), do: []
   def paginate(link, page_number, page_size, total_pages, record_count, name) do
@@ -34,37 +35,37 @@ defmodule ExAdmin.Paginate do
 
   def pagination_information(name, record_number, record_number, record_count) do
     markup do
-      text "Displaying " <> Inflex.singularize("#{name}") <> " "
-      b "#{record_number}"
-      text " of "
-      b "#{record_count}"
-      text " in total"
+      text (gettext "Displaying") <> Inflex.singularize(" #{name}") <> " "
+      b "#{record_number} "
+      text gettext "of"
+      b " #{record_count} "
+      text gettext "in total"
     end
   end
 
   def pagination_information(name, record_number, last, record_count) do
     markup do
-      text "Displaying #{name} "
-      b "#{record_number}&nbsp;-&nbsp;#{last}"
-      text " of "
-      b "#{record_count}"
-      text " in total"
+      text (gettext "Displaying %{name}", name: name)
+      b " #{record_number}&nbsp;-&nbsp;#{last} "
+      text gettext "of"
+      b " #{record_count} "
+      text gettext "in total"
     end
   end
 
   def pagination_information(name, total) do
     markup do
-      text "Displaying "
-      b "all #{total}"
+      text gettext "Displaying" <> " "
+      b (gettext "all %{total}", total: total)
       text " #{name}"
     end
   end
 
 
-  def special_name(:first), do: "« First"
-  def special_name(:prev), do: "‹ Prev"
-  def special_name(:next), do: "Next ›"
-  def special_name(:last), do: "Last »"
+  def special_name(:first), do: gettext "« First"
+  def special_name(:prev), do: gettext "‹ Prev"
+  def special_name(:next), do: gettext "Next ›"
+  def special_name(:last), do: gettext "Last »"
 
   def window_size, do: 7
 
