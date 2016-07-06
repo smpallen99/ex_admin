@@ -36,20 +36,20 @@ defmodule ExAdmin.Paginate do
   def pagination_information(name, record_number, record_number, record_count) do
     markup do
       text (gettext "Displaying") <> Inflex.singularize(" #{name}") <> " "
-      b "#{record_number} "
-      text gettext "of"
-      b " #{record_count} "
-      text gettext "in total"
+      b "#{record_number}"
+      text " " <> (gettext "of") <> " "
+      b "#{record_count}"
+      text " " <> (gettext "in total")
     end
   end
 
   def pagination_information(name, record_number, last, record_count) do
     markup do
-      text (gettext "Displaying %{name}", name: name)
-      b " #{record_number}&nbsp;-&nbsp;#{last} "
-      text gettext "of"
-      b " #{record_count} "
-      text gettext "in total"
+      text (gettext "Displaying %{name}", name: name) <> " "
+      b "#{record_number}&nbsp;-&nbsp;#{last}"
+      text " " <> (gettext "of") <> " "
+      b "#{record_count}"
+      text " " <> (gettext "in total")
     end
   end
 
