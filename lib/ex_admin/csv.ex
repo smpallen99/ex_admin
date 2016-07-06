@@ -81,7 +81,7 @@ defmodule ExAdmin.CSV do
       module = Module.get_attribute(__MODULE__, :module)
 
       defimpl ExAdmin.View.Adapter, for: module do
-        def build_csv(_, resources) do
+        def build_csv(resources) do
           build :csv do
             unquote(block)
           end
