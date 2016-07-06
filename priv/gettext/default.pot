@@ -126,6 +126,7 @@ msgstr ""
 msgid "Download:"
 msgstr ""
 
+#: web/templates/themes/active_admin/layout/header.html.eex:11
 #: web/templates/themes/admin_lte2/layout/header.html.eex:25
 msgid "Logout"
 msgstr ""
