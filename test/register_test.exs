@@ -38,7 +38,26 @@ defmodule TestExAdmin.ExAdmin.Test2 do
   end
 end
 
-defmodule ExAdminTest.RegisterTest do
+defmodule TestExAdmin.ActionItemWithClear do
+  use ExAdmin.Register
+  register_resource TestExAdmin.Simple do
+    clear_action_items!
+    action_item :index, fn -> :test end
+  end
+end
+defmodule TestExAdmin.ActionItem do
+  use ExAdmin.Register
+  register_resource TestExAdmin.Simple do
+    action_item :index, fn -> :test end
+  end
+end
+defmodule TestExAdmin.DefaultActions do
+  use ExAdmin.Register
+  register_resource TestExAdmin.Simple do
+  end
+end
+
+defmodule TestExAdmin.RegisterTest do
   use ExUnit.Case, async: true
 
   setup do
@@ -55,6 +74,24 @@ defmodule ExAdminTest.RegisterTest do
   test "multiple before filters", %{defn2: defn} do
     expected = [one: [only: [:create, :update]], two: [only: [:update]]]
     assert defn.controller_filters[:before_filter] == expected
+  end
 
+  test "default action items" do
+    result = %TestExAdmin.DefaultActions{}.actions
+    unless Enum.count(result) == 4 do
+      refute result
+    end
+    assert Enum.all?(result, &(&1 in [:edit, :show, :new, :delete]))
+
+  end
+  test "action item with clear" do
+    result = %TestExAdmin.ActionItemWithClear{}.actions
+    assert Enum.count(result) == 1
+    assert {:fn, _, _} = result[:index]
+  end
+  test "action item" do
+    result = %TestExAdmin.ActionItem{}.actions
+    assert Enum.count(result) == 5
+    assert {:fn, _, _} = result[:index]
   end
 end

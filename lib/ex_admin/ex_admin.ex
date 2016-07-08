@@ -235,7 +235,6 @@ defmodule ExAdmin do
 
   @doc false
   def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_model: _resource_model} = defn) do
-    # Logger.warn "action name: #{inspect Utils.action_name(conn)}"
     singular = ExAdmin.Utils.displayable_name_singular(conn) |> titleize
     actions = defn.actions
     case Utils.action_name(conn) do
@@ -247,8 +246,8 @@ defmodule ExAdmin do
           else
             acc
           end
-
         end)
+        |> add_custom_actions(:show, actions, id)
         |> Enum.reverse
       action when action in [:index, :edit] ->
         if Utils.authorized_action?(conn, action, defn) do
@@ -256,6 +255,8 @@ defmodule ExAdmin do
         else
           []
         end
+        |> add_custom_actions(action, actions)
+        |> Enum.reverse
       _ ->
         []
     end
@@ -274,13 +275,11 @@ defmodule ExAdmin do
     Application.get_env(:ex_admin, :theme, @default_theme)
   end
 
-  # def theme_model, do: theme.__struct__
-
   def theme_name(conn) do
     conn.assigns.theme.name
   end
 
-  defp action_button(conn, defn, name, page, action, actions, id \\ nil) do
+  def action_button(conn, defn, name, page, action, actions, id \\ nil) do
     if action in actions do
       if ExAdmin.Utils.authorized_action?(conn, action, defn) do
         [action_link(conn, name, action, id)]
@@ -289,22 +288,29 @@ defmodule ExAdmin do
       end
     else
       []
-    end ++
-    if button = get_custom_action(page, actions) do
+    end
+  end
+
+  defp add_custom_actions(acc, action, actions, id \\ nil) do
+    import ExAdmin.ViewHelpers
+    if button = get_custom_action(action, actions) do
       {fun, _} = Code.eval_quoted button, [id: id], __ENV__
-      if is_function(fun, 1), do: [text(fun.(id) |> elem(1))], else: []
-      if is_function(fun, 0), do: [text(fun.() |> elem(1))], else: []
+      cond do
+        is_function(fun, 1) -> [fun.(id) | acc]
+        is_function(fun, 0) -> [fun.() | acc]
+        true                -> acc
+      end
+    else
+      acc
     end
   end
 
   @doc false
   def get_custom_action(action, actions) do
-    Enum.find_value actions, fn(x) ->
-      case x do
-        nil -> nil
-        {^action, val} -> val
-        _ -> nil
-      end
+    Enum.find_value actions, fn
+      nil -> nil
+      {^action, val} -> val
+      _ -> nil
     end
   end
 
@@ -313,21 +319,10 @@ defmodule ExAdmin do
       [href: admin_resource_path(conn, :destroy),
         "data-confirm": Utils.confirm_message,
         "data-method": :delete, rel: :nofollow]}
-    # a(href: admin_resource_path(conn, :destroy),
-    #     "data-confirm": Utils.confirm_message,
-    #     "data-csrf": Plug.CSRFProtection.get_csrf_token,
-    #     "data-method": :delete, rel: :nofollow ) do
-    #   button_name(name, :delete)
-    #   |> button(class: "btn btn-danger")
-    # end
   end
   defp action_link(conn, name, action, _id) do
     {button_name(name, action),
       [href: admin_resource_path(conn, action)]}
-    # a(href: admin_resource_path(conn, action)) do
-    #   button_name(name, action)
-    #   |> button(class: "btn btn-primary")
-    # end
   end
 
   defp button_name(name, :destroy), do: button_name(name, :delete)

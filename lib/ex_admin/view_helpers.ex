@@ -13,6 +13,13 @@ defmodule ExAdmin.ViewHelpers do
   #   import UcxNotifier.Admin.ViewHelpers.Table
   # end
 
+  @doc """
+  Build an action item link.
+  """
+  def action_item_link(name, opts) do
+    {:custom, [{name, opts}]}
+  end
+
   def flashes(conn) do
     markup safe: true do
       messages = Enum.reduce [:notice, :error], [], fn(which, acc) ->
@@ -138,4 +145,5 @@ defmodule ExAdmin.ViewHelpers do
       _ -> ""
     end
   end
+
 end

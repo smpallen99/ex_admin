@@ -59,6 +59,7 @@ defmodule ExAdmin.Register do
       import unquote(__MODULE__)
       import Ecto.Query, only: [from: 2]
       import Xain, except: [input: 1, input: 2, input: 3, menu: 1, form: 2]
+      import ExAdmin.ViewHelpers
       Module.register_attribute __MODULE__, :member_actions, accumulate: true, persist: true
       Module.register_attribute __MODULE__, :collection_actions, accumulate: true, persist: true
     end
@@ -104,6 +105,8 @@ defmodule ExAdmin.Register do
       Module.register_attribute(__MODULE__, :controller_plugs, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :sidebars, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :scopes, accumulate: true, persist: true)
+      Module.register_attribute __MODULE__, :actions, accumulate: true, persist: true
+      Enum.each [:edit, :show, :new, :delete], &(Module.put_attribute __MODULE__, :actions, &1)
       module = unquote(mod)
       Module.put_attribute(__MODULE__, :module, module)
       Module.put_attribute(__MODULE__, :query, nil)
@@ -826,6 +829,7 @@ defmodule ExAdmin.Register do
 
   defmacro clear_action_items! do
     quote do
+      Module.delete_attribute __MODULE__, :actions
       Module.register_attribute __MODULE__, :actions, accumulate: true, persist: true
     end
   end
@@ -842,7 +846,13 @@ defmodule ExAdmin.Register do
       clear_action_items!
 
       action_item :index, fn ->
-        ExAdmin.Register.link_to "Backup Now", "/admin/backuprestores/backup", "data-method": :post, id: "backup-now"
+        action_item_link "Backup Now", href: "/admin/backuprestores/backup", "data-method": :post, id: "backup-now"
+      end
+
+  To Add a lock link to the show page of a user resource:
+
+      action_item :show, fn id ->
+        action_item_link "Lock User!", href: "/admin/users/lock/\#{id}", "data-method": :put, id: id
       end
   """
   defmacro action_item(opts, fun) do

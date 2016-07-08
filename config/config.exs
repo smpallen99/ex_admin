@@ -29,6 +29,10 @@ use Mix.Config
 #   modules: [
 #     Nested.ExAdmin.Dashboard,
 #   ]
+config :ex_admin,
+  repo: MyProject.Repo,
+  module: MyProject,
+  modules: []
 
 config :phoenix, :template_engines,
           haml: PhoenixHaml.Engine,

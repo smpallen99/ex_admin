@@ -32,7 +32,7 @@ defmodule ExAdmin.AdminLte2.LayoutView do
       "New " <> _ -> "fa fa-plus-square"
       "Edit " <> _ -> "fa fa-edit"
       "Delete " <> _ -> "fa fa-minus-square"
-      _ -> nil
+      _ -> "fa fa-circle-o"
     end
     if icon do
       [{"<i class='fa #{icon}'></i><span>#{name}</span>", opts} | tail]
