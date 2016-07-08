@@ -71,7 +71,7 @@ defmodule ExAdmin.Form do
   Most of the options from the `datetime_select` control from
   `phoenix_html` should work.
 
-  ## Rendering a has_many relationship
+  ## Rendering a has_many (one-to-many) relationship
 
   The example at the beginning of the chapter illustrates how to add
   a list of roles, displaying them as check boxes.
@@ -82,8 +82,8 @@ defmodule ExAdmin.Form do
 
   ## Nested attributes
 
-  ExAdmin supports in-line creation of a has_many relationship. The
-  example below allows the user to add/delete phone numbers on the
+  ExAdmin supports in-line creation of a has_many, through: (many-to-many)
+  relationship. The example below allows the user to add/delete phone numbers on the
   contact form using the has_many command.
 
       form contact do
@@ -101,6 +101,8 @@ defmodule ExAdmin.Form do
           end
         end
       end
+
+  Note: has_many does not yet work with simple one-to-many relationships.
 
   # Adding conditional fields
 
