@@ -122,6 +122,8 @@ defmodule ExAdmin.Index do
     end
   end
 
+  @default_actions [:show, :edit, :delete]
+
   @doc """
   The index macro is used to customize the index page of a resource.
   """
@@ -143,11 +145,11 @@ defmodule ExAdmin.Index do
           nil -> false
           other -> other
         end
-
+        actions = ExAdmin.Index.get_index_actions(var!(conn).assigns.defn, var!(actions, ExAdmin.Index))
         opts = Enum.into(opts, %{})
         |> Map.put(:column_list, var!(columns, ExAdmin.Show) |> Enum.reverse)
         |> Map.put(:selectable_column, selectable)
-        |> Map.put(:actions, var!(actions, ExAdmin.Index))
+        |> Map.put(:actions, actions)
 
         markup safe: true do
           ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, var!(cell, ExAdmin.Index), opts)
@@ -156,15 +158,30 @@ defmodule ExAdmin.Index do
     end
   end
 
+  @doc false
+  def get_index_actions(defn, actions) do
+    actions = case actions do
+      [] -> @default_actions
+      nil -> @default_actions
+      list -> list
+    end
+
+    actions -- (@default_actions -- defn.actions)
+  end
+
+
   @doc """
   Define which actions will be displayed in the index view.
 
   ## Examples
 
       actions
-      actions [:new, :destroy]
+      actions [:new, :delete]
   """
-  defmacro actions(opts \\ quote(do: [])) do
+  defmacro actions(opts \\ []) do
+    if opts != nil and (opts -- @default_actions) != [] do
+      raise ArgumentError, "Only #{inspect @default_actions} are allowed!"
+    end
     quote do
       var!(actions, ExAdmin.Index) = unquote(opts)
     end
@@ -240,7 +257,7 @@ defmodule ExAdmin.Index do
         opts = %{}
         |> Map.put(:column_list, columns)
         |> Map.put(:selectable_column, true)
-        |> Map.put(:actions, [])
+        |> Map.put(:actions, get_index_actions(defn, []))
 
         markup safe: true do
           ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, nil, opts)
@@ -253,6 +270,8 @@ defmodule ExAdmin.Index do
 
   @doc false
   def render_index_pages(conn, page, scope_counts, cell, page_opts) do
+    # require IEx
+    # IEx.pry
     name = resource_model(conn) |> titleize |> Inflex.pluralize
     defn = conn.assigns.defn
     label = get_resource_label(conn) |> Inflex.pluralize
@@ -364,21 +383,19 @@ defmodule ExAdmin.Index do
     resource_model = resource.__struct__
 
     links = case actions do
-      [] -> [:show, :edit, :destroy]
       nil -> []
       other -> other
     end
 
-    list = get_authorized_links(conn, resource_model)
-    |> Enum.filter(&(&1 in links))
+    list = get_authorized_links(conn, links, resource_model)
     |> Enum.reverse
 
     Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource)
   end
 
   @doc false
-  def get_authorized_links(conn, _resource_model) do
-    Enum.reduce [:show, :edit, :destroy], [], fn(item, acc) ->
+  def get_authorized_links(conn, links, _resource_model) do
+    Enum.reduce links, [], fn(item, acc) ->
       if ExAdmin.Utils.authorized_action?(conn, item), do: [item | acc], else: acc
     end
   end

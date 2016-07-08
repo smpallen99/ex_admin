@@ -165,3 +165,11 @@ defmodule TestExAdmin.ExAdmin.DefnDisplayName do
     resource.second
   end
 end
+
+defmodule TestExAdmin.ExAdmin.RestrictedEdit do
+  use ExAdmin.Register
+  register_resource TestExAdmin.Restricted do
+    action_items only: [:show]
+  end
+end
+

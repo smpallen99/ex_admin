@@ -23,7 +23,8 @@ config :ex_admin,
     TestExAdmin.ExAdmin.Product,
     TestExAdmin.ExAdmin.Simple,
     TestExAdmin.ExAdmin.ModelDisplayName,
-    TestExAdmin.ExAdmin.DefnDisplayName
+    TestExAdmin.ExAdmin.DefnDisplayName,
+    TestExAdmin.ExAdmin.RestrictedEdit
   ]
 
 config :xain,

@@ -17,8 +17,7 @@ defmodule ExAdmin.AdminResourceController do
     params = filter_params(conn.params)
     defn = get_registered_by_controller_route!(conn, resource)
 
-    # IO.puts ".... defn: #{defn.__struct__}, action: #{inspect action}"
-    if authorized_action?(conn, action, defn) do
+    if !restricted_action?(action, defn) && authorized_action?(conn, action, defn) do
       conn
       |> assign(:defn, defn)
       |> load_resource(action, defn, params[:id])
@@ -28,8 +27,20 @@ defmodule ExAdmin.AdminResourceController do
     else
       conn
       |> put_layout(false)
+      |> put_status(403)
       |> render(ExAdmin.ErrorView, "403.html")
       |> halt
+    end
+  end
+
+  defp restricted_action?(:destroy, defn), do: restricted_action?(:delete, defn)
+  defp restricted_action?(:create, defn), do: restricted_action?(:new, defn)
+  defp restricted_action?(:update, defn), do: restricted_action?(:edit, defn)
+  defp restricted_action?(action, defn) do
+    if action in [:show, :edit, :update, :new, :destroy, :delete] do
+      not action in defn.actions
+    else
+      false
     end
   end
 

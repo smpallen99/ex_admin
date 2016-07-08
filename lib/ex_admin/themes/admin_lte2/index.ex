@@ -105,7 +105,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
           a((gettext "View"), href: admin_resource_path(resource, :show), class: base_class <> " view_link")
         :edit ->
           a((gettext "Edit"), href: admin_resource_path(resource, :edit), class: base_class <> " edit_link")
-        :destroy ->
+        :delete ->
           a((gettext "Delete"), href: admin_resource_path(resource, :destroy),
               class: base_class <> " delete_link", "data-confirm": confirm_message,
               "data-remote": true,

@@ -142,4 +142,23 @@ defmodule ExAdminTest.ControllerTest do
     refute Floki.find(conn.resp_body, "input#simple_name") == []
   end
 
+  test "restricted actions" do
+    restricted = insert_restricted
+
+    conn = get build_conn(), admin_resource_path(Restricted, :index)
+    assert html_response(conn, 200) =~ ~r/Simple/
+
+    conn = get build_conn(), admin_resource_path(Restricted, :new)
+    assert html_response(conn, 403) =~ ~r/Forbidden Request/
+
+    conn = get build_conn(), admin_resource_path(restricted, :edit), %{}
+    assert html_response(conn, 403) =~ ~r/Forbidden Request/
+
+    conn = post build_conn(), ExAdmin.Utils.admin_resource_path(Restricted, :create)
+    assert html_response(conn, 403) =~ ~r/Forbidden Request/
+
+    conn = delete build_conn(), admin_resource_path(restricted, :destroy)
+    assert html_response(conn, 403) =~ ~r/Forbidden Request/
+  end
+
 end

@@ -12,6 +12,26 @@ defmodule TestExAdmin.TestHelpers do
     |> Repo.insert!()
   end
 
+  def insert_simple(attrs \\ %{}) do
+    changes = Dict.merge(%{
+      name: "test name",
+      description: "test description",
+    }, attrs)
+
+    TestExAdmin.Simple.changeset(%TestExAdmin.Simple{}, changes)
+    |> Repo.insert!()
+  end
+
+  def insert_restricted(attrs \\ %{}) do
+    changes = Dict.merge(%{
+      name: "test name",
+      description: "test description",
+    }, attrs)
+
+    TestExAdmin.Restricted.changeset(%TestExAdmin.Restricted{}, changes)
+    |> Repo.insert!()
+  end
+
   def insert_user(attrs \\ %{}) do
     changes = Dict.merge(%{
       name: "user one",

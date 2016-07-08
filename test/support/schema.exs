@@ -144,6 +144,26 @@ defmodule TestExAdmin.Simple do
   end
 
 end
+
+defmodule TestExAdmin.Restricted do
+  import Ecto.Changeset
+  use Ecto.Schema
+
+  schema "restricteds" do
+    field :name, :string
+    field :description, :string
+
+  end
+
+  @required_fields ~w(name)
+  @optional_fields ~w(description)
+
+  def changeset(model, params \\ %{}) do
+    model
+    |> cast(params, @required_fields, @optional_fields)
+  end
+end
+
 defmodule TestExAdmin.PhoneNumber do
   import Ecto.Changeset
   use Ecto.Schema

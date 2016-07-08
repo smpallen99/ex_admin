@@ -47,6 +47,11 @@ defmodule TestExAdmin.Migrations do
       add :description, :string
     end
 
+    create table(:restricteds) do
+      add :name, :string
+      add :description, :string
+    end
+
     create table(:contacts) do
       add :first_name, :string
       add :last_name, :string
