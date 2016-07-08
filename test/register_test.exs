@@ -62,7 +62,7 @@ defmodule TestExAdmin.MemberCollectionAction do
   register_resource TestExAdmin.Simple do
     member_action :my_member, &__MODULE__.my_member/2
   end
-  def my_member(conn, simple) do
+  def my_member(conn, _simple) do
     conn
   end
 end

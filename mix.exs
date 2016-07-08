@@ -45,7 +45,6 @@ defmodule ExAdmin.Mixfile do
       {:floki, "~> 0.8", only: :test},
       {:cowboy, "~> 1.0"},
       {:phoenix_html, "~> 2.5"},
-      {:factory_girl_elixir, "~> 0.1.1"},
       {:inflex, "~> 1.7"},
       {:scrivener_ecto, github: "drewolson/scrivener_ecto"},
       {:xain, "~> 0.6"},

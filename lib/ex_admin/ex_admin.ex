@@ -279,7 +279,7 @@ defmodule ExAdmin do
     conn.assigns.theme.name
   end
 
-  def action_button(conn, defn, name, page, action, actions, id \\ nil) do
+  def action_button(conn, defn, name, _page, action, actions, id \\ nil) do
     if action in actions do
       if ExAdmin.Utils.authorized_action?(conn, action, defn) do
         [action_link(conn, name, action, id)]
@@ -292,7 +292,7 @@ defmodule ExAdmin do
   end
 
   defp add_custom_actions(acc, action, actions, id \\ nil)
-  defp add_custom_actions(acc, action, [], id), do: acc
+  defp add_custom_actions(acc, _action, [], _id), do: acc
   defp add_custom_actions(acc, action, [{action, button} | actions], id) do
     import ExAdmin.ViewHelpers
     {fun, _} = Code.eval_quoted button, [id: id], __ENV__
