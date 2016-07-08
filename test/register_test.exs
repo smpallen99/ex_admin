@@ -59,6 +59,8 @@ end
 
 defmodule TestExAdmin.RegisterTest do
   use ExUnit.Case, async: true
+  alias ExAdmin.Register
+
 
   setup do
     {:ok, defn: %TestExAdmin.ExAdmin.Test{}, defn2: %TestExAdmin.ExAdmin.Test2{}}
@@ -93,5 +95,38 @@ defmodule TestExAdmin.RegisterTest do
     result = %TestExAdmin.ActionItem{}.actions
     assert Enum.count(result) == 5
     assert {:fn, _, _} = result[:index]
+  end
+
+  @all_options [:edit, :show, :new, :delete]
+
+  test "action_items" do
+    all = @all_options
+    assert Register.get_action_items(all, @all_options) == all
+    only = [[only: [:show, :edit]] | all]
+    assert Register.get_action_items(only, @all_options) == [:show, :edit]
+
+    except = [[except: [:edit, :new, :delete]] | all]
+    assert Register.get_action_items(except, @all_options) == [:show]
+  end
+
+  test "action_items with action_item" do
+    show = {:show, {:fn, [line: 78], [{:->, [line: 78], [[{:id, [line: 78], nil}],
+          {:action_item_link, [line: 79], ["Lock User!", [href: {:<<>>, [line: 79],
+          ["/admin/users/lock/", {:::, [line: 79], [{{:., [line: 79], [Kernel, :to_string]}, [line: 79],
+          [{:id, [line: 79], nil}]}, {:binary, [line: 79], nil}]}]},
+          "data-method": :put]]}]}]}}
+    index = {:index, quote(do: fn -> :test end)}
+
+    all = [show | @all_options]
+    assert Register.get_action_items(all, @all_options) == all
+    only = [[only: [:show, :edit]] | all]
+    assert Register.get_action_items(only, @all_options) == [show | [:show, :edit]]
+
+    all = [index, show | @all_options]
+    assert Register.get_action_items(all, @all_options) == all
+
+    except = [[except: [:show, :edit]] | all]
+    assert Register.get_action_items(except, @all_options) == [index, show | [:new, :delete]]
+
   end
 end

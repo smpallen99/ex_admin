@@ -31,7 +31,7 @@ defmodule ExAdmin.Register do
   * `member_action` - Add a custom action for id based requests
   * `filter` - Disable/Customize the filter pages
   * `controller` - Override the default controller
-  * `actions` - Define which actions are available for a resource
+  * `action_items` - Define which actions are available for a resource
   * `batch_actions` - Customize the batch_actions shown on the index page
   * `csv` - Customize the csv export file
   * `collection_action` - Add a custom action for collection based requests
@@ -97,6 +97,9 @@ defmodule ExAdmin.Register do
       import ExAdmin.ViewHelpers
       import ExAdmin.Utils
       require Logger
+
+      @all_options [:edit, :show, :new, :delete]
+
       Module.register_attribute __MODULE__, :query, accumulate: false, persist: true
       Module.register_attribute __MODULE__, :index_filters, accumulate: true, persist: true
       Module.register_attribute __MODULE__, :batch_actions, accumulate: true, persist: true
@@ -106,13 +109,14 @@ defmodule ExAdmin.Register do
       Module.register_attribute(__MODULE__, :sidebars, accumulate: true, persist: true)
       Module.register_attribute(__MODULE__, :scopes, accumulate: true, persist: true)
       Module.register_attribute __MODULE__, :actions, accumulate: true, persist: true
-      Enum.each [:edit, :show, :new, :delete], &(Module.put_attribute __MODULE__, :actions, &1)
+      Enum.each @all_options, &(Module.put_attribute __MODULE__, :actions, &1)
       module = unquote(mod)
       Module.put_attribute(__MODULE__, :module, module)
       Module.put_attribute(__MODULE__, :query, nil)
       Module.put_attribute(__MODULE__, :selectable_column, nil)
       Module.put_attribute(__MODULE__, :changesets, [])
       @name_column Module.get_attribute(__MODULE__, :name_column) || apply(ExAdmin.Helpers, :get_name_field, [module])
+
 
 
       alias unquote(mod)
@@ -150,16 +154,6 @@ defmodule ExAdmin.Register do
         other ->
           Enum.into other, %{}
       end
-      all_options = [:edit, :show, :new, :delete]
-      actions = case Module.get_attribute(__MODULE__, :actions) do
-        nil -> all_options
-        list when is_list(list) -> list
-        opts ->
-          case Enum.into opts, %{} do
-            %{except: except} -> all_options -- except
-            %{only: only} -> only
-          end
-      end
 
       controller_route = (base_name(module) |> Inflex.underscore |> Inflex.pluralize)
       controller_route = case Module.get_attribute(__MODULE__, :options) do
@@ -182,7 +176,6 @@ defmodule ExAdmin.Register do
       controller_filters = (Module.get_attribute(__MODULE__, :controller_filters) || [])
       |> ExAdmin.Helpers.group_reduce_by_reverse
 
-
       defstruct controller: @controller,
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
                 title_actions: &ExAdmin.default_resource_title_actions/2,
@@ -192,7 +185,7 @@ defmodule ExAdmin.Register do
                 query_opts: query_opts,
                 controller_route: controller_route,
                 menu: menu_opts,
-                actions: actions,
+                actions: ExAdmin.Register.get_action_items(Module.get_attribute(__MODULE__, :actions), @all_options),
                 member_actions: Module.get_attribute(__MODULE__, :member_actions),
                 collection_actions: Module.get_attribute(__MODULE__, :collection_actions),
                 controller_filters: controller_filters,
@@ -205,7 +198,6 @@ defmodule ExAdmin.Register do
                 plugs: plugs,
                 sidebars: sidebars,
                 scopes: scopes
-
 
       def run_query(repo, defn, action, id \\ nil) do
         %__MODULE__{}
@@ -249,6 +241,30 @@ defmodule ExAdmin.Register do
       def plugs(), do: @controller_plugs
 
       File.write!(unquote(@filename), "#{__MODULE__}\n", [:append])
+    end
+  end
+
+  @doc false
+  def get_action_items(nil, _), do: []
+  def get_action_items(actions, all_options) when is_list(actions) do
+    {atoms, keywords} =
+      List.flatten(actions)
+      |> Enum.reduce({[], []}, fn
+        atom, {acca, acck}  when is_atom(atom) -> {[atom | acca], acck}
+        kw, {acca, acck}  -> {acca, [kw | acck]}
+      end)
+      atoms = Enum.reverse atoms
+      keywords = Enum.reverse keywords
+
+    cond do
+      keywords[:only] && keywords[:except] ->
+        raise "options :only and :except cannot be used together"
+      keywords[:only] ->
+        Keyword.delete(keywords, :only) ++ keywords[:only]
+      keywords[:except] ->
+        Keyword.delete(keywords, :except) ++ all_options -- keywords[:except]
+      true ->
+        keywords ++ atoms
     end
   end
 
@@ -757,14 +773,32 @@ defmodule ExAdmin.Register do
     end
   end
 
+  @doc false
+  # Note: `actions/2` has been depreciated. Please use `action_items/1` instead
+  defmacro actions(:all, opts \\ quote(do: [])) do
+    require Logger
+    Logger.warn "actions/2 has been depreciated. Please use action_items/1 instead"
+    quote do
+      opts = unquote(opts)
+      Module.put_attribute __MODULE__, :actions, unquote(opts)
+    end
+  end
+
   @doc """
   Define which actions will be displayed.
 
   ## Examples
 
-      actions :all, except: [:new, :destroy, :edit]
+      action_items except: [:new, :destroy, :edit]
+      action_items only: [:new]
+
+  Notes:
+
+  * this replaces the deprecated `actions/2` macro
+  * `action_items` macro will not remove any custom actions defined by the `action_item` macro.
+
   """
-  defmacro actions(:all, opts \\ quote(do: [])) do
+  defmacro action_items(opts \\ nil) do
     quote do
       opts = unquote(opts)
       Module.put_attribute __MODULE__, :actions, unquote(opts)
@@ -826,6 +860,12 @@ defmodule ExAdmin.Register do
       Module.put_attribute __MODULE__, :collection_actions, {unquote(name), unquote(fun)}
     end
   end
+
+  @doc """
+  Clear the default [:edit, :show, :new, :delete] action items.
+
+  Can be used alone, or followed with `action_item` to add custom actions.
+  """
 
   defmacro clear_action_items! do
     quote do
