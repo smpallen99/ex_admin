@@ -22,16 +22,6 @@ defmodule ExAdminTest do
   end
 
   @tag as_resource: %TestExAdmin.ExAdmin.Simple{}
-  test "get_custom_action", %{defn: defn} do
-    for action <- [:edit, :index, :new, :show] do
-      refute ExAdmin.get_custom_action(action, defn.actions)
-    end
-
-    defn = struct defn, [actions: [{:index, {:fn, {nil, nil, nil}}}, :new, :edit, :index]]
-    assert {:fn, _} = ExAdmin.get_custom_action(:index, defn.actions)
-  end
-
-  @tag as_resource: %TestExAdmin.ExAdmin.Simple{}
   test "action_button", %{defn: defn, conn: conn} do
     result = ExAdmin.action_button(conn, defn, "Simple", :show, :edit, defn.actions, "17")
     assert result == [{"Edit Simple", [href: "/admin/simples/1/edit"]}]

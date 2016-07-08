@@ -291,27 +291,20 @@ defmodule ExAdmin do
     end
   end
 
-  defp add_custom_actions(acc, action, actions, id \\ nil) do
+  defp add_custom_actions(acc, action, actions, id \\ nil)
+  defp add_custom_actions(acc, action, [], id), do: acc
+  defp add_custom_actions(acc, action, [{action, button} | actions], id) do
     import ExAdmin.ViewHelpers
-    if button = get_custom_action(action, actions) do
-      {fun, _} = Code.eval_quoted button, [id: id], __ENV__
-      cond do
-        is_function(fun, 1) -> [fun.(id) | acc]
-        is_function(fun, 0) -> [fun.() | acc]
-        true                -> acc
-      end
-    else
-      acc
+    {fun, _} = Code.eval_quoted button, [id: id], __ENV__
+    cond do
+      is_function(fun, 1) -> [fun.(id) | acc]
+      is_function(fun, 0) -> [fun.() | acc]
+      true                -> acc
     end
+    |> add_custom_actions(action, actions, id)
   end
-
-  @doc false
-  def get_custom_action(action, actions) do
-    Enum.find_value actions, fn
-      nil -> nil
-      {^action, val} -> val
-      _ -> nil
-    end
+  defp add_custom_actions(acc, action, [_|actions], id) do
+    add_custom_actions(acc, action, actions, id)
   end
 
   defp action_link(conn, name, :delete, _id) do

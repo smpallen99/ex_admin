@@ -25,12 +25,16 @@ defmodule ExAdmin.AdminResourceController do
       |> handle_before_filter(action, defn, params)
       |> handle_custom_actions(action, defn, params)
     else
-      conn
-      |> put_layout(false)
-      |> put_status(403)
-      |> render(ExAdmin.ErrorView, "403.html")
-      |> halt
+      render_403 conn
     end
+  end
+
+  defp render_403(conn) do
+    conn
+    |> put_layout(false)
+    |> put_status(403)
+    |> render(ExAdmin.ErrorView, "403.html")
+    |> halt
   end
 
   defp restricted_action?(:destroy, defn), do: restricted_action?(:delete, defn)
@@ -72,18 +76,34 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def handle_custom_actions({conn, params}, action, defn, _) do
+    IO.puts "custom actions: #{inspect action}, #{inspect params}"
     handle_custom_actions(conn, action, defn, params)
   end
-  def handle_custom_actions(conn, action, defn, params) do
-    %{member_actions: member_actions, collection_actions: collection_actions} = defn
+  def handle_custom_actions(conn, :member_action, defn, params) do
+    IO.puts "custom actions:  #{inspect params}"
+    %{member_actions: member_actions} = defn
+    action = String.to_atom params[:action]
     cond do
       member_action = Keyword.get(member_actions, action) ->
-        member_action.(conn, params)
-      collection_action = Keyword.get(collection_actions, action) ->
-        collection_action.(conn, params)
+        member_action[:fun].(conn, params)
       true ->
-        apply(__MODULE__, action, [conn, defn, params])
+        render_403 conn
     end
+  end
+  def handle_custom_actions(conn, :collection_action, defn, params) do
+    IO.puts "custom actions:  #{inspect params}"
+    %{collection_actions: collection_actions} = defn
+    action = String.to_atom params[:action]
+    cond do
+      collection_action = Keyword.get(collection_actions, action) ->
+        collection_action[:fun].(conn, params)
+      true ->
+        render_403 conn
+    end
+  end
+
+  def handle_custom_actions(conn, action, defn, params) do
+    apply(__MODULE__, action, [conn, defn, params])
   end
 
   def handle_before_filter(conn, action, defn, params) do

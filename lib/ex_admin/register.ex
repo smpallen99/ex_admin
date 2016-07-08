@@ -115,9 +115,8 @@ defmodule ExAdmin.Register do
       Module.put_attribute(__MODULE__, :query, nil)
       Module.put_attribute(__MODULE__, :selectable_column, nil)
       Module.put_attribute(__MODULE__, :changesets, [])
+
       @name_column Module.get_attribute(__MODULE__, :name_column) || apply(ExAdmin.Helpers, :get_name_field, [module])
-
-
 
       alias unquote(mod)
       import Ecto.Query
@@ -176,6 +175,11 @@ defmodule ExAdmin.Register do
       controller_filters = (Module.get_attribute(__MODULE__, :controller_filters) || [])
       |> ExAdmin.Helpers.group_reduce_by_reverse
 
+      actions =
+        ExAdmin.Register.get_action_items(Module.get_attribute(__MODULE__, :actions), @all_options)
+        |> ExAdmin.Register.custom_action_actions(Module.get_attribute(__MODULE__, :member_actions), module, :member_actions)
+        |> ExAdmin.Register.custom_action_actions(Module.get_attribute(__MODULE__, :collection_actions), module, :collection_actions)
+
       defstruct controller: @controller,
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
                 title_actions: &ExAdmin.default_resource_title_actions/2,
@@ -185,7 +189,7 @@ defmodule ExAdmin.Register do
                 query_opts: query_opts,
                 controller_route: controller_route,
                 menu: menu_opts,
-                actions: ExAdmin.Register.get_action_items(Module.get_attribute(__MODULE__, :actions), @all_options),
+                actions: actions,
                 member_actions: Module.get_attribute(__MODULE__, :member_actions),
                 collection_actions: Module.get_attribute(__MODULE__, :collection_actions),
                 controller_filters: controller_filters,
@@ -266,6 +270,37 @@ defmodule ExAdmin.Register do
       true ->
         keywords ++ atoms
     end
+  end
+
+  def custom_action_actions(actions, custom_actions, module, type) do
+    custom_actions
+    |> Enum.reduce(actions, fn {name, opts}, acc ->
+      fun = quote do
+        name = unquote(name)
+        human_name = case unquote(opts)[:opts][:label] do
+          nil -> humanize name
+          label -> label
+        end
+        name = parameterize name
+        module = unquote(module)
+        type = unquote(type)
+        if type == :member_actions do
+          fn id ->
+            resource = struct(module.__struct__, id: id)
+            url = ExAdmin.Utils.admin_resource_path(resource, :update) <> "/member/#{name}"
+            ExAdmin.ViewHelpers.action_item_link human_name, href: url, "data-method": :put
+          end
+        else
+          fn id ->
+            resource = module
+            url = ExAdmin.Utils.admin_resource_path(resource, :index) <> "/collection/#{name}"
+            ExAdmin.ViewHelpers.action_item_link human_name, href: url
+          end
+        end
+      end
+      action = if type == :member_actions, do: :show, else: :index
+      [{action, fun} | acc]
+    end)
   end
 
   @doc """
@@ -401,16 +436,16 @@ defmodule ExAdmin.Register do
   The following example illustrates how to add a sync action that will
   be run before the index page is loaded.
 
-  changeset create: &__MODULE__.create_changeset/2,
-            update: &__MODULE__.update_changeset/2
+      changeset create: &__MODULE__.create_changeset/2,
+                update: &__MODULE__.update_changeset/2
 
-  def create_changeset(model, params) do
-    Ecto.Changeset.cast(model, params, ~w(name password), ~w(age))
-  end
+      def create_changeset(model, params) do
+        Ecto.Changeset.cast(model, params, ~w(name password), ~w(age))
+      end
 
-  def update_changeset(model, params) do
-    Ecto.Changeset.cast(model, params, ~w(name), ~w(age password))
-  end
+      def update_changeset(model, params) do
+        Ecto.Changeset.cast(model, params, ~w(name), ~w(age password))
+      end
   """
   defmacro changesets(opts) do
     quote location: :keep do
@@ -807,7 +842,7 @@ defmodule ExAdmin.Register do
 
 
   @doc """
-  Add an id based action.
+  Add an id based action and show page link.
 
   Member actions are those actions that act on an individual record in
   the database.
@@ -831,22 +866,32 @@ defmodule ExAdmin.Register do
         |> Controller.redirect(to: ExAdmin.Utils.admin_resource_path(conn, :index))
       end
 
+  The above example adds the following:
+
+  * a custom `restore` action to the controller, accessible by the route
+      /admin/:resource/:id/member/restore
+  * a "Restore" action link to the show page
+
+  ## Options
+
+  * an optional label: "Button Label"
+
   """
-  defmacro member_action(name, fun) do
+  defmacro member_action(name, fun, opts \\ []) do
     quote do
-      Module.put_attribute __MODULE__, :member_actions, {unquote(name), unquote(fun)}
+      Module.put_attribute __MODULE__, :member_actions, {unquote(name), [fun: unquote(fun), opts: unquote(opts)]}
     end
   end
 
   @doc """
-  Add a action that acts on the index page.
+  Add a action that acts on a collection and adds a link to the index page.
 
   ## Examples
 
   The following example shows how to add a backup action on the index
   page.
 
-      collection_action :backup, &__MODULE__.backup_action/2
+      collection_action :backup, &__MODULE__.backup_action/2, label: "Backup Database!"
 
       def backup_action(conn, _params) do
         Repo.insert %BackupRestore{}
@@ -854,10 +899,20 @@ defmodule ExAdmin.Register do
         |> Controller.redirect(to: ExAdmin.Utils.admin_resource_path(conn, :index))
       end
 
+  The above example adds the following:
+
+  * a custom `backup` action to the controller, accessible by the route
+      /admin/:resource/collection/backup
+  * a "Backup Database!" action link to the show page
+
+  ## Options
+
+  * an optional label: "Button Label" (shown above)
+
   """
-  defmacro collection_action(name, fun) do
+  defmacro collection_action(name, fun, opts \\ []) do
     quote do
-      Module.put_attribute __MODULE__, :collection_actions, {unquote(name), unquote(fun)}
+      Module.put_attribute __MODULE__, :collection_actions, {unquote(name), [fun: unquote(fun), opts: unquote(opts)]}
     end
   end
 
@@ -879,20 +934,20 @@ defmodule ExAdmin.Register do
 
   ## Examples
 
-  The following example demonstrates adding a Backup Now link to the
+  The following example demonstrates how to add a custom button to your
   index page, with no other action buttons due to the `clear_action_items!`
   call.
 
       clear_action_items!
 
       action_item :index, fn ->
-        action_item_link "Backup Now", href: "/admin/backuprestores/backup", "data-method": :post, id: "backup-now"
+        action_item_link "Something Special", href: "/my/custom/route"
       end
 
-  To Add a lock link to the show page of a user resource:
+  An example of adding a link to the show page
 
       action_item :show, fn id ->
-        action_item_link "Lock User!", href: "/admin/users/lock/\#{id}", "data-method": :put, id: id
+        action_item_link "Show Link", href: "/custom/link", "data-method": :put, id: id
       end
   """
   defmacro action_item(opts, fun) do

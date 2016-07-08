@@ -57,6 +57,19 @@ defmodule TestExAdmin.DefaultActions do
   end
 end
 
+defmodule TestExAdmin.MemberCollectionAction do
+  use ExAdmin.Register
+  register_resource TestExAdmin.Simple do
+    member_action :my_member, &__MODULE__.my_member/2
+  end
+  def my_member(conn, simple) do
+    conn
+  end
+end
+
+
+###############
+
 defmodule TestExAdmin.RegisterTest do
   use ExUnit.Case, async: true
   alias ExAdmin.Register
@@ -129,4 +142,5 @@ defmodule TestExAdmin.RegisterTest do
     assert Register.get_action_items(except, @all_options) == [index, show | [:new, :delete]]
 
   end
+
 end
