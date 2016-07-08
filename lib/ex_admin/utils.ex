@@ -4,6 +4,7 @@ defmodule ExAdmin.Utils do
   """
   require Logger
   import Ecto.DateTime.Utils, only: [zero_pad: 2]
+  import ExAdmin.Gettext
   @module Application.get_env(:ex_admin, :module)
   if @module do
     @endpoint Module.concat([@module, "Endpoint"])
@@ -107,10 +108,10 @@ defmodule ExAdmin.Utils do
   """
   def articlize(string) when is_binary(string) do
     if String.at(string, 0) in ~w(A a E e I i O o U u) do
-      "an "
+      gettext "an"
     else
-      "a "
-    end <> string
+      gettext "a"
+    end <> " " <> string
   end
 
   def parameterize(atom) when is_atom(atom),
@@ -268,7 +269,7 @@ defmodule ExAdmin.Utils do
 
 
   @doc false
-  def confirm_message, do: "Are you sure you want to delete this?"
+  def confirm_message, do: gettext "Are you sure you want to delete this?"
 
   @doc false
   def to_datetime(%Ecto.DateTime{} = dt) do

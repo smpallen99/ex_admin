@@ -2,6 +2,7 @@ defmodule ExAdmin.ViewHelpers do
   @moduledoc false
   use Xain
   import ExAdmin.Utils
+  import ExAdmin.Gettext
   require Logger
 
   @endpoint Application.get_env(:ex_admin, :endpoint)
@@ -52,9 +53,9 @@ defmodule ExAdmin.ViewHelpers do
             ExAdmin.Helpers.resource_identity(resource)
         end
       action when action in [:edit, :update] ->
-        "Edit #{singular}"
+        (gettext "Edit") <> " #{singular}"
       action when action in [:new, :create] ->
-        "New #{singular}"
+        (gettext "New") <> " #{singular}"
       _ ->
         ""
     end

@@ -23,6 +23,7 @@ defmodule Mix.Tasks.Admin.Install do
 
   use Mix.Task
   import Mix.ExAdmin.Utils
+  import ExAdmin.Gettext
 
   defmodule Config do
     defstruct route: true, assets: true, dashboard: true,
@@ -135,7 +136,11 @@ defmodule Mix.Tasks.Admin.Install do
     dest_path = Path.join [File.cwd! | ~w(web admin)]
     dest_file_path = Path.join dest_path, "dashboard.ex"
     source = Path.join([config.package_path | ~w(priv templates admin.install dashboard.exs)] )
-    |> EEx.eval_file(base: get_module)
+    |> EEx.eval_file([base: get_module,
+      title_txt: (gettext "Dashboard"),
+      welcome_txt: (gettext "Welcome to ExAdmin. This is the default dashboard page."),
+      add_txt: (gettext "To add dashboard sections, checkout 'web/admin/dashboards.ex'")
+      ])
 
     file = Path.join(~w(web admin dashboard.ex))
     if File.exists?(file) do

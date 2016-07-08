@@ -7,6 +7,7 @@ defmodule ExAdmin.Table do
   import ExAdmin.Utils
   import ExAdmin.Render
   import ExAdmin.Theme.Helpers
+  import ExAdmin.Gettext
   import Kernel, except: [to_string: 1]
   alias ExAdmin.Schema
 

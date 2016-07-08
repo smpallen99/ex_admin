@@ -1,3 +1,4 @@
+<% import ExAdmin.Gettext %>
 <header class="main-header" id="header">
   <a href="#" class="logo">
     <span class="logo-mini"><%= ExAdmin.LayoutView.logo_mini %></span>
@@ -18,10 +19,10 @@
             </a>
             <ul class="dropdown-menu" role="menu">
               <li>
-                <%= Phoenix.HTML.Link.link "Profile", to: ExAdmin.Utils.admin_resource_path(current_user(@conn)) %>
+                <%= Phoenix.HTML.Link.link (gettext "Profile"), to: ExAdmin.Utils.admin_resource_path(current_user(@conn)) %>
               </li>
               <li>
-                <%= Phoenix.HTML.Link.link "Logout", to: session_path(@conn, :destroy), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
+                <%= Phoenix.HTML.Link.link (gettext "Logout"), to: session_path(@conn, :destroy), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
               </li>
             </ul>
           </li>
@@ -43,7 +44,7 @@
   <section class="sidebar">
     <!-- Sidebar Menu -->
     <ul class="sidebar-menu">
-      <li class="header">RESOURCES</li>
+      <li class="header"><%= gettext "RESOURCES" %></li>
       <!-- Optionally, you can add icons to the links -->
       <%# <li class="active"><a href="#"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li> %>
       <%= if Application.get_env(:ex_admin, :nest_resources, false) do %>
@@ -59,7 +60,7 @@
 
       <% actions = ExAdmin.get_title_actions(@conn) %>
       <%= if any_actions?(actions) do %>
-        <li class="header">ACTIONS</li>
+        <li class="header"><%= gettext "ACTIONS" %></li>
         <%= for {action, opts} <- actions do %>
           <li>
             <% opts = build_menu_icon(opts) %>

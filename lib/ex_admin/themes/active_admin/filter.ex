@@ -4,13 +4,14 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
   require Logger
   require Ecto.Query
   import ExAdmin.Utils
+  import ExAdmin.Gettext
   import ExAdmin.Filter
   use Xain
 
   def theme_filter_view(conn, defn, q, order, scope) do
     markup safe: true do
       div "#filters_sidebar_sectionl.sidebar_section.panel" do
-        h3 "Filters"
+        h3 (gettext "Filters")
         div ".panel_contents" do
           form "accept-charset": "UTF-8", action: admin_resource_path(conn, :index), class: "filter_form", id: "q_search", method: "get" do
             if scope do
@@ -18,7 +19,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
             end
             for field <- fields(defn), do: build_field(field, q, defn)
             div ".buttons" do
-              input name: "commit", type: "submit", value: "Filter"
+              input name: "commit", type: "submit", value: (gettext "Filter")
               a ".clear_filters_btn Clear Filters", href: "#"
               order_value = if order, do: order, else: "id_desc"
               input id: "order", name: "order", type: :hidden, value: order_value
@@ -35,7 +36,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     name_field = "#{name}_contains"
     value = if q, do: Map.get(q, name_field, ""), else: ""
     div ".filter_form_field.filter_string" do
-      label ".label Search #{name_label}", for: "q_#{name}"
+      label ".label " <> (gettext "Search %{name_label}", name_label: name_label), for: "q_#{name}"
       input id: "q_#{name}", name: "q[#{name_field}]", type: :text, value: value
     end
   end

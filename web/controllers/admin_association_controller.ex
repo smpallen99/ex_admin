@@ -1,6 +1,7 @@
 defmodule ExAdmin.AdminAssociationController do
   @moduledoc false
   use ExAdmin.Web, :controller
+  import ExAdmin.Gettext
   require Logger
 
   def action(conn, _options) do
@@ -53,7 +54,7 @@ defmodule ExAdmin.AdminAssociationController do
     end)
 
     conn
-    |> put_flash(:notice, "#{through_assoc} was successfully added")
+    |> put_flash(:notice, (gettext "%{through_assoc} was successfully added.", through_assoc: through_assoc))
     |> redirect(to: ExAdmin.Utils.admin_resource_path(resource, :show))
   end
 
