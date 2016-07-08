@@ -275,7 +275,7 @@ defmodule ExAdmin.Index do
     name = resource_model(conn) |> titleize |> Inflex.pluralize
     defn = conn.assigns.defn
     label = get_resource_label(conn) |> Inflex.pluralize
-
+    batch_actions = (not false in defn.batch_actions) and :delete in page_opts[:actions]
     opts = %{
       columns: Map.get(page_opts, :columns, 3),
       column_list: Map.get(page_opts, :column_list),
@@ -284,7 +284,7 @@ defmodule ExAdmin.Index do
       order: ExQueb.get_sort_order(conn.params["order"]),
       href: admin_resource_path(conn, :index) <> "?order=",
       defn: defn,
-      batch_actions: not false in defn.batch_actions,
+      batch_actions: batch_actions,
       scopes: defn.scopes,
       label: label,
       resource_model: conn.params["resource"],
