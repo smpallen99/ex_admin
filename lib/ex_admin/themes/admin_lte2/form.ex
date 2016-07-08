@@ -7,6 +7,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   require Integer
   use ExAdmin.Adminlog
   import ExAdmin.Helpers
+  import ExAdmin.Gettext
   alias ExAdmin.Schema
 
   @doc false
@@ -93,10 +94,10 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
 
   def build_actions_block(conn, _model_name, mode) do
     display_name = ExAdmin.Utils.displayable_name_singular conn
-    label = if mode == :new, do: "Create", else: "Update"
+    label = if mode == :new, do: (gettext "Create"), else: (gettext "Update")
     div ".box-footer" do
       Xain.input ".btn.btn-primary", name: "commit", type: :submit, value: escape_value("#{label} #{humanize display_name}")
-      a(".btn.btn-default.btn-cancel Cancel", href: admin_resource_path(conn, :index))
+      a(".btn.btn-default.btn-cancel " <> (gettext "Cancel"), href: admin_resource_path(conn, :index))
     end
   end
 
@@ -184,7 +185,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
               Xain.input type: :hidden, value: "0", name: name
               label for: base_id do
                 Xain.input type: :checkbox, id: "#{base_id}", name: name, value: "1"
-                text "Remove"
+                text (gettext "Remove")
               end
             end
           end
@@ -234,7 +235,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
         end
         unless Schema.get_id(res) do
           div ".form-group" do
-            a ".btn.btn-default Delete", href: "#",
+            a ".btn.btn-default " <> (gettext "Delete"), href: "#",
               onclick: ~S|$(this).closest(\".has_many_fields\").remove(); return false;|
           end
         end

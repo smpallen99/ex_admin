@@ -110,6 +110,7 @@ defmodule ExAdmin.Index do
   require Integer
   import ExAdmin.Utils
   import ExAdmin.Helpers
+  import ExAdmin.Gettext
   import Kernel, except: [div: 2, to_string: 1]
   use Xain
   # alias ExAdmin.Schema
@@ -343,7 +344,7 @@ defmodule ExAdmin.Index do
 
   @doc false
   def download_links(conn) do
-    div ".download_links Download: " do
+    div ".download_links " <> (gettext "Download:") <> " " do
       a "CSV", href: admin_resource_path(conn, :csv)
     end
   end

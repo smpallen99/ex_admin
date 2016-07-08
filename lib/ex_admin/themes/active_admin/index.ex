@@ -6,6 +6,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
   import ExAdmin.Index
   require Integer
   import ExAdmin.Helpers
+  import ExAdmin.Gettext
   require Logger
   alias ExAdmin.Schema
 
@@ -25,11 +26,11 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
     div ".blank_slate_container" do
       span ".blank_slate" do
         unless is_nil(conn.params["q"]) and is_nil(conn.params["scope"]) do
-          text "No #{humanize label} found."
+          text (gettext"No %{label} found.", label: (humanize label))
         else
-          text "There are no #{humanize label} yet. "
+          text (gettext"There are no %{label} yet. ", label: (humanize label))
           if ExAdmin.has_action?(conn, defn, :new) do
-            a "Create one", href: admin_resource_path(conn, :new)
+            a (gettext "Create one"), href: admin_resource_path(conn, :new)
           end
         end
       end
@@ -107,11 +108,11 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
     |> Enum.reduce([], fn(item, acc) ->
       link = case item do
         :show ->
-          a("View", href: admin_resource_path(resource, :show), class: base_class <> " view_link")
+          a((gettext "View"), href: admin_resource_path(resource, :show), class: base_class <> " view_link")
         :edit ->
-          a("Edit", href: admin_resource_path(resource, :edit), class: base_class <> " edit_link")
+          a((gettext "Edit"), href: admin_resource_path(resource, :edit), class: base_class <> " edit_link")
         :destroy ->
-          a("Delete", href: admin_resource_path(resource, :destroy),
+          a((gettext "Delete"), href: admin_resource_path(resource, :destroy),
               class: base_class <> " delete_link", "data-confirm": confirm_message,
               "data-remote": true,
               "data-method": :delete, rel: :nofollow )
@@ -122,7 +123,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
   end
 
   def batch_action_form conn, enabled?, scopes, name, scope_counts, fun do
-    msg = "Are you sure you want to delete these #{name}? You wont be able to undo this."
+    msg = gettext "Are you sure you want to delete these %{name}? You wont be able to undo this.", name: name
     scopes = unless Application.get_env(:ex_admin, :scopes_index_page, true), do: [], else: scopes
     if enabled? or scopes != [] do
       form "#collection_selection", action: "/admin/#{name}/batch_action", method: :post, "accept-charset": "UTF-8" do
@@ -136,14 +137,14 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
           div ".table_tools" do
             if enabled? do
               div "#batch_actions_selector.dropdown_menu" do
-                button ".disabled.dropdown_menu_button.btn.btn-xs.btn-default Batch Actions " do
+                button ".disabled.dropdown_menu_button.btn.btn-xs.btn-default " <> (gettext "Batch Actions") do
                   span ".fa.fa-caret-down"
                 end
                 div ".dropdown_menu_list_wrapper", style: "display: none;" do
                   div ".dropdown_menu_nipple"
                   ul ".dropdown_menu_list" do
                     li do
-                      a ".batch_action Delete Selected", href: "#", "data-action": :destroy, "data-confirm": msg
+                      a ".batch_action " <> (gettext "Delete Selected"), href: "#", "data-action": :destroy, "data-confirm": msg
                     end
                   end
                 end

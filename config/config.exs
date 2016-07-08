@@ -37,6 +37,8 @@ config :ex_admin,
 config :phoenix, :template_engines,
           haml: PhoenixHaml.Engine,
           eex: Phoenix.Template.EExEngine
+config :ex_admin,
+          module: ExAdmin
 
 # Sample configuration:
 #

@@ -5,9 +5,10 @@ defmodule ExAdmin.Filter do
   require Ecto.Query
   import ExAdmin.Theme.Helpers
   import ExAdmin.Utils
+  import ExAdmin.Gettext
   use Xain
 
-  @integer_options [eq: "Equal To", gt: "Greater Than", lt: "Less Than" ]
+  @integer_options [eq: (gettext "Equal To"), gt: (gettext "Greater Than"), lt: (gettext "Less Than") ]
 
   def integer_options, do: @integer_options
 

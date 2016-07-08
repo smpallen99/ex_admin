@@ -4,6 +4,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
   require Logger
   require Ecto.Query
   import ExAdmin.Utils
+  import ExAdmin.Gettext
   import ExAdmin.Filter
   use Xain
 
@@ -11,7 +12,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
     markup safe: true do
       div ".box.box-primary" do
         div ".box-header.with-border" do
-          h3 ".box-title Filters"
+          h3 ".box-title " <> (gettext "Filters")
         end
         form "accept-charset": "UTF-8", action: admin_resource_path(conn, :index), class: "filter_form", id: "q_search", method: "get" do
           div ".box-body.sidebar_section" do
@@ -21,8 +22,8 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
             for field <- fields(defn), do: build_field(field, q, defn)
           end
           div ".box-footer" do
-            input name: "commit", type: "submit", value: "Filter", class: "btn btn-primary"
-            a ".clear_filters_btn Clear Filters", href: "#", style: "padding-left: 10px"
+            input name: "commit", type: "submit", value: (gettext "Filter"), class: "btn btn-primary"
+            a ".clear_filters_btn " <> (gettext "Clear Filters"), href: "#", style: "padding-left: 10px"
             order_value = if order, do: order, else: "id_desc"
             input id: "order", name: "order", type: :hidden, value: order_value
           end
@@ -37,7 +38,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
     name_field = "#{name}_contains"
     value = if q, do: Map.get(q, name_field, ""), else: ""
     div ".form-group" do
-      label ".label Search #{name_label}", for: "q_#{name}"
+      label ".label " <> (gettext "Search %{name_label}", name_label: name_label), for: "q_#{name}"
       input id: "q_#{name}", name: "q[#{name_field}]", type: :text, value: value, class: "form-control"
     end
   end

@@ -8,7 +8,7 @@ defmodule ExAdmin.Mixfile do
       version: @version,
       elixir: "~> 1.2",
       elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix] ++ Mix.compilers,
+      compilers: [:phoenix, :gettext] ++ Mix.compilers,
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       name: "ExAdmin",
@@ -29,7 +29,7 @@ defmodule ExAdmin.Mixfile do
     [:plug | applications(:prod)]
   end
   defp applications(_) do
-    [:phoenix, :ecto, :logger, :ex_queb, :xain]
+    [:gettext, :phoenix, :ecto, :logger, :ex_queb, :xain]
   end
 
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
@@ -54,6 +54,7 @@ defmodule ExAdmin.Mixfile do
       {:ex_doc, "~> 0.11", only: :dev},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_queb, "~> 0.1"},
+      {:gettext, "~> 0.11"}
     ]
   end
 

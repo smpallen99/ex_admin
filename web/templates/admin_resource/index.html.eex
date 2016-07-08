@@ -1,9 +1,10 @@
+<% import ExAdmin.Gettext %>
 <div class="columns">
   <div class="column" style="width: 49.0%; margin-right: 2%;">
     <div class="panel">
       <h3>Info</h3>
       <div class="panel_contents">
-        <p>Welcome to Notifier</p>
+        <p><%= gettext "Welcome to Notifier" %></p>
       </div>
     </div>
   </div>
