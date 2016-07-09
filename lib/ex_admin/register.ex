@@ -282,19 +282,18 @@ defmodule ExAdmin.Register do
           nil -> humanize name
           label -> label
         end
-        name = parameterize name
         module = unquote(module)
         type = unquote(type)
         if type == :member_actions do
           fn id ->
             resource = struct(module.__struct__, id: id)
-            url = ExAdmin.Utils.admin_resource_path(resource, :update) <> "/member/#{name}"
+            url = ExAdmin.Utils.admin_resource_path(resource, :member, [name])
             ExAdmin.ViewHelpers.action_item_link human_name, href: url, "data-method": :put
           end
         else
           fn id ->
             resource = module
-            url = ExAdmin.Utils.admin_resource_path(resource, :index) <> "/collection/#{name}"
+            url = ExAdmin.Utils.admin_resource_path(resource, :collection, [name])
             ExAdmin.ViewHelpers.action_item_link human_name, href: url
           end
         end

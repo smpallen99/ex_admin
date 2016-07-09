@@ -79,7 +79,7 @@ defmodule ExAdmin.AdminResourceController do
     IO.puts "custom actions: #{inspect action}, #{inspect params}"
     handle_custom_actions(conn, action, defn, params)
   end
-  def handle_custom_actions(conn, :member_action, defn, params) do
+  def handle_custom_actions(conn, :member, defn, params) do
     IO.puts "custom actions:  #{inspect params}"
     %{member_actions: member_actions} = defn
     action = String.to_atom params[:action]
@@ -90,7 +90,7 @@ defmodule ExAdmin.AdminResourceController do
         render_403 conn
     end
   end
-  def handle_custom_actions(conn, :collection_action, defn, params) do
+  def handle_custom_actions(conn, :collection, defn, params) do
     IO.puts "custom actions:  #{inspect params}"
     %{collection_actions: collection_actions} = defn
     action = String.to_atom params[:action]
