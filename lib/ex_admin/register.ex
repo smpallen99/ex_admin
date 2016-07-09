@@ -57,6 +57,7 @@ defmodule ExAdmin.Register do
       use ExAdmin.Form, except: [actions: 1]
       use ExAdmin.CSV
       import unquote(__MODULE__)
+      import Phoenix.HTML.Tag
       import Ecto.Query, only: [from: 2]
       import Xain, except: [input: 1, input: 2, input: 3, menu: 1, form: 2]
       import ExAdmin.ViewHelpers

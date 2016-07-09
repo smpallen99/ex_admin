@@ -113,8 +113,7 @@ defmodule ExAdmin.Form do
   First, the `if params[:id] do` condition ensures that the code block
   only executes for an edit form, and not a new form.
 
-  Next, the actions command adds in-line actions to an inputs block.
-  TODO: is this correct??
+  Next, the actions command adds in-line content to an inputs block.
 
       form user do
         inputs "User Details" do
@@ -191,6 +190,7 @@ defmodule ExAdmin.Form do
   """
   defmacro form(resource, [do: contents]) do
     quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
+      import ExAdmin.Index, only: []
       def form_view(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do
         import ExAdmin.Register, except: [actions: 1]
 
@@ -803,7 +803,6 @@ defmodule ExAdmin.Form do
     end
   end
 
-  require IEx
   @doc false
   def build_item(conn, %{type: :inputs, name: field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
@@ -1089,15 +1088,6 @@ defmodule ExAdmin.Form do
     |> String.upcase
     "NEW_#{name}_RECORD"
   end
-
-  # def build_actions_block(conn, model_name, mode) do
-  #   display_name = ExAdmin.Utils.displayable_name_singular conn
-  #   label = if mode == :new, do: "Create", else: "Update"
-  #   div ".box-footer" do
-  #     Xain.input ".btn.btn-primary", name: "commit", type: :submit, value: escape_value("#{label} #{humanize display_name}")
-  #     a(".btn.btn-default.btn-cancel Cancel", href: admin_resource_path(conn, :index))
-  #   end
-  # end
 
   def escape_value(nil), do: nil
   def escape_value(value) when is_map(value), do: value
