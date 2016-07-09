@@ -353,7 +353,11 @@ defmodule ExAdmin.AdminResourceController do
     |> case  do
       [] -> []
       resources ->
-        ExAdmin.View.Adapter.build_csv(resources)
+        if function_exported? model, :build_csv, 1 do
+          model.build_csv(resources)
+        else
+          ExAdmin.CSV.build_csv(resources)
+        end
     end
 
     conn

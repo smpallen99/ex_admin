@@ -1,7 +1,7 @@
 defmodule ExAdmin.CSV do
   @moduledoc """
-  ExAdmin provides a CSV export link on the index page of each resource. 
-  The CSV file format can be customized with the `csv` macro. 
+  ExAdmin provides a CSV export link on the index page of each resource.
+  The CSV file format can be customized with the `csv` macro.
 
   For example, give the following ecto model for Example.Contact:
 
@@ -20,7 +20,7 @@ defmodule ExAdmin.CSV do
         end
         ...
       end
-  
+
   The following resource file will export the contact list as shown below:
 
       defmodule Example.ExAdmin.Contact do
@@ -33,13 +33,13 @@ defmodule ExAdmin.CSV do
             column "Given", fn c -> c.first_name end
             column "Category", fn c -> c.category.name end
 
-            column "Groups", fn c -> 
+            column "Groups", fn c ->
               Enum.map(c.groups, &(&1.name))
               |> Enum.join("; ")
             end
 
             for label <- PhoneNumber.all_labels do
-              column label, fn c -> 
+              column label, fn c ->
                 c.phone_numbers
                 |> PhoneNumber.find_by_label(label)
                 |> Map.get(:number, "")
@@ -49,14 +49,32 @@ defmodule ExAdmin.CSV do
         end
       end
 
-  # output.csv
+      # output.csv
 
-  Surname,Given,Category,Groups,Home Phone,Business Phone,Mobile Phone
-  Pallen,Steve,R&D,Groop 1;Groop2,555-555-5555,555,555,1234
+      Surname,Given,Category,Groups,Home Phone,Business Phone,Mobile Phone
+      Pallen,Steve,R&D,Groop 1;Groop2,555-555-5555,555,555,1234
 
-  The macros available in the csv do block include"
+  The macros available in the csv do block include
 
   * `column` - Define a column in the exported CSV file
+
+  ## Examples
+
+      # List format
+      csv [:name, :description]
+
+      # List format with functions
+      csv [:id, {:name, fn item -> "Mr. " <> item.name end}, :description]
+
+      # No header
+      csv header: false do
+        column :id
+        column :name
+      end
+
+      # Don't humanize the header name
+      csv [:name, :created_at], humanize: false
+
   """
   require Logger
 
@@ -68,24 +86,26 @@ defmodule ExAdmin.CSV do
 
   @doc """
   Customize the exported CSV file.
+
   """
-  defmacro csv(do: block) do
-    quote do
-      import ExAdmin.Register, except: [column: 3]
-      import ExAdmin.Builder
-      import ExAdmin.Register, only: [query: 1]
+  defmacro csv(opts \\ [], block \\ [])
+  defmacro csv(block_or_opts, block) do
+    {block, opts} = if block == [], do: {block_or_opts, block}, else: {block, block_or_opts}
+    quote location: :keep do
+      import ExAdmin.Register, except: [column: 1, column: 2]
       import unquote(__MODULE__)
 
-      require Logger
-
-      module = Module.get_attribute(__MODULE__, :module)
-
-      defimpl ExAdmin.View.Adapter, for: module do
-        def build_csv(resources) do
-          build :csv do
+      def build_csv(resources) do
+        var!(columns, ExAdmin.CSV) = []
+        unquote(block)
+        case var!(columns, ExAdmin.CSV) do
+          [] ->
             unquote(block)
-          end
-          |> ExAdmin.CSV.build_csv(resources)
+            |> ExAdmin.CSV.build_csv(resources, unquote(opts))
+          schema ->
+            schema
+            |> Enum.reverse
+            |> ExAdmin.CSV.build_csv(resources, unquote(opts))
         end
       end
     end
@@ -93,35 +113,20 @@ defmodule ExAdmin.CSV do
 
   @doc """
   Configure a column in the exported CSV file.
+
+  ## Examples
+
+      csv do
+        column :id
+        column :name, fn user -> "#\{user.first_name} #\{user.last_name}" end
+        column :age
+      end
   """
-  defmacro column(field, fun) do
+  defmacro column(field, fun \\ nil) do
     quote do
       entry = %{field: unquote(field), fun: unquote(fun)}
-      #Logger.warn "Column entry: #{inspect entry}"
-      put :csv, entry
+      var!(columns, ExAdmin.CSV) = [entry | var!(columns, ExAdmin.CSV)]
     end
-  end
-
-  @doc false
-  def build_csv(schema, resources) do
-    Enum.reduce(resources, build_header_row(schema), &(build_row &2, &1, schema))
-    |> Enum.reverse
-    |> CSVLixir.write
-  end
-  @doc false
-  def build_csv(resources) do
-    default_schema(resources)
-    |> build_csv(resources)
-  end
-
-  @doc false
-  def build_header_row(schema) do
-    [(for field <- schema, do: field[:field])]
-  end
-
-  @doc false
-  def build_row(acc, resource, schema) do
-    [(for field <- schema, do: field[:fun].(resource)) | acc]
   end
 
   @doc false
@@ -134,13 +139,57 @@ defmodule ExAdmin.CSV do
 
   @doc false
   def build_default_column(name) do
-    %{field: ExAdmin.Utils.humanize(name), fun: fn(c) -> 
-      case Map.get(c, name) do
-        %{} -> ""
-        other -> other
-      end |> to_string 
-    end}
+    %{field: name, fun: nil}
   end
 
+  @doc false
+  def build_csv(schema, resources, opts) do
+    schema = normalize_schema schema
+    Enum.reduce(resources, build_header_row(schema, opts), &(build_row(&2, &1, schema)))
+    |> Enum.reverse
+    |> CSVLixir.write
+  end
+  def build_csv(resources) do
+    default_schema(resources)
+    |> build_csv(resources, [])
+  end
 
+  defp normalize_schema(schema) do
+    Enum.map schema, fn
+      {name, fun} -> %{field: name, fun: fun}
+      name when is_atom(name) -> %{field: name, fun: nil}
+      map -> map
+    end
+  end
+
+  @doc false
+  def build_header_row(schema, opts) do
+    if Keyword.get(opts, :header, true) do
+      humanize? = Keyword.get(opts, :humanize, true)
+      [(for field <- schema, do: column_name(field[:field], humanize?))]
+    else
+      []
+    end
+  end
+
+  defp column_name(field, true), do: ExAdmin.Utils.humanize(field)
+  defp column_name(field, _), do: Atom.to_string(field)
+
+  @doc false
+  def build_row(acc, resource, schema) do
+    row = Enum.reduce(schema, [], fn
+      %{field: name, fun: nil}, acc ->
+        [(Map.get(resource, name) |> ExAdmin.Render.to_string) | acc]
+      %{field: _name, fun: fun}, acc ->
+        [(fun.(resource) |> ExAdmin.Render.to_string) | acc]
+    end)
+    |> Enum.reverse
+    [row | acc]
+  end
+
+  @doc false
+  def write_csv(csv) do
+    csv
+    |> CSVLixir.write
+  end
 end
