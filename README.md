@@ -131,12 +131,15 @@ lib/my_app/endpoint.ex
 
 ```
 
-Add `!priv/static/themes` to .gitignore to  Track `priv/static/themes` directory
+Remove or comment `priv/static` in .gitignore to  track `priv/static` directory
 
 .gitignore
 ```
 ...
-!priv/static/themes
+# Since we are building assets from web/static,
+# we ignore priv/static. You may want to comment
+# this depending on your deployment strategy.
+# /priv/static/
 ```
 
 Start the application with `iex -S mix phoenix.server`
