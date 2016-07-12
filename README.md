@@ -1,7 +1,9 @@
 # ExAdmin
 
-[![Build Status](https://travis-ci.org/smpallen99/ex_admin.png?branch=master)](https://travis-ci.org/smpallen99/ex_admin) [![Hex Version][hex-img]][hex] [![License][license-img]][license]
+[![Build Status][travis-img]][travis] [![Hex Version][hex-img]][hex] [![License][license-img]][license]
 
+[travis-img]: https://travis-ci.org/smpallen99/ex_admin.svg?branch=master
+[travis]: https://travis-ci.org/smpallen99/ex_admin
 [hex-img]: https://img.shields.io/hexpm/v/ex_admin.svg
 [hex]: https://hex.pm/packages/ex_admin
 [license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg
