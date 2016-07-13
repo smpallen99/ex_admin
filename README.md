@@ -119,26 +119,6 @@ lib/survey/repo.ex
 
 ```
 
-Add the `priv/static/themes` directory in the `endpoint.ex` file.
-
-lib/my_app/endpoint.ex
-```elixir
-  ...
-  plug Plug.Static,
-    at: "/", from: :nested, gzip: false,
-    only: ~w(css fonts images js themes favicon.ico robots.txt)
-                                 ------
-
-```
-
-Add `!priv/static/themes` to .gitignore to  Track `priv/static/themes` directory
-
-.gitignore
-```
-...
-!priv/static/themes
-```
-
 Start the application with `iex -S mix phoenix.server`
 
 Visit http://localhost:4000/admin
