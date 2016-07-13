@@ -18,7 +18,7 @@ defmodule ExAdmin.Utils do
   else
     # run time version of endpoint and router
     Logger.warn """
-    ExAdmin requires recompiling after updating your :ex_admin in your config/config.exs file.
+    ExAdmin requires recompiling after adding :ex_admin configuration in your config/config.exs file.
     After running 'mix admin.install' and updating your config.exs file, please
     run 'touch deps/ex_admin/mix.exs && mix deps.compile ex_admin'.
     """
