@@ -112,10 +112,10 @@ defmodule MyProject.Router do
 
 Add the paging configuration
 
-lib/survey/repo.ex
+lib/my_project/repo.ex
 ```elixir
   defmodule MyProject.Repo do
-    use Ecto.Repo, otp_app: :survey
+    use Ecto.Repo, otp_app: :my_project
     use Scrivener, page_size: 10
   end
 
@@ -226,10 +226,10 @@ end
 The following example illustrates how to modify the show page.
 
 ```elixir
-defmodule Survey.ExAdmin.Question do
+defmodule MyProject.ExAdmin.Question do
   use ExAdmin.Register
 
-  register_resource Survey.Question do
+  register_resource MyProject.Question do
     menu priority: 3
 
     show question do
