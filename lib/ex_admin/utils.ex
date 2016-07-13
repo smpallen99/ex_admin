@@ -6,28 +6,26 @@ defmodule ExAdmin.Utils do
   import Ecto.DateTime.Utils, only: [zero_pad: 2]
   import ExAdmin.Gettext
   @module Application.get_env(:ex_admin, :module)
+
   if @module do
     @endpoint Module.concat([@module, "Endpoint"])
     @router Module.concat([@module, "Router", "Helpers"])
+
+    @doc false
+    def endpoint, do: @endpoint
+    @doc false
+    def router, do: @router
   else
-    @endpoint nil
-    @router nil
-    raise """
-    Please, setup ex_admin in your config/config.exs:
-
-      config :ex_admin,
-        repo: MyProject.Repo,
-        module: MyProject,
-        modules: [
-          MyProject.ExAdmin.Dashboard,
-        ]
+    # run time version of endpoint and router
+    Logger.warn """
+    ExAdmin requires recompiling after updating your :ex_admin in your config/config.exs file.
+    After running 'mix admin.install' and updating your config.exs file, run 'mix deps.compile ex_admin'
     """
+    @doc false
+    def endpoint, do: Module.concat([Application.get_env(:ex_admin, :module), "Endpoint"])
+    @doc false
+    def router, do: Module.concat([Application.get_env(:ex_admin, :module), "Router", "Helpers"])
   end
-
-  @doc false
-  def endpoint, do: @endpoint
-  @doc false
-  def router, do: @router
 
   @doc false
   def to_atom(string) when is_binary(string), do: String.to_atom(string)
