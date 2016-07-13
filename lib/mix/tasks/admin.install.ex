@@ -73,12 +73,12 @@ defmodule Mix.Tasks.Admin.Install do
     IO.puts ""
     IO.puts "Add the admin routes to your web/router.ex:"
     IO.puts ""
-    IO.puts "    use ExAdmin.Router\n"
-    IO.puts "    # your app's routes\n"
-    IO.puts "    scope \"/admin\", ExAdmin do"
-    IO.puts "      pipe_through :browser"
-    IO.puts "      admin_routes"
-    IO.puts "    end"
+    IO.puts "  use ExAdmin.Router\n"
+    IO.puts "  # your app's routes\n"
+    IO.puts "  scope \"/admin\", ExAdmin do"
+    IO.puts "    pipe_through :browser"
+    IO.puts "    admin_routes"
+    IO.puts "  end"
     config
   end
   def do_route(config) do
@@ -147,12 +147,12 @@ defmodule Mix.Tasks.Admin.Install do
     IO.puts "Remember to update your config file:"
     IO.puts ""
     IO.puts """
-        config :ex_admin,
-          repo: #{base}.Repo,
-          module: #{base},
-          modules: [
-            #{base}.ExAdmin.Dashboard,
-          ]
+      config :ex_admin,
+        repo: #{base}.Repo,
+        module: #{base},
+        modules: [
+          #{base}.ExAdmin.Dashboard,
+        ]
     """
   end
 
@@ -162,10 +162,10 @@ defmodule Mix.Tasks.Admin.Install do
     IO.puts ""
     IO.puts "Add Scrivener paging to your Repo:"
     IO.puts ""
-    IO.puts "    defmodule #{base}.Repo do"
-    IO.puts "      use Ecto.Repo, otp_app: :#{String.downcase base}"
-    IO.puts "      use Scrivener, page_size: 10"
-    IO.puts "    end"
+    IO.puts "  defmodule #{base}.Repo do"
+    IO.puts "    use Ecto.Repo, otp_app: :#{String.downcase base}"
+    IO.puts "    use Scrivener, page_size: 10"
+    IO.puts "  end"
     config
   end
 
