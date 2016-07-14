@@ -121,6 +121,8 @@ lib/my_project/repo.ex
 
 ```
 
+Edit your brunch-config.js file and follow the instructions that the installer appended to this file. This requires you copy 2 blocks and replace the existing blocks.
+
 Start the application with `iex -S mix phoenix.server`
 
 Visit http://localhost:4000/admin
