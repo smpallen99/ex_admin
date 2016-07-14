@@ -7,6 +7,7 @@ defmodule Mix.Tasks.Admin.Install do
   # Defaults:
 
     * assets - copy js, css, and image files
+    * brunch - append instructions to brunch-config.js
     * config - add configuration to config/config.exs
     * dashboard - create a default dashboard
     * route - display instructions to add the admin routes
@@ -44,7 +45,6 @@ defmodule Mix.Tasks.Admin.Install do
   end
 
   def do_install(config) do
-    # IO.puts "config: #{inspect config}"
     config
     |> check_project
     |> do_assets
