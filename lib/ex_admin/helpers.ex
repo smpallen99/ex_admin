@@ -172,6 +172,21 @@ defmodule ExAdmin.Helpers do
   end
 
   def build_single_field(resource, conn, f_name, opts) do
+    resource.__struct__.__schema__(:type, f_name)
+    |> build_single_field_type(resource, conn, f_name, opts)
+  end
+
+  defp build_single_field_type({:array, type}, resource, conn, f_name, opts) when type in [:string, :integer] do
+    case get_resource_field(resource, f_name, opts) do
+      list when is_list(list) ->
+        Enum.map(list, &(to_string &1))
+        |> Enum.join(", ")
+      other ->
+        to_string other
+    end
+    |> build_link_for(conn, opts, resource, f_name)
+  end
+  defp build_single_field_type(_, resource, conn, f_name, opts) do
     to_string(get_resource_field(resource, f_name, opts))
     |> build_link_for(conn, opts, resource, f_name)
   end

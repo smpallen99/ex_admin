@@ -1,3 +1,6 @@
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  color: #333 !important;
+}
 abbr.required {
   color: red;
   padding-rigth: 5px;
@@ -1271,7 +1274,7 @@ fieldset[disabled] .datepicker table tr td span.active.disabled:hover.active {
 .daterangepicker.openscenter:before {
   position: absolute;
   top: -7px;
-  left: 0;  
+  left: 0;
   right: 0;
   width: 0;
   margin-left: auto;
@@ -1287,8 +1290,8 @@ fieldset[disabled] .datepicker table tr td span.active.disabled:hover.active {
 .daterangepicker.openscenter:after {
   position: absolute;
   top: -6px;
-  left: 0;  
-  right: 0;  
+  left: 0;
+  right: 0;
   width: 0;
   margin-left: auto;
   margin-right: auto;
@@ -1429,7 +1432,7 @@ fieldset[disabled] .datepicker table tr td span.active.disabled:hover.active {
 }
 
 .daterangepicker_end_input {
-  float: left; 
+  float: left;
   padding-left: 11px
 }
 
@@ -1631,6 +1634,7 @@ fieldset[disabled] .datepicker table tr td span.active.disabled:hover.active {
     border-radius: 4px;
     cursor: default;
     float: left;
+    color: #333 !important;
     margin-right: 5px;
     margin-top: 5px;
     padding: 0 5px; }

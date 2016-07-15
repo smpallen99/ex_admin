@@ -1,3 +1,6 @@
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  color: #333 !important;
+}
 span.action_item {
   margin-left: 5px;
 }

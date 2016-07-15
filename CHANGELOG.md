@@ -30,6 +30,7 @@
 * Consolidate js and css files into a 2-3 files per template
 * Support setting explicit field types in forms
 * Much more refactoring and code simplification
+* Experimental support for string and integer array fields
 
 ### Bug Fixes
 * Fix errors in README.md

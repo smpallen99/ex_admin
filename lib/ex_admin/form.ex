@@ -64,6 +64,17 @@ defmodule ExAdmin.Form do
 
       input user, :password, type: :password
 
+  ### Array field support
+
+      # default  tag style
+      input user, :nicknames
+
+      # multi select restricted to the provided collection
+      input user, :groups, select2: [collection: ~w(Sales Marketing Dev)]
+
+      # tags style with the extra collection options
+      input user, :groups, select2: [collection: ~w(Sales Marketing Dev)]
+
   ### Customizing DateTime fields
 
       input user, :start_at, options: [sec: []]
@@ -862,12 +873,43 @@ defmodule ExAdmin.Form do
     Xain.textarea(value, options)
   end
 
+  def build_control({:array, type}, resource, opts, model_name, field_name, ext_name) when type in ~w(string integer)a do
+
+    name = "#{model_name}-#{field_name}"
+
+    # currently we only support select 2
+    opts = Map.put_new opts, :select2, [tags: true]
+
+    ctrl_opts =
+      opts
+      |> Map.put(:class, "form-control #{name}")
+      |> Map.put(:multiple, true)
+      |> Map.put_new(:name, "#{model_name}[#{field_name}][]")
+      |> Map.put_new(:id, ext_name)
+      |> Map.delete(:display)
+      |> Map.delete(:select2)
+      |> Map.to_list
+
+    options = case Map.get(resource, field_name, []) do
+      nil -> []
+      list when is_list(list) -> list
+      string when is_binary(string) ->
+        String.split(string, " ")
+    end
+
+    build_array_control_select2(opts[:select2], name)
+    |> build_array_control_control(ctrl_opts, options)
+    |> build_array_control_block
+  end
+
+
   def build_control(type, resource, opts, model_name, field_name, ext_name) do
-    {field_type, value} = if type |> Kernel.to_string |> String.ends_with?(".Type") do
-      val = Map.get(resource, field_name, %{}) || %{}
-      {:file, Map.get(val, :filename, "")}
-    else
-      {:text, Map.get(resource, field_name, "")}
+    {field_type, value} = cond do
+      type |> Kernel.to_string |> String.ends_with?(".Type") ->
+        val = Map.get(resource, field_name, %{}) || %{}
+        {:file, Map.get(val, :filename, "")}
+      true ->
+        {:text, Map.get(resource, field_name, "")}
     end
     value = ExAdmin.Render.to_string(value)
     Map.put_new(opts, :type, field_type)
@@ -879,6 +921,51 @@ defmodule ExAdmin.Form do
     |> Map.delete(:display)
     |> Map.to_list
     |> Xain.input
+  end
+
+  defp build_array_control_control({collection, script}, ctrl_opts, options) do
+    select = Xain.select ctrl_opts do
+        Enum.map(options, fn opt ->
+          Xain.option opt, value: opt, selected: "selected", style: "color: #333"
+        end) ++
+        Enum.map(collection, fn opt ->
+          Xain.option opt, value: opt
+        end)
+     end
+    {select, script}
+  end
+
+  defp build_array_control_block({select, nil}), do: select
+  defp build_array_control_block({select, script}), do: [select, script]
+
+  defp build_array_control_select2(nil, _), do: {nil, []}
+  defp build_array_control_select2(select2, name) do
+    Keyword.pop(select2, :collection, [])
+    |> build_array_control_select2_script_opts
+    |> build_array_control_select2_script(name)
+  end
+
+  def build_array_control_select2_script_opts({collection, true}) do
+    {collection, "{}"}
+  end
+  def build_array_control_select2_script_opts({collection, list}) when is_list(list) do
+    args = Enum.reduce(list, [], fn {k,v}, acc ->
+      ["#{k}: #{v}"|acc]
+    end)
+    |> Enum.reverse
+    |> Enum.join(", ")
+    {collection, "{#{args}}"}
+  end
+
+  def build_array_control_select2_script({collection, options}, name) do
+    script = Xain.script do
+      """
+      $(document).ready(function() {
+        $(".#{name}").select2(#{options});
+      })
+      """
+    end
+    {collection, script}
   end
 
   def datetime_select(form, field_name, opts \\ []) do

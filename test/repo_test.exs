@@ -61,4 +61,11 @@ defmodule ExAdmin.RepoTest do
     assert cs.changeset.model.id == 2
     assert cs.changeset.model.name == "TT"
   end
+
+  test "param_stringify_keys" do
+    assert Repo.param_stringify_keys(%{one: 1, two: "t"}) == %{"one" => 1, "two" => "t"}
+    assert Repo.param_stringify_keys(%{"one" =>  1, "two" => "t"}) == %{"one" => 1, "two" => "t"}
+    assert Repo.param_stringify_keys(%{one: 1, two: %{a: 7, b: %{c: 0, d: "tt"}}}) ==
+      %{"one" => 1, "two" =>  %{"a" =>  7, "b" => %{"c" =>  0, "d" => "tt"}}}
+  end
 end

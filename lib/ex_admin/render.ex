@@ -58,9 +58,9 @@ end
 
 defimpl ExAdmin.Render, for: List do
   def to_string(list) do
-    if Enum.all?(list, &(is_integer(&1))) do 
+    if Enum.all?(list, &(is_integer(&1))) do
       str = List.to_string(list)
-      if String.printable? str do 
+      if String.printable? str do
         str
       else
         Poison.encode! list

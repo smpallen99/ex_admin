@@ -2681,6 +2681,7 @@ a.btn-default {
     border-radius: 4px;
     cursor: default;
     float: left;
+    color: #333 !important;
     margin-right: 5px;
     margin-top: 5px;
     padding: 0 5px; }
