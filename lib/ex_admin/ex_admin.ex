@@ -98,14 +98,24 @@ defmodule ExAdmin do
 
   For example:
 
-      # file web/templates/admin/admin_layout.html.eex
-      <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_custom.css") %>">
+  in `web/templates/admin/admin_layout.html.eex`
+  ```html
+  <link rel='stylesheet' href='<%= static_path(@conn, "/css/admin_custom.css") %>'>
 
-      # file priv/static/css/admin_custom.css
-      .foo {
-        color: green !important;
-        font-weight: 600;
-      }
+  <!--
+    since this is rendered into the head area, make sure to defer the loading
+    of your scripts with `async` to not block rendering.
+  -->
+  <script async src='<%= static_path(@conn, "/js/app.js") %>'></script>
+  ```
+
+  in `priv/static/css/admin_custom.css`
+  ```css
+  .foo {
+    color: green !important;
+    font-weight: 600;
+  }
+  ```
 
   """
   require Logger
