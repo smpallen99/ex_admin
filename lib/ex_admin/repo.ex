@@ -359,6 +359,7 @@ res
     res
   end
 
+  def param_stringify_keys(%{__struct__: _}=params), do: params
   def param_stringify_keys(params) when is_map(params) do
     Map.to_list(params)
     |> Enum.map(fn {key, value} -> {stringify_key(key), param_stringify_keys(value)} end)
