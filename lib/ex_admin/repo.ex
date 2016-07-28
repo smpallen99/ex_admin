@@ -356,9 +356,13 @@ res
   end
 
   def param_stringify_keys(params) when is_map(params) do
-    Map.to_list(params)
-    |> Enum.map(fn {key, value} -> {stringify_key(key), param_stringify_keys(value)} end)
-    |> Enum.into(%{})
+    if Map.has_key?(params, :__struct__) do
+      params
+    else
+      Map.to_list(params)
+      |> Enum.map(fn {key, value} -> {stringify_key(key), param_stringify_keys(value)} end)
+      |> Enum.into(%{})
+    end
   end
   def param_stringify_keys(params), do: params
 
