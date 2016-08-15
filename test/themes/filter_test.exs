@@ -97,12 +97,12 @@ defmodule ExAdmin.ThemeFilterTest do
   test "ActiveAdmin build_field string" do
     defn = %TestExAdmin.ExAdmin.User{index_filters: []}
     html = ActiveAdmin.Filter.build_field({:name, :string}, nil, defn)
-    assert Floki.find(html, "label.label") |> Floki.text == "Search Name"
+    assert Floki.find(html, "label.label") |> Floki.text == "Name"
   end
   test "ActiveAdmin build_field string with label option" do
     defn = %TestExAdmin.ExAdmin.User{index_filters: [[labels: [email: "EMail Address"]]]}
     html = ActiveAdmin.Filter.build_field({:email, :string}, nil, defn)
-    assert Floki.find(html, "label.label") |> Floki.text == "Search EMail Address"
+    assert Floki.find(html, "label.label") |> Floki.text == "EMail Address"
   end
   test "ActiveAdmin build_field datetime" do
     defn = %TestExAdmin.ExAdmin.Simple{index_filters: []}

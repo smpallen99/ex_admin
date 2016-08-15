@@ -9,8 +9,10 @@ defmodule ExAdmin.Filter do
   use Xain
 
   @integer_options [eq: (gettext "Equal To"), gt: (gettext "Greater Than"), lt: (gettext "Less Than") ]
+  @string_options [contains: (gettext "Contains"), equals: (gettext "Equals"), begins_with: (gettext "Starts With"), ends_with: (gettext "End With")]
 
   def integer_options, do: @integer_options
+  def string_options, do: @string_options
 
   def filter_view(_conn, nil, _defn), do: ""
   def filter_view(_conn, false, _defn), do: ""
@@ -111,11 +113,28 @@ defmodule ExAdmin.Filter do
     end)
   end
 
+  def string_selected_name(name, nil), do: "#{name}_equals"
+  def string_selected_name(name, q) do
+    Enum.reduce(string_options, "#{name}_eq", fn({k,_}, acc) ->
+      if q["#{name}_#{k}"], do: "#{name}_#{k}", else: acc
+    end)
+  end
+
   def get_value(_, nil), do: ""
   def get_value(name, q), do: Map.get(q, name, "")
 
   def get_integer_value(_, nil), do: ""
   def get_integer_value(name, q) do
+    Map.to_list(q)
+    |> Enum.find(fn({k,_v}) -> String.starts_with?(k, "#{name}") end)
+    |> case do
+      {_k, v} -> v
+      _ -> ""
+    end
+  end
+
+  def get_string_value(_, nil), do: ""
+  def get_string_value(name, q) do
     Map.to_list(q)
     |> Enum.find(fn({k,_v}) -> String.starts_with?(k, "#{name}") end)
     |> case do
