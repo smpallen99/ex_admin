@@ -7,10 +7,9 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
 
   def link_to_active(conn, name, path, id, opts \\ []) do
     wrapper = Keyword.get(opts, :wrapper, :li)
-    # html_opts = Keyword.get(opts, :html_opts, [])
     active_class = Keyword.get(opts, :active_class, "active")
     active_class = if link_active?(conn, path), do: active_class, else: ""
-    icon = if path == ExAdmin.Utils.admin_path do
+    icon = if path == ExAdmin.Utils.admin_path(:page, [:dashboard]) do
       content_tag :i, "", class: "fa fa-dashboard"
     else
       content_tag :i, String.at(name, 0), class: "nav-label label label-info"

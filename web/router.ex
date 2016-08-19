@@ -39,6 +39,7 @@ defmodule ExAdmin.Router do
     quote do
       get "/", AdminController, :dashboard
       get "/dashboard", AdminController, :dashboard
+      get "/page/:page", AdminController, :page
       get "/select_theme/:id", AdminController, :select_theme
       get "/:resource/", AdminResourceController, :index
       get "/:resource/new", AdminResourceController, :new

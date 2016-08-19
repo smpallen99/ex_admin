@@ -210,6 +210,9 @@ defmodule ExAdmin.Utils do
       iex> ExAdmin.Utils.admin_path
       "/admin"
 
+      iex> ExAdmin.Utils.admin_path(:page, [:dashboard])
+      "/admin/page/dashboard"
+
       iex> ExAdmin.Utils.admin_path(:select_theme, [1])
       "/admin/select_theme/1"
   """

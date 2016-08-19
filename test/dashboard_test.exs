@@ -10,7 +10,7 @@ defmodule ExAdminTest.DashboardTest do
   # end
 
   test "gets dashboard" do
-    conn = get build_conn(), "/admin/dashboard"
+    conn = get build_conn(), "/admin/page/dashboard"
     assert html_response(conn, 200) =~ "Dashboard"
 
     conn = get build_conn(), "/admin"
