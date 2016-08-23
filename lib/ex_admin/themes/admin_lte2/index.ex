@@ -92,7 +92,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
       |> build_order_href(opts[:order])
       |> build_filter_href(conn.params["q"])
       |> ExAdmin.Paginate.paginate(page.page_number, page.page_size, page.total_pages, opts[:count], opts[:name])
-      download_links(conn)
+      download_links(conn, opts)
     end
   end
 

@@ -37,7 +37,6 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
       selected_name = string_selected_name(name, q)
       value = get_string_value name, q
       name_label = field_label(name, defn)
-      name_field = "#{name}_contains"
       #value = if q, do: Map.get(q, name_field, ""), else: ""
       div ".form-group" do
         label ".label " <> (gettext "Search %{name_label}", name_label: name_label), for: "q_#{name}"

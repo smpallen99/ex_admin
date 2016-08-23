@@ -33,7 +33,6 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
 
   def build_field({name, :string}, q, defn) do
     name_label = field_label(name, defn)
-    name_field = "#{name}_contains"
     selected_name = string_selected_name(name, q)
     value = get_string_value name, q
     div ".filter_form_field.filter_string" do

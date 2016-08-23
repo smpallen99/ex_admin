@@ -362,10 +362,18 @@ defmodule ExAdmin.Index do
   end
 
   @doc false
-  def download_links(conn) do
+  def download_links(conn, opts) do
     div ".download_links " <> (gettext "Download:") <> " " do
-      a "CSV", href: admin_resource_path(conn, :csv)
+      a "CSV", href: build_csv_href(conn, opts)
     end
+  end
+
+  @doc false
+  def build_csv_href(conn, opts) do
+    admin_resource_path(conn, :csv) <> "?order="
+    |> build_scope_href(conn.params["scope"])
+    |> build_order_href(opts[:order])
+    |> build_filter_href(conn.params["q"])
   end
 
   @doc false

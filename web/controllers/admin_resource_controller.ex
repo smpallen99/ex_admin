@@ -1,7 +1,6 @@
 defmodule ExAdmin.AdminResourceController do
   @moduledoc false
   use ExAdmin.Web, :controller
-  require Logger
   import ExAdmin.Utils
   import ExAdmin.ParamsToAtoms
   import ExAdmin.Gettext
@@ -76,11 +75,9 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def handle_custom_actions({conn, params}, action, defn, _) do
-    IO.puts "custom actions: #{inspect action}, #{inspect params}"
     handle_custom_actions(conn, action, defn, params)
   end
   def handle_custom_actions(conn, :member, defn, params) do
-    IO.puts "custom actions:  #{inspect params}"
     %{member_actions: member_actions} = defn
     action = String.to_atom params[:action]
     cond do
@@ -91,7 +88,6 @@ defmodule ExAdmin.AdminResourceController do
     end
   end
   def handle_custom_actions(conn, :collection, defn, params) do
-    IO.puts "custom actions:  #{inspect params}"
     %{collection_actions: collection_actions} = defn
     action = String.to_atom params[:action]
     cond do
@@ -347,9 +343,10 @@ defmodule ExAdmin.AdminResourceController do
   def csv(conn, defn, params) do
     model = defn.__struct__
 
-    query = model.run_query(repo, defn, :csv)
-    csv = Authorization.authorize_query(defn, conn, query, :csv, nil)
-    |> ExAdmin.Query.execute_query(repo, :csv, nil)
+    id = params |> Map.to_list
+    query = model.run_query(repo, defn, :csv, id)
+    csv = Authorization.authorize_query(defn, conn, query, :csv, id)
+    |> ExAdmin.Query.execute_query(repo, :csv, id)
     |> case  do
       [] -> []
       resources ->
