@@ -43,13 +43,14 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
     columns = opts[:column_list]
     page = opts[:page]
     order = opts[:order]
+    scope = conn.params["scope"]
     markup do
       div ".box-body.table-responsive.no-padding" do
         div ".paginated_collection" do
           table(".table-striped.index.table.index_table") do
             ExAdmin.Table.table_head(columns, %{selectable: true, path_prefix: opts[:href],
               sort: "desc", order: order, fields: opts[:fields], page: page,
-              filter: build_filter_href("", conn.params["q"]),
+              filter: build_filter_href("", conn.params["q"]), scope: scope,
               selectable_column: selectable})
             build_table_body(conn, resources, columns, %{selectable_column: selectable})
           end # table

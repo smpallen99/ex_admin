@@ -143,9 +143,13 @@ defmodule ExAdmin.Table do
       nil -> ""
       page -> "&page=#{page.page_number}"
     end
+    scope_segment = case table_opts[:scope] do
+      nil -> ""
+      scope -> "&scope=#{scope}"
+    end
     th(".sortable.sorted-#{sort}.th-#{field_name}") do
       a("#{humanize field_name}", href: path_prefix <>
-        field_name <> "_#{link_order}#{page_segment}" <>
+        field_name <> "_#{link_order}#{page_segment}" <> scope_segment <>
         Map.get(table_opts, :filter, ""))
     end
   end
@@ -155,9 +159,13 @@ defmodule ExAdmin.Table do
       nil -> ""
       page -> "&page=#{page.page_number}"
     end
+    scope_segment = case table_opts[:scope] do
+      nil -> ""
+      scope -> "&scope=#{scope}"
+    end
     th(".sortable.th-#{field_name}") do
       a("#{humanize field_name}", href: path_prefix <>
-        field_name <> "_#{sort}#{page_segment}" <>
+        field_name <> "_#{sort}#{page_segment}" <> scope_segment <>
         Map.get(table_opts, :filter, ""))
     end
   end
