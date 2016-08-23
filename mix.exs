@@ -52,7 +52,7 @@ defmodule ExAdmin.Mixfile do
       {:exactor, "~> 2.2.0"},
       {:ex_doc, "~> 0.11", only: :dev},
       {:earmark, "~> 0.1", only: :dev},
-      {:ex_queb, "~> 0.1"},
+      {:ex_queb, "~> 0.2"},
       {:gettext, "~> 0.11"}
     ]
   end
