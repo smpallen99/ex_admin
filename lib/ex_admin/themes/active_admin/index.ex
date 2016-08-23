@@ -154,11 +154,17 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
             if scopes != [] do
               current_scope = ExAdmin.Query.get_scope scopes, conn.params["scope"]
               ul ".scopes.table_tools_segmented_control", style: "width: calc((100% - 10px) - 108px); float: right;" do
+                order_segment = case conn.params["order"] do
+                  nil -> ""
+                  order -> "&order=#{order}"
+                end
                 for {name, _opts} <- scopes do
                   count = scope_counts[name]
                   selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
                   li ".scope.#{name}#{selected}" do
-                    a ".table_tools_button.btn-sm.btn.btn-default", href: admin_resource_path(conn, :index, [[scope: name]]) do
+                    href = admin_resource_path(conn, :index, [[scope: name]])
+                    |> build_filter_href(conn.params["q"])
+                    a ".table_tools_button.btn-sm.btn.btn-default", href: href <> order_segment do
                       text ExAdmin.Utils.humanize("#{name} ")
                       span ".badge.bg-blue #{count}"
                     end
