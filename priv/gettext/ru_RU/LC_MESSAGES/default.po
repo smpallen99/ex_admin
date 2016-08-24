@@ -222,8 +222,8 @@ msgstr "%{label} пока не существует."
 
 #: lib/ex_admin/utils.ex:113
 msgid "a"
-msgstr "\0"
+msgstr ""
 
 #: lib/ex_admin/utils.ex:111
 msgid "an"
-msgstr "\0"
+msgstr ""
