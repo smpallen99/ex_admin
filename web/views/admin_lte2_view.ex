@@ -42,12 +42,18 @@ defmodule ExAdmin.AdminLte2.LayoutView do
   end
 
   defp do_scopes(conn, scopes, scope_counts, current_scope) do
+    order_segment = case conn.params["order"] do
+      nil -> ""
+      order -> "&order=#{order}"
+    end
     for {name, _opts} <- scopes do
       count = scope_counts[name]
       selected = if "#{name}" == "#{current_scope}", do: "active", else: ""
 
       li class: selected do
-        a href: Utils.admin_resource_path(conn, :index, [[scope: name]]) do
+        href = Utils.admin_resource_path(conn, :index, [[scope: name]])
+        |> ExAdmin.Index.build_filter_href(conn.params["q"])
+        a href: href <> order_segment do
           i ".nav-label.label.label-success" do
             String.at("#{name}", 0)
             |> String.upcase
