@@ -117,7 +117,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
     |> Enum.reverse
   end
 
-  def batch_action_form conn, enabled?, scopes, name, scope_counts, fun do
+  def batch_action_form(_conn, enabled?, scopes, name, _scope_counts, fun) do
     msg = gettext "Are you sure you want to delete these %{name}? You wont be able to undo this.", name: name
     scopes = unless Application.get_env(:ex_admin, :scopes_index_page, true), do: [], else: scopes
     if enabled? or scopes != [] do
