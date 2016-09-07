@@ -17,19 +17,21 @@ defmodule ExAdmin.Web do
 
       import Ecto.Model
       import Ecto.Query, only: [from: 1, from: 2]
+      import ExAdmin.Gettext
 
       import ExAdmin.Router.Helpers
       import ExAdmin.Utils, only: [admin_path: 0, admin_path: 2, admin_resource_path: 3, admin_association_path: 4]
-      import ExAdmin.Controller
+      use ExAdmin.Controller
+    end
+  end
 
-      defp set_theme(conn, _) do
-        assign(conn, :theme, ExAdmin.theme)
-      end
+  def resource_controller do
+    quote do
+      use ExAdmin.Web, :controller
+      use ExAdmin.ResourceController
 
-      defp set_layout(conn, _) do
-        layout = Application.get_env(:ex_admin, :layout) || "#{conn.assigns.theme.name}.html"
-        put_layout(conn, layout)
-      end
+      plug :set_theme
+      plug :set_layout
     end
   end
 
