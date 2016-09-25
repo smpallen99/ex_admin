@@ -540,7 +540,9 @@ defmodule ExAdmin.Form do
   end
 
   defp field_type(resource, field_name) do
-    resource.__struct__.__schema__(:type, field_name)
+    field_type_matching = Application.get_env(:ex_admin, :field_type_matching) || %{}
+    original_ft = resource.__struct__.__schema__(:type, field_name)
+    Map.get(field_type_matching, original_ft, original_ft)
   end
 
   defp params_name(resource, field_name, _params) do
@@ -905,7 +907,7 @@ defmodule ExAdmin.Form do
 
   def build_control(type, resource, opts, model_name, field_name, ext_name) do
     {field_type, value} = cond do
-      type |> Kernel.to_string |> String.ends_with?(".Type") ->
+      type == :file || (type |> Kernel.to_string |> String.ends_with?(".Type")) ->
         val = Map.get(resource, field_name, %{}) || %{}
         {:file, Map.get(val, :filename, "")}
       true ->
