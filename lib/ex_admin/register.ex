@@ -673,6 +673,7 @@ defmodule ExAdmin.Register do
     left most menu item
   * `:label` - The name used in the menu
   * `:if` - Only display the menu item if the condition returns non false/nil
+  * `:url` - The custom URL used in the menu link
 
   ## Examples
 
