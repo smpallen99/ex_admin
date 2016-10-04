@@ -314,7 +314,7 @@ defmodule Mix.Tasks.Admin.Install do
     //       joinTo: {
     //         "css/app.css": /^(web\\/static\\/css)/,
     //         "css/admin_lte2.css": ["web/static/vendor/admin_lte2.css"],
-    //         "css/active_admin.css": ["web/static/vendor/active_admin.css.css"],
+    //         "css/active_admin.css.css": ["web/static/vendor/active_admin.css.css"],
     //       },
     //       order: {
     //         after: ["web/static/css/app.css"] // concat app.css last
