@@ -163,6 +163,7 @@ defmodule ExAdmin.Index do
     actions = case actions do
       [] -> @default_actions
       nil -> @default_actions
+      false -> []
       list -> list
     end
 
@@ -179,7 +180,7 @@ defmodule ExAdmin.Index do
       actions [:new, :delete]
   """
   defmacro actions(opts \\ []) do
-    if opts != nil and (opts -- @default_actions) != [] do
+    if opts != nil and opts != false and (opts -- @default_actions) != [] do
       raise ArgumentError, "Only #{inspect @default_actions} are allowed!"
     end
     quote do
@@ -316,10 +317,11 @@ defmodule ExAdmin.Index do
     actions = opts[:actions]
     opts = Map.put(opts, :fields, get_resource_fields page.entries)
     columns = page_opts[:column_list]
-    columns = unless Enum.any? columns, &((elem &1, 0) == "Actions") or is_nil(actions) do
-      columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
-    else
+    custom_actions_column? = Enum.any? columns, &((elem &1, 0) == "Actions")
+    columns = if custom_actions_column? || Enum.empty?(actions) do
       columns
+    else
+      columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
     end
     opts = Map.put opts, :column_list, columns
 
