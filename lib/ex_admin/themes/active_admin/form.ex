@@ -112,7 +112,9 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
     end
   end
 
-
+  def build_hint(hint) do
+    p ".inline #{hint}"
+  end
   def build_form_error(error) do
     p ".inline-errors #{error_messages error}"
   end
@@ -225,7 +227,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
                     end
                   end
                 end
-                build_errors(errors)
+                build_errors(errors, field[:opts][:hint])
               end
             _ ->
               li ".string.input.stringish#{error}", id: "#{ext_name}_#{f_name}_input"  do
@@ -236,7 +238,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
                 val = if res, do: [value: Map.get(res, f_name, "") |> escape_value], else: []
                 Xain.input([type: :text, maxlength: "255", id: "#{ext_name}_#{f_name}",
                   name: name, required: true] ++ val)
-                build_errors(errors)
+                build_errors(errors, field[:opts][:hint])
               end
           end
         end

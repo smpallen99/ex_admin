@@ -649,7 +649,7 @@ defmodule ExAdmin.Form do
         else
           input_collection(resource, collection, model_name, field_name, nil, nil, item, conn.params, error)
         end
-        build_errors(errors)
+        build_errors(errors, item[:opts][:hint])
       end
     end)
 
@@ -726,7 +726,7 @@ defmodule ExAdmin.Form do
       field_type = opts[:type] || field_type(resource, field_name)
       [
         build_control(field_type, resource, opts, model_name, field_name, ext_name),
-        build_errors(errors)
+        build_errors(errors, opts[:hint])
       ]
     end)
     html
@@ -811,7 +811,7 @@ defmodule ExAdmin.Form do
             end
           end
         end
-        build_errors(errors)
+        build_errors(errors, opts[:hint])
       end
     end
   end
@@ -1242,8 +1242,11 @@ defmodule ExAdmin.Form do
   end
 
   @doc false
-  def build_errors(nil), do: nil
-  def build_errors(errors) do
+  def build_errors(nil, nil), do: nil
+  def build_errors(nil, hint) do
+    theme_module(Form).build_hint(hint)
+  end
+  def build_errors(errors, _) do
     for error <- errors do
       theme_module(Form).build_form_error(error)
     end
