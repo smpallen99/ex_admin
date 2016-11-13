@@ -15,6 +15,8 @@ defmodule ExAdmin.Mixfile do
       docs: [extras: ["README.md"], main: "ExAdmin"],
       deps: deps,
       package: package,
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
       description: """
       An Elixir Phoenix Auto Administration Package.
       """
@@ -53,6 +55,7 @@ defmodule ExAdmin.Mixfile do
       {:ex_doc, "~> 0.11", only: :dev},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_queb, "~> 0.2"},
+      {:excoveralls, "~> 0.5", only: :test},
       {:gettext, "~> 0.11"}
     ]
   end
