@@ -111,14 +111,10 @@ defmodule ExAdmin.Table do
     end
   end
 
-  def build_th({field_name, %{label: label} = opts}, table_opts) when is_atom(field_name) and is_binary(label),
-    do: build_th(label, opts, table_opts)
-  def build_th({field_name, opts}, table_opts) when is_atom(field_name),
-    do: build_th(Atom.to_string(field_name), opts, table_opts)
-  def build_th({_field_name, %{label: label} = opts}, table_opts) when is_binary(label),
-    do: build_th(label, opts, table_opts)
-  def build_th({field_name, _opts}, _table_opts) when is_binary(field_name),
-    do: th(".th-#{parameterize field_name} #{humanize field_name}")
+  def build_th({field_name, opts}, table_opts) do
+    label = Map.get(opts, :label, to_string(field_name))
+    build_th(label, opts, table_opts)
+  end
   def build_th(field_name, _),
     do: th(".th-#{parameterize field_name} #{humanize field_name}")
   def build_th(field_name, opts, %{fields: fields} = table_opts) do
@@ -126,12 +122,6 @@ defmodule ExAdmin.Table do
       _build_th(field_name, opts, table_opts)
     else
       th(".th-#{parameterize field_name} #{humanize field_name}")
-    end
-  end
-  def build_th(field_name, _, _) when is_binary(field_name) do
-    th(class: to_class("th-", field_name)) do
-    # th do
-      text humanize(field_name)
     end
   end
   def build_th(field_name, _, _), do: build_th(field_name, nil)

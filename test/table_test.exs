@@ -75,6 +75,10 @@ defmodule ExAdminTest.TableTest do
       assert Table.build_th("id", %{link: true}, table_options) == expected
       assert Table.build_th("id", %{}, table_options) ==  expected
     end
+    test "parameterize binary field", %{table_opts: table_options} do
+      expected = "<th class='th-some_field'>Some Field</th>"
+      assert Table.build_th("some field", %{}, table_options) ==  expected
+    end
   end
 
 end
