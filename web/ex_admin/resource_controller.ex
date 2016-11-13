@@ -14,10 +14,11 @@ defmodule ExAdmin.ResourceController do
         params = filter_params(conn.params)
         defn = get_registered_by_controller_route!(conn, resource)
 
-        if !restricted_action?(action, defn) && authorized_action?(conn, action, defn) do
+        if !restricted_action?(action, defn) do
           conn
           |> assign(:defn, defn)
           |> load_resource(action, defn, params[:id])
+          |> authorize_action(action)
           |> handle_plugs(action, defn)
           |> handle_before_filter(action, defn, params)
           |> handle_custom_actions(action, defn, params)
@@ -63,6 +64,14 @@ defmodule ExAdmin.ResourceController do
         end
       end
 
+      def authorize_action(conn, action) do
+        if ExAdmin.Authorization.authorize_action(conn.assigns[:defn], conn, action) do
+          conn
+        else
+          render_403(conn)
+        end
+      end
+
       defp scrub_params(conn, required_key, action) when action in [:create, :update] do
         if conn.params[required_key] do
           Phoenix.Controller.scrub_params conn, required_key
@@ -90,6 +99,7 @@ defmodule ExAdmin.ResourceController do
         assign(conn, :resource, resource)
       end
 
+      defp handle_custom_actions(%{halted: true} = conn, _, _, _), do: conn
       defp handle_custom_actions({conn, params}, action, defn, _) do
         handle_custom_actions(conn, action, defn, params)
       end
@@ -118,6 +128,7 @@ defmodule ExAdmin.ResourceController do
         apply(__MODULE__, action, [conn, defn, params])
       end
 
+      defp handle_before_filter(%{halted: true} = conn, _, _, _), do: conn
       defp handle_before_filter(conn, action, defn, params) do
         _handle_before_filter(conn, action, defn, params, defn.controller_filters[:before_filter])
       end
@@ -165,6 +176,7 @@ defmodule ExAdmin.ResourceController do
       end
       defp _handle_after_filter(args, _action, _defn, _), do: args
 
+      defp handle_plugs(%{halted: true} = conn, _, _), do: conn
       defp handle_plugs(conn, :nested, _defn), do: conn
       defp handle_plugs(conn, _action, defn) do
         case Application.get_env(:ex_admin, :plug, []) do

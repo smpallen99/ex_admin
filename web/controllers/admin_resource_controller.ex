@@ -1,5 +1,8 @@
 defmodule ExAdmin.AdminResourceController do
   @moduledoc false
+  # extract resource name from URL
+  @resource nil
+
   use ExAdmin.Web, :resource_controller
 
   def index(conn, defn, params) do
