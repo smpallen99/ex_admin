@@ -150,6 +150,7 @@ defmodule ExAdmin do
 
   @doc false
   def registered, do: Application.get_env(:ex_admin, :modules, []) |> Enum.reverse
+  def gettext_module, do: Application.get_env(:ex_admin, :module) |> Module.concat(Gettext)
 
   @doc false
   def put_data(key, value) do
@@ -330,7 +331,7 @@ defmodule ExAdmin do
 
   defp button_name(name, :destroy), do: button_name(name, :delete)
   defp button_name(name, action) do
-    "#{humanize action} #{name}"
+    Gettext.gettext(gettext_module, "#{humanize action} #{name}")
   end
 
   @doc false
