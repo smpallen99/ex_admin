@@ -404,9 +404,9 @@ defmodule ExAdmin.Index do
   end
 
   @doc false
-  def get_authorized_links(conn, links, _resource_model) do
+  def get_authorized_links(conn, links, resource_model) do
     Enum.reduce links, [], fn(item, acc) ->
-      if ExAdmin.Utils.authorized_action?(conn, item), do: [item | acc], else: acc
+      if ExAdmin.Utils.authorized_action?(conn, item, resource_model), do: [item | acc], else: acc
     end
   end
 end

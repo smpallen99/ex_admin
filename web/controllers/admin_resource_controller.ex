@@ -12,7 +12,7 @@ defmodule ExAdmin.AdminResourceController do
       nil ->
         id = params |> Map.to_list
         query = model.run_query(repo, defn, :index, id)
-        Authorization.authorize_query(defn, conn, query, :index, id)
+        Authorization.authorize_query(conn.assigns.resource, conn, query, :index, id)
         |> ExAdmin.Query.execute_query(repo, :index, id)
 
       page ->
@@ -164,7 +164,7 @@ defmodule ExAdmin.AdminResourceController do
 
     id = params |> Map.to_list
     query = model.run_query(repo, defn, :csv, id)
-    csv = Authorization.authorize_query(defn, conn, query, :csv, id)
+    csv = Authorization.authorize_query(conn.assigns.resource, conn, query, :csv, id)
     |> ExAdmin.Query.execute_query(repo, :csv, id)
     |> case  do
       [] -> []
