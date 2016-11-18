@@ -244,14 +244,14 @@ defmodule ExAdmin do
   end
 
   @doc false
-  def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_model: _resource_model} = defn) do
+  def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_model: resource_model} = defn) do
     singular = ExAdmin.Utils.displayable_name_singular(conn) |> titleize
     actions = defn.actions
     case Utils.action_name(conn) do
       :show ->
         id = Map.get(params, "id")
         Enum.reduce([:edit, :new, :delete], [], fn(action, acc) ->
-          if Utils.authorized_action?(conn, action, defn) do
+          if Utils.authorized_action?(conn, action, resource_model) do
             [{action, action_button(conn, defn, singular, :show, action, actions, id)}|acc]
           else
             acc
@@ -260,7 +260,7 @@ defmodule ExAdmin do
         |> add_custom_actions(:show, actions, id)
         |> Enum.reverse
       action when action in [:index, :edit] ->
-        if Utils.authorized_action?(conn, action, defn) do
+        if Utils.authorized_action?(conn, action, resource_model) do
           [{action, action_button(conn, defn, singular, action, :new, actions)}]
         else
           []

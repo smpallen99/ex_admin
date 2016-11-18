@@ -65,7 +65,7 @@ defmodule ExAdmin.ResourceController do
       end
 
       def authorize_action(conn, action) do
-        if ExAdmin.Authorization.authorize_action(conn.assigns[:defn], conn, action) do
+        if ExAdmin.Authorization.authorize_action(conn.assigns[:resource], conn, action) do
           conn
         else
           render_403(conn)
@@ -89,7 +89,7 @@ defmodule ExAdmin.ResourceController do
         model = defn.__struct__
         query = model.run_query(repo, defn, action, resource_id)
         resource =
-        Authorization.authorize_query(defn, conn, query, action, resource_id)
+        Authorization.authorize_query(defn.resource_model.__struct__, conn, query, action, resource_id)
         |> ExAdmin.Query.execute_query(repo, action, resource_id)
 
         if resource == nil do

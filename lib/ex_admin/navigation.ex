@@ -16,6 +16,7 @@ defmodule ExAdmin.Navigation do
         fun -> fun.(conn)
       end
     end)
+    |> Enum.filter(fn(defn) -> ExAdmin.Utils.authorized_action?(conn, :index, defn) end)
     |> Enum.sort(fn(%{menu: menu1}, %{menu: menu2}) ->
       menu1[:priority] < menu2[:priority]
     end)
