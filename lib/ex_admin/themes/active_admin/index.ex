@@ -103,17 +103,18 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
     end
   end
 
-  def handle_action_links(list, resource)  do
+  def handle_action_links(list, resource, labels)  do
     base_class = "member_link"
     list
     |> Enum.reduce([], fn(item, acc) ->
+      label = labels[item]
       link = case item do
         :show ->
-          a((gettext "View"), href: admin_resource_path(resource, :show), class: base_class <> " view_link")
+          a(label || gettext("View"), href: admin_resource_path(resource, :show), class: base_class <> " view_link")
         :edit ->
-          a((gettext "Edit"), href: admin_resource_path(resource, :edit), class: base_class <> " edit_link")
+          a(label || gettext("Edit"), href: admin_resource_path(resource, :edit), class: base_class <> " edit_link")
         :delete ->
-          a((gettext "Delete"), href: admin_resource_path(resource, :destroy),
+          a(label || gettext("Delete"), href: admin_resource_path(resource, :destroy),
               class: base_class <> " delete_link", "data-confirm": confirm_message,
               "data-remote": true,
               "data-method": :delete, rel: :nofollow )

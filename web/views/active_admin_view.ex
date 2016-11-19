@@ -29,12 +29,12 @@ defmodule ExAdmin.ActiveAdmin.LayoutView do
   def any_actions?([{_, nil} | _]), do: false
   def any_actions?(_), do: true
 
-  def build_menu_icon(opts) when opts in [nil, []], do: opts
-  def build_menu_icon([{name, opts} | tail] = opts_arg) do
-    icon = case name do
-      "New " <> _ -> "fa fa-plus-square"
-      "Edit " <> _ -> "fa fa-edit"
-      "Delete " <> _ -> "fa fa-minus-square"
+  def build_menu_icon(_, opts) when opts in [nil, []], do: opts
+  def build_menu_icon(action, [{name, opts} | tail] = opts_arg) do
+    icon = case action do
+      :new -> "fa fa-plus-square"
+      :edit -> "fa fa-edit"
+      :delete -> "fa fa-minus-square"
       _ -> nil
     end
     if icon do

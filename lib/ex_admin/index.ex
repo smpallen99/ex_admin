@@ -397,10 +397,10 @@ defmodule ExAdmin.Index do
       other -> other
     end
 
-    list = get_authorized_links(conn, links, resource_model)
-    |> Enum.reverse
+    list = get_authorized_links(conn, links, resource_model) |> Enum.reverse
+    labels = conn.assigns.defn.action_labels
 
-    Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource)
+    Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource, labels)
   end
 
   @doc false

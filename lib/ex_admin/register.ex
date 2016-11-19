@@ -176,6 +176,7 @@ defmodule ExAdmin.Register do
       controller_filters = (Module.get_attribute(__MODULE__, :controller_filters) || [])
       |> ExAdmin.Helpers.group_reduce_by_reverse
 
+      action_labels = ExAdmin.Register.get_action_labels(Module.get_attribute(__MODULE__, :actions))
       actions =
         ExAdmin.Register.get_action_items(Module.get_attribute(__MODULE__, :actions), @all_options)
         |> ExAdmin.Register.custom_action_actions(Module.get_attribute(__MODULE__, :member_actions), module, :member_actions)
@@ -191,6 +192,7 @@ defmodule ExAdmin.Register do
                 controller_route: controller_route,
                 menu: menu_opts,
                 actions: actions,
+                action_labels: action_labels,
                 member_actions: Module.get_attribute(__MODULE__, :member_actions),
                 collection_actions: Module.get_attribute(__MODULE__, :collection_actions),
                 controller_filters: controller_filters,
@@ -250,6 +252,13 @@ defmodule ExAdmin.Register do
   end
 
   @doc false
+  def get_action_labels(nil), do: []
+  def get_action_labels([opts|_]) when is_list(opts) do
+    opts[:labels] || []
+  end
+  def get_action_labels(_), do: []
+
+  @doc false
   def get_action_items(nil, _), do: []
   def get_action_items(actions, all_options) when is_list(actions) do
     {atoms, keywords} =
@@ -258,8 +267,8 @@ defmodule ExAdmin.Register do
         atom, {acca, acck}  when is_atom(atom) -> {[atom | acca], acck}
         kw, {acca, acck}  -> {acca, [kw | acck]}
       end)
-      atoms = Enum.reverse atoms
-      keywords = Enum.reverse keywords
+    atoms = Enum.reverse atoms
+    keywords = Enum.reverse Keyword.drop(keywords, [:labels])
 
     cond do
       keywords[:only] && keywords[:except] ->
@@ -822,11 +831,13 @@ defmodule ExAdmin.Register do
 
   @doc """
   Define which actions will be displayed.
+  Action labels could be overriden with `labels` option.
 
   ## Examples
 
-      action_items except: [:new, :destroy, :edit]
+      action_items except: [:new, :delete, :edit]
       action_items only: [:new]
+      action_items labels: [delete: "Revoke"]
 
   Notes:
 
