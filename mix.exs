@@ -31,9 +31,8 @@ defmodule ExAdmin.Mixfile do
     [:plug | applications(:prod)]
   end
   defp applications(_) do
-    [:gettext, :phoenix, :ecto, :logger, :ex_queb, :xain]
+    [:gettext, :phoenix, :ecto, :inflex, :scrivener, :scrivener_ecto, :csvlixir, :logger, :ex_queb, :xain]
   end
-
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
   defp elixirc_paths(_),     do: ["lib", "web"]
 
