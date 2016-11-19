@@ -28,24 +28,19 @@ defmodule ExAdmin.CSV do
         alias Example.PhoneNumber
 
         register_resource Example.Contact do
-          csv do
-            column "Surname", fn c -> c.last_name end
-            column "Given", fn c -> c.first_name end
-            column "Category", fn c -> c.category.name end
-
-            column "Groups", fn c ->
-              Enum.map(c.groups, &(&1.name))
-              |> Enum.join("; ")
-            end
-
-            for label <- PhoneNumber.all_labels do
-              column label, fn c ->
+          csv [
+            {"Surname", &(&1.last_name)},
+            {:category, &(&1.category.name)},
+            {"Groups", &(Enum.map(&1.groups, fn g -> g.name end) |> Enum.join("; "))},
+          ] ++
+            (for label <- PhoneNumber.all_labels do
+              fun = fn c ->
                 c.phone_numbers
                 |> PhoneNumber.find_by_label(label)
                 |> Map.get(:number, "")
               end
-            end
-          end
+              {label, fun}
+            end)
         end
       end
 
