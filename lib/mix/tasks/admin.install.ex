@@ -286,7 +286,7 @@ defmodule Mix.Tasks.Admin.Install do
     //
     //     javascripts: {
     //       joinTo: "js/app.js"
-    //     }
+    //     },
     //
     // With
     //
