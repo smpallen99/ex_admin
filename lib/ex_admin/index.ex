@@ -129,10 +129,12 @@ defmodule ExAdmin.Index do
   """
   defmacro index(opts \\ [], do: contents) do
     quote location: :keep do
+      import ExAdmin.CSV, only: [csv: 1, csv: 2]
+      import ExAdmin.Register
       import ExAdmin.Index
       def index_view(var!(conn), page, scope_counts) do
-        import ExAdmin.Register, except: [actions: 1]
         import ExAdmin.Form, except: [actions: 1]
+        import ExAdmin.Register, except: [actions: 1]
         import ExAdmin.ViewHelpers
 
         var!(columns, ExAdmin.Show) = []
