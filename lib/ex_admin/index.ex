@@ -129,6 +129,7 @@ defmodule ExAdmin.Index do
   """
   defmacro index(opts \\ [], do: contents) do
     quote location: :keep do
+      import ExAdmin.Index
       def index_view(var!(conn), page, scope_counts) do
         import ExAdmin.Register, except: [actions: 1]
         import ExAdmin.Form, except: [actions: 1]

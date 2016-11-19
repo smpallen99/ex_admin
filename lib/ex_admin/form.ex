@@ -201,7 +201,7 @@ defmodule ExAdmin.Form do
   """
   defmacro form(resource, [do: contents]) do
     quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
-      import ExAdmin.Index, only: []
+      import ExAdmin.Index, only: [index: 1]
       def form_view(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do
         import ExAdmin.Register, except: [actions: 1]
 
