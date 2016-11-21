@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.2-dev  (2016-11-20)
+## 0.8.2  (2016-11-20)
 
 ### Enhancements
 * Support the new side effect free xain package
