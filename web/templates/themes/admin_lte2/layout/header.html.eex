@@ -63,10 +63,13 @@
         <li class="header"><%= gettext "ACTIONS" %></li>
         <%= for {action, opts} <- actions do %>
           <li>
-            <% opts = build_menu_icon(opts) %>
+            <% opts = build_menu_icon(action, opts) %>
             <%= build_link(action, opts) %>
           </li>
         <% end %>
+      <% end %>
+      <%= if @scope_counts && Enum.count(@scope_counts) > 0 do %>
+        <li class="header"><%= gettext "SCOPES" %></li>
       <% end %>
       <%= build_scopes @conn, @scope_counts %>
     </ul><!-- /.sidebar-menu -->

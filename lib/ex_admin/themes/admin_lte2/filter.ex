@@ -34,13 +34,30 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
   end
 
   def build_field({name, :string}, q, defn) do
-    name_label = field_label(name, defn)
-    name_field = "#{name}_contains"
-    value = if q, do: Map.get(q, name_field, ""), else: ""
-    div ".form-group" do
-      label ".label " <> (gettext "Search %{name_label}", name_label: name_label), for: "q_#{name}"
-      input id: "q_#{name}", name: "q[#{name_field}]", type: :text, value: value, class: "form-control"
-    end
+      selected_name = string_selected_name(name, q)
+      value = get_string_value name, q
+      name_label = field_label(name, defn)
+      #value = if q, do: Map.get(q, name_field, ""), else: ""
+      div ".form-group" do
+        label ".label " <> (gettext "Search %{name_label}", name_label: name_label), for: "q_#{name}"
+        div ".row" do
+          div ".col-xs-6", style: "padding-right: 0"  do
+            span ".input-group-addon" do
+              div ".filter-select" do
+                select onchange: ~s|document.getElementById("#q_{name}").name = "q[" + this.value + "]";| do
+                  for {suffix, text} <- string_options do
+                    build_option(text, "#{name}_#{suffix}", selected_name)
+                  end
+                end
+                i ".fa.fa-sort", style: "margin-left: -20px"
+              end
+            end
+          end
+          div ".col-xs-6", style: "padding-left: 0px" do
+            input id: "#q_{name}", name: "q[#{selected_name}]", type: "text", value: value, class: "form-control"
+          end
+        end
+      end
   end
 
   def build_field({name, type}, q, defn) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time] do

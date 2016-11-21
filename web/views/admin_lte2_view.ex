@@ -26,12 +26,12 @@ defmodule ExAdmin.AdminLte2.LayoutView do
   def any_actions?([{_, nil} | _]), do: false
   def any_actions?(_), do: true
 
-  def build_menu_icon(opts) when opts in [nil, []], do: opts
-  def build_menu_icon([{name, opts} | tail] = opts_arg) do
-    icon = case name do
-      "New " <> _ -> "fa fa-plus-square"
-      "Edit " <> _ -> "fa fa-edit"
-      "Delete " <> _ -> "fa fa-minus-square"
+  def build_menu_icon(_, opts) when opts in [nil, []], do: opts
+  def build_menu_icon(action, [{name, opts} | tail] = opts_arg) do
+    icon = case action do
+      :new -> "fa fa-plus-square"
+      :edit -> "fa fa-edit"
+      :delete -> "fa fa-minus-square"
       _ -> "fa fa-circle-o"
     end
     if icon do
@@ -42,12 +42,18 @@ defmodule ExAdmin.AdminLte2.LayoutView do
   end
 
   defp do_scopes(conn, scopes, scope_counts, current_scope) do
+    order_segment = case conn.params["order"] do
+      nil -> ""
+      order -> "&order=#{order}"
+    end
     for {name, _opts} <- scopes do
       count = scope_counts[name]
       selected = if "#{name}" == "#{current_scope}", do: "active", else: ""
 
       li class: selected do
-        a href: Utils.admin_resource_path(conn, :index, [[scope: name]]) do
+        href = Utils.admin_resource_path(conn, :index, [[scope: name]])
+        |> ExAdmin.Index.build_filter_href(conn.params["q"])
+        a href: href <> order_segment do
           i ".nav-label.label.label-success" do
             String.at("#{name}", 0)
             |> String.upcase

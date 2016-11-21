@@ -98,14 +98,24 @@ defmodule ExAdmin do
 
   For example:
 
-      # file web/templates/admin/admin_layout.html.eex
-      <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_custom.css") %>">
+  in `web/templates/admin/admin_layout.html.eex`
+  ```html
+  <link rel='stylesheet' href='<%= static_path(@conn, "/css/admin_custom.css") %>'>
 
-      # file priv/static/css/admin_custom.css
-      .foo {
-        color: green !important;
-        font-weight: 600;
-      }
+  <!--
+    since this is rendered into the head area, make sure to defer the loading
+    of your scripts with `async` to not block rendering.
+  -->
+  <script async src='<%= static_path(@conn, "/js/app.js") %>'></script>
+  ```
+
+  in `priv/static/css/admin_custom.css`
+  ```css
+  .foo {
+    color: green !important;
+    font-weight: 600;
+  }
+  ```
 
   """
   require Logger
@@ -234,14 +244,14 @@ defmodule ExAdmin do
   end
 
   @doc false
-  def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_model: _resource_model} = defn) do
+  def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_model: resource_model} = defn) do
     singular = ExAdmin.Utils.displayable_name_singular(conn) |> titleize
     actions = defn.actions
     case Utils.action_name(conn) do
       :show ->
         id = Map.get(params, "id")
         Enum.reduce([:edit, :new, :delete], [], fn(action, acc) ->
-          if Utils.authorized_action?(conn, action, defn) do
+          if Utils.authorized_action?(conn, action, resource_model) do
             [{action, action_button(conn, defn, singular, :show, action, actions, id)}|acc]
           else
             acc
@@ -250,8 +260,8 @@ defmodule ExAdmin do
         |> add_custom_actions(:show, actions, id)
         |> Enum.reverse
       action when action in [:index, :edit] ->
-        if Utils.authorized_action?(conn, action, defn) do
-          [{action, action_button(conn, defn, singular, action, :new, actions)}]
+        if Utils.authorized_action?(conn, action, resource_model) do
+          [{:new, action_button(conn, defn, singular, action, :new, actions)}]
         else
           []
         end
@@ -282,7 +292,8 @@ defmodule ExAdmin do
   def action_button(conn, defn, name, _page, action, actions, id \\ nil) do
     if action in actions do
       if ExAdmin.Utils.authorized_action?(conn, action, defn) do
-        [action_link(conn, name, action, id)]
+        action_name = defn.action_labels[action] || humanize(action)
+        [action_link(conn, "#{action_name} #{name}", action, id)]
       else
         []
       end
@@ -308,19 +319,13 @@ defmodule ExAdmin do
   end
 
   defp action_link(conn, name, :delete, _id) do
-    {button_name(name, :delete),
+    {name,
       [href: admin_resource_path(conn, :destroy),
         "data-confirm": Utils.confirm_message,
         "data-method": :delete, rel: :nofollow]}
   end
   defp action_link(conn, name, action, _id) do
-    {button_name(name, action),
-      [href: admin_resource_path(conn, action)]}
-  end
-
-  defp button_name(name, :destroy), do: button_name(name, :delete)
-  defp button_name(name, action) do
-    "#{humanize action} #{name}"
+    {name, [href: admin_resource_path(conn, action)]}
   end
 
   @doc false

@@ -103,6 +103,12 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
     end
   end
 
+  def build_hint(hint) do
+    span ".control-label" do
+      i ".fa.fa-info-circle"
+      text " #{hint}"
+    end
+  end
   def build_form_error(error) do
     label ".control-label" do
       i ".fa.fa-times-circle-o"
@@ -217,7 +223,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
                       end
                     end
                   end
-                  build_errors(errors)
+                  build_errors(errors, field[:opts][:hint])
                 end
               end
             _ ->
@@ -230,7 +236,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
                   val = if res, do: [value: Map.get(res, f_name, "") |> escape_value], else: []
                   Xain.input([type: :text, maxlength: "255", id: "#{ext_name}_#{f_name}",
                     class: "form-control", name: name] ++ val)
-                  build_errors(errors)
+                  build_errors(errors, field[:opts][:hint])
                 end
               end
           end

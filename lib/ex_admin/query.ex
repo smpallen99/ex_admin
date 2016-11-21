@@ -17,7 +17,6 @@ defmodule ExAdmin.Query do
   def run_query(resource_model, _repo, defn, action, id, query_opts) do
     resource_model
     |> build_query(query_opts, action, id, defn)
-    # |> paginate(repo, action, id)
   end
 
   def execute_query(query, repo, action, id) do
@@ -25,10 +24,11 @@ defmodule ExAdmin.Query do
   end
 
   @doc false
-  def run_query_counts(resource_model, repo, defn, _action, _id, _query_opts) do
+  def run_query_counts(resource_model, repo, defn, _action, params, _query_opts) do
     for {name, _opts} <- defn.scopes do
       resource_model
       |> scope_where(defn.scopes, name)
+      |> ExQueb.filter(params)
       |> count_q(repo, name)
     end
   end
@@ -44,6 +44,9 @@ defmodule ExAdmin.Query do
     query
     |> filter(params)
     |> repo.paginate(params)
+  end
+  defp paginate(query, repo, :csv, params) do
+    apply repo, get_method(:csv), [query |> filter(params)]
   end
   defp paginate(query, repo, :nested, _params) do
     apply repo, get_method(:nested), [query]
@@ -78,12 +81,6 @@ defmodule ExAdmin.Query do
     |> repo.one!
     {name, count}
   end
-
-  # defp get_association(model, field) do
-  #   field = String.to_atom(field)
-  #   [assoc, _] = model.__schema__(:association, field) |> Map.get(:through)
-  #   model.__schema__(:association, assoc)
-  # end
 
   defp build_preloads(query, opts, action, _id) do
     preloads = case {query.preloads, get_from(opts, action, :preload)} do

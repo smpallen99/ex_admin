@@ -33,11 +33,16 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
 
   def build_field({name, :string}, q, defn) do
     name_label = field_label(name, defn)
-    name_field = "#{name}_contains"
-    value = if q, do: Map.get(q, name_field, ""), else: ""
+    selected_name = string_selected_name(name, q)
+    value = get_string_value name, q
     div ".filter_form_field.filter_string" do
-      label ".label " <> (gettext "Search %{name_label}", name_label: name_label), for: "q_#{name}"
-      input id: "q_#{name}", name: "q[#{name_field}]", type: :text, value: value
+      label ".label #{name_label}", for: "#{name}_numeric"
+      select onchange: ~s|document.getElementById("#{name}_string").name="q[" + this.value + "]";| do
+        for {suffix, text} <- string_options do
+          build_option(text, "#{name}_#{suffix}", selected_name)
+        end
+      end
+      input id: "#{name}_string", name: "q[#{selected_name}]", type: "text", value: value
     end
   end
 

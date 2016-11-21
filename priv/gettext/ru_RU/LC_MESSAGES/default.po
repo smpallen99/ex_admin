@@ -1,0 +1,229 @@
+msgid ""
+msgstr ""
+"Language: ru_RU\n"
+
+#: web/controllers/admin_resource_controller.ex:303
+msgid "was successfully destroyed."
+msgid_plural "were successfully destroyed."
+msgstr[0] "был успешно уничтожен."
+msgstr[1] "были успешно уничтожены."
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:63
+msgid "ACTIONS"
+msgstr "ДЕЙСТВИЯ"
+
+#: lib/ex_admin/themes/active_admin/index.ex:140
+#: lib/ex_admin/themes/admin_lte2/index.ex:134
+msgid "Batch Actions"
+msgstr "Групповые действия"
+
+#: lib/ex_admin/themes/active_admin/index.ex:33
+#: lib/ex_admin/themes/admin_lte2/index.ex:32
+msgid "Create one"
+msgstr "Создать"
+
+#: lib/ex_admin/themes/active_admin/index.ex:113
+#: lib/ex_admin/themes/admin_lte2/index.ex:107 lib/ex_admin/view_helpers.ex:56
+msgid "Edit"
+msgstr "Изменить"
+
+#: lib/ex_admin/themes/active_admin/filter.ex:14
+#: lib/ex_admin/themes/admin_lte2/filter.ex:15
+msgid "Filters"
+msgstr "Фильтры"
+
+#: lib/ex_admin/view_helpers.ex:58
+msgid "New"
+msgstr "Добавить"
+
+#: lib/mix/tasks/admin.install.ex:142
+msgid "To add dashboard sections, checkout 'web/admin/dashboards.ex'"
+msgstr "Чтобы добавить секцию в панель управления, посмотрите 'web/admin/dashboards.ex'"
+
+#: lib/mix/tasks/admin.install.ex:141
+msgid "Welcome to ExAdmin. This is the default dashboard page."
+msgstr "Добро пожаловать в ExAdmin. Это базовая панель управления сайтом."
+
+#: web/templates/admin_resource/index.html.eex:7
+msgid "Welcome to Notifier"
+msgstr "Добро пожаловать в панель уведомлений"
+
+#: web/controllers/admin_resource_controller.ex:116
+msgid "invalid after_filter return:"
+msgstr "неверный фильтр:"
+
+#: web/controllers/admin_resource_controller.ex:281
+msgid "was successfully destroyed."
+msgstr "была успешно удалена."
+
+#: web/controllers/admin_resource_controller.ex:255
+msgid "was successfully updated."
+msgstr "была успешно обновлена."
+
+#: lib/ex_admin/themes/active_admin/index.ex:126
+#: lib/ex_admin/themes/admin_lte2/index.ex:120
+msgid "Are you sure you want to delete these %{name}? You wont be able to undo this."
+msgstr "Вы уверены, что хотите удалить %{name}? Это изменение нельзя будет отменить."
+
+#: lib/ex_admin/themes/admin_lte2/filter.ex:26
+msgid "Clear Filters"
+msgstr "Очистить фильтры"
+
+#: lib/ex_admin/themes/active_admin/form.ex:245
+#: lib/ex_admin/themes/active_admin/index.ex:115
+#: lib/ex_admin/themes/admin_lte2/form.ex:238
+#: lib/ex_admin/themes/admin_lte2/index.ex:109
+msgid "Delete"
+msgstr "Удалить"
+
+#: lib/ex_admin/themes/active_admin/filter.ex:22
+#: lib/ex_admin/themes/admin_lte2/filter.ex:25
+msgid "Filter"
+msgstr "Фильтрация"
+
+#: lib/ex_admin/themes/active_admin/index.ex:111
+#: lib/ex_admin/themes/admin_lte2/index.ex:105
+msgid "View"
+msgstr "Показать"
+
+#: lib/ex_admin/themes/active_admin/index.ex:147
+#: lib/ex_admin/themes/admin_lte2/index.ex:141
+msgid "Delete Selected"
+msgstr "Удалить выбранное"
+
+#: web/controllers/admin_resource_controller.ex:238
+msgid "%{model_name} was successfully created."
+msgstr "%{model_name} была успешно создана."
+
+#: web/controllers/admin_association_controller.ex:57
+msgid "%{through_assoc} was successfully added."
+msgstr "%{through_assoc} была успешно добавлена."
+
+#: lib/ex_admin/utils.ex:272
+msgid "Are you sure you want to delete this?"
+msgstr "Вы точно хотите удалить это?"
+
+#: lib/ex_admin/themes/active_admin/form.ex:109
+#: lib/ex_admin/themes/admin_lte2/form.ex:100
+msgid "Cancel"
+msgstr "Отмена"
+
+#: lib/ex_admin/themes/active_admin/form.ex:102
+#: lib/ex_admin/themes/admin_lte2/form.ex:97
+msgid "Create"
+msgstr "Создать"
+
+#: lib/ex_admin/index.ex:347
+msgid "Download:"
+msgstr "Загрузить:"
+
+#: web/templates/themes/active_admin/layout/header.html.eex:11
+#: web/templates/themes/admin_lte2/layout/header.html.eex:25
+msgid "Logout"
+msgstr "Выйти"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:22
+msgid "Profile"
+msgstr "Профиль"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:47
+msgid "RESOURCES"
+msgstr "РЕСУРСЫ"
+
+#: lib/ex_admin/themes/active_admin/form.ex:201
+#: lib/ex_admin/themes/admin_lte2/form.ex:188
+msgid "Remove"
+msgstr "Удалить"
+
+#: lib/ex_admin/themes/active_admin/filter.ex:39
+#: lib/ex_admin/themes/admin_lte2/filter.ex:41
+msgid "Search %{name_label}"
+msgstr "Найти %{name_label}"
+
+#: lib/ex_admin/themes/active_admin/form.ex:102
+#: lib/ex_admin/themes/admin_lte2/form.ex:97
+msgid "Update"
+msgstr "Обновить"
+
+#: lib/ex_admin/themes/active_admin/table.ex:20
+#: lib/ex_admin/themes/admin_lte2/table.ex:26
+msgid "%{resource_model} Details"
+msgstr "%{resource_model} Детали"
+
+#: lib/mix/tasks/admin.install.ex:140
+msgid "Dashboard"
+msgstr "Панель управления"
+
+#: lib/ex_admin/paginate.ex:38
+msgid "Displaying"
+msgstr "Отображаем"
+
+#: lib/ex_admin/paginate.ex:58
+msgid "Displaying "
+msgstr "Отображаем "
+
+#: lib/ex_admin/paginate.ex:48
+msgid "Displaying %{name}"
+msgstr "Отображаем %{name}"
+
+#: lib/ex_admin/filter.ex:11
+msgid "Equal To"
+msgstr "Равно"
+
+#: lib/ex_admin/filter.ex:11
+msgid "Greater Than"
+msgstr "Больше чем"
+
+#: lib/ex_admin/paginate.ex:68
+msgid "Last »"
+msgstr "Последняя »"
+
+#: lib/ex_admin/filter.ex:11
+msgid "Less Than"
+msgstr "Меньше чем"
+
+#: lib/ex_admin/paginate.ex:67
+msgid "Next ›"
+msgstr "Следующая >"
+
+#: lib/ex_admin/paginate.ex:59
+msgid "all %{total}"
+msgstr "всего %{total}"
+
+#: lib/ex_admin/paginate.ex:42 lib/ex_admin/paginate.ex:52
+msgid "in total"
+msgstr "всего"
+
+#: lib/ex_admin/paginate.ex:40 lib/ex_admin/paginate.ex:50
+msgid "of"
+msgstr "из"
+
+#: lib/ex_admin/paginate.ex:65
+msgid "« First"
+msgstr "« Первая"
+
+#: lib/ex_admin/paginate.ex:66
+msgid "‹ Prev"
+msgstr "‹ Предыдущая"
+
+#: lib/ex_admin/form/fields.ex:150
+msgid "Select %{nm}"
+msgstr "Выбрать %{nm}"
+
+#: lib/ex_admin/themes/active_admin/index.ex:29
+#: lib/ex_admin/themes/admin_lte2/index.ex:28
+msgid "No %{label} found."
+msgstr "%{label} не найден."
+
+#: lib/ex_admin/themes/active_admin/index.ex:31
+#: lib/ex_admin/themes/admin_lte2/index.ex:30
+msgid "There are no %{label} yet. "
+msgstr "%{label} пока не существует."
+
+#: lib/ex_admin/utils.ex:113
+msgid "a"
+msgstr ""
+
+#: lib/ex_admin/utils.ex:111
+msgid "an"
+msgstr ""

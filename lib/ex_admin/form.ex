@@ -201,7 +201,7 @@ defmodule ExAdmin.Form do
   """
   defmacro form(resource, [do: contents]) do
     quote location: :keep, bind_quoted: [resource: escape(resource), contents: escape(contents)] do
-      import ExAdmin.Index, only: []
+      import ExAdmin.Index, only: [index: 1]
       def form_view(var!(conn), unquote(resource) = var!(resource), var!(params) = params) do
         import ExAdmin.Register, except: [actions: 1]
 
@@ -545,7 +545,9 @@ defmodule ExAdmin.Form do
   end
 
   defp field_type(resource, field_name) do
-    resource.__struct__.__schema__(:type, field_name)
+    field_type_matching = Application.get_env(:ex_admin, :field_type_matching) || %{}
+    original_ft = resource.__struct__.__schema__(:type, field_name)
+    Map.get(field_type_matching, original_ft, original_ft)
   end
 
   defp params_name(resource, field_name, _params) do
@@ -694,7 +696,7 @@ defmodule ExAdmin.Form do
         else
           input_collection(resource, collection, model_name, field_name, nil, nil, item, conn.params, error)
         end
-        build_errors(errors)
+        build_errors(errors, item[:opts][:hint])
       end
     end)
 
@@ -768,7 +770,7 @@ defmodule ExAdmin.Form do
       field_type = opts[:type] || field_type(resource, field_name)
       [
         build_control(field_type, resource, opts, model_name, field_name, ext_name),
-        build_errors(errors)
+        build_errors(errors, opts[:hint])
       ]
     end)
     html
@@ -853,7 +855,7 @@ defmodule ExAdmin.Form do
             end
           end
         end
-        build_errors(errors)
+        build_errors(errors, opts[:hint])
       end
     end
   end
@@ -904,7 +906,7 @@ defmodule ExAdmin.Form do
         |> Keyword.put(:name, name)
         |> Keyword.put(:value, data[field])
         |> Xain.input
-        build_errors(errors)
+        build_errors(errors, nil)
       end
     end)
   end
@@ -990,7 +992,7 @@ defmodule ExAdmin.Form do
 
   def build_control(type, resource, opts, model_name, field_name, ext_name) do
     {field_type, value} = cond do
-      type |> Kernel.to_string |> String.ends_with?(".Type") ->
+      type == :file || (type |> Kernel.to_string |> String.ends_with?(".Type")) ->
         val = Map.get(resource, field_name, %{}) || %{}
         {:file, Map.get(val, :filename, "")}
       true ->
@@ -1333,8 +1335,11 @@ defmodule ExAdmin.Form do
   end
 
   @doc false
-  def build_errors(nil), do: nil
-  def build_errors(errors) do
+  def build_errors(nil, nil), do: nil
+  def build_errors(nil, hint) do
+    theme_module(Form).build_hint(hint)
+  end
+  def build_errors(errors, _) do
     for error <- errors do
       theme_module(Form).build_form_error(error)
     end

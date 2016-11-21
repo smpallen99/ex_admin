@@ -129,9 +129,12 @@ defmodule ExAdmin.Index do
   """
   defmacro index(opts \\ [], do: contents) do
     quote location: :keep do
+      import ExAdmin.CSV, only: [csv: 1, csv: 2]
+      import ExAdmin.Register
+      import ExAdmin.Index
       def index_view(var!(conn), page, scope_counts) do
-        import ExAdmin.Register, except: [actions: 1]
         import ExAdmin.Form, except: [actions: 1]
+        import ExAdmin.Register, except: [actions: 1]
         import ExAdmin.ViewHelpers
 
         var!(columns, ExAdmin.Show) = []
@@ -163,6 +166,7 @@ defmodule ExAdmin.Index do
     actions = case actions do
       [] -> @default_actions
       nil -> @default_actions
+      false -> []
       list -> list
     end
 
@@ -179,7 +183,7 @@ defmodule ExAdmin.Index do
       actions [:new, :delete]
   """
   defmacro actions(opts \\ []) do
-    if opts != nil and (opts -- @default_actions) != [] do
+    if opts != nil and opts != false and (opts -- @default_actions) != [] do
       raise ArgumentError, "Only #{inspect @default_actions} are allowed!"
     end
     quote do
@@ -316,10 +320,11 @@ defmodule ExAdmin.Index do
     actions = opts[:actions]
     opts = Map.put(opts, :fields, get_resource_fields page.entries)
     columns = page_opts[:column_list]
-    columns = unless Enum.any? columns, &((elem &1, 0) == "Actions") or is_nil(actions) do
-      columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
-    else
+    custom_actions_column? = Enum.any? columns, &((elem &1, 0) == "Actions")
+    columns = if custom_actions_column? || Enum.empty?(actions) do
       columns
+    else
+      columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
     end
     opts = Map.put opts, :column_list, columns
 
@@ -362,10 +367,18 @@ defmodule ExAdmin.Index do
   end
 
   @doc false
-  def download_links(conn) do
+  def download_links(conn, opts) do
     div ".download_links " <> (gettext "Download:") <> " " do
-      a "CSV", href: admin_resource_path(conn, :csv)
+      a "CSV", href: build_csv_href(conn, opts)
     end
+  end
+
+  @doc false
+  def build_csv_href(conn, opts) do
+    admin_resource_path(conn, :csv) <> "?order="
+    |> build_scope_href(conn.params["scope"])
+    |> build_order_href(opts[:order])
+    |> build_filter_href(conn.params["q"])
   end
 
   @doc false
@@ -387,16 +400,16 @@ defmodule ExAdmin.Index do
       other -> other
     end
 
-    list = get_authorized_links(conn, links, resource_model)
-    |> Enum.reverse
+    list = get_authorized_links(conn, links, resource_model) |> Enum.reverse
+    labels = conn.assigns.defn.action_labels
 
-    Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource)
+    Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource, labels)
   end
 
   @doc false
-  def get_authorized_links(conn, links, _resource_model) do
+  def get_authorized_links(conn, links, resource_model) do
     Enum.reduce links, [], fn(item, acc) ->
-      if ExAdmin.Utils.authorized_action?(conn, item), do: [item | acc], else: acc
+      if ExAdmin.Utils.authorized_action?(conn, item, resource_model), do: [item | acc], else: acc
     end
   end
 end

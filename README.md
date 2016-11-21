@@ -271,6 +271,13 @@ config :ex_admin,
   ],
   ...
 ```
+
+## Authentication
+
+ExAdmin leaves the job of authentication to 3rd party packages. For an example of using [Coherence](https://github.com/smpallen99/coherence) checkout the [Contact Demo Project](https://github.com/smpallen99/contact_demo).
+
+Visit the [Wiki](https://github.com/smpallen99/ex_admin/wiki/Add-authentication) for more information on adding Authentication.
+
 ## Contributing
 
 We appreciate any contribution to ExAdmin. Check our [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](CONTRIBUTING.md) guides for more information. We usually keep a list of features and bugs [in the issue tracker][1].

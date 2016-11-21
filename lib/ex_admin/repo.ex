@@ -326,6 +326,8 @@ res
   def get_assoc_join_model(resource, field) do
     res_model = resource.__struct__
     case res_model.__schema__(:association, field) do
+      %Ecto.Association.Has{queryable: queryable} ->
+        {:ok, queryable}
       %{through: [first, second]} ->
         {:ok, {res_model.__schema__(:association, first).related, second}}
       _ ->
@@ -340,6 +342,8 @@ res
     case get_assoc_join_model(resource, field) do
       {:ok, {assoc, second}} ->
         {assoc.__schema__(:association, second).related, assoc}
+      {:ok, assoc_model} ->
+        {assoc_model, field}
       error ->
         error
     end
@@ -355,6 +359,7 @@ res
     res
   end
 
+  def param_stringify_keys(%{__struct__: _}=params), do: params
   def param_stringify_keys(params) when is_map(params) do
     Map.to_list(params)
     |> Enum.map(fn {key, value} -> {stringify_key(key), param_stringify_keys(value)} end)

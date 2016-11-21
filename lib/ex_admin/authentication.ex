@@ -15,12 +15,11 @@ end
 
 defprotocol ExAdmin.Authorization do
   @fallback_to_any true
-  def authorize_query(defn, conn, query, action, id)
-  def authorize_action(defn, conn, action)
+  def authorize_query(resource, conn, query, action, id)
+  def authorize_action(resource, conn, action)
 end
 
 defimpl ExAdmin.Authorization, for: Any do
   def authorize_query(_, _, query, _, _), do: query
   def authorize_action(_, _, _), do: true
 end
-

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.2  (2016-7-14)
+## 0.8.2  (2016-8-25)
 
 ### Enhancements
 * Support the new side effect free xain package
@@ -31,6 +31,11 @@
 * Support setting explicit field types in forms
 * Much more refactoring and code simplification
 * Experimental support for string and integer array fields
+* Scopes preserve filters
+* Scope counts include filtered records
+* Column sorting preserve current scope
+* Russian locale
+* Search options for string filters
 
 ### Bug Fixes
 * Fix errors in README.md
@@ -40,6 +45,8 @@
 * csv now exports times and dates
 * Fix many to many form collection without a name field
 * Use get_id & display_name instead of hard-coded :id & :name columns when build select box
+* Remove duplicate scope buttons
+* Support multiple page files (i.e. dashbaord like pages)
 
 ### Deprecations
 * actions :all macro deprecated. Use action_items instead

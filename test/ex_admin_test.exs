@@ -48,18 +48,18 @@ defmodule ExAdminTest do
     conn = struct(conn, private: %{phoenix_action: :index})
     result = ExAdmin.default_resource_title_actions(conn, defn)
 
-    assert result == [index: [{"New Simple", [href: "/admin/simples/new"]}]]
+    assert result == [new: [{"New Simple", [href: "/admin/simples/new"]}]]
     conn = struct(conn, private: %{phoenix_action: :edit})
 
     result = ExAdmin.default_resource_title_actions(conn, defn)
-    assert result == [edit: [{"New Simple", [href: "/admin/simples/new"]}]]
+    assert result == [new: [{"New Simple", [href: "/admin/simples/new"]}]]
   end
 
   @tag as_resource: %TestExAdmin.ExAdmin.SimpleCustom{}
   test "default_resource_title_actions custom actions", %{defn: defn, conn: conn} do
     conn = struct(conn, private: %{phoenix_action: :index})
     result = ExAdmin.default_resource_title_actions(conn, defn)
-    assert result ==  [index: [{"New Simple", [href: "/admin/simples/new"]}], custom: [{"Custom Action", [href: "/custom"]}]]
+    assert result ==  [new: [{"New Simple", [href: "/admin/simples/new"]}], custom: [{"Custom Action", [href: "/custom"]}]]
 
     conn = struct(conn, private: %{phoenix_action: :show})
     result = ExAdmin.default_resource_title_actions(conn, defn)

@@ -61,7 +61,7 @@ defmodule ExAdmin.Helpers do
   end
 
   defp build_content_link(link?, conn, resource, contents) do
-    if link? && ExAdmin.Utils.authorized_action?(conn, :show) do
+    if link? && ExAdmin.Utils.authorized_action?(conn, :show, resource) do
       path = admin_resource_path resource, :show
       "<a href='#{path}'>#{contents}</a>"
     else

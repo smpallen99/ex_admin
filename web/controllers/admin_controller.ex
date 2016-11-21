@@ -6,14 +6,17 @@ defmodule ExAdmin.AdminController do
   plug :set_theme
   plug :set_layout
 
-
-  def dashboard(conn, _params) do
-    defn = get_registered_by_controller_route!(conn, "dashboard")
+  def page(conn, params) do
+    page = Map.get(params, "page", "dashboard")
+    defn = get_registered_by_controller_route!(conn, page)
     conn =  assign(conn, :defn, defn)
     contents = defn.__struct__.page_view(conn)
 
     render(conn, "admin.html", html: contents, resource: nil, scope_counts: [],
       filters: (if false in defn.index_filters, do: false, else: defn.index_filters))
+  end
+  def dashboard(conn, params) do
+    page(conn, Map.put(params, "page", "dashboard"))
   end
 
   def select_theme(conn, %{"id" => id} = params) do

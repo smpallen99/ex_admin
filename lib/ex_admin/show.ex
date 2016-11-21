@@ -47,6 +47,8 @@ defmodule ExAdmin.Show do
   """
   defmacro show(resource, [do: contents]) do
     quote location: :keep do
+      import ExAdmin.CSV, only: [csv: 1, csv: 2]
+      import ExAdmin.Register
       def show_view(var!(conn), unquote(resource) = var!(resource)) do
         import ExAdmin.Utils
         import ExAdmin.ViewHelpers
