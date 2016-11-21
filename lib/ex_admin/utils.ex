@@ -118,6 +118,11 @@ defmodule ExAdmin.Utils do
   def parameterize(str) when is_binary(str),
     do: Inflex.parameterize(str, "_")
     # do: str
+  def parameterize(tuple) when is_tuple(tuple) do
+    Tuple.to_list(tuple)
+    |> Enum.map(&Kernel.to_string/1)
+    |> Enum.join("_")
+  end
 
   @doc false
   def action_name(conn) do

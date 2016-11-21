@@ -44,7 +44,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
           div ".col-xs-6", style: "padding-right: 0"  do
             span ".input-group-addon" do
               div ".filter-select" do
-                select onchange: ~s|document.getElementById("#q_{name}").name = "q[" + this.value + "]";| do
+                select onchange: ~s|document.getElementById("q_#{name}").name = "q[" + this.value + "]";| do
                   for {suffix, text} <- string_options do
                     build_option(text, "#{name}_#{suffix}", selected_name)
                   end
@@ -54,7 +54,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
             end
           end
           div ".col-xs-6", style: "padding-left: 0px" do
-            input id: "#q_{name}", name: "q[#{selected_name}]", type: "text", value: value, class: "form-control"
+            input id: "q_#{name}", name: "q[#{selected_name}]", type: "text", value: value, class: "form-control"
           end
         end
       end
