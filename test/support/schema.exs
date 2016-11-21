@@ -286,5 +286,15 @@ defmodule TestExAdmin.DefnDisplayName do
 
   @required_fields ~w(name)
   @optional_fields ~w(first second)
+end
 
+defmodule TestExAdmin.Maps do
+  import Ecto.Changeset
+  use Ecto.Schema
+
+  schema "maps" do
+    field :name, :string
+    field :addresses, {:array, :map}
+    field :stats, :map
+  end
 end

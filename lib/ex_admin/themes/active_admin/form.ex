@@ -11,7 +11,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   alias ExAdmin.Schema
 
   @doc false
-  def build_form(conn, resource, items, params, script_block) do
+  def build_form(conn, resource, items, params, script_block, global_script) do
     mode = if params[:id], do: :edit, else: :new
     markup safe: true do
       model_name = model_name resource
@@ -38,6 +38,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
       end
       put_script_block(scripts)
       put_script_block(script_block)
+      put_script_block(global_script)
     end
   end
 
@@ -112,7 +113,6 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
     end
   end
 
-
   def build_form_error(error) do
     p ".inline-errors #{error_messages error}"
   end
@@ -152,16 +152,6 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
       end
     end)
     changes = Enum.reverse changes
-    # res = div ".box.box-primary" do
-    #   div ".box-header.with-border" do
-    #     h3 ".box-title" do
-    #       text item[:name]
-    #     end
-    #   end
-    #   div ".box-body" do
-    #     html
-    #   end
-    # end
     res = fieldset(".inputs", opts) do
       build_fieldset_legend(item[:name])
       ol do
@@ -252,7 +242,8 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   end
 
   def theme_button(content, attrs) do
-    a ".button#{content}", attrs
+    {_type, attrs} = Keyword.pop(attrs, :type)
+    a "#{content}", [{:class, "button"} | attrs]
   end
 
   def collection_check_box name, name_str, _id, selected do
@@ -268,6 +259,29 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   def wrap_collection_check_boxes fun do
     ol do
       fun.()
+    end
+  end
+
+  def build_map(id, label, _inx, error, fun) do
+    li "##{id}_input.form-group" do
+      label = label ".label #{label}", for: id
+      control = fun.("form-control")
+      [label, control]
+    end
+  end
+
+  def theme_map_field_set(conn, res, schema, inx, field_name, model_name, errors) do
+    fieldset ".inputs.has_many_fields" do
+      ol do
+        h3 humanize(field_name)
+        for {field, type} <- schema do
+          error = if errors, do: Enum.filter_map(errors, &(elem(&1, 0) == to_string(field)), &(elem(&1, 1))), else: nil
+          ExAdmin.Form.build_input(conn, type, field, field_name, res, model_name, error, inx)
+        end
+        li do
+          a ".button.remove_has_many_maps " <> (gettext "Delete"), href: "#"
+        end
+      end
     end
   end
 end

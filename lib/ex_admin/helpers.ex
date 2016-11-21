@@ -108,6 +108,10 @@ defmodule ExAdmin.Helpers do
     resource.__struct__.__schema__(:association, association).owner_key
   end
 
+  defp get_field_type(%{__struct__: resource_struct, __meta__: _} = resource, field) do
+    resource_struct.__schema__(:type, field)
+  end
+  defp get_field_type(_resource, _field), do: nil
 
   @doc """
   Builds a web field.
@@ -123,6 +127,10 @@ defmodule ExAdmin.Helpers do
         |> fun.(f_name)
 
       {f_name, %{} = opts} ->
+        f_name = case get_field_type(resource, f_name) do
+          nil -> f_name
+          type -> {type, f_name}
+        end
         build_single_field(resource, conn, f_name, opts)
         |> fun.(f_name)
 
@@ -135,6 +143,9 @@ defmodule ExAdmin.Helpers do
     end
   end
 
+  def build_single_field(resource, conn, {_, f_name}, opts) do
+    build_single_field(resource, conn, f_name, opts)
+  end
   def build_single_field(resource, conn, f_name, %{fun: fun, image: true} = opts) do
     attributes = opts
       |> Map.delete(:fun)
@@ -171,9 +182,12 @@ defmodule ExAdmin.Helpers do
     |> build_link_for(conn, opts, resource, f_name)
   end
 
-  def build_single_field(resource, conn, f_name, opts) do
-    resource.__struct__.__schema__(:type, f_name)
+  def build_single_field(%{__struct__: resource_struct} = resource, conn, f_name, opts) do
+    resource_struct.__schema__(:type, f_name)
     |> build_single_field_type(resource, conn, f_name, opts)
+  end
+  def build_single_field(%{} = resource, conn, f_name, opts) do
+    build_single_field_type(:array_map, resource, conn, f_name, opts)
   end
 
   defp build_single_field_type({:array, type}, resource, conn, f_name, opts) when type in [:string, :integer] do
@@ -186,10 +200,29 @@ defmodule ExAdmin.Helpers do
     end
     |> build_link_for(conn, opts, resource, f_name)
   end
-  defp build_single_field_type(_, resource, conn, f_name, opts) do
-    to_string(get_resource_field(resource, f_name, opts))
+  defp build_single_field_type(:array_map, resource, conn, f_name, opts) do
+    Map.get(resource, to_string(f_name), "")
     |> build_link_for(conn, opts, resource, f_name)
   end
+  defp build_single_field_type(_, resource, conn, f_name, opts) do
+    get_resource_field(resource, f_name, opts)
+    |> format_contents
+    |> build_link_for(conn, opts, resource, f_name)
+  end
+
+  defp format_contents(contents) when is_list(contents) do
+    contents
+    |> Enum.map(&format_contents/1)
+    |> to_string
+  end
+  defp format_contents(%{} = contents) do
+    Enum.reduce(contents, [], fn {k,v}, acc ->
+      ["#{k}: #{v}" | acc]
+    end)
+    |> Enum.reverse
+    |> Enum.join(", ")
+  end
+  defp format_contents(contents), do: to_string(contents)
 
   def get_resource_model(resources) do
     case resources do
@@ -200,6 +233,7 @@ defmodule ExAdmin.Helpers do
 
       %{__struct__: name} ->
         name |> base_name |>  Inflex.parameterize("_")
+      %{} -> :map
     end
   end
   defp _build_field(%{fields: fields} = map, conn, resource, field_name) do
@@ -361,6 +395,8 @@ defmodule ExAdmin.Helpers do
   def to_class(prefix, field_name),
     do: prefix <> to_class(field_name)
 
+  def to_class({_, field_name}), do: to_class(field_name)
+
   def to_class(field_name) when is_binary(field_name),
     do: Inflex.parameterize(field_name, "_")
   def to_class(field_name) when is_atom(field_name),
@@ -381,7 +417,12 @@ defmodule ExAdmin.Helpers do
         assoc = String.to_atom(assoc)
         if assoc in  defn.resource_model.__schema__(:associations),
           do: assoc, else: field
-      _ -> field
+      _ ->
+        case defn.resource_model.__schema__(:type, field) do
+          :map           -> {:map, field}
+          {:array, :map} -> {:maps, field}
+          _              -> field
+        end
     end
   end
 

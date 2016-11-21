@@ -211,8 +211,9 @@ defmodule ExAdmin.Form do
         items = var!(input_blocks, ExAdmin.Form) |> Enum.reverse
         script_block = var!(script_block, ExAdmin.Form)
         Module.concat(var!(conn).assigns.theme, Form).build_form(
-          var!(conn), var!(resource), items, var!(params), script_block)
+          var!(conn), var!(resource), items, var!(params), script_block, ExAdmin.Form.global_script)
       end
+
 
       def get_blocks(var!(conn), unquote(resource) = var!(resource), var!(params) = _params) do
         # TODO: do we need the passed params? they are not used.
@@ -448,6 +449,10 @@ defmodule ExAdmin.Form do
     case translate_field defn, name do
       field when field == name ->
         %{type: :input, resource: resource, name: name, opts: %{}}
+      {:map, _field} ->
+        %{type: :input, resource: resource, name: name, opts: %{map: true}}
+      {:maps, _field} ->
+        %{type: :input, resource: resource, name: name, opts: %{maps: true}}
       field ->
         case resource.__struct__.__schema__(:association, field) do
           %Ecto.Association.BelongsTo{cardinality: :one, queryable: assoc} ->
@@ -611,6 +616,48 @@ defmodule ExAdmin.Form do
     end
   end
 
+  def build_item(conn, %{type: :input, field_type: :map, name: field_name, resource: _resource
+       } = item, resource, model_name, _error) do
+    Adminlog.debug "build_item 11: #{inspect field_name}"
+
+    schema = get_schema(item, field_name)
+    data = Map.get(resource, field_name, model_name) || %{}
+
+    for {field, type} <- schema do
+      build_input(conn, type, field, field_name, data, model_name)
+    end
+    |> Enum.join("\n")
+  end
+
+  def build_item(conn, %{type: :input, field_type: {:array, :map}, name: field_name, resource: _resource} = item, resource, model_name, error) do
+    Adminlog.debug "build_item 12: #{inspect field_name}"
+
+    schema = get_schema(item, field_name)
+
+    human_label = "#{humanize(field_name) |> Inflex.singularize}"
+    new_record_name_var = new_record_name field_name
+
+    div ".has_many.#{field_name}" do
+      {contents, html} = theme_module(conn, Form).build_inputs_has_many field_name, human_label, fn ->
+        resource_contents = (Map.get(resource, field_name) || [])
+        |> Enum.with_index
+        |> Enum.map(fn({res, inx}) ->
+          errors = map_array_errors(error, field_name, inx)
+          html = theme_module(conn, Form).theme_map_field_set(conn, res, schema, inx, field_name, model_name, errors)
+          html
+        end)
+        fieldset_contents = theme_module(conn, Form).theme_map_field_set(conn, :nil, schema, new_record_name(field_name), field_name, model_name, nil)
+        {fieldset_contents, resource_contents}
+      end
+      {_, onclick} = Phoenix.HTML.html_escape theme_module(conn, Form).has_many_insert_item(
+        contents, new_record_name_var)
+      markup do
+        html
+        theme_module(conn, Form).theme_button("Add New #{human_label}", href: "#", onclick: onclick, type: ".btn-primary")
+      end
+    end
+  end
+
   @doc """
   Private: Build a belongs_to control.
 
@@ -662,9 +709,6 @@ defmodule ExAdmin.Form do
           route_path = admin_resource_path(resource.__struct__, :index)
           target = pluralize(field_name)
           nested = pluralize(update)
-
-          # TODO: Need to fix this by looking it up
-          resource_name = pluralize model_name
 
           {extra, param_str} =
           case params do
@@ -766,8 +810,8 @@ defmodule ExAdmin.Form do
       html
       {_, onclick} = Phoenix.HTML.html_escape theme_module(conn, Form).has_many_insert_item(
         contents, new_record_name_var)
-      theme_module(conn, Form).theme_button ".btn-primary Add New #{human_label}",
-        href: "#", onclick: onclick
+      theme_module(conn, Form).theme_button "Add New #{human_label}",
+        href: "#", onclick: onclick, type: ".btn-primary"
     end
   end
 
@@ -814,19 +858,60 @@ defmodule ExAdmin.Form do
     end
   end
 
-  @doc false
-  def build_item(conn, %{type: :inputs, name: field_name} = item, resource, model_name, errors) do
+  @doc """
+  Handle building the items for an input block.
+
+  This is where each of the fields will be build
+  """
+
+  def build_item(conn, %{type: :inputs, name: _field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
-    _ = field_name
-    Adminlog.debug "build_item 10: #{inspect field_name}"
+    Adminlog.debug "build_item 10: #{inspect _field_name}"
+
     theme_module(conn, Form).form_box item, opts, fn ->
       theme_module(conn, Form).theme_build_inputs item, opts, fn ->
         for inpt <- item[:inputs] do
-          build_item(conn, inpt, resource, model_name, errors)
+          type = resource.__struct__.__schema__(:type, inpt[:name])
+          item = put_in inpt, [:field_type], type
+          build_item(conn, item, resource, model_name, errors)
         end
       end
     end
   end
+
+  defp get_schema(item, field_name) do
+    schema = item[:opts][:schema]
+    unless schema, do: raise("Can't render map without schema #{inspect field_name}")
+    schema
+  end
+
+  def build_input(conn, type, field, field_name, data, model_name, errors \\ nil, index \\ nil) do
+    field = to_string field
+    error = if errors in [nil, [], false], do: "", else: ".has-error"
+    {inx, id} = if is_nil(index) do
+      {"", "#{model_name}_#{field_name}_#{field}"}
+    else
+      {"[#{index}]", "#{model_name}_#{field_name}_#{index}_#{field}"}
+    end
+    name = "#{model_name}[#{field_name}]#{inx}[#{field}]"
+    label = humanize field
+    theme_module(conn, Form).build_map(id, label, index, error, fn class ->
+      markup do
+        []
+        |> Keyword.put(:type, input_type(type))
+        |> Keyword.put(:class, class)
+        |> Keyword.put(:id, id)
+        |> Keyword.put(:name, name)
+        |> Keyword.put(:value, data[field])
+        |> Xain.input
+        build_errors(errors)
+      end
+    end)
+  end
+
+  defp input_type(:string), do: "text"
+  defp input_type(:integer), do: "number"
+  defp input_type(_), do: "text"
 
   @doc false
   def build_control(:boolean, resource, opts, model_name, field_name, ext_name) do
@@ -1207,7 +1292,7 @@ defmodule ExAdmin.Form do
         |> Enum.filter(&(not is_nil(&1)))
         items = [%{type: :inputs, name: "", inputs: columns, opts: []}]
         Module.concat(var!(conn).assigns.theme, Form).build_form(
-          conn, resource, items, params, false)
+          conn, resource, items, params, false, ExAdmin.Form.global_script)
     end
   end
 
@@ -1232,6 +1317,14 @@ defmodule ExAdmin.Form do
   end
 
   @doc false
+  defp map_array_errors(nil, _, _), do: nil
+  defp map_array_errors(errors, field_name, inx) do
+    Enum.filter_map(errors || [],
+      fn {k,{_err, opts}} -> k == field_name and opts[:index] == inx end,
+      fn {_k,{err, opts}} -> {opts[:field], err} end)
+  end
+
+  @doc false
   def get_errors(nil, _field_name), do: nil
   def get_errors(errors, field_name) do
     Enum.reduce errors, [], fn({k, v}, acc) ->
@@ -1253,10 +1346,22 @@ defmodule ExAdmin.Form do
   def error_messages({:too_short, min}), do: "must be longer than #{min - 1}"
   def error_messages({:must_match, field}), do: "must match #{humanize field}"
   def error_messages(:format), do: "has incorrect format"
+  def error_messages("empty"), do: "can't be blank"
   def error_messages({msg, opts}) when is_binary(msg) do
     count = if is_integer(opts[:count]), do: opts[:count], else: 0
     String.replace(msg, "%{count}", Integer.to_string(count))
   end
   def error_messages(other) when is_binary(other), do: other
   def error_messages(other), do: "error: #{inspect other}"
+
+  def global_script, do: """
+    $(function() {
+      $(document).on('click', '.remove_has_many_maps', function() {
+        console.log('remove has many maps');
+        $(this).closest(".has_many_fields").remove();
+        return false;
+      });
+    });
+    """
+
 end

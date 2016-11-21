@@ -2,37 +2,29 @@ defmodule ExAdmin.ParamsToAtoms do
   @moduledoc false
   require Logger
 
-  #@behaviour Plug
-
-  #def init(opts), do: opts
-
-  # def call(conn, _opts) do
-  #   struct(conn, params: filter(conn.params))
-  # end
-
-  def filter(params) do
-    filter_params(params)
-  end
-
-  def filter_params(params) do
+  def filter_params(params, schema) do
     params_string_fields_to_integer(params)
-    |> params_to_atoms
+    |> params_to_atoms(schema)
   end
 
-  def params_to_atoms(params) do
+  def params_to_atoms(params, schema) do
     list = for {key, value} <- params do
-      do_params_to_atoms(key, value)
+      do_params_to_atoms(key, value, schema)
     end
     Enum.into list, Map.new
   end
 
-  defp do_params_to_atoms(key, %Plug.Upload{} = value) do
+  defp do_params_to_atoms(key, %Plug.Upload{} = value, _) do
     {_to_atom(key), value}
   end
-  defp do_params_to_atoms(key, value) when is_map(value) do
-    {_to_atom(key), params_to_atoms(value)}
+  defp do_params_to_atoms(key, value, schema) when is_map(value) do
+    key = _to_atom(key)
+    case schema.__schema__(:type, key) do
+      {:array, :map} -> {key, Map.values(value)}
+      _ -> {key, params_to_atoms(value, schema)}
+    end
   end
-  defp do_params_to_atoms(key, value) do
+  defp do_params_to_atoms(key, value, _) do
     {_to_atom(key), value}
   end
 

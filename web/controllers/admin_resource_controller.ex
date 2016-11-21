@@ -14,8 +14,8 @@ defmodule ExAdmin.AdminResourceController do
     conn = conn |> assign(:xhr, get_req_header(conn, "x-requested-with") == ["XMLHttpRequest"])
     resource = conn.params["resource"]
     conn = scrub_params(conn, resource, action)
-    params = filter_params(conn.params)
     defn = get_registered_by_controller_route!(conn, resource)
+    params = filter_params(conn.params, defn.resource_model)
 
     if !restricted_action?(action, defn) && authorized_action?(conn, action, defn) do
       conn

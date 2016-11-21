@@ -29,11 +29,19 @@ defmodule ExAdmin.Table do
         table(table_opts) do
           tbody do
             for field_name <- Map.get(schema, :rows, []) do
-              build_field(resource, conn, field_name, fn(contents, f_name) ->
-                tr do
-                  field_header field_name
-                  handle_contents(contents, f_name)
-                end
+              build_field(resource, conn, field_name, fn
+                _contents, {:map, f_name} ->
+                  for {k,v} <- Map.get(resource, f_name) do
+                    tr do
+                      field_header "#{f_name} #{k}"
+                      td ".td-#{parameterize k} #{v}"
+                    end
+                  end
+                contents, f_name ->
+                  tr do
+                    field_header field_name
+                    handle_contents(contents, f_name)
+                  end
               end)
             end
           end
@@ -43,11 +51,45 @@ defmodule ExAdmin.Table do
   end
 
   def field_header({_, %{label: label}}), do: th(humanize label)
+  def field_header({{_, field_name}, opts}), do: field_header({field_name, opts})
+  def field_header({_, field_name}) when is_atom(field_name), do: field_header(field_name)
   def field_header({field_name, _opts}), do: field_header(field_name)
   def field_header(field_name), do: th(humanize field_name)
 
   def panel(conn, schema, _opts \\ []) do
     theme_module(conn, Table).theme_panel(conn, schema)
+  end
+
+  defp do_panel_resource(conn, %{__struct__: _} = resource, inx, model_name, columns) do
+    odd_even = if Integer.is_even(inx), do: "even", else: "odd"
+    tr_id = if Map.has_key?(resource, :id), do: resource.id, else: inx
+    tr(".#{odd_even}##{model_name}_#{tr_id}") do
+      for field <- columns do
+        case field do
+          {f_name, fun} when is_function(fun) ->
+            td ".td-#{parameterize f_name} #{fun.(resource)}"
+          {f_name, opts} ->
+            build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) ->
+              td ".td-#{parameterize f_name} #{contents}"
+            end)
+        end
+      end
+    end
+  end
+  defp do_panel_resource(conn, %{} = resource, inx, model_name, columns) do
+    odd_even = if Integer.is_even(inx), do: "even", else: "odd"
+    tr(".#{odd_even}##{model_name}_#{inx}") do
+      for field <- columns do
+        case field do
+          {f_name, fun} when is_function(fun) ->
+            td ".td-#{parameterize f_name} #{fun.(resource)}"
+          {f_name, opts} ->
+            build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) ->
+              td ".td-#{parameterize f_name} #{contents}"
+            end)
+        end
+      end
+    end
   end
 
   def do_panel(conn, columns \\ [], table_opts \\ [], output \\ [])
@@ -59,20 +101,7 @@ defmodule ExAdmin.Table do
         model_name = get_resource_model resources
         Enum.with_index(resources)
         |> Enum.map(fn({resource, inx}) ->
-          odd_even = if Integer.is_even(inx), do: "even", else: "odd"
-          tr_id = if Map.has_key?(resource, :id), do: resource.id, else: inx
-          tr(".#{odd_even}##{model_name}_#{tr_id}") do
-            for field <- columns do
-              case field do
-                {f_name, fun} when is_function(fun) ->
-                  td ".td-#{parameterize f_name} #{fun.(resource)}"
-                {f_name, opts} ->
-                  build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn(contents, f_name) ->
-                    td ".td-#{parameterize f_name} #{contents}"
-                  end)
-              end
-            end
-          end
+          do_panel_resource(conn, resource, inx, model_name, columns)
         end)
       end
     end | output]
@@ -111,6 +140,8 @@ defmodule ExAdmin.Table do
     end
   end
 
+  def build_th({{_, field_name}, opts}, table_opts),
+    do: build_th({field_name, opts}, table_opts)
   def build_th({field_name, %{label: label} = opts}, table_opts) when is_atom(field_name) and is_binary(label),
     do: build_th(label, opts, table_opts)
   def build_th({field_name, opts}, table_opts) when is_atom(field_name),
