@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.2  (2016-8-25)
+## 0.8.2-dev  (2016-11-20)
 
 ### Enhancements
 * Support the new side effect free xain package
@@ -36,6 +36,16 @@
 * Column sorting preserve current scope
 * Russian locale
 * Search options for string filters
+* Support only, except, and all options for show attributes_table macro
+* Support Ecto map and array of maps types
+* Add require applications to support exrm. #202
+* Custom labels for actions
+* Dispatch ExAdmin.Authorization by resource instead of defn
+* Refactored authorization to perform check after resource loading
+* Added support of hint option for form elements
+* Ability to completely disable actions column on index_view
+* Add after filter support to destroy action
+* Added :url option for menu macro
 
 ### Bug Fixes
 * Fix errors in README.md
@@ -47,9 +57,14 @@
 * Use get_id & display_name instead of hard-coded :id & :name columns when build select box
 * Remove duplicate scope buttons
 * Support multiple page files (i.e. dashbaord like pages)
+* Fix issues with order of csv macro
+* CSS not found - typo in documentation
+* Avoid stringifying struct keys
+* Fix form has_many
 
 ### Deprecations
 * actions :all macro deprecated. Use action_items instead
 
 ### Backward incompatible changes
+* Dispatch ExAdmin.Authorization by resource instead of defn
 
