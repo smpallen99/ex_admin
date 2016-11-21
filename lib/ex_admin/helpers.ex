@@ -215,6 +215,7 @@ defmodule ExAdmin.Helpers do
     |> Enum.map(&format_contents/1)
     |> to_string
   end
+  defp format_contents(%{__struct__: _} = contents), do: to_string(contents)
   defp format_contents(%{} = contents) do
     Enum.reduce(contents, [], fn {k,v}, acc ->
       ["#{k}: #{v}" | acc]

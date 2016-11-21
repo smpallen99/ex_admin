@@ -68,14 +68,51 @@ defmodule ExAdmin.Show do
 
   When called without a block, the default attributes table will be
   displayed.
+
+  Call with opts:
+
+  * `only: list` - select which fields to show.
+  * `except: field_list` - select which fields to exclude.
+  * `all: true` - include fields :id, :inserted_at, :updated_at which are excluded by default.
+
+  ## Examples
+
+      # only fields :name and :email
+      attributes_table do
+        row :name
+        row :email
+      end
+
+      # all fields except :id, :inserted_at, :updated_at
+      attributes_table
+
+      # all fields including :id, :inserted_at, :updated_at
+      attributes_table all: true
+
+      # only fields :name and :email
+      attributes_table only: [:name, :email]
+
+      # all fields except :password, :id, :inserted_at, :updated_at
+      attributes_table except: [:password]
+
+      # all fields except :password
+      attributes_table except: [:password], all: true
+
   """
-  defmacro attributes_table(name \\ nil, do: block) do
+  defmacro attributes_table(name \\ nil, opts_or_block)
+  defmacro attributes_table(name, do: block) do
     quote location: :keep do
       var!(rows, ExAdmin.Show) = []
       unquote(block)
       rows = var!(rows, ExAdmin.Show) |> Enum.reverse
       schema = %{name: unquote(name), rows: rows}
       ExAdmin.Table.attributes_table var!(conn), var!(resource), schema
+    end
+  end
+
+  defmacro attributes_table(_, opts) do
+    quote location: :keep do
+      ExAdmin.Show.default_attributes_table(var!(conn), var!(resource), unquote(opts))
     end
   end
 
@@ -383,16 +420,28 @@ defmodule ExAdmin.Show do
   end
 
   @doc false
-  def default_attributes_table(conn, resource) do
+  def default_attributes_table(conn, resource, opts \\ []) do
     case conn.assigns.defn do
       nil ->
         throw :invalid_route
       %{__struct__: _} = defn ->
         columns = defn.resource_model.__schema__(:fields)
-        |> Enum.filter(&(not &1 in [:id, :inserted_at, :updated_at]))
+        |> get_default_attributes(Enum.into(opts, %{}))
         |> Enum.map(&({translate_field(defn, &1), %{}}))
-        |> Enum.filter(&(not is_nil(&1)))
+        |> Enum.reject(&(is_nil(&1)))
         ExAdmin.Table.attributes_table conn, resource, %{rows: columns}
     end
+  end
+
+  defp get_default_attributes(fields, %{only: only}) do
+    Enum.filter(only, &(&1 in fields))
+  end
+  defp get_default_attributes(fields, %{except: except} = opts) do
+    get_default_attributes(fields, Map.delete(opts, :except)) -- except
+  end
+  defp get_default_attributes(fields, %{all: true}), do: fields
+  defp get_default_attributes(fields, _) do
+    fields
+    |> Enum.reject(&(&1 in [:id, :inserted_at, :updated_at]))
   end
 end
