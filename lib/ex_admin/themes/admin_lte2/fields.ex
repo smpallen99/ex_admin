@@ -1,8 +1,6 @@
 defmodule ExAdmin.Theme.AdminLte2.Fields do
   use Xain
   import ExAdmin.Utils
-  import ExAdmin.Helpers
-  import ExAdmin.Theme.Helpers
   import ExAdmin.Form.Fields
 
   def input_checkbox(fun) do

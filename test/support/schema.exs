@@ -257,7 +257,6 @@ defmodule TestExAdmin.UUIDSchema do
 end
 
 defmodule TestExAdmin.ModelDisplayName do
-  import Ecto.Changeset
   use Ecto.Schema
 
   schema "model_display_name" do
@@ -275,7 +274,6 @@ defmodule TestExAdmin.ModelDisplayName do
 end
 
 defmodule TestExAdmin.DefnDisplayName do
-  import Ecto.Changeset
   use Ecto.Schema
 
   schema "defn_display_name" do
@@ -289,7 +287,6 @@ defmodule TestExAdmin.DefnDisplayName do
 end
 
 defmodule TestExAdmin.Maps do
-  import Ecto.Changeset
   use Ecto.Schema
 
   schema "maps" do

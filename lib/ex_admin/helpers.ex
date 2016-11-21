@@ -108,7 +108,7 @@ defmodule ExAdmin.Helpers do
     resource.__struct__.__schema__(:association, association).owner_key
   end
 
-  defp get_field_type(%{__struct__: resource_struct, __meta__: _} = resource, field) do
+  defp get_field_type(%{__struct__: resource_struct, __meta__: _}, field) do
     resource_struct.__schema__(:type, field)
   end
   defp get_field_type(_resource, _field), do: nil

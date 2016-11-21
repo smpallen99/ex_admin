@@ -122,7 +122,7 @@ defmodule ExAdmin.AdminResourceController do
     if conn.assigns.xhr do
       render conn, "destroy.js", tr_id: String.downcase("#{model_name}_#{params[:id]}")
     else
-      {conn, _, resource} = handle_after_filter(conn, :destroy, defn, params, resource)
+      {conn, _, _resource} = handle_after_filter(conn, :destroy, defn, params, resource)
       put_flash(conn, :notice, "#{model_name} " <> (gettext "was successfully destroyed."))
       |> redirect(to: admin_resource_path(defn.resource_model, :index))
     end

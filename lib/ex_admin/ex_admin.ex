@@ -306,6 +306,7 @@ defmodule ExAdmin do
   defp add_custom_actions(acc, _action, [], _id), do: acc
   defp add_custom_actions(acc, action, [{action, button} | actions], id) do
     import ExAdmin.ViewHelpers
+    endpoint()  # remove the compiler warning
     {fun, _} = Code.eval_quoted button, [id: id], __ENV__
     cond do
       is_function(fun, 1) -> [fun.(id) | acc]
