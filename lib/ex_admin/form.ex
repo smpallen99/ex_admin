@@ -82,6 +82,33 @@ defmodule ExAdmin.Form do
   Most of the options from the `datetime_select` control from
   `phoenix_html` should work.
 
+  ### Map field support
+
+  Since maps don't have a defined schema, you can define the schema as an option
+  to the input macro. For example:
+
+      form user do
+        inputs "User Details" do
+          input user, :name
+        end
+        inputs "Statistics" do
+          input user, :stats, schema: [age: :integer, height: :string, birthday: :string]
+        end
+      end
+
+  ### Array of maps field support
+
+  Like maps, you must provided the schema for an array of maps. For example:
+
+      form user do
+        inputs "User Details" do
+          input user, :name
+        end
+        inputs "Addresses" do
+          input user, :addresses, schema: [street: :string, city: :string]
+        end
+      end
+
   ## Rendering a has_many (one-to-many) relationship
 
   The example at the beginning of the chapter illustrates how to add

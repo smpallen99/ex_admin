@@ -127,9 +127,11 @@ defmodule ExAdmin.Show do
   end
 
   @doc """
-  Add a table for a `:has_many` association.
+  Add a table for a `:has_many` association or a list of maps.
 
   ## Examples
+
+  ### has_many association
 
       show account do
         attributes_table do
@@ -142,6 +144,20 @@ defmodule ExAdmin.Show do
             column "Asset", &__MODULE__.inventory_name/1
             column "PO", &(&1.sales_order.po)
             column :quantity
+          end
+        end
+      end
+
+  ### Array of maps
+
+      show user do
+        attributes_table do
+          row :name
+        end
+        panel "Addresses" do
+          table_for user.addresses do
+            column :street
+            column :city
           end
         end
       end
