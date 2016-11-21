@@ -44,6 +44,17 @@ defmodule ExAdmin.Show do
 
   @doc """
   Customize the show page.
+
+  Refer to the other examples in this Module.
+
+  ## Example
+
+      register_resource MyProject.User do
+        show user do
+          attributes_table
+        end
+      end
+
   """
   defmacro show(resource, [do: contents]) do
     quote location: :keep do
@@ -83,9 +94,6 @@ defmodule ExAdmin.Show do
         row :email
       end
 
-      # all fields except :id, :inserted_at, :updated_at
-      attributes_table
-
       # all fields including :id, :inserted_at, :updated_at
       attributes_table all: true
 
@@ -116,7 +124,15 @@ defmodule ExAdmin.Show do
     end
   end
 
+  @doc """
+  Display a table of the model's default attributes.
 
+  ## Examples
+
+      # all fields except :id, :inserted_at, :updated_at
+      attributes_table
+
+  """
   defmacro attributes_table do
     quote location: :keep do
       ExAdmin.Show.default_attributes_table(var!(conn), var!(resource))
@@ -364,6 +380,7 @@ defmodule ExAdmin.Show do
     end
   end
 
+  @doc false
   def build_association_filler_form(resource, true = _autocomplete, opts) do
     path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name], :add)
     markup do
@@ -390,6 +407,7 @@ defmodule ExAdmin.Show do
     end
   end
 
+  @doc false
   def build_association_filler_form(resource, _autocomplete, opts) do
     assoc_name = String.to_existing_atom(opts[:assoc_name])
     assoc_defn = ExAdmin.get_registered_by_association(resource, assoc_name)

@@ -1,7 +1,7 @@
 defmodule ExAdmin.Mixfile do
   use Mix.Project
 
-  @version "0.8.2"
+  @version "0.8.3-dev"
 
   def project do
     [ app: :ex_admin,

@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Admin.Gen.Resource do
   @moduledoc """
   Generate an ExAdmin Resource file
 
-  Creates a resource file used to define the administration pages 
+  Creates a resource file used to define the administration pages
   for the auto administration feature
 
       mix admin.gen.resource Survey
@@ -17,6 +17,7 @@ defmodule Mix.Tasks.Admin.Gen.Resource do
   import Mix.ExAdmin.Utils
 
   defmodule Config do
+    @moduledoc false
     defstruct module: nil, package_path: nil
   end
 
@@ -42,7 +43,7 @@ defmodule Mix.Tasks.Admin.Gen.Resource do
     IO.puts ""
     IO.puts "Remember to update your config file with the resource module"
     IO.puts ""
-    IO.puts """    
+    IO.puts """
         config :ex_admin, :modules, [
           #{base}.ExAdmin.Dashboard,
           ...

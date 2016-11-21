@@ -31,6 +31,7 @@ defmodule Mix.Tasks.Admin.Install do
   @switches Enum.map(@boolean_switchs, &({&1, :boolean}))
 
   defmodule Config do
+    @moduledoc false
     defstruct route: true, assets: true, dashboard: true,
       package_path: nil, config: true, brunch: true
   end
