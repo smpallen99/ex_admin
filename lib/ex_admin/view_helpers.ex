@@ -68,6 +68,7 @@ defmodule ExAdmin.ViewHelpers do
     end
   end
 
+  def status_tag(nil), do: status_tag(false)
   def status_tag(status) do
     span ".status_tag.#{status} #{status}"
   end
