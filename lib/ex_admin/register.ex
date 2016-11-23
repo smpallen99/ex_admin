@@ -445,8 +445,8 @@ defmodule ExAdmin.Register do
   The following example illustrates how to add a sync action that will
   be run before the index page is loaded.
 
-      changeset create: &__MODULE__.create_changeset/2,
-                update: &__MODULE__.update_changeset/2
+      changesets create: &__MODULE__.create_changeset/2,
+                 update: &__MODULE__.update_changeset/2
 
       def create_changeset(model, params) do
         Ecto.Changeset.cast(model, params, ~w(name password), ~w(age))
