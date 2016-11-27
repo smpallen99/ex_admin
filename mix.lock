@@ -16,6 +16,8 @@
   "floki": {:hex, :floki, "0.11.0", "b4532ab64d67225f13f5626e4ba1b8cf3ee9d5bd48017075bb975e1522efd32d", [:mix], [{:mochiweb, "~> 2.15", [hex: :mochiweb, optional: false]}]},
   "gettext": {:hex, :gettext, "0.12.1", "c0624f52763469ef7a3674919ae28b8286d88195b90fa1516180f31bbbd26d14", [:mix], []},
   "hackney": {:hex, :hackney, "1.6.3", "d489d7ca2d4323e307bedc4bfe684323a7bf773ecfd77938f3ee8074e488e140", [:mix, :rebar3], [{:certifi, "0.7.0", [hex: :certifi, optional: false]}, {:idna, "1.2.0", [hex: :idna, optional: false]}, {:metrics, "1.0.1", [hex: :metrics, optional: false]}, {:mimerl, "1.0.2", [hex: :mimerl, optional: false]}, {:ssl_verify_fun, "1.1.1", [hex: :ssl_verify_fun, optional: false]}]},
+  "hound": {:hex, :hound, "1.0.2", "b6dd20142d00c28009fad503a23fa4a76bc11899e0d198f36a9c1448427788b2", [], [{:httpoison, "~> 0.8", [hex: :httpoison, optional: false]}, {:poison, ">= 1.4.0", [hex: :poison, optional: false]}]},
+  "httpoison": {:hex, :httpoison, "0.10.0", "4727b3a5e57e9a4ff168a3c2883e20f1208103a41bccc4754f15a9366f49b676", [], [{:hackney, "~> 1.6.3", [hex: :hackney, optional: false]}]},
   "idna": {:hex, :idna, "1.2.0", "ac62ee99da068f43c50dc69acf700e03a62a348360126260e87f2b54eced86b2", [:rebar3], []},
   "inflex": {:hex, :inflex, "1.8.0", "7cfc752ae244b30b42ac9cf4c092771b485bc3424139aba4a933e54be8c63931", [:mix], []},
   "jsx": {:hex, :jsx, "2.8.0", "749bec6d205c694ae1786d62cea6cc45a390437e24835fd16d12d74f07097727", [:mix, :rebar], []},

@@ -28,7 +28,7 @@ defmodule ExAdmin.Mixfile do
   end
 
   defp applications(:test) do
-    [:plug | applications(:prod)]
+    [:plug, :cowboy | applications(:prod)]
   end
   defp applications(_) do
     [:gettext, :phoenix, :ecto, :inflex, :scrivener, :scrivener_ecto, :csvlixir, :logger, :ex_queb, :xain]
@@ -56,7 +56,8 @@ defmodule ExAdmin.Mixfile do
       {:earmark, "~> 0.1", only: :dev},
       {:ex_queb, "~> 0.2"},
       {:excoveralls, "~> 0.5", only: :test},
-      {:gettext, "~> 0.11"}
+      {:gettext, "~> 0.11"},
+      {:hound, "~> 1.0"}
     ]
   end
 
