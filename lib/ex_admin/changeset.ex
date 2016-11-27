@@ -1,13 +1,16 @@
 defmodule ExAdmin.Changeset do
   @moduledoc false
   alias __MODULE__, as: Cs
-  defstruct valid?: true, changeset: nil, errors: nil, dependents: []
+  defstruct valid?: true, changeset: nil, errors: nil, dependents: [], required: []
 
   def update(%Cs{} = r, items) when is_list(items) do
     Enum.reduce(items, r, fn({k,v}, acc) -> update(acc, k, v) end)
   end
+  def update(%Cs{} = r, :changeset, nil) do
+    %Cs{r | changeset: nil, required: []}
+  end
   def update(%Cs{} = r, :changeset, changeset) do
-    %Cs{r | changeset: changeset}
+    %Cs{r | changeset: changeset, required: changeset.required}
   end
   def update(%Cs{valid?: valid?} = r, :valid?, value) do
     %Cs{r | valid?: valid? and value}
