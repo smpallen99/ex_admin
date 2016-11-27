@@ -2,12 +2,14 @@ services:
   - postgresql
 before_script:
   - psql -c 'create database ex_admin_test;' -U postgres
+  - nohup phantomjs --wd &
 language: elixir
 elixir:
   - 1.3.1
 otp_release:
   - 18.2.1
 sudo: false
+script: mix test --include integration:true
 notification:
   recipients:
     - smpallen99@yahoo.com

@@ -194,6 +194,14 @@ in order to craft an excellent pull request:
    mix test
    ```
 
+   There are also integration tests that make sure the forms are working in a phantomjs browser.
+   ```bash
+   phantomjs --wd
+   mix test --include integration:true
+   ```
+
+
+
 7. Push your topic branch up to your fork:
 
    ```bash

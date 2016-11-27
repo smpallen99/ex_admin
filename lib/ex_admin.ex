@@ -1,0 +1,2 @@
+defmodule ExAdmin do
+end
