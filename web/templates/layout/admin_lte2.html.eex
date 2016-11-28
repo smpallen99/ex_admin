@@ -81,6 +81,10 @@
         var prefix = "/<%= Application.get_env(:ex_admin, :route_prefix, "admin") %>";
         window.location.href = prefix+'/select_theme/'+val+'?loc='+window.location.href;
       });
+      $('.switch-user').on('click', function(e) {
+        var val = $(this).attr('data-path')
+        window.location.href = val+'?loc='+window.location.href;
+      });
     });
   </script>
 </html>

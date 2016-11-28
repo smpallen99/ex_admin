@@ -45,6 +45,36 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
     end
   end
 
+  # <li class="dropdown" style="width: 100px">
+  #   <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+  #     Themes <span class="caret"></span>
+  #   </a>
+  #   <ul class="dropdown-menu" role="menu">
+  #     <%= ExAdmin.Theme.AdminLte2.Layout.theme_selector %>
+  #   </ul>
+  # </li>
+  def switch_user(%{assigns: %{switch_users: [current_id | users]} = conn}) do
+    content_tag :li, class: "dropdown", style: "width: 155px" do
+      [
+        content_tag :a, href: "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+          [
+            Phoenix.HTML.raw("Switch User"),
+            content_tag(:span, nil, class: "caret")
+          ]
+        end,
+        content_tag :ul, class: "dropdown-menu", role: "menu" do
+          for {name, id, path} <- users do
+            active = if id == current_id, do: "active", else: ""
+            content_tag :li, class: active do
+              content_tag :a, name, href: "#", "data-path": path, class: "switch-user"
+            end
+          end
+        end
+      ]
+    end
+  end
+  def switch_user(_conn), do: nil
+
   def render_breadcrumbs([]), do: nil
   def render_breadcrumbs(list) do
     ol(".breadcrumb") do

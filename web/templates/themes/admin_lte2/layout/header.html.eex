@@ -37,6 +37,7 @@
             </ul>
           </li>
         <% end %>
+        <%= ExAdmin.Theme.AdminLte2.Layout.switch_user(@conn) %>
       </ul>
   </nav>
 </header>

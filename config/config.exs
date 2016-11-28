@@ -26,6 +26,8 @@ use Mix.Config
 #     {"AdminLte",  ExAdmin.Theme.AdminLte2},
 #     {"ActiveAdmin", ExAdmin.Theme.ActiveAdmin}
 #   ],
+#   login_user: nil,
+#   logout_user: nil,
 #   modules: [
 #     Nested.ExAdmin.Dashboard,
 #   ]
