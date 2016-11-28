@@ -28,6 +28,21 @@ defmodule ExAdmin.Plug.SwitchUser do
         end
       end
 
+  by default, the user's name for each entry in the drop down list is fetched
+  with the `:name` field of the user schema. See the following for examples on
+  how to change this default:
+
+      # change the field in `config/dev.exs`
+      config :ex_admin,
+        current_user_name: :full_name,
+        current_user_name: &MyProject.User.user_name/1,
+        current_user_name: {MyProject.User, :user_name}
+
+      # as an option to the plug call in `web/router.ex`
+      plug ExAdmin.Plug.SwitchUser, current_user_name: :full_name
+      plug ExAdmin.Plug.SwitchUser, &MyProject.User.user_name/1
+      plug ExAdmin.Plug.SwitchUser, {MyProject.User, :user_name}
+
   """
   @behaviour Plug
   import Plug.Conn
@@ -59,12 +74,16 @@ defmodule ExAdmin.Plug.SwitchUser do
   def do_call(current_user, conn, opts) do
     users = opts[:repo].all(current_user.__struct__)
     |> Enum.map(fn user ->
-      name = Map.get(user, opts[:current_user_name])
+      name = get_user_name(user, opts[:current_user_name])
       id   = Map.get(user, opts[:current_user_id])
       path = Utils.admin_path(:switch_user, [user.id])
       {name, id, path}
     end)
     assign(conn, :switch_users, [Map.get(current_user, opts[:current_user_id]) | users])
   end
+
+  defp get_user_name(user, name_opt) when is_function(name_opt), do: name_opt.(user)
+  defp get_user_name(user, name_opt) when is_atom(name_opt), do: Map.get(user, name_opt)
+  defp get_user_name(user, {mod, fun}), do: apply(mod, fun, [user])
 
 end
