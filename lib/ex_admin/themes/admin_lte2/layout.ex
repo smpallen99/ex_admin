@@ -45,14 +45,6 @@ defmodule ExAdmin.Theme.AdminLte2.Layout do
     end
   end
 
-  # <li class="dropdown" style="width: 100px">
-  #   <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-  #     Themes <span class="caret"></span>
-  #   </a>
-  #   <ul class="dropdown-menu" role="menu">
-  #     <%= ExAdmin.Theme.AdminLte2.Layout.theme_selector %>
-  #   </ul>
-  # </li>
   def switch_user(%{assigns: %{switch_users: [current_id | users]}}) do
     content_tag :li, class: "dropdown", style: "width: 155px" do
       [
