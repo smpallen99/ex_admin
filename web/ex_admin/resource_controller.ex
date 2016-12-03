@@ -128,7 +128,7 @@ defmodule ExAdmin.ResourceController do
         apply(__MODULE__, action, [conn, defn, params])
       end
 
-      defp handle_before_filter(%{halted: true} = conn, _, _, _), do: conn
+      defp handle_before_filter(%{halted: true} = conn, _, _, params), do: {conn, params}
       defp handle_before_filter(conn, action, defn, params) do
         _handle_before_filter(conn, action, defn, params, defn.controller_filters[:before_filter])
       end
@@ -141,14 +141,15 @@ defmodule ExAdmin.ResourceController do
             if not action in opts[:except], do: true, else: false
           true -> true
         end
-        if filter do
+        temp = if filter do
           apply(defn.__struct__, name, [conn, params])
         else
-          conn
+          {conn, params}
         end
-        |> _handle_before_filter(action, defn, params, t)
+        {conn, new_params} = if is_tuple(temp), do: temp, else: {temp, params}
+        _handle_before_filter(conn, action, defn, new_params, t)
       end
-      defp _handle_before_filter(conn, _action, _defn, _params, _), do: conn
+      defp _handle_before_filter(conn, _action, _defn, params, _), do: {conn, params}
 
       defp handle_after_filter(conn, action, defn, params, resource) do
         _handle_after_filter({conn, params, resource}, action, defn, defn.controller_filters[:after_filter])
