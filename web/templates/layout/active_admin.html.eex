@@ -11,6 +11,7 @@
     <%= favicon %>
     <title><%= site_title %></title>
     <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/css/active_admin.css.css") %>">
+    <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/css/app.css") %>">
 
     <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->
     <script src="<%= static_path(@conn, "/js/jquery.min.js") %>"></script>
@@ -53,6 +54,7 @@
       </div>
     </body>
     <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
+    <script src='<%= static_path(@conn, "/js/app.js") %>'></script>
     <script type="text/javascript">
       $(function() {
         $('#theme-selector').change(function(e) {
