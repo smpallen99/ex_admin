@@ -11,6 +11,7 @@
     <%= favicon %>
     <title><%= site_title %></title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_lte2.css") %>">
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
     <!-- Ionicons -->
     <%# <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> %>
     <!-- Theme style -->
@@ -73,6 +74,7 @@
     <!-- Bootstrap 3.3.5 -->
     <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
     <script src='<%= static_path(@conn, "/js/admin_lte2.js") %>'></script>
+    <script src='<%= static_path(@conn, "/js/app.js") %>'></script>
   </body>
   <script type="text/javascript">
     $(function() {
