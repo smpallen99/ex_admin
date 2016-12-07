@@ -104,14 +104,17 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
       label = labels[item]
       link = case item do
         :show ->
-          a(label || gettext("View"), href: admin_resource_path(resource, :show), class: base_class <> " view_link")
+          link_text = label || gettext("View")
+          a(link_text, href: admin_resource_path(resource, :show), class: base_class <> " view_link", title: link_text)
         :edit ->
-          a(label || gettext("Edit"), href: admin_resource_path(resource, :edit), class: base_class <> " edit_link")
+          link_text = label || gettext("Edit")
+          a(link_text, href: admin_resource_path(resource, :edit), class: base_class <> " edit_link", title: link_text)
         :delete ->
-          a(label || gettext("Delete"), href: admin_resource_path(resource, :destroy),
+          link_text = label || gettext("Delete")
+          a(link_text, href: admin_resource_path(resource, :destroy),
               class: base_class <> " delete_link", "data-confirm": confirm_message,
               "data-remote": true,
-              "data-method": :delete, rel: :nofollow )
+              "data-method": :delete, rel: :nofollow, title: link_text)
       end
       [link | acc]
     end)
