@@ -63,9 +63,15 @@ defmodule TestExAdmin.ExAdmin.User do
         inputs :roles, as: :check_boxes, collection: TestExAdmin.Role.all
       end
 
+      inputs "Products" do
+        has_many user, :products, fn(n) ->
+          input n, :title
+          input n, :price
+        end
+      end
     end
     query do
-      %{all: [preload: [:noids, :roles]]}
+      %{all: [preload: [:noids, :roles, :products]]}
     end
   end
 end
@@ -84,6 +90,7 @@ defmodule TestExAdmin.ExAdmin.Product do
 
       def do_after(conn, params, resource, :create) do
         user = Repo.all(User) |> hd
+        resource = resource |> Repo.preload(:user)
         resource = Product.changeset(resource, %{user_id: user.id})
         |> Repo.update!
         conn = Plug.Conn.assign(conn, :product, resource)
@@ -106,6 +113,9 @@ defmodule TestExAdmin.ExAdmin.Product do
         Plug.Conn.assign(conn, :before_update, :yes)
       end
     end
+    query do
+      %{all: [preload: [:user]]}
+    end
   end
 end
 
@@ -113,6 +123,8 @@ defmodule TestExAdmin.ExAdmin.Simple do
   use ExAdmin.Register
 
   register_resource TestExAdmin.Simple do
+    update_changeset :changeset_update
+    create_changeset :changeset_create
   end
 end
 

@@ -1,15 +1,15 @@
 defmodule TestExAdmin.User do
   import Ecto.Changeset
   use Ecto.Schema
+  import Ecto.Query
 
   schema "users" do
     field :name, :string
     field :email, :string
     field :active, :boolean, default: true
-    has_many :products, TestExAdmin.Product
+    has_many :products, TestExAdmin.Product, on_replace: :delete
     has_many :noids, TestExAdmin.Noid
-    has_many :uses_roles, TestExAdmin.UserRole
-    has_many :roles, through: [:uses_roles, :user]
+    many_to_many :roles, TestExAdmin.Role, join_through: TestExAdmin.UserRole, on_replace: :delete
   end
 
   @required_fields ~w(email)
@@ -18,8 +18,22 @@ defmodule TestExAdmin.User do
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
+    |> cast_assoc(:noids, required: false)
+    |> cast_assoc(:products, required: false)
+    |> add_roles(params)
+  end
+
+  def add_roles(changeset, params) do
+    if Enum.count(Map.get(params, :roles, [])) > 0 do
+      ids = params[:roles]
+      roles = TestExAdmin.Repo.all(from r in TestExAdmin.Role, where: r.id in ^ids)
+      put_assoc(changeset, :roles, roles)
+    else
+      changeset
+    end
   end
 end
+
 defmodule TestExAdmin.Role do
   use Ecto.Schema
   import Ecto.Changeset
@@ -28,7 +42,7 @@ defmodule TestExAdmin.Role do
   schema "roles" do
     field :name, :string
     has_many :uses_roles, TestExAdmin.UserRole
-    has_many :roles, through: [:uses_roles, :role]
+    many_to_many :users, TestExAdmin.User, join_through: TestExAdmin.UserRole
   end
 
   @required_fields ~w(name)
@@ -92,7 +106,6 @@ defmodule TestExAdmin.Noid do
     field :description, :string
     field :company, :string
     belongs_to :user, TestExAdmin.User, foreign_key: :user_id, references: :id
-
   end
 
   @required_fields ~w(name description)
@@ -139,10 +152,34 @@ defmodule TestExAdmin.Simple do
   @optional_fields ~w(description)
 
   def changeset(model, params \\ %{}) do
+    Agent.update(__MODULE__, fn (v) -> "changeset" end)
     model
     |> cast(params, @required_fields, @optional_fields)
   end
 
+  def start_link do
+    Agent.start_link(fn -> nil end, name: __MODULE__)
+  end
+
+  def changeset_create(model, params \\ %{}) do
+    Agent.update(__MODULE__, fn (v) -> "changeset_create" end)
+    model
+    |> cast(params, @required_fields, @optional_fields)
+  end
+
+  def changeset_update(model, params \\ %{}) do
+    Agent.update(__MODULE__, fn (v) -> "changeset_update" end)
+    model
+    |> cast(params, @required_fields, @optional_fields)
+  end
+
+  def last_changeset do
+    Agent.get(__MODULE__, fn changeset -> changeset end)
+  end
+
+  def stop do
+    Agent.stop(__MODULE__)
+  end
 end
 
 defmodule TestExAdmin.Restricted do

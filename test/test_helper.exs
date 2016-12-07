@@ -1,4 +1,5 @@
 Application.ensure_all_started(:hound)
+ExUnit.configure(timeout: :infinity)
 ExUnit.configure(exclude: [pending: true, integration: true])
 ExUnit.start()
 

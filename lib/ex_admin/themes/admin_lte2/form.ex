@@ -164,17 +164,18 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
 
   # TODO: Refactor some of this back into ExAdmin.Form
   def theme_build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_name, field_field_name, model_name, errors) do
+
     inx = cond do
       is_nil(res) -> orig_inx
-      is_nil(res.id) -> orig_inx
+      is_nil(Map.get(res, :id)) -> orig_inx
       Schema.get_id(res) ->  orig_inx
       true -> timestamp()   # case when we have errors. need to remap the inx
     end
 
-    required_list = if res do
-      res.__struct__.changeset(res).required
-    else
-      []
+    required_list = cond do
+      Map.get(res, :__struct__, false) ->
+        res.__struct__.changeset(res).required
+      true -> []
     end
 
     html = div ".box.has_many_fields" do
@@ -184,6 +185,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
       end
       div ".box-body" do
         # build the destroy field
+
         base_name = "#{model_name}[#{field_field_name}][#{inx}]"
         base_id = "#{ext_name}__destroy"
         name = "#{base_name}[_destroy]"
@@ -192,7 +194,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
             div ".checkbox" do
               Xain.input type: :hidden, value: "0", name: name
               label for: base_id do
-                Xain.input type: :checkbox, id: "#{base_id}", name: name, value: "1"
+                Xain.input type: :checkbox, id: "#{base_id}", class: "destroy", name: name, value: "1"
                 text (gettext "Remove")
               end
             end
@@ -203,7 +205,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
           f_name = field[:name]
           required = if f_name in required_list, do: true, else: false
           name = "#{base_name}[#{f_name}]"
-          errors = get_errors(errors, "#{model_name}[#{field_field_name}][#{orig_inx}][#{f_name}]")
+          errors = get_errors(errors, String.to_atom("#{field_field_name}_#{orig_inx}_#{f_name}"))
           error = if errors in [nil, [], false], do: "", else: ".has-error"
           case field[:opts] do
             %{collection: collection} ->
@@ -216,10 +218,11 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
                 div ".col-sm-10" do
                   select "##{ext_name}_#{f_name}#{error}.form-control", [name: name ] do
                     for opt <- collection do
-                      if not is_nil(res) and (Map.get(res, f_name) == opt) do
-                        option "#{opt}", [value: escape_value(opt), selected: :selected]
-                      else
-                        option "#{opt}", [value: escape_value(opt)]
+                      cond do
+                        not is_nil(res) and (Map.get(res, f_name) == opt) ->
+                          option "#{opt}", [value: escape_value(opt), selected: :selected]
+                        true ->
+                          option "#{opt}", [value: escape_value(opt)]
                       end
                     end
                   end
@@ -227,13 +230,17 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
                 end
               end
             _ ->
+              val = cond do
+                is_nil(res) -> []
+                true -> [value: Map.get(res, f_name, "") |> escape_value]
+              end
+
               div ".form-group", id: "#{ext_name}_#{f_name}_input"  do
                 label ".col-sm-2.control-label", for: "#{ext_name}_#{f_name}" do
                   text humanize(f_name)
                   required_abbr required
                 end
                 div ".col-sm-10#{error}" do
-                  val = if res, do: [value: Map.get(res, f_name, "") |> escape_value], else: []
                   Xain.input([type: :text, maxlength: "255", id: "#{ext_name}_#{f_name}",
                     class: "form-control", name: name] ++ val)
                   build_errors(errors, field[:opts][:hint])
@@ -241,6 +248,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
               end
           end
         end
+
         unless Schema.get_id(res) do
           div ".form-group" do
             a ".btn.btn-default " <> (gettext "Delete"), href: "#",

@@ -3,14 +3,20 @@ defmodule ExAdmin.Schema do
   def primary_key(%Ecto.Query{from: {_, mod}}) do
     primary_key mod
   end
+
   def primary_key(module) when is_atom(module) do
     case module.__schema__(:primary_key) do
       [] -> nil
       [key | _] -> key
     end
   end
+
   def primary_key(resource) do
-    primary_key resource.__struct__
+    cond do
+      Map.get(resource, :__struct__, false) ->
+        primary_key resource.__struct__
+      true -> :id
+    end
   end
 
   def get_id(resource) do

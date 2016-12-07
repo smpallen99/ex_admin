@@ -9,6 +9,4 @@ defmodule ExAdminTest.ParamsToAtoms do
     assert res[:name] == "Z"
     assert res[:addresses] == [%{"X" => "_X", "Y" => "_Y"},%{"X" => "__X", "Y" => "__Y"}]
   end
-
-
 end
