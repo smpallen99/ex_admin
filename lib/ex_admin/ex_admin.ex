@@ -117,6 +117,33 @@ defmodule ExAdmin do
   }
   ```
 
+  ## Adding SwitchUser Select Box
+
+  At times, you may want an easy way to switch between users while developing and
+  manually testing an project. ExAdmin supports this feature through configuration
+  and a plug.
+
+  When enabled, a select box is displayed on the top right of each page. When a
+  new user is selected, the existing user is logged out and the new user automatically
+  logged in without requiring a password.
+
+  Obviously, this is not a feature you will want on a production server. So, to
+  configure SwitchUser for `:dev` environment:
+
+      # web/router.ex
+      pipeline :protected do
+        plug :accepts, ["html"]
+        # ...
+        if Mix.env == :dev do
+          plug ExAdmin.Plug.SwitchUser
+        end
+      end
+
+      # config/dev.exs
+      config :ex_admin,
+        logout_user: {Coherence.ControllerHelpers, :logout_user},
+        login_user: {Coherence.ControllerHelpers, :login_user}
+
   """
   require Logger
   use Xain
