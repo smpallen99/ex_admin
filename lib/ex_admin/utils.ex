@@ -283,6 +283,10 @@ defmodule ExAdmin.Utils do
     {:ok, {date, {h,m,s,_ms}}} = Ecto.DateTime.dump dt
     {date, {h,m,s}}
   end
+  def to_datetime(%DateTime{} = dt) do
+    DateTime.to_naive(dt)
+    |> NaiveDateTime.to_erl
+  end
 
   @doc false
   def format_time_difference({d, {h, m, s}}) do

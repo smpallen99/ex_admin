@@ -71,6 +71,26 @@ defimpl ExAdmin.Render, for: List do
   end
 end
 
+defimpl ExAdmin.Render, for: Date do
+  def to_string(date) do
+    Date.to_string date
+  end
+end
+
+defimpl ExAdmin.Render, for: Time do
+  def to_string(time) do
+    Time.to_string time
+  end
+end
+
+defimpl ExAdmin.Render, for: DateTime do
+  def to_string(dt) do
+    dt
+    |> Utils.to_datetime
+    |> :calendar.universal_time_to_local_time
+    |> Utils.format_datetime
+  end
+end
 # defimpl ExAdmin.Render, for: Any do
 #   def to_string(data), do: "#{inspect data}"
 # end
