@@ -229,6 +229,56 @@ defmodule MyProject.ExAdmin.Question do
   end
 end
 ```
+## Custom Types
+
+Support for custom field types is done in two areas, rendering fields, and input controls.
+
+### Rendering Custom Types
+
+Use the `ExAdmin.Render.to_string/` protocol for rendering types that are not supported by ExAdmin.
+
+For example, to support rendering a tuple, add the following file to your project:
+
+```elixir
+# lib/render.ex
+defimpl ExAdmin.Render, for: Tuple
+  def to_string(tuple), do: inspect(tuple)
+end
+```
+
+### Input Type
+
+Use the `:field_type_matching` config item to set the input type.
+
+For example, given the following project:
+
+```elixir
+defmodule ElixirLangMoscow.SpeakerSlug do
+  use EctoAutoslugField.Slug, from: [:name, :company], to: :slug
+end
+
+defmodule ElixirLangMoscow.Speaker do
+  use ElixirLangMoscow.Web, :model
+  use Arc.Ecto.Model
+
+  alias ElixirLangMoscow.SpeakerSlug
+  schema "speakers" do
+    field :slug, SpeakerSlug.Type
+    field :avatar, ElixirLangMoscow.Avatar.Type
+  end
+end
+```
+
+Add the following to your project's configuration:
+
+```elixir
+config :ex_admin,
+  # ...
+  field_type_matching: %{
+    ElixirLangMoscow.SpeakerSlug.Type => :string,
+    ElixirLangMoscow.Avatar.Type => :file
+  }
+```
 
 ## Theme Support
 
