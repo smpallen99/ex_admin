@@ -182,7 +182,7 @@ end
 
 The following example shows how to customize the form with the `form` macro:
 
-```
+```elixir
 defmodule MyProject.ExAdmin.Contact do
   use ExAdmin.Register
 
