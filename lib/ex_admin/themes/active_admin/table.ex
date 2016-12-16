@@ -2,6 +2,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Table do
   @moduledoc false
   import ExAdmin.Table
   import ExAdmin.Gettext
+  alias ExAdmin.Utils
   use Xain
 
   @table_opts [border: "0", cellspacing: "0", cellpadding: "0"]
@@ -17,7 +18,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Table do
 
   def theme_attributes_table(conn, resource, schema, resource_model) do
     div(".panel") do
-      h3(schema[:name] || (gettext "%{resource_model} Details", resource_model: String.capitalize resource_model))
+      h3(schema[:name] || (gettext "%{resource_model} Details", resource_model: Utils.humanize resource_model))
       do_attributes_table_for(conn, resource, resource_model, schema, @table_opts)
     end
   end

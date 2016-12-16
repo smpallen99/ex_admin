@@ -45,7 +45,7 @@ defmodule ExAdmin.Utils do
 
   @doc false
   def resource_name(item) do
-    item |> base_name |> String.downcase |> String.to_atom
+    item |> base_name |> Inflex.underscore |> String.to_atom
   end
 
   @doc """
@@ -327,7 +327,7 @@ defmodule ExAdmin.Utils do
   @doc false
   def get_resource_label(%Plug.Conn{} = conn) do
     menu = conn.assigns.defn.menu
-    Map.get menu, :label, resource_model(conn)
+    Map.get menu, :label, resource_model(conn) |> titleize
   end
 
   @doc false

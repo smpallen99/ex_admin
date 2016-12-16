@@ -35,7 +35,7 @@ defmodule ExAdmin.Helpers do
   end
 
   def model_name(resource) when is_atom(resource) do
-    resource |> ExAdmin.Utils.base_name |> Inflex.parameterize("_")
+    resource |> ExAdmin.Utils.base_name |> Inflex.underscore()
   end
   def model_name(%{__struct__: name}) do
     model_name name
