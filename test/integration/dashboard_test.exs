@@ -1,7 +1,5 @@
 defmodule TestExAdmin.DashboardIntegrationTest do
   use TestExAdmin.AcceptanceCase
-  alias TestExAdmin.{Noid, User, Product, Simple}
-  alias Hound.Element
 
   hound_session
 

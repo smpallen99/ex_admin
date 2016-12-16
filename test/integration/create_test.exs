@@ -1,7 +1,6 @@
 defmodule TestExAdmin.CreateTest do
   use TestExAdmin.AcceptanceCase
-  alias TestExAdmin.{Noid, User, Product, Simple}
-  alias Hound.Element
+  alias TestExAdmin.{Product}
 
   hound_session
   # Start hound session and destroy when tests are run
@@ -17,7 +16,7 @@ defmodule TestExAdmin.CreateTest do
 
     title_field = find_element(:name, "product[title]")
     price_field = find_element(:name, "product[price]")
-    user_field = find_element(:name, "product[user_id]")
+    _user_field = find_element(:name, "product[user_id]")
 
     fill_field title_field, "Test Create"
     fill_field price_field, ".99"

@@ -1,7 +1,6 @@
 defmodule TestExAdmin.DeleteTest do
   use TestExAdmin.AcceptanceCase
-  alias TestExAdmin.{Noid, User, Product, Simple}
-  alias Hound.Element
+  alias TestExAdmin.{Noid}
 
   hound_session
   # Start hound session and destroy when tests are run
@@ -17,7 +16,7 @@ defmodule TestExAdmin.DeleteTest do
   @tag :pending
   test "delete a noid", %{user: user} do
     noid = insert_noid(user_id: user.id, name: "controller 1")
-    user2 = insert_user()
+    _user2 = insert_user()
     current_window_handle |> maximize_window
     navigate_to admin_resource_path(Noid, :index)
 
