@@ -47,7 +47,6 @@
     <ul class="sidebar-menu">
       <li class="header text-uppercase"><%= gettext "Resources" %></li>
       <!-- Optionally, you can add icons to the links -->
-      <%# <li class="active"><a href="#"><i class="fa fa-dashboard"></i> <span><%= gettext "Dashboard" %></span></a></li> %>
       <%= if Application.get_env(:ex_admin, :nest_resources, false) do %>
         <li class="treeview active">
           <a href="#"><i class="fa fa-object-group"></i> <span><%= gettext "Resources" %></span> <i class="fa fa-angle-left pull-right"></i></a>
