@@ -324,7 +324,7 @@ defmodule ExAdmin.Index do
     columns = if custom_actions_column? || Enum.empty?(actions) do
       columns
     else
-      columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
+      columns ++ [{(gettext "Actions"), %{fun: fn(resource) -> build_index_links(conn, resource, actions) end}}]
     end
     opts = Map.put opts, :column_list, columns
 

@@ -45,12 +45,12 @@
   <section class="sidebar">
     <!-- Sidebar Menu -->
     <ul class="sidebar-menu">
-      <li class="header"><%= gettext "RESOURCES" %></li>
+      <li class="header text-uppercase"><%= gettext "Resources" %></li>
       <!-- Optionally, you can add icons to the links -->
-      <%# <li class="active"><a href="#"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li> %>
+      <%# <li class="active"><a href="#"><i class="fa fa-dashboard"></i> <span><%= gettext "Dashboard" %></span></a></li> %>
       <%= if Application.get_env(:ex_admin, :nest_resources, false) do %>
         <li class="treeview active">
-          <a href="#"><i class="fa fa-object-group"></i> <span>Resources</span> <i class="fa fa-angle-left pull-right"></i></a>
+          <a href="#"><i class="fa fa-object-group"></i> <span><%= gettext "Resources" %></span> <i class="fa fa-angle-left pull-right"></i></a>
           <ul class="treeview-menu menu-open" style="display: block;">
             <%= ExAdmin.Navigation.nav_view(@conn) %>
           </ul>
@@ -61,7 +61,7 @@
 
       <% actions = ExAdmin.get_title_actions(@conn) %>
       <%= if any_actions?(actions) do %>
-        <li class="header"><%= gettext "ACTIONS" %></li>
+        <li class="header text-uppercase"><%= gettext "Actions" %></li>
         <%= for {action, opts} <- actions do %>
           <li>
             <% opts = build_menu_icon(action, opts) %>
@@ -70,7 +70,7 @@
         <% end %>
       <% end %>
       <%= if @scope_counts && Enum.count(@scope_counts) > 0 do %>
-        <li class="header"><%= gettext "SCOPES" %></li>
+        <li class="header text-uppercase"><%= gettext "Scopes" %></li>
       <% end %>
       <%= build_scopes @conn, @scope_counts %>
     </ul><!-- /.sidebar-menu -->

@@ -8,10 +8,6 @@ msgid_plural "were successfully destroyed."
 msgstr[0] "a bien été supprimé(e)."
 msgstr[1] "ont bien été supprimé(e)s."
 
-#: web/templates/themes/admin_lte2/layout/header.html.eex:63
-msgid "ACTIONS"
-msgstr "ACTIONS"
-
 #: lib/ex_admin/themes/active_admin/index.ex:140
 #: lib/ex_admin/themes/admin_lte2/index.ex:134
 msgid "Batch Actions"
@@ -126,10 +122,6 @@ msgstr "Se déconnecter"
 msgid "Profile"
 msgstr "Profil"
 
-#: web/templates/themes/admin_lte2/layout/header.html.eex:47
-msgid "RESOURCES"
-msgstr "RESSOURCES"
-
 #: lib/ex_admin/themes/active_admin/form.ex:201
 #: lib/ex_admin/themes/admin_lte2/form.ex:188
 msgid "Remove"
@@ -227,3 +219,16 @@ msgstr "un(e)"
 #: lib/ex_admin/utils.ex:111
 msgid "an"
 msgstr "un(e)"
+
+#: lib/ex_admin/index.ex:327
+msgid "Actions"
+msgstr "Actions"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:48
+#: web/templates/themes/admin_lte2/layout/header.html.eex:53
+msgid "Resources"
+msgstr "Ressources"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:73
+msgid "Scopes"
+msgstr "Scopes"
