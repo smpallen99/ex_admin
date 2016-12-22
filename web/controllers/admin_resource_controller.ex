@@ -10,14 +10,14 @@ defmodule ExAdmin.AdminResourceController do
     page = case conn.assigns[:page] do
       nil ->
         id = params |> Map.to_list
-        query = model.run_query(repo, defn, :index, id)
+        query = model.run_query(repo(), defn, :index, id)
         Authorization.authorize_query(conn.assigns.resource, conn, query, :index, id)
-        |> ExAdmin.Query.execute_query(repo, :index, id)
+        |> ExAdmin.Query.execute_query(repo(), :index, id)
 
       page ->
         page
     end
-    scope_counts = model.run_query_counts repo, defn, :index, params |> Map.to_list
+    scope_counts = model.run_query_counts repo(), defn, :index, params |> Map.to_list
 
     {conn, _params, page} = handle_after_filter(conn, :index, defn, params, page)
 
@@ -115,7 +115,7 @@ defmodule ExAdmin.AdminResourceController do
 
     resource = resource
     |> defn.resource_model.changeset(%{attr_name => attr_value})
-    |> repo.update!
+    |> repo().update!
 
     render conn, "toggle_attr.js", attr_name: attr_name, attr_value: Map.get(resource, attr_name_atom), id: ExAdmin.Schema.get_id(resource)
   end
@@ -149,7 +149,7 @@ defmodule ExAdmin.AdminResourceController do
     ids
     |> Enum.map(&(to_integer(type, &1)))
     |> Enum.each(fn(id) ->
-      repo.delete repo.get(resource_model, id)
+      repo().delete repo().get(resource_model, id)
     end)
 
     put_flash(conn, :notice, "#{count} #{pluralize params[:resource], count} "
@@ -170,9 +170,9 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
 
     id = params |> Map.to_list
-    query = model.run_query(repo, defn, :csv, id)
+    query = model.run_query(repo(), defn, :csv, id)
     csv = Authorization.authorize_query(conn.assigns.resource, conn, query, :csv, id)
-    |> ExAdmin.Query.execute_query(repo, :csv, id)
+    |> ExAdmin.Query.execute_query(repo(), :csv, id)
     |> case  do
       [] -> []
       resources ->
@@ -189,7 +189,8 @@ defmodule ExAdmin.AdminResourceController do
     |> send_resp(conn.status || 200, csv)
   end
 
-  @nested_key_list for i <- 1..5, do: {String.to_atom("nested#{i}"), String.to_atom("id#{i}")}
+  # Can't remember why this is here
+  # @nested_key_list for i <- 1..5, do: {String.to_atom("nested#{i}"), String.to_atom("id#{i}")}
 
   def nested(conn, defn, params) do
     model = defn.__struct__

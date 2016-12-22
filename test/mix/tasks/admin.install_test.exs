@@ -87,8 +87,8 @@ defmodule Mix.Tasks.ExAdmin.InstallTest do
   test "installs with brunch" do
     in_tmp "installs with brunch", fn ->
       Logger.disable(self())
-      create_config
-      create_brunch_config
+      create_config()
+      create_brunch_config()
 
       Mix.Tasks.Admin.Install.run []
 
@@ -96,7 +96,7 @@ defmodule Mix.Tasks.ExAdmin.InstallTest do
         assert file =~ "config :xain, :after_callback, {Phoenix.HTML, :raw}"
       end
 
-      assert_brunch_assets
+      assert_brunch_assets()
 
       assert_file "brunch-config.js", fn file ->
         assert file =~ Install.brunch_instructions
@@ -106,8 +106,8 @@ defmodule Mix.Tasks.ExAdmin.InstallTest do
 
   test "no brunch install" do
     in_tmp "no brunch install", fn ->
-      create_config
-      create_priv_static
+      create_config()
+      create_priv_static()
 
       Mix.Tasks.Admin.Install.run ["--no-brunch"]
 
@@ -115,13 +115,13 @@ defmodule Mix.Tasks.ExAdmin.InstallTest do
         assert file =~ "config :xain, :after_callback, {Phoenix.HTML, :raw}"
       end
 
-      assert_no_brunch_assets
+      assert_no_brunch_assets()
     end
   end
   test "no config install" do
     in_tmp "no config install", fn ->
-      create_config
-      create_brunch_config
+      create_config()
+      create_brunch_config()
 
       Mix.Tasks.Admin.Install.run ["--no-config"]
 
@@ -129,16 +129,16 @@ defmodule Mix.Tasks.ExAdmin.InstallTest do
         assert file =~ ""
       end
 
-      assert_brunch_assets
+      assert_brunch_assets()
     end
   end
   test "no assets install" do
     in_tmp "no assets install", fn ->
-      create_config
+      create_config()
 
       Mix.Tasks.Admin.Install.run ["--no-assets"]
 
-      assert_dashboard
+      assert_dashboard()
 
       assert_file "config/config.exs", fn file ->
         assert file =~ "config :xain, :after_callback, {Phoenix.HTML, :raw}"
@@ -151,8 +151,8 @@ defmodule Mix.Tasks.ExAdmin.InstallTest do
 
   test "no dashboard no config install" do
     in_tmp "no dashboard no config install", fn ->
-      create_config
-      create_brunch_config
+      create_config()
+      create_brunch_config()
 
       Mix.Tasks.Admin.Install.run ~w(--no-dashboard --no-config)
 
@@ -162,7 +162,7 @@ defmodule Mix.Tasks.ExAdmin.InstallTest do
 
       refute_file Path.join(~w(web admin dashboard.ex))
 
-      assert_brunch_assets
+      assert_brunch_assets()
     end
   end
 

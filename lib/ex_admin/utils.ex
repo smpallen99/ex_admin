@@ -194,7 +194,7 @@ defmodule ExAdmin.Utils do
   end
   def admin_resource_path(resource_model, method, args) when is_atom(resource_model) do
     resource_name = resource_model |> ExAdmin.Utils.base_name |> Inflex.underscore |> Inflex.pluralize
-    apply(router, :admin_resource_path, [endpoint, method || :index, resource_name | args])
+    apply(router(), :admin_resource_path, [endpoint(), method || :index, resource_name | args])
   end
   def admin_resource_path(resource, method, args) when is_map(resource) do
     resource_model = resource.__struct__
@@ -222,10 +222,10 @@ defmodule ExAdmin.Utils do
       "/admin/select_theme/1"
   """
   def admin_path do
-    router.admin_path(endpoint, :dashboard)
+    router().admin_path(endpoint(), :dashboard)
   end
   def admin_path(method, args \\ []) do
-    apply(router, :admin_path, [endpoint, method | args])
+    apply(router(), :admin_path, [endpoint(), method | args])
   end
 
   @doc """
@@ -242,7 +242,7 @@ defmodule ExAdmin.Utils do
   def admin_association_path(resource, assoc_name, method \\ nil, args \\ []) do
     resource_model = resource.__struct__
     resource_id = ExAdmin.Schema.get_id(resource)
-    apply(router, :admin_association_path, [endpoint, method || :index, resource_model.__schema__(:source), resource_id, assoc_name | args])
+    apply(router(), :admin_association_path, [endpoint(), method || :index, resource_model.__schema__(:source), resource_id, assoc_name | args])
   end
 
 

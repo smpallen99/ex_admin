@@ -39,7 +39,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     div ".filter_form_field.filter_string" do
       label ".label #{name_label}", for: "#{name}_numeric"
       select onchange: ~s|document.getElementById("#{name}_string").name="q[" + this.value + "]";| do
-        for {suffix, text} <- string_options do
+        for {suffix, text} <- string_options() do
           build_option(text, "#{name}_#{suffix}", selected_name)
         end
       end
@@ -67,7 +67,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
       div ".filter_form_field.filter_numeric" do
         label ".label #{name_label}", for: "#{name}_numeric"
         select onchange: ~s|document.getElementById("#{name}_numeric").name="q[" + this.value + "]";| do
-          for {suffix, text} <- integer_options do
+          for {suffix, text} <- integer_options() do
             build_option(text, "#{name}_#{suffix}", selected_name)
           end
         end

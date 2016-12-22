@@ -143,7 +143,7 @@ defmodule ExAdminTest.ControllerTest do
   end
 
   test "restricted actions" do
-    restricted = insert_restricted
+    restricted = insert_restricted()
 
     conn = get build_conn(), admin_resource_path(Restricted, :index)
     assert html_response(conn, 200) =~ ~r/Simple/

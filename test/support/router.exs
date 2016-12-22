@@ -13,7 +13,7 @@ defmodule TestExAdmin.Router do
 
   scope "/admin", ExAdmin do
     pipe_through :browser
-    admin_routes
+    admin_routes()
   end
 end
 

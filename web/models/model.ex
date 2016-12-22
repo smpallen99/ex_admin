@@ -4,7 +4,7 @@ defmodule ExAdmin.Model do
 
   def potential_associations_query(resource, assoc_defn_model, assoc_name, keywords \\ "") do
     current_assoc_ids = resource
-    |> repo.preload(assoc_name)
+    |> repo().preload(assoc_name)
     |> Map.get(assoc_name)
     |> Enum.map(&ExAdmin.Schema.get_id/1)
 

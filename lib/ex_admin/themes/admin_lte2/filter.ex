@@ -46,7 +46,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
             span ".input-group-addon" do
               div ".filter-select" do
                 select onchange: ~s|document.getElementById("q_#{name}").name = "q[" + this.value + "]";| do
-                  for {suffix, text} <- string_options do
+                  for {suffix, text} <- string_options() do
                     build_option(text, "#{name}_#{suffix}", selected_name)
                   end
                 end
@@ -101,7 +101,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
             span ".input-group-addon" do
               div ".filter-select" do
                 select onchange: ~s|document.getElementById("#{name}_numeric").name = "q[" + this.value + "]";| do
-                  for {suffix, text} <- integer_options do
+                  for {suffix, text} <- integer_options() do
                     build_option(text, "#{name}_#{suffix}", selected_name)
                   end
                 end

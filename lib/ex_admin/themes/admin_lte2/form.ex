@@ -168,7 +168,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
       is_nil(res) -> orig_inx
       is_nil(res.id) -> orig_inx
       Schema.get_id(res) ->  orig_inx
-      true -> timestamp   # case when we have errors. need to remap the inx
+      true -> timestamp()   # case when we have errors. need to remap the inx
     end
 
     required_list = if res do

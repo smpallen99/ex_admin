@@ -108,14 +108,14 @@ defmodule ExAdmin.Filter do
 
   def integer_selected_name(name, nil), do: "#{name}_eq"
   def integer_selected_name(name, q) do
-    Enum.reduce(integer_options, "#{name}_eq", fn({k,_}, acc) ->
+    Enum.reduce(integer_options(), "#{name}_eq", fn({k,_}, acc) ->
       if q["#{name}_#{k}"], do: "#{name}_#{k}", else: acc
     end)
   end
 
   def string_selected_name(name, nil), do: "#{name}_equals"
   def string_selected_name(name, q) do
-    Enum.reduce(string_options, "#{name}_eq", fn({k,_}, acc) ->
+    Enum.reduce(string_options(), "#{name}_eq", fn({k,_}, acc) ->
       if q["#{name}_#{k}"], do: "#{name}_#{k}", else: acc
     end)
   end

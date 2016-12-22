@@ -6,7 +6,7 @@ defmodule ExAdmin.AdminAssociationController do
 
   def action(conn, _options) do
     defn = get_registered_by_controller_route!(conn, conn.params["resource"])
-    resource = repo.get!(defn.resource_model, conn.params["id"])
+    resource = repo().get!(defn.resource_model, conn.params["id"])
     #conn = assign(conn, :defn, defn)
     apply(__MODULE__, action_name(conn), [conn, defn, resource, conn.params])
   end
@@ -16,9 +16,9 @@ defmodule ExAdmin.AdminAssociationController do
     association_name = String.to_existing_atom(association_name)
 
     resource
-    |> repo.preload(association_name)
+    |> repo().preload(association_name)
     |> changeset(association_name, positions)
-    |> repo.update!
+    |> repo().update!
 
     conn |> put_status(200) |> json("Ok")
   end
@@ -28,7 +28,7 @@ defmodule ExAdmin.AdminAssociationController do
     assoc_name = String.to_existing_atom(association_name)
 
     page = ExAdmin.Model.potential_associations_query(resource, defn_assoc.__struct__, assoc_name, params["keywords"])
-    |> repo.paginate(params)
+    |> repo().paginate(params)
 
     results = page.entries
     |> Enum.map(fn(r) -> %{id: ExAdmin.Schema.get_id(r), pretty_name: ExAdmin.Helpers.display_name(r)} end)
@@ -50,7 +50,7 @@ defmodule ExAdmin.AdminAssociationController do
     |> Enum.each(fn(assoc_id) ->
       assoc_id = String.to_integer(assoc_id)
       Ecto.build_assoc(resource, through_assoc, %{resource_key => resource_id, assoc_key => assoc_id})
-      |> repo.insert!
+      |> repo().insert!
     end)
 
     conn

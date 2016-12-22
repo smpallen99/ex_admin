@@ -2,7 +2,7 @@ defmodule TestExAdmin.UpdateTest do
   use TestExAdmin.AcceptanceCase
   alias TestExAdmin.{Noid}
 
-  hound_session
+  hound_session()
   # Start hound session and destroy when tests are run
   setup do
     user = insert_user()
@@ -13,7 +13,7 @@ defmodule TestExAdmin.UpdateTest do
   test "edit a noid updates correct data", %{user: user} do
     noid = insert_noid(user_id: user.id, name: "controller 1")
     _user2 = insert_user()
-    current_window_handle |> maximize_window
+    current_window_handle() |> maximize_window
     navigate_to admin_resource_path(Noid, :index)
     click(find_element(:class, "edit_link"))
 

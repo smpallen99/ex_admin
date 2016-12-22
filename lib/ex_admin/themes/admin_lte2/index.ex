@@ -112,7 +112,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
         :delete ->
           link_text = label || gettext("Delete")
           a(link_text, href: admin_resource_path(resource, :destroy),
-              class: base_class <> " delete_link", "data-confirm": confirm_message,
+              class: base_class <> " delete_link", "data-confirm": confirm_message(),
               "data-remote": true,
               "data-method": :delete, rel: :nofollow, title: link_text)
       end
@@ -163,7 +163,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
   end
 
   def build_table_body(_conn, [], _columns, _opts) do
-    tbody
+    tbody()
   end
   def build_table_body(conn, resources, columns, opts) do
     model_name = get_resource_model(resources)

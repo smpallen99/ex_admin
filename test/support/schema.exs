@@ -52,7 +52,7 @@ defmodule TestExAdmin.UserRole do
     belongs_to :user, TestExAdmin.User
     belongs_to :role, TestExAdmin.Role
 
-    timestamps
+    timestamps()
   end
 
   @required_fields ~w(user_id role_id)
@@ -112,7 +112,7 @@ defmodule TestExAdmin.Noprimary do
     field :index, :integer
     field :name, :string
     field :description, :string
-    timestamps
+    timestamps()
   end
 
   @required_fields ~w(name)
@@ -132,7 +132,7 @@ defmodule TestExAdmin.Simple do
     field :name, :string
     field :description, :string
 
-    timestamps
+    timestamps()
   end
 
   @required_fields ~w(name)
@@ -176,7 +176,7 @@ defmodule TestExAdmin.PhoneNumber do
     field :label, :string
     has_many :contacts_phone_numbers, TestExAdmin.ContactPhoneNumber
     has_many :contacts, through: [:contacts_phone_numbers, :contact]
-    timestamps
+    timestamps()
   end
 
   @required_fields ~w(number label)
@@ -205,7 +205,7 @@ defmodule TestExAdmin.Contact do
     field :last_name, :string
     has_many :contacts_phone_numbers, TestExAdmin.ContactPhoneNumber
     has_many :phone_numbers, through: [:contacts_phone_numbers, :phone_number]
-    timestamps
+    timestamps()
   end
 
   @required_fields ~w(first_name last_name)
@@ -243,15 +243,14 @@ defmodule TestExAdmin.UUIDSchema do
 
   schema "uuid_schemas" do
     field :name, :string
-    timestamps
+    timestamps()
   end
 
   @required_fields ~w(name)
-  @optional_fields ~w()
 
   def changeset(model, params \\ %{}) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @required_fields)
   end
 
 end
@@ -264,9 +263,6 @@ defmodule TestExAdmin.ModelDisplayName do
     field :name, :string
     field :other, :string
   end
-
-  @required_fields ~w(name)
-  @optional_fields ~w(first other)
 
   def display_name(resource) do
     resource.other
@@ -281,9 +277,6 @@ defmodule TestExAdmin.DefnDisplayName do
     field :second, :string
     field :name, :string
   end
-
-  @required_fields ~w(name)
-  @optional_fields ~w(first second)
 end
 
 defmodule TestExAdmin.Maps do

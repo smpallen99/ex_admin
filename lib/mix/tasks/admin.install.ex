@@ -113,7 +113,7 @@ defmodule Mix.Tasks.Admin.Install do
 
     case File.read "brunch-config.js" do
       {:ok, file} ->
-        File.write! "brunch-config.js", file <> brunch_instructions
+        File.write! "brunch-config.js", file <> brunch_instructions()
       error ->
         Mix.raise """
         Could not open brunch-config.js file. #{inspect error}
@@ -196,7 +196,7 @@ defmodule Mix.Tasks.Admin.Install do
     dest_path = Path.join [File.cwd! | ~w(web admin)]
     dest_file_path = Path.join dest_path, "dashboard.ex"
     source = Path.join([config.package_path | ~w(priv templates admin.install dashboard.exs)] )
-    |> EEx.eval_file([base: get_module,
+    |> EEx.eval_file([base: get_module(),
       title_txt: (gettext "Dashboard"),
       welcome_txt: (gettext "Welcome to ExAdmin. This is the default dashboard page."),
       add_txt: (gettext "To add dashboard sections, checkout 'web/admin/dashboards.ex'")
@@ -209,14 +209,14 @@ defmodule Mix.Tasks.Admin.Install do
       status_msg "creating", file
       File.mkdir_p dest_path
       File.write! dest_file_path, source
-      dashboard_instructions
+      dashboard_instructions()
     end
     config
   end
   def do_dashboard(config), do: config
 
   def dashboard_instructions do
-    base = get_module
+    base = get_module()
     Mix.shell.info """
 
     Remember to update your config file:
@@ -231,7 +231,7 @@ defmodule Mix.Tasks.Admin.Install do
   end
 
   def do_paging(config) do
-    base = get_module
+    base = get_module()
 
     Mix.shell.info """
 
@@ -258,23 +258,23 @@ defmodule Mix.Tasks.Admin.Install do
   def do_assets_instructions(config), do: config
 
   defp copy_r(base_path, path) do
-    File.cp_r Path.join([get_package_path, base_path, path]),
+    File.cp_r Path.join([get_package_path(), base_path, path]),
             Path.join([File.cwd!, base_path, path])
     base_path
   end
 
   defp copy_file(base_path, path, file_name) do
-    File.cp Path.join([get_package_path, base_path, path, file_name]),
+    File.cp Path.join([get_package_path(), base_path, path, file_name]),
             Path.join([File.cwd!, base_path, path, file_name])
     base_path
   end
 
   defp copy_vendor(from_path, path, filename) do
-    File.cp Path.join([get_package_path, from_path, path, filename]),
+    File.cp Path.join([get_package_path(), from_path, path, filename]),
             Path.join([File.cwd!, "web", "static", "vendor", filename])
   end
   defp copy_vendor_r(base_path, path) do
-    File.cp_r Path.join([get_package_path, base_path, path]),
+    File.cp_r Path.join([get_package_path(), base_path, path]),
             Path.join([File.cwd!, "web", "static", "assets", path])
   end
 
@@ -327,7 +327,7 @@ defmodule Mix.Tasks.Admin.Install do
 
   defp parse_args(args) do
     {opts, _values, _} = OptionParser.parse args, switches: @switches
-    Enum.reduce opts, %Config{package_path: get_package_path}, fn
+    Enum.reduce opts, %Config{package_path: get_package_path()}, fn
       {key, value}, config ->
         if key in Map.keys(config) do
           struct(config, [{key, value}])

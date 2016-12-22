@@ -2,7 +2,7 @@ defmodule TestExAdmin.SimpleIndexTest do
   use ExAdmin.Register
   register_resource TestExAdmin.Simple do
     index do
-      selectable_column
+      selectable_column()
       column :name
       column :description
       actions [:show, :edit]

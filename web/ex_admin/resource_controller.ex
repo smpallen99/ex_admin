@@ -87,10 +87,10 @@ defmodule ExAdmin.ResourceController do
       end
       defp load_resource(conn, action, defn, resource_id) do
         model = defn.__struct__
-        query = model.run_query(repo, defn, action, resource_id)
+        query = model.run_query(repo(), defn, action, resource_id)
         resource =
         Authorization.authorize_query(defn.resource_model.__struct__, conn, query, action, resource_id)
-        |> ExAdmin.Query.execute_query(repo, action, resource_id)
+        |> ExAdmin.Query.execute_query(repo(), action, resource_id)
 
         if resource == nil do
           raise Phoenix.Router.NoRouteError, conn: conn, router: __MODULE__

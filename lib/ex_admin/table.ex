@@ -94,7 +94,7 @@ defmodule ExAdmin.Table do
   def do_panel(conn, columns \\ [], table_opts \\ [], output \\ [])
   def do_panel(_conn, [], _table_opts, output), do: Enum.join(Enum.reverse(output))
   def do_panel(conn, [{:table_for, %{resources: resources, columns: columns, opts: opts}} | tail], table_opts, output) do
-    output = [table(Dict.merge(table_opts, opts)) do
+    output = [table(Keyword.merge(table_opts, opts)) do
       table_head(columns)
       tbody do
         model_name = get_resource_model resources

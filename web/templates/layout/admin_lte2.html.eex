@@ -8,8 +8,8 @@
     <meta name="author" content="">
     <meta name="csrf-param" content="_csrf_token" />
     <meta name="csrf-token" id="_csrf_token" content="<%= Plug.CSRFProtection.get_csrf_token %>" />
-    <%= favicon %>
-    <title><%= site_title %></title>
+    <%= favicon() %>
+    <title><%= site_title() %></title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_lte2.css") %>">
     <!-- Ionicons -->
     <%# <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> %>

@@ -2,11 +2,11 @@ defmodule TestExAdmin.CreateTest do
   use TestExAdmin.AcceptanceCase
   alias TestExAdmin.{Product}
 
-  hound_session
+  hound_session()
   # Start hound session and destroy when tests are run
   setup do
     user = insert_user()
-    current_window_handle |> maximize_window
+    current_window_handle() |> maximize_window
     {:ok, user: user}
   end
 

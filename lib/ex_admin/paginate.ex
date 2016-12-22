@@ -91,7 +91,7 @@ defmodule ExAdmin.Paginate do
   def postfix_gap(acc), do: acc
 
   def links(acc, page_number, _page_size, total_pages) do
-    half = Kernel.div window_size, 2
+    half = Kernel.div window_size(), 2
     before = cond do
       page_number == 1 -> 0
       page_number - half < 1 -> 1
@@ -99,7 +99,7 @@ defmodule ExAdmin.Paginate do
     end
     aftr = cond do
       before + half >= total_pages -> total_pages
-      page_number + window_size >= total_pages -> total_pages
+      page_number + window_size() >= total_pages -> total_pages
       true -> page_number + half
     end
     before_links = if before > 0 do

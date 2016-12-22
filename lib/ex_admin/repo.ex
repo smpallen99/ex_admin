@@ -81,14 +81,14 @@ defmodule ExAdmin.Repo do
   end
 
   def update(%Changeset{} = changeset) do
-    case repo.update changeset.changeset do
+    case repo().update changeset.changeset do
       {:ok, resource} ->
         for {cs, fun} <- changeset.dependents do
           if cs do
             dependent = if Map.get(cs.params, "id") do
-              repo.update!(cs)
+              repo().update!(cs)
             else
-              repo.insert!(cs)
+              repo().insert!(cs)
             end
             fun.(resource, dependent)
           else
@@ -104,20 +104,20 @@ defmodule ExAdmin.Repo do
     insert_or_update_collection(resource, params)
     |> insert_or_update_attributes_for(params)
     |> struct(Map.to_list(params))
-    |> repo.update
+    |> repo().update
   end
 
   def insert(%ExAdmin.Changeset{} = changeset) do
-    case repo.insert changeset.changeset do
+    case repo().insert changeset.changeset do
       {:ok, resource} ->
         case ExAdmin.Schema.primary_key(resource) do
           nil -> resource
           key ->
-            resource = repo.get(resource.__struct__, Map.get(resource, key))
+            resource = repo().get(resource.__struct__, Map.get(resource, key))
 
             for {cs, fun} <- changeset.dependents do
               if cs do
-                fun.(resource, repo.insert!(cs))
+                fun.(resource, repo().insert!(cs))
               else
                 fun.(resource)
               end
@@ -129,13 +129,13 @@ defmodule ExAdmin.Repo do
   end
 
   def insert(resource, params) do
-    repo.insert!(struct(resource, params))
+    repo().insert!(struct(resource, params))
     |> insert_or_update_collection(params)
     |> insert_or_update_attributes_for(params)
   end
 
   def delete(resource, _params) do
-    repo.delete resource
+    repo().delete resource
   end
 
   def get_attrs_list(params) do
@@ -179,19 +179,19 @@ defmodule ExAdmin.Repo do
 
     fun = fn(resource) ->
       id = resource.id
-      resource = repo.one from c in resource.__struct__, where: ^id == c.id, preload: [^assoc]
+      resource = repo().one from c in resource.__struct__, where: ^id == c.id, preload: [^assoc]
       existing_ids = for ass <- Helpers.get_resource_field2(resource, assoc), do: ass.id
 
       # removes
       for id <- Utils.not_in(existing_ids, ids) do
         new_model = struct(assoc_instance, id: id)
-        repo.delete_all get_join_model_instance(resource, assoc, join_model, new_model)
+        repo().delete_all get_join_model_instance(resource, assoc, join_model, new_model)
       end
 
       # insert adds
       for id <- Utils.not_in(ids, existing_ids) do
         new_model = struct(assoc_instance, id: id)
-        repo.insert! join_model_instance(resource, assoc, join_model, new_model)
+        repo().insert! join_model_instance(resource, assoc, join_model, new_model)
       end
     end
     {selected_collection, fun, Atom.to_string(assoc)}
@@ -220,7 +220,7 @@ defmodule ExAdmin.Repo do
       # repo.insert! join_model_instance(resource, model, join_model, new_model)
       res = join_model_instance(resource, model, join_model, new_model)
 
-      repo.insert! res
+      repo().insert! res
     end
 
     {cs, fun, model}
@@ -232,14 +232,14 @@ defmodule ExAdmin.Repo do
   def do_attributes_for(resource, model, _id, %{_destroy: "1"} = params, inx) do
     {assoc_model, join_model} = get_assoc_model resource, model
 
-    assoc_resource = repo.get assoc_model, params[:id]
+    assoc_resource = repo().get assoc_model, params[:id]
 
     cs = assoc_model.changeset(assoc_resource, params)
     |> attributes_for_translate_errors(resource, model, inx)
 
     fun = fn(resource, new_model) ->
       get_join_model_instance(resource, model, join_model, new_model)
-      |> repo.delete_all
+      |> repo().delete_all
     end
 
     {cs, fun, model}
@@ -251,7 +251,7 @@ defmodule ExAdmin.Repo do
   #
   def do_attributes_for(resource, model, _id, params, inx) do
     {assoc_model, _} = get_assoc_model resource, model
-    assoc_resource = repo.get assoc_model, params[:id]
+    assoc_resource = repo().get assoc_model, params[:id]
 
     cs = assoc_model.changeset(assoc_resource, params)
     |> attributes_for_translate_errors(resource, model, inx)

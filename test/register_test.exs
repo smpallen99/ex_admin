@@ -41,7 +41,7 @@ end
 defmodule TestExAdmin.ActionItemWithClear do
   use ExAdmin.Register
   register_resource TestExAdmin.Simple do
-    clear_action_items!
+    clear_action_items!()
     action_item :index, fn -> :test end
   end
 end

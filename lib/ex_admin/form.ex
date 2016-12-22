@@ -621,7 +621,7 @@ defmodule ExAdmin.Form do
 
   defp build_select_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) do
     html_opts = item[:opts][:html_opts] || []
-    html_opts = Dict.merge([name: "#{model_name}[#{field_name}]"], html_opts)
+    html_opts = Keyword.merge([name: "#{model_name}[#{field_name}]"], html_opts)
     select("##{ext_name}_id.form-control", html_opts) do
       handle_prompt(field_name, item)
       for item <- collection do

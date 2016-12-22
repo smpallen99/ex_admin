@@ -420,7 +420,7 @@ defmodule ExAdmin.Show do
 
       Xain.select class: "select2", multiple: "multiple", name: "selected_ids[]" do
         ExAdmin.Model.potential_associations_query(resource, assoc_defn.__struct__, assoc_name)
-        |> repo.all
+        |> repo().all
         |> Enum.each(fn(opt) ->
           option ExAdmin.Helpers.display_name(opt), value: ExAdmin.Schema.get_id(opt)
         end)

@@ -367,7 +367,7 @@ defmodule ExAdmin.Helpers do
 
   def group_by(collection, fun) do
     list = Enum.map(collection, fun)
-    |> Enum.uniq(&(&1))
+    |> Enum.uniq_by(&(&1))
     |> Enum.map(&({&1, []}))
 
     Enum.reduce collection, list, fn(item, acc) ->

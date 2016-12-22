@@ -8,8 +8,8 @@
     <meta name="author" content="">
     <meta name="csrf-param" content="_csrf_token" />
     <meta name="csrf-token" id="_csrf_token" content="<%= Plug.CSRFProtection.get_csrf_token %>" />
-    <%= favicon %>
-    <title><%= site_title %></title>
+    <%= favicon() %>
+    <title><%= site_title() %></title>
     <link rel="stylesheet" media="screen" type="text/css" href="<%= static_path(@conn, "/css/active_admin.css.css") %>">
 
     <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->

@@ -168,7 +168,7 @@ defmodule MyProject.ExAdmin.MyModel do
   register_resource MyProject.MyModel do
 
     index do
-      selectable_column
+      selectable_column()
 
       column :id
       column :name
