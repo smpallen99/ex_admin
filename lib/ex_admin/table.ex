@@ -140,8 +140,7 @@ defmodule ExAdmin.Table do
   end
 
   def build_th({field_name, opts}, table_opts) do
-    label = Map.get(opts, :label, to_string(field_name))
-    build_th(label, opts, table_opts)
+    build_th(to_string(field_name), opts, table_opts)
   end
   def build_th(field_name, _),
     do: th(".th-#{parameterize field_name} #{humanize field_name}")
@@ -149,7 +148,7 @@ defmodule ExAdmin.Table do
     if String.to_atom(field_name) in fields and opts in [%{}, %{link: true}] do
       _build_th(field_name, opts, table_opts)
     else
-      th(".th-#{parameterize field_name} #{humanize field_name}")
+      th(".th-#{parameterize field_name} #{humanize Map.get(opts, :label, to_string(field_name))}")
     end
   end
   def build_th(field_name, _, _), do: build_th(field_name, nil)
@@ -182,7 +181,7 @@ defmodule ExAdmin.Table do
       scope -> "&scope=#{scope}"
     end
     th(".sortable.th-#{field_name}") do
-      a("#{humanize field_name}", href: path_prefix <>
+      a("#{humanize Map.get(_opts, :label, to_string(field_name))}", href: path_prefix <>
         field_name <> "_#{sort}#{page_segment}" <> scope_segment <>
         Map.get(table_opts, :filter, ""))
     end
