@@ -9,7 +9,7 @@
     </div>
   </div>
 
-  <div class="column style="width: 49.0%;">
+  <div class="column" style="width: 49.0%;">
     <div class="panel">
       <h3>News</h3>
       <div class="panel_contents">
