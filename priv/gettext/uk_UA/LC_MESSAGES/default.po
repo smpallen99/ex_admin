@@ -224,6 +224,22 @@ msgstr ""
 msgid "an"
 msgstr ""
 
+#: lib/ex_admin/filter.ex:12
+msgid "Contains"
+msgstr "Містить"
+
+#: lib/ex_admin/filter.ex:12
+msgid "End With"
+msgstr "Закінчується на"
+
+#: lib/ex_admin/filter.ex:12
+msgid "Equals"
+msgstr "Рівно"
+
+#: lib/ex_admin/filter.ex:12
+msgid "Starts With"
+msgstr "Починається з"
+
 #: lib/ex_admin/index.ex:327
 msgid "Actions"
 msgstr "Дії"
