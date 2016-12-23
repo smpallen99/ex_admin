@@ -220,6 +220,22 @@ msgstr ""
 msgid "an"
 msgstr ""
 
+#: lib/ex_admin/filter.ex:12
+msgid "Содержит"
+msgstr ""
+
+#: lib/ex_admin/filter.ex:12
+msgid "Заканчивается на"
+msgstr ""
+
+#: lib/ex_admin/filter.ex:12
+msgid "Equals"
+msgstr "Равно"
+
+#: lib/ex_admin/filter.ex:12
+msgid "Starts With"
+msgstr "Начинается с"
+
 #: lib/ex_admin/index.ex:327
 msgid "Actions"
 msgstr "Действия"
@@ -232,3 +248,7 @@ msgstr "Ресурсы"
 #: web/templates/themes/admin_lte2/layout/header.html.eex:73
 msgid "Scopes"
 msgstr "Использование"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:33
+msgid "Themes"
+msgstr "Темы"

@@ -220,6 +220,22 @@ msgstr "un(e)"
 msgid "an"
 msgstr "un(e)"
 
+#: lib/ex_admin/filter.ex:12
+msgid "Contains"
+msgstr ""
+
+#: lib/ex_admin/filter.ex:12
+msgid "End With"
+msgstr ""
+
+#: lib/ex_admin/filter.ex:12
+msgid "Equals"
+msgstr ""
+
+#: lib/ex_admin/filter.ex:12
+msgid "Starts With"
+msgstr ""
+
 #: lib/ex_admin/index.ex:327
 msgid "Actions"
 msgstr "Actions"
@@ -232,3 +248,7 @@ msgstr "Ressources"
 #: web/templates/themes/admin_lte2/layout/header.html.eex:73
 msgid "Scopes"
 msgstr "Scopes"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:33
+msgid "Themes"
+msgstr "Thèmes"

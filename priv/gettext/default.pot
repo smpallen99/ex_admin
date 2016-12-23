@@ -120,7 +120,7 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-#: lib/ex_admin/index.ex:371
+#: lib/ex_admin/index.ex:372
 msgid "Download:"
 msgstr ""
 
@@ -246,16 +246,20 @@ msgstr ""
 msgid "Starts With"
 msgstr ""
 
-#: lib/ex_admin/index.ex:327
-#: web/templates/themes/admin_lte2/layout/header.html.eex:64
+#: lib/ex_admin/index.ex:328
+#: web/templates/themes/admin_lte2/layout/header.html.eex:63
 msgid "Actions"
 msgstr ""
 
 #: web/templates/themes/admin_lte2/layout/header.html.eex:48
-#: web/templates/themes/admin_lte2/layout/header.html.eex:53
+#: web/templates/themes/admin_lte2/layout/header.html.eex:52
 msgid "Resources"
 msgstr ""
 
-#: web/templates/themes/admin_lte2/layout/header.html.eex:73
+#: web/templates/themes/admin_lte2/layout/header.html.eex:72
 msgid "Scopes"
+msgstr ""
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:33
+msgid "Themes"
 msgstr ""
