@@ -358,7 +358,7 @@ defmodule ExAdmin.Form do
 
     * `:as` - Sets the type of collection. Valid options are:
       * `:check_boxes` - Use check boxes
-      * `:radio - Use radio buttons
+      * `:radio` - Use radio buttons
 
   ## Ajax controls
 
