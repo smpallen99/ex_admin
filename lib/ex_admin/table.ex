@@ -170,7 +170,7 @@ defmodule ExAdmin.Table do
         Map.get(table_opts, :filter, ""))
     end
   end
-  def _build_th(field_name, _opts, %{path_prefix: path_prefix} = table_opts) do
+  def _build_th(field_name, opts, %{path_prefix: path_prefix} = table_opts) do
     sort = Map.get(table_opts, :sort, "asc")
     page_segment = case Map.get table_opts, :page, nil do
       nil -> ""
@@ -181,7 +181,7 @@ defmodule ExAdmin.Table do
       scope -> "&scope=#{scope}"
     end
     th(".sortable.th-#{field_name}") do
-      a("#{humanize Map.get(_opts, :label, to_string(field_name))}", href: path_prefix <>
+      a("#{humanize Map.get(opts, :label, to_string(field_name))}", href: path_prefix <>
         field_name <> "_#{sort}#{page_segment}" <> scope_segment <>
         Map.get(table_opts, :filter, ""))
     end
