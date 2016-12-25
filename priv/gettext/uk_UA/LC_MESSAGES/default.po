@@ -251,7 +251,7 @@ msgstr "Ресурси"
 
 #: web/templates/themes/admin_lte2/layout/header.html.eex:73
 msgid "Scopes"
-msgstr "Використання"
+msgstr "Групи"
 
 #: web/templates/themes/admin_lte2/layout/header.html.eex:33
 msgid "Themes"
