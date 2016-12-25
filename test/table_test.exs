@@ -44,13 +44,13 @@ defmodule ExAdminTest.TableTest do
       assert Table.build_th(opts, table_options) == expected
     end
     test "atom field_name binary label", %{table_opts: table_options} do
-      expected = "<th class='th-record_id'>Record Id</th>"
+      expected = "<th class='th-id'>Record Id</th>"
       opts = {:id, %{label: "Record Id"}}
       assert Table.build_th(opts, table_options) == expected
     end
     test "binary field_name binary label", %{table_opts: table_options} do
-      expected = "<th class='th-record_id'>Record Id</th>"
-      opts = {"record", %{label: "Record Id"}}
+      expected = "<th class='th-record'>Record Id</th>"
+      opts = {"record", %{label: "Record Id"}} 
       assert Table.build_th(opts, table_options) == expected
     end
     test "field name and table opts - no tuple", %{table_opts: table_options} do
@@ -59,7 +59,7 @@ defmodule ExAdminTest.TableTest do
       assert Table.build_th("id", table_options) == expected
     end
     test "field name, opts and table opts - no tuple", %{table_opts: table_options} do
-      expected = "<th class='th-id'>Id</th>"
+      expected = "<th class='th-id'>Record Id</th>"
       opts = %{label: "Record Id"}
       assert Table.build_th("id", opts, table_options) == expected
     end
