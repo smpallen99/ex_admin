@@ -218,7 +218,8 @@ defmodule ExAdmin.Helpers do
   defp format_contents(%{__struct__: _} = contents), do: to_string(contents)
   defp format_contents(%{} = contents) do
     Enum.reduce(contents, [], fn {k,v}, acc ->
-      ["#{k}: #{v}" | acc]
+      value = ExAdmin.Render.to_string(v)
+      ["#{k}: #{value}" | acc]
     end)
     |> Enum.reverse
     |> Enum.join(", ")
