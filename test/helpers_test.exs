@@ -3,6 +3,7 @@ defmodule ExAdmin.HelpersTest do
   alias ExAdmin.Helpers
   alias TestExAdmin.Noid
   alias TestExAdmin.Simple
+  alias TestExAdmin.Maps
   use Xain
 
   test "build_field" do
@@ -32,6 +33,15 @@ defmodule ExAdmin.HelpersTest do
         ExAdmin.Table.handle_contents(contents, field_name)
       end)
     assert res == expected
+  end
+
+  test "build_field with complex map data" do
+    resource = %Maps{stats: %{list: [%{}]}}
+
+    res = Helpers.build_field(resource, %{}, {:stats, %{}}, fn(contents, field_name) ->
+        ExAdmin.Render.to_string(contents)
+      end)
+    assert res == ~s(list: [{}])
   end
 
   test "group_by" do

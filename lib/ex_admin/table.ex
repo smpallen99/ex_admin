@@ -32,8 +32,9 @@ defmodule ExAdmin.Table do
                 _contents, {:map, f_name} ->
                   for {k,v} <- Map.get(resource, f_name) do
                     tr do
+                      value = ExAdmin.Render.to_string(v)
                       field_header "#{f_name} #{k}"
-                      td ".td-#{parameterize k} #{v}"
+                      td ".td-#{parameterize k} #{value}"
                     end
                   end
                 contents, f_name ->
