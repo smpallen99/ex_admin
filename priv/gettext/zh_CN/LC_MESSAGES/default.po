@@ -13,8 +13,8 @@ msgstr ""
 #: web/controllers/admin_resource_controller.ex:156
 msgid "was successfully destroyed."
 msgid_plural "were successfully destroyed."
-msgstr[0] "成功删除"
-msgstr[1] "成功删除"
+msgstr[0] "删除成功"
+msgstr[1] "删除成功"
 
 #: lib/ex_admin/themes/active_admin/index.ex:145
 #: lib/ex_admin/themes/admin_lte2/index.ex:139
@@ -24,7 +24,7 @@ msgstr "批量操作"
 #: lib/ex_admin/themes/active_admin/index.ex:33
 #: lib/ex_admin/themes/admin_lte2/index.ex:32
 msgid "Create one"
-msgstr "创建一个新的"
+msgstr "新建一个"
 
 #: lib/ex_admin/themes/active_admin/index.ex:116
 #: lib/ex_admin/themes/admin_lte2/index.ex:110 lib/ex_admin/view_helpers.ex:63
@@ -42,7 +42,7 @@ msgstr "新建"
 
 #: lib/mix/tasks/admin.install.ex:202
 msgid "To add dashboard sections, checkout 'web/admin/dashboards.ex'"
-msgstr "添加看板部分，请查看 'web/admin/dashboards.ex'"
+msgstr "要添加看板模块，查看'web/admin/dashboards.ex'"
 
 #: lib/mix/tasks/admin.install.ex:201
 msgid "Welcome to ExAdmin. This is the default dashboard page."
@@ -50,24 +50,24 @@ msgstr "欢迎使用ExAdmin。这是默认看板页面"
 
 #: web/templates/admin_resource/index.html.eex:7
 msgid "Welcome to Notifier"
-msgstr "欢迎使用Notifier"
+msgstr "欢迎来到Notifier"
 
 #: web/controllers/admin_resource_controller.ex:5
 msgid "invalid after_filter return:"
-msgstr "错误格式 after_filter 返回:"
+msgstr "after_filter格式错误  返回了:"
 
 #: web/controllers/admin_resource_controller.ex:134
 msgid "was successfully destroyed."
-msgstr "成功删除"
+msgstr "删除成功"
 
 #: web/controllers/admin_resource_controller.ex:107
 msgid "was successfully updated."
-msgstr "成功更新"
+msgstr "更新成功"
 
 #: lib/ex_admin/themes/active_admin/index.ex:131
 #: lib/ex_admin/themes/admin_lte2/index.ex:125
 msgid "Are you sure you want to delete these %{name}? You wont be able to undo this."
-msgstr "确定删除%{name}？此操作无法还原。"
+msgstr "确定删除 %{name}？此操作无法还原。"
 
 #: lib/ex_admin/themes/admin_lte2/filter.ex:27
 msgid "Clear Filters"
@@ -95,7 +95,7 @@ msgstr "查看"
 #: lib/ex_admin/themes/active_admin/index.ex:152
 #: lib/ex_admin/themes/admin_lte2/index.ex:146
 msgid "Delete Selected"
-msgstr "删除已选"
+msgstr "删除已选项"
 
 #: web/controllers/admin_resource_controller.ex:90
 msgid "%{model_name} was successfully created."
@@ -189,7 +189,7 @@ msgstr "下一页"
 
 #: lib/ex_admin/paginate.ex:59
 msgid "all %{total}"
-msgstr "总共%{total}"
+msgstr "共计 %{total}"
 
 #: lib/ex_admin/paginate.ex:42 lib/ex_admin/paginate.ex:52
 msgid "in total"
@@ -201,41 +201,41 @@ msgstr "的"
 
 #: lib/ex_admin/paginate.ex:65
 msgid "« First"
-msgstr ""
+msgstr "第一页"
 
 #: lib/ex_admin/paginate.ex:66
 msgid "‹ Prev"
-msgstr ""
+msgstr "前一页"
 
 #: lib/ex_admin/form/fields.ex:150
 msgid "Select %{nm}"
-msgstr ""
+msgstr "选择 %{nm}"
 
 #: lib/ex_admin/themes/active_admin/index.ex:29
 #: lib/ex_admin/themes/admin_lte2/index.ex:28
 msgid "No %{label} found."
-msgstr ""
+msgstr "%{label} 未找到。"
 
 #: lib/ex_admin/themes/active_admin/index.ex:31
 #: lib/ex_admin/themes/admin_lte2/index.ex:30
 msgid "There are no %{label} yet. "
-msgstr ""
+msgstr "还没有 %{label}。"
 
 #: lib/ex_admin/utils.ex:112
 msgid "a"
-msgstr ""
+msgstr "一个"
 
 #: lib/ex_admin/utils.ex:110
 msgid "an"
-msgstr ""
+msgstr "一个"
 
 #: lib/ex_admin/filter.ex:12
 msgid "Contains"
-msgstr ""
+msgstr "包含"
 
 #: lib/ex_admin/filter.ex:12
 msgid "End With"
-msgstr ""
+msgstr "以结尾"
 
 #: lib/ex_admin/filter.ex:12
 msgid "Equals"
@@ -243,7 +243,7 @@ msgstr "等于"
 
 #: lib/ex_admin/filter.ex:12
 msgid "Starts With"
-msgstr "以什么开始"
+msgstr "以开始"
 
 #: lib/ex_admin/index.ex:328
 #: web/templates/themes/admin_lte2/layout/header.html.eex:63
