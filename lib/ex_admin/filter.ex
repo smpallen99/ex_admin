@@ -79,15 +79,6 @@ defmodule ExAdmin.Filter do
   end
   def field_label(field, _defn), do: humanize(field)
 
-  def associations(defn) do
-    Enum.reduce defn.resource_model.__schema__(:associations), [], fn(assoc, acc) ->
-      case defn.resource_model.__schema__(:association, assoc) do
-        %Ecto.Association.BelongsTo{} = belongs_to -> [{assoc, belongs_to} | acc]
-        _ -> acc
-      end
-    end
-  end
-
   def check_and_build_association(name, q, defn) do
     name_str = Atom.to_string name
     if String.match? name_str, ~r/_id$/ do

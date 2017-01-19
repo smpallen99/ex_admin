@@ -18,7 +18,6 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
               input type: :hidden, name: :scope, value: scope
             end
             for field <- fields(defn), do: build_field(field, q, defn)
-            for field <- associations(defn), do: build_field(field, q, defn)
             div ".buttons" do
               input name: "commit", type: "submit", value: (gettext "Filter")
               a ".clear_filters_btn Clear Filters", href: "#"
