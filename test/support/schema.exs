@@ -83,6 +83,7 @@ defmodule TestExAdmin.Product do
   import Ecto.Changeset
 
   schema "products" do
+    field :_destroy, :boolean, virtual: true
     field :title, :string
     field :price, :decimal
     belongs_to :user, TestExAdmin.User

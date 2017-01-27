@@ -53,19 +53,6 @@ mix.exs
   end
 ```
 
-#### GitHub with Ecto 1.1
-
-mix.exs
-```elixir
-  defp deps do
-     ...
-     {:ex_admin, github: "smpallen99/ex_admin"},
-     {:phoenix_ecto, "~> 2.0.0", override: true}, # the override is necessary
-     {:ecto, "~> 1.1", override: true},           # the override is necessary
-     ...
-  end
-```
-
 Add some admin configuration and the admin modules to the config file
 
 config/config.exs
@@ -156,6 +143,56 @@ config :ex_admin,
 Start the phoenix server again and browse to `http://localhost:4000/admin/my_model`
 
 You can now list/add/edit/and delete `MyModel`s.
+
+### Changesets
+ExAdmin will use your schema's changesets. By default we call the `changeset` function on your schema, although you
+can configure the changeset we use for update and create seperately.
+
+custom changeset:
+```elixir
+defmodule TestExAdmin.ExAdmin.Simple do
+  use ExAdmin.Register
+
+  register_resource TestExAdmin.Simple do
+    update_changeset :changeset_update
+    create_changeset :changeset_create
+  end
+end
+```
+
+#### Relationships
+We support many-to-many and has many relationships as provided by Ecto. We recommend using cast_assoc for many-to-many relationships
+and put_assoc for has-many. You can see example changesets in out [test schemas](test/support/schema.exs)
+
+When passing in results from a form for relationships we do some coercing to make it easier to work with them in your changeset.
+Since cast_assoc works by passing only the associations to keep we remove any associations that are deleted in a has many form.
+For collection checkboxes we will pass an array of the selected options ids to your changeset so you can get them and use put_assoc as [seen here](test/support/schema.exs#L26-L35)
+
+In order to support this functionality we need you to setup a virtual attribute on your schema's. On the related schema you will
+need to add an _destroy virtual attribute so we can track the destroy property in the form. You will also need to cast this in your changeset. Here is an example changeset.
+
+```elxiir
+defmodule TestExAdmin.Product do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  schema "products" do
+    field :_destroy, :boolean, virtual: true
+    field :title, :string
+    field :price, :decimal
+    belongs_to :user, TestExAdmin.User
+  end
+
+  @required_fields ~w(title price)
+  @optional_fields ~w(user_id)
+
+  def changeset(model, params \\ %{}) do
+    model
+    |> cast(params, @required_fields, @optional_fields)
+  end
+end
+```
+
 
 ### Customizing the index page
 

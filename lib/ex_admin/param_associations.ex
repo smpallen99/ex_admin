@@ -3,14 +3,14 @@ defmodule ExAdmin.ParamsAssociations do
   require Logger
   import Ecto.Query
 
-  def load_associations(params, model_name, model) do
+  def load_associations(params, model_name, model, delete_association \\ true) do
     case Map.has_key? params, model_name do
-      true -> Map.put(params, model_name, load_associations(params[model_name], model))
+      true -> Map.put(params, model_name, run_load_associations(params[model_name], model, delete_association))
       false -> params
     end
   end
 
-  defp load_associations(params, model) do
+  defp run_load_associations(params, model, delete_associations) do
     Enum.reduce(Map.keys(params), params, fn(key, p) ->
       key_as_string = Atom.to_string(key)
       cond do
@@ -18,7 +18,11 @@ defmodule ExAdmin.ParamsAssociations do
           new_key = String.replace_suffix(key_as_string, "_attributes", "")
             |> String.to_atom
 
-          value = remove_destroyed_associations(params[key])
+          value = if delete_associations do
+            remove_destroyed_associations(params[key])
+          else
+            params[key]
+          end
           Map.delete(p, key)
            |> Map.put(new_key, value)
         String.ends_with?(key_as_string, "_ids") ->

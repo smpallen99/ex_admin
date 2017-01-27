@@ -164,7 +164,6 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
 
   # TODO: Refactor some of this back into ExAdmin.Form
   def theme_build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_name, field_field_name, model_name, errors) do
-
     inx = cond do
       is_nil(res) -> orig_inx
       is_nil(Map.get(res, :id)) -> orig_inx
@@ -192,9 +191,20 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
         div [id: "#{base_id}_input", class: "form-group"] do
           div ".col-sm-offset-2" do
             div ".checkbox" do
+              checked = case Map.get(res, :_destroy) do
+                nil -> false
+                "1" -> true
+                "0" -> false
+                _ -> false
+              end
+
               Xain.input type: :hidden, value: "0", name: name
               label for: base_id do
-                Xain.input type: :checkbox, id: "#{base_id}", class: "destroy", name: name, value: "1"
+                if checked do
+                  Xain.input type: :checkbox, id: "#{base_id}", class: "destroy", name: name, value: "1", checked: checked
+                else
+                  Xain.input type: :checkbox, id: "#{base_id}", class: "destroy", name: name, value: "1"
+                end
                 text (gettext "Remove")
               end
             end

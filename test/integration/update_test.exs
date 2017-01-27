@@ -74,12 +74,12 @@ defmodule TestExAdmin.UpdateTest do
     refute Enum.member?(user.roles, role2)
   end
 
-  @tag :pending
+  @tag :integration
   test "validate product creation many to many " do
     role = insert_role
     role2 = insert_role(%{ name: "Test2"})
 
-    user = insert_user(%{ role_ids: [role.id, role2.id] })
+    user = insert_user(%{ roles: [role.id, role2.id] })
     product = insert_product(%{ user_id: user.id })
 
     user = get_user(user.id)
@@ -89,19 +89,16 @@ defmodule TestExAdmin.UpdateTest do
 
     navigate_to admin_resource_path(user, :edit)
 
-    title_wrapper = find_element(:css, "#user_product_attributes_0_title")
-    product_title = find_within_element(title_wrapper,
-      :name, "user[products_attributes][0][title]")
-    fill_field(product_title, "Test Title")
+    product_title = find_element(:name, "user[products_attributes][0][title]")
+    fill_field(product_title, "")
     click(find_element(:name, "commit"))
 
-    title_wrapper = find_element(:css, "#user_product_attributes_0_title")
-    product_title = find_within_element(title_wrapper,
-      :name, "user[products_attributes][0][title]")
+    take_screenshot
+    product_title = find_element(:name, "user[products_attributes][0][title]")
 
-    price_wrapper = find_element(:css, "#user_product_attributes_0_price")
-    assert visible_text(product_title) == "Test Title"
-    assert visible_text(price_wrapper) == "Price*\ncan't be blank"
+    title_wrapper = find_element(:css, "#user_products_attributes_0_title_input")
+    assert visible_text(product_title) == ""
+    assert visible_text(title_wrapper) == "Title\ncan't be blank"
   end
 
   @tag :integration
@@ -137,7 +134,7 @@ defmodule TestExAdmin.UpdateTest do
     This is worth discussing. When you use a cast_assoc, it will remove the association even if
     an error occurs on the parent changeset.
   """
-  @tag :pending
+  @tag :integration
   test "remove has many association and error occurs" do
     role = insert_role
     role2 = insert_role(%{ name: "Test2"})
@@ -160,17 +157,15 @@ defmodule TestExAdmin.UpdateTest do
 
     fill_field email_field, ""
 
-    execute_script("document.getElementsByName('user[products_attributes][0][_destroy]')[0].value = 1")
+    execute_script("document.getElementsByClassName('destroy')[0].checked = true")
 
     click(find_element(:name, "commit"))
 
     products_wrapper = find_element(:css, ".products")
-    product_destroy = find_within_element(products_wrapper,
-     :name, "user[products_attributes][0][_destroy]")
+    product_destroy = find_within_element(products_wrapper, :css, ".destroy")
     product_title = find_within_element(products_wrapper,
      :name, "user[products_attributes][0][title]")
 
-    take_screenshot
     assert attribute_value(product_title, "value") == product.title
     assert attribute_value(product_destroy, "checked") == "true"
   end

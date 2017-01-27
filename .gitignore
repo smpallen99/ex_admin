@@ -7,3 +7,7 @@ erl_crash.dump
 /node_modules
 *.swn
 *.swm
+*~
+# swap
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
