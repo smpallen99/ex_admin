@@ -186,12 +186,9 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
 
         # build the destroy field
         checked = case Map.get(res, :_destroy) do
-          nil -> false
-          "1" -> true
-          "0" -> false
-          _ -> false
+          "1" -> [checked: true]
+          _ -> []
         end
-
 
         base_name = "#{model_name}[#{field_field_name}][#{inx}]"
         base_id = "#{ext_name}__destroy"
@@ -199,11 +196,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
           name = "#{base_name}[_destroy]"
           Xain.input type: :hidden, value: "0", name: name
           label for: base_id do
-            if checked do
-              Xain.input type: :checkbox, id: "#{base_id}", class: "destroy", name: name, value: "1", checked: checked
-            else
-              Xain.input type: :checkbox, id: "#{base_id}", class: "destroy", name: name, value: "1"
-            end
+            Xain.input [type: :checkbox, id: "#{base_id}", class: "destroy", name: name, value: "1"] ++ checked
 
             text (gettext "Remove")
           end

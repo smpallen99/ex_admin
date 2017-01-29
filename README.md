@@ -183,12 +183,10 @@ defmodule TestExAdmin.Product do
     belongs_to :user, TestExAdmin.User
   end
 
-  @required_fields ~w(title price)
-  @optional_fields ~w(user_id)
-
-  def changeset(model, params \\ %{}) do
-    model
-    |> cast(params, @required_fields, @optional_fields)
+  def changeset(schema, params \\ %{}) do
+    schema
+    |> cast(params, ~w(title price user_id))
+    |> validate_required(~w(title price))
   end
 end
 ```

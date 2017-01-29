@@ -5,12 +5,12 @@ defmodule ExAdmin.ParamsAssociations do
 
   def load_associations(params, model_name, model, delete_association \\ true) do
     case Map.has_key? params, model_name do
-      true -> Map.put(params, model_name, run_load_associations(params[model_name], model, delete_association))
+      true -> Map.put(params, model_name, do_load_associations(params[model_name], model, delete_association))
       false -> params
     end
   end
 
-  defp run_load_associations(params, model, delete_associations) do
+  defp do_load_associations(params, model, delete_associations) do
     Enum.reduce(Map.keys(params), params, fn(key, p) ->
       key_as_string = Atom.to_string(key)
       cond do
