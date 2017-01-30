@@ -148,6 +148,8 @@ defmodule ExAdmin.Register do
       end
 
       menu_opts = case Module.get_attribute(__MODULE__, :menu) do
+        :none ->
+          %{none: true}
         nil ->
           %{ priority: 10,
              label: (base_name(module) |> Inflex.pluralize)}
