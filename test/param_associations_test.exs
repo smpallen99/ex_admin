@@ -28,30 +28,6 @@ defmodule ExAdmin.ParamAssociationsTest do
     assert new_params == expected
   end
 
-  test "has many associations remove" do
-    role = insert_role
-    params = %{ user: %{email: "test@example.com", name: "Cory",
-               products_attributes: %{"1481295208513":
-                %{_destroy: "1", price: "13.00",
-                title: "A product title"},
-                "2": %{_destroy: "0", price: "3.00"},
-                "3": %{_destroy: 1, price: "1.00"},
-                "4": %{_destroy: 0, price: "2.00"}
-              },
-              role_ids: %{"#{role.id}": "on"}}}
-
-    expected = %{ user: %{email: "test@example.com", name: "Cory",
-               products: %{
-                "2": %{_destroy: "0", price: "3.00"},
-                "4": %{_destroy: 0, price: "2.00"}
-               },
-               roles: ["#{role.id}"]}}
-
-    new_params = Params.load_associations(params, :user, TestExAdmin.User)
-    assert new_params == expected
-  end
-
-
   test "has many associations non choosen" do
     role = insert_role
     params = %{ user: %{email: "test@example.com", name: "Cory",

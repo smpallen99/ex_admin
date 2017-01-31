@@ -93,7 +93,6 @@ defmodule TestExAdmin.UpdateTest do
     fill_field(product_title, "")
     click(find_element(:name, "commit"))
 
-    take_screenshot
     product_title = find_element(:name, "user[products_attributes][0][title]")
 
     title_wrapper = find_element(:css, "#user_products_attributes_0_title_input")
@@ -130,10 +129,6 @@ defmodule TestExAdmin.UpdateTest do
     assert attribute_value(role_field, "checked") == "true"
   end
 
-  """
-    This is worth discussing. When you use a cast_assoc, it will remove the association even if
-    an error occurs on the parent changeset.
-  """
   @tag :integration
   test "remove has many association and error occurs" do
     role = insert_role

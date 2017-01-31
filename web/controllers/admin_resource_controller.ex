@@ -96,12 +96,6 @@ defmodule ExAdmin.AdminResourceController do
     changeset = apply(defn.resource_model, defn.update_changeset, [resource, params[defn.resource_name]])
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
-        og_params =
-          conn.body_params
-          |> filter_params(defn.resource_model)
-          |> load_associations(defn.resource_name, defn.resource_model, false)
-        changeset = apply(defn.resource_model, defn.update_changeset, [resource, og_params[defn.resource_name]])
-        params = Map.put(params, defn.resource_name, og_params[defn.resource_name])
         conn |> handle_changeset_error(defn, changeset, params)
       {:ok, resource} ->
         {conn, _, resource} = handle_after_filter(conn, :update, defn, params, resource)

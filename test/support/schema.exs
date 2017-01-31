@@ -95,6 +95,16 @@ defmodule TestExAdmin.Product do
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, @required_fields, @optional_fields)
+    |> mark_for_deletion()
+  end
+
+  defp mark_for_deletion(changeset) do
+    # If delete was set and it is true, let's change the action
+    if get_change(changeset, :_destroy) do
+      %{changeset | action: :delete}
+    else
+      changeset
+    end
   end
 end
 

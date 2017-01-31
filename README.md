@@ -165,13 +165,67 @@ We support many-to-many and has many relationships as provided by Ecto. We recom
 and put_assoc for has-many. You can see example changesets in out [test schemas](test/support/schema.exs)
 
 When passing in results from a form for relationships we do some coercing to make it easier to work with them in your changeset.
-Since cast_assoc works by passing only the associations to keep we remove any associations that are deleted in a has many form.
 For collection checkboxes we will pass an array of the selected options ids to your changeset so you can get them and use put_assoc as [seen here](test/support/schema.exs#L26-L35)
 
-In order to support this functionality we need you to setup a virtual attribute on your schema's. On the related schema you will
-need to add an _destroy virtual attribute so we can track the destroy property in the form. You will also need to cast this in your changeset. Here is an example changeset.
+In order to support has many deletions you need you to setup a virtual attribute on your schema's. On the related schema you will
+need to add an _destroy virtual attribute so we can track the destroy property in the form. You will also need to cast this in your changeset. Here is an example changeset. In this scenario a User has many products and products can be deleted. We also have many roles associated.
 
 ```elxiir
+defmodule TestExAdmin.User do
+  import Ecto.Changeset
+  use Ecto.Schema
+  import Ecto.Query
+
+  schema "users" do
+    field :name, :string
+    field :email, :string
+    field :active, :boolean, default: true
+    has_many :products, TestExAdmin.Product, on_replace: :delete
+    many_to_many :roles, TestExAdmin.Role, join_through: TestExAdmin.UserRole, on_replace: :delete
+  end
+
+  @required_fields ~w(email)
+  @optional_fields ~w(name active)
+
+  def changeset(model, params \\ %{}) do
+    model
+    |> cast(params, @required_fields, @optional_fields)
+    |> cast_assoc(:products, required: false)
+    |> add_roles(params)
+  end
+
+  def add_roles(changeset, params) do
+    if Enum.count(Map.get(params, :roles, [])) > 0 do
+      ids = params[:roles]
+      roles = TestExAdmin.Repo.all(from r in TestExAdmin.Role, where: r.id in ^ids)
+      put_assoc(changeset, :roles, roles)
+    else
+      changeset
+    end
+  end
+end
+
+defmodule TestExAdmin.Role do
+  use Ecto.Schema
+  import Ecto.Changeset
+  alias TestExAdmin.Repo
+
+  schema "roles" do
+    field :name, :string
+    has_many :uses_roles, TestExAdmin.UserRole
+    many_to_many :users, TestExAdmin.User, join_through: TestExAdmin.UserRole
+  end
+
+  @required_fields ~w(name)
+  @optional_fields ~w()
+
+  def changeset(model, params \\ %{}) do
+    model
+    |> cast(params, @required_fields, @optional_fields)
+  end
+end
+
+
 defmodule TestExAdmin.Product do
   use Ecto.Schema
   import Ecto.Changeset
@@ -187,10 +241,21 @@ defmodule TestExAdmin.Product do
     schema
     |> cast(params, ~w(title price user_id))
     |> validate_required(~w(title price))
+    |> mark_for_deletion
+  end
+
+  defp mark_for_deletion(changeset) do
+    # If delete was set and it is true, let's change the action
+    if get_change(changeset, :_destroy) do
+      %{changeset | action: :delete}
+    else
+      changeset
+    end
   end
 end
 ```
 
+A good blog post exisits on the Platformatec blog describing how these relationships work: http://blog.plataformatec.com.br/2015/08/working-with-ecto-associations-and-embeds/
 
 ### Customizing the index page
 

@@ -18,13 +18,8 @@ defmodule ExAdmin.ParamsAssociations do
           new_key = String.replace_suffix(key_as_string, "_attributes", "")
             |> String.to_atom
 
-          value = if delete_associations do
-            remove_destroyed_associations(params[key])
-          else
-            params[key]
-          end
           Map.delete(p, key)
-           |> Map.put(new_key, value)
+           |> Map.put(new_key, params[key])
         String.ends_with?(key_as_string, "_ids") ->
           new_key = String.replace_suffix(key_as_string, "_ids", "s")
             |> String.to_atom
@@ -55,10 +50,5 @@ defmodule ExAdmin.ParamsAssociations do
         Atom.to_string elem(x, 0)
       end
     )
-  end
-
-  def remove_destroyed_associations(params) do
-    Enum.filter(params, fn({k, v}) -> to_string(v._destroy) != "1" end)
-      |> Enum.into(%{})
   end
 end
