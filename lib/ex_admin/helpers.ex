@@ -121,7 +121,6 @@ defmodule ExAdmin.Helpers do
   """
   def build_field(resource, conn, field_name, fun) do
     case field_name do
-
       {f_name, %{has_many: _} = map2} ->
         _build_field(map2, conn, resource, f_name)
         |> fun.(f_name)
@@ -400,9 +399,9 @@ defmodule ExAdmin.Helpers do
   def to_class({_, field_name}), do: to_class(field_name)
 
   def to_class(field_name) when is_binary(field_name),
-    do: Inflex.parameterize(field_name, "_")
+    do: field_name_to_class(Inflex.parameterize(field_name, "_"))
   def to_class(field_name) when is_atom(field_name),
-    do: Atom.to_string(field_name)
+    do: field_name_to_class(Atom.to_string(field_name))
 
   def build_attributes(%{} = opts) do
     build_attributes Map.to_list(opts)
@@ -428,4 +427,7 @@ defmodule ExAdmin.Helpers do
     end
   end
 
+  def field_name_to_class(field_name) do
+    parameterize String.replace_suffix(field_name, "?", "")
+  end
 end
