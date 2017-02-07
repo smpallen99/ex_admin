@@ -41,11 +41,11 @@ defmodule ExAdmin.Helpers do
     model_name name
   end
 
-  def build_link_for({:safe, contents}, d, a, b, c) when is_list(contents) do
-    safe_contents("", contents)
+  def build_link_for({:safe, _} = safe_contents, d, a, b, c) do
+    safe_contents
+    |> Phoenix.HTML.safe_to_string()
     |> build_link_for(d, a, b, c)
   end
-  def build_link_for({:safe, contents}, d, a, b, c), do: build_link_for(contents, d, a, b, c)
   def build_link_for("", _, _, _, _), do: ""
   def build_link_for(nil, _, _, _, _), do: ""
   def build_link_for(contents, _, %{link: false}, _, _), do: contents
@@ -67,16 +67,6 @@ defmodule ExAdmin.Helpers do
     else
       contents
     end
-  end
-
-
-  def safe_contents(acc, []), do: acc
-  def safe_contents(acc, [h|t]) when is_list(h) do
-    safe_contents(acc, h)
-    |> safe_contents(t)
-  end
-  def safe_contents(acc, [h|t]) when is_binary(h) do
-    safe_contents(acc <> h, t)
   end
 
   def build_header_field(field, fun) do
