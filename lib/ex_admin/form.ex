@@ -1023,13 +1023,14 @@ defmodule ExAdmin.Form do
     embed_module.__schema__(:fields)
     |> Enum.map(& {&1, embed_module.__schema__(:type, &1)})
     |> Enum.map(fn {field, type} ->
-      build_control(type,
-        embed_content,
-        %{},
-        "#{model_name}[#{field_name}]", 
-        field,
-        "#{ext_name}_#{field}"
-      )
+      [ label(Atom.to_string(field)),
+        build_control(type,
+          embed_content,
+          %{},
+          "#{model_name}[#{field_name}]", 
+          field,
+          "#{ext_name}_#{field}")
+      ]
     end)
   end
 
