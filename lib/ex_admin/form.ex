@@ -1017,8 +1017,8 @@ defmodule ExAdmin.Form do
   end
 
   def build_control({:embed, e}, resource, opts, model_name, field_name, ext_name) do
-    embed_content = Map.get(resource, field_name)
-    embed_module = embed_content.__struct__
+    embed_content = Map.get(resource, field_name) || e.related.__struct__
+    embed_module = e.related
 
     embed_module.__schema__(:fields)
     |> Enum.map(& {&1, embed_module.__schema__(:type, &1)})
