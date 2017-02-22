@@ -148,6 +148,8 @@ defmodule ExAdmin.Register do
       end
 
       menu_opts = case Module.get_attribute(__MODULE__, :menu) do
+        false ->
+          %{none: true}
         nil ->
           %{ priority: 10,
              label: (base_name(module) |> Inflex.pluralize)}
@@ -518,7 +520,7 @@ defmodule ExAdmin.Register do
 
       # query_opts = Module.get_attribute(__MODULE__, :query)
       menu_opts = case Module.get_attribute(__MODULE__, :menu) do
-        :none ->
+        false ->
           %{none: true}
         nil ->
           %{label: page_name, priority: 99}
@@ -693,7 +695,7 @@ defmodule ExAdmin.Register do
 
   This example disables the menu item:
 
-      menu :none
+      menu false
 
   """
   defmacro menu(opts) do
