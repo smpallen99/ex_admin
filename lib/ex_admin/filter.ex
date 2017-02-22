@@ -80,10 +80,16 @@ defmodule ExAdmin.Filter do
   def field_label(field, _defn), do: humanize(field)
 
   def associations(defn) do
-    Enum.reduce defn.resource_model.__schema__(:associations), [], fn(assoc, acc) ->
-      case defn.resource_model.__schema__(:association, assoc) do
-        %Ecto.Association.BelongsTo{} = belongs_to -> [{assoc, belongs_to} | acc]
-        _ -> acc
+    fields = fields(defn) |> Keyword.keys
+    if Application.get_env(:ex_admin, :disable_association_filters) do
+      []
+    else
+      Enum.reduce defn.resource_model.__schema__(:associations), [], fn(assoc, acc) ->
+        case defn.resource_model.__schema__(:association, assoc) do
+          %Ecto.Association.BelongsTo{owner_key: key} = belongs_to ->
+            if key in fields, do: [{assoc, belongs_to} | acc], else: acc
+          _ -> acc
+        end
       end
     end
   end
