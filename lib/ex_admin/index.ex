@@ -144,7 +144,7 @@ defmodule ExAdmin.Index do
         opts = unquote(opts)
         unquote(contents)
 
-        selectable = case var!(selectable_column, ExAdmin.Index) do
+        selectable = case Macro.expand(var!(selectable_column, ExAdmin.Index), __ENV__) do
           nil -> false
           other -> other
         end
