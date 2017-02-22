@@ -109,10 +109,10 @@ defmodule ExAdmin.Form do
         end
       end
 
-  ## Rendering a has_many (one-to-many) relationship
+  ## Rendering a has_many :through (many-to-many) relationship
 
   The example at the beginning of the chapter illustrates how to add
-  a list of roles, displaying them as check boxes.
+  a list of groups, displaying them as check boxes.
 
       inputs "Groups" do
         inputs :groups, as: :check_boxes, collection: MyProject.Group.all

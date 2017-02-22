@@ -93,7 +93,7 @@ defmodule MyProject.Router do
   # setup the ExAdmin routes on /admin
   scope "/admin", ExAdmin do
     pipe_through :browser
-    admin_routes
+    admin_routes()
   end
 ```
 
@@ -272,7 +272,7 @@ defmodule MyProject.ExAdmin.MyModel do
 
       column :id
       column :name
-      actions       # display the default actions column
+      actions()     # display the default actions column
     end
   end
 end

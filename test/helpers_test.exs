@@ -38,7 +38,7 @@ defmodule ExAdmin.HelpersTest do
   test "build_field with complex map data" do
     resource = %Maps{stats: %{list: [%{}]}}
 
-    res = Helpers.build_field(resource, %{}, {:stats, %{}}, fn(contents, field_name) ->
+    res = Helpers.build_field(resource, %{}, {:stats, %{}}, fn(contents, _field_name) ->
         ExAdmin.Render.to_string(contents)
       end)
     assert res == ~s(list: [{}])

@@ -41,11 +41,11 @@ defmodule ExAdmin.Helpers do
     model_name name
   end
 
-  def build_link_for({:safe, contents}, d, a, b, c) when is_list(contents) do
-    safe_contents("", contents)
+  def build_link_for({:safe, _} = safe_contents, d, a, b, c) do
+    safe_contents
+    |> Phoenix.HTML.safe_to_string()
     |> build_link_for(d, a, b, c)
   end
-  def build_link_for({:safe, contents}, d, a, b, c), do: build_link_for(contents, d, a, b, c)
   def build_link_for("", _, _, _, _), do: ""
   def build_link_for(nil, _, _, _, _), do: ""
   def build_link_for(contents, _, %{link: false}, _, _), do: contents
@@ -67,16 +67,6 @@ defmodule ExAdmin.Helpers do
     else
       contents
     end
-  end
-
-
-  def safe_contents(acc, []), do: acc
-  def safe_contents(acc, [h|t]) when is_list(h) do
-    safe_contents(acc, h)
-    |> safe_contents(t)
-  end
-  def safe_contents(acc, [h|t]) when is_binary(h) do
-    safe_contents(acc <> h, t)
   end
 
   def build_header_field(field, fun) do
@@ -121,7 +111,6 @@ defmodule ExAdmin.Helpers do
   """
   def build_field(resource, conn, field_name, fun) do
     case field_name do
-
       {f_name, %{has_many: _} = map2} ->
         _build_field(map2, conn, resource, f_name)
         |> fun.(f_name)
@@ -400,9 +389,9 @@ defmodule ExAdmin.Helpers do
   def to_class({_, field_name}), do: to_class(field_name)
 
   def to_class(field_name) when is_binary(field_name),
-    do: Inflex.parameterize(field_name, "_")
+    do: field_name_to_class(Inflex.parameterize(field_name, "_"))
   def to_class(field_name) when is_atom(field_name),
-    do: Atom.to_string(field_name)
+    do: field_name_to_class(Atom.to_string(field_name))
 
   def build_attributes(%{} = opts) do
     build_attributes Map.to_list(opts)
@@ -428,4 +417,7 @@ defmodule ExAdmin.Helpers do
     end
   end
 
+  def field_name_to_class(field_name) do
+    parameterize String.replace_suffix(field_name, "?", "")
+  end
 end

@@ -5,7 +5,7 @@ defmodule TestExAdmin.AcceptanceCase do
     quote do
       use Hound.Helpers
 
-      import Ecto.Model
+      import Ecto.Schema
       import Ecto.Query, only: [from: 2]
 
       alias TestExAdmin.Repo

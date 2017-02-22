@@ -5,6 +5,8 @@ defmodule TestExAdmin.SimpleIndexTest do
       selectable_column()
       column :name
       column :description
+      column :exists?
+
       actions [:show, :edit]
     end
   end
@@ -26,10 +28,18 @@ defmodule ExAdminTest.IndexTest do
       nil -> %TestExAdmin.ExAdmin.Simple{}
       other -> other
     end
-    resource = struct(defn.resource_model.__struct__, %{id: 1, name: "Test", description: "Something"})
+    resource = struct(defn.resource_model.__struct__, %{id: 1, name: "Test", description: "Something", exists?: true})
     page = %Scrivener.Page{entries: [resource], page_number: 1, page_size: 20, total_entries: 1, total_pages: 1}
     {:ok, resource: resource, defn: defn, page: page}
   end
+
+  @tag as_resource: %TestExAdmin.SimpleIndexTest{}
+  test "renders boolean titles with ? properly", %{resource: resource, defn: defn, page: page} do
+    conn = setup_conn defn, resource
+    {:safe, html} = TestExAdmin.SimpleIndexTest.index_view conn, page, []
+    assert floki_text(html, ".th-exists", "Exists?")
+  end
+
 
   test "default_index_view", %{resource: resource, defn: defn, page: page} do
     conn = setup_conn defn, resource

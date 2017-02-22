@@ -10,7 +10,7 @@ defmodule ExAdmin.ResourceController do
 
       def action(%{private: %{phoenix_action: action}} = conn, _options) do
         conn = conn |> assign(:xhr, get_req_header(conn, "x-requested-with") == ["XMLHttpRequest"])
-        resource = @resource || conn.params["resource"]
+        resource = Macro.expand(@resource, __ENV__) || conn.params["resource"]
         conn = scrub_params(conn, resource, action)
         defn = get_registered_by_controller_route!(conn, resource)
         params = filter_params(conn.params, defn.resource_model)
