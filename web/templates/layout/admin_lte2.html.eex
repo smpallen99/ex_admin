@@ -62,9 +62,12 @@
         </section>
       </div>
       <footer id="footer" class="main-footer" style="font-size: 90%">
-        Powered by ExAdmin. Licensed by&nbsp;
-        <a href="http://emetrotel.com" target="_blank">E-MetroTel</a>
-        &nbsp;&copy 2015-2016.
+        <% footer = Application.get_env(:ex_admin, :footer) %>
+        <%= if footer do %>
+          <%= footer %>
+        <% else %>
+          <%= ExAdmin.LayoutView.default_footer %>
+        <% end %>
       </footer>
     </div>
     <script>
