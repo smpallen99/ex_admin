@@ -131,6 +131,7 @@ defmodule TestExAdmin.Simple do
   schema "simples" do
     field :name, :string
     field :description, :string
+    field :exists?, :boolean, virtual: true
 
     timestamps()
   end
