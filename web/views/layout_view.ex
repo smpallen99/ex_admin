@@ -34,14 +34,15 @@ defmodule ExAdmin.LayoutView do
     |> Phoenix.HTML.raw
   end
 
-  def default_footer do
-    content = """
+  def footer_content do
+    default = """
       Powered by ExAdmin. Licensed by&nbsp;
       <a href="http://emetrotel.com" target="_blank">E-MetroTel</a>
       &nbsp;&copy 2013-#{DateTime.utc_now.year}.
     """
 
-    Phoenix.HTML.raw(content)
+    Application.get_env(:ex_admin, :footer, default)
+    |> Phoenix.HTML.raw
   end
 
   def check_for_sidebars(conn, filters, defn) do

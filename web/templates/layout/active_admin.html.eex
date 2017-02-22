@@ -50,7 +50,7 @@
             <%= footer %>
           <% else %>
             <hr />
-            <%= ExAdmin.LayoutView.default_footer %>
+            <%= ExAdmin.LayoutView.footer_content %>
           <% end %>
         </footer>
       </div>

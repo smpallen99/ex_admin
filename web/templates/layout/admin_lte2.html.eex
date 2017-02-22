@@ -62,12 +62,7 @@
         </section>
       </div>
       <footer id="footer" class="main-footer" style="font-size: 90%">
-        <% footer = Application.get_env(:ex_admin, :footer) %>
-        <%= if footer do %>
-          <%= footer %>
-        <% else %>
-          <%= ExAdmin.LayoutView.default_footer %>
-        <% end %>
+        <%= ExAdmin.LayoutView.footer_content %>
       </footer>
     </div>
     <script>
