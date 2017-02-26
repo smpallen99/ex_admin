@@ -8,6 +8,7 @@ defmodule ExAdmin.ThemeFilterTest do
   def all(TestExAdmin.UUIDSchema = model) do
     [struct(model.__struct__, [key: Ecto.UUID.generate, name: "test"])]
   end
+  def all(_), do: []
 
   setup do
     save = Application.get_env :ex_admin, :repo
