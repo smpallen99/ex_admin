@@ -989,7 +989,7 @@ defmodule ExAdmin.Register do
       filter except: [:encrypted_password], labels: [name: "Full Name"]
 
   Note: Restricting fields with the `filter` macro also removes the field columns
-        from the default index table.
+  from the default index table.
 
   """
   defmacro filter(disable) when disable in [nil, false] do
