@@ -97,7 +97,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
     end
   end
 
-  def handle_action_links(list, resource, labels)  do
+  def handle_action_links(list, resource, labels, page_num)  do
     base_class = "member_link"
     list
     |> Enum.reduce([], fn(item, acc) ->
@@ -114,7 +114,8 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
           a(link_text, href: admin_resource_path(resource, :destroy),
               class: base_class <> " delete_link", "data-confirm": confirm_message(),
               "data-remote": true,
-              "data-method": :delete, rel: :nofollow, title: link_text)
+              "data-method": :delete,
+              "data-params": "page="<>to_string(page_num), rel: :nofollow, title: link_text)
       end
       [link | acc]
     end)

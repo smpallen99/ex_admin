@@ -324,7 +324,7 @@ defmodule ExAdmin.Index do
     columns = if custom_actions_column? || Enum.empty?(actions) do
       columns
     else
-      columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions) end,
+        columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions, page.page_number) end,
                                 label: ExAdmin.Gettext.gettext("Actions") }}]
     end
     opts = Map.put opts, :column_list, columns
@@ -393,7 +393,7 @@ defmodule ExAdmin.Index do
   end
 
   @doc false
-  def build_index_links(conn, resource, actions) do
+  def build_index_links(conn, resource, actions, page_num \\ 1) do
     resource_model = resource.__struct__
 
     links = case actions do
@@ -404,7 +404,7 @@ defmodule ExAdmin.Index do
     list = get_authorized_links(conn, links, resource_model) |> Enum.reverse
     labels = conn.assigns.defn.action_labels
 
-    Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource, labels)
+    Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource, labels, page_num)
   end
 
   @doc false
