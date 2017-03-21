@@ -3,6 +3,7 @@ defmodule ExAdmin.AdminResourceController do
   @resource nil
 
   use ExAdmin.Web, :resource_controller
+  import ExAdmin.Index
 
   def index(conn, defn, params) do
     model = defn.__struct__
@@ -125,11 +126,34 @@ defmodule ExAdmin.AdminResourceController do
     resource = conn.assigns.resource
 
     ExAdmin.Repo.delete(resource, params[defn.resource_name])
+    page =
+      case conn.assigns[:page] do
+        nil ->
+          id = params |> Map.to_list
+          query = model.run_query(repo(), defn, :index, id)
+          Authorization.authorize_query(conn.assigns.resource, conn, query, :index, id)
+          |> ExAdmin.Query.execute_query(repo(), :index, id)
+        page ->
+          page
+      end
+
+    page_number = params[:page] || page.page_number
+    opts = %{
+      href: admin_resource_path(conn, :index) <> "?order=",
+      order: ExQueb.get_sort_order(conn.params["order"])
+    }
     model_name = model |> base_name |> titleize
+    pagination =
+      opts[:href]
+      |> build_scope_href(conn.params["scope"])
+      |> build_order_href(opts[:order])
+      |> build_filter_href(conn.params["q"])
+      |> ExAdmin.Paginate.paginate(page_number, page.page_size, page.total_pages, page.total_entries, "#{model_name}")
 
     {conn, _, _resource} = handle_after_filter(conn, :destroy, defn, params, resource)
     if conn.assigns.xhr do
-      render conn, "destroy.js", tr_id: String.downcase("#{model_name}_#{params[:id]}")
+      render conn, "destroy.js", tr_id: String.downcase("#{model_name}_#{params[:id]}"), pagination: pagination
+
     else
       put_flash(conn, :notice, "#{model_name} " <> (gettext "was successfully destroyed."))
       |> redirect(to: admin_resource_path(defn.resource_model, :index))
