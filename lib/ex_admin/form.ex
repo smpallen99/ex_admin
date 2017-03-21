@@ -1141,28 +1141,37 @@ defmodule ExAdmin.Form do
       b.(:min, [])
 
       if Keyword.get(opts, :sec) do
-        span ".time-separator"
-        b.(:sec, [])
+        markup do
+          span ".time-separator"
+          b.(:sec, [])
+        end
+      end
+
+      if Keyword.get(opts, :usec) do
+        markup do
+          span ".time-separator"
+          b.(:usec, [])
+        end
       end
     end
   end
 
   defp time_value(%{"hour" => hour, "min" => min} = map),
-    do: %{hour: hour, min: min, sec: Map.get(map, "sec", 0)}
+    do: %{hour: hour, min: min, sec: Map.get(map, "sec", 0), usec: Map.get(map, "usec", 0)}
   defp time_value(%{hour: hour, min: min} = map),
-    do: %{hour: hour, min: min, sec: Map.get(map, :sec, 0)}
+    do: %{hour: hour, min: min, sec: Map.get(map, :sec, 0), usec: Map.get(map, :usec, 0)}
 
-  defp time_value({_, {hour, min, sec, _msec}}),
-    do: %{hour: hour, min: min, sec: sec}
-  defp time_value({hour, min, sec, _mseg}),
-    do: %{hour: hour, min: min, sec: sec}
+  defp time_value({_, {hour, min, sec, usec}}),
+    do: %{hour: hour, min: min, sec: sec, usec: usec}
+  defp time_value({hour, min, sec, usec}),
+    do: %{hour: hour, min: min, sec: sec, usec: usec}
   defp time_value({_, {hour, min, sec}}),
-    do: %{hour: hour, min: min, sec: sec}
+    do: %{hour: hour, min: min, sec: sec, usec: nil}
   defp time_value({hour, min, sec}),
-    do: %{hour: hour, min: min, sec: sec}
+    do: %{hour: hour, min: min, sec: sec, usec: nil}
 
   defp time_value(nil),
-    do: %{hour: nil, min: nil, sec: nil}
+    do: %{hour: nil, min: nil, sec: nil, usec: nil}
   defp time_value(other),
     do: raise(ArgumentError, "unrecognized time #{inspect other}")
 
@@ -1188,6 +1197,7 @@ defmodule ExAdmin.Form do
   @days   map.(1..31)
   @hours  map.(0..23)
   @minsec map.(0..59)
+  @usec   map.(0..999)
 
   defp datetime_builder(form, field, date, time, parent) do
     id   = Keyword.get(parent, :id, id_from(form, field))
@@ -1213,6 +1223,9 @@ defmodule ExAdmin.Form do
       :sec, opts when time != nil ->
         {value, opts} = datetime_options(:sec, @minsec, id, name, parent, time, opts)
         build_select(:datetime, :sec, value, opts)
+      :usec, opts when time != nil ->
+        {value, opts} = datetime_options(:usec, @usec, id, name, parent, time, opts)
+        build_select(:datetime, :usec, value, opts)
     end
   end
 
