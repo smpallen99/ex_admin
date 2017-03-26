@@ -55,22 +55,8 @@ defmodule ExAdminTest.IndexTest do
     assert floki_text(html, "td.td-name", "Test")
     assert floki_text(html, "td.td-description", "Something")
   end
-  test "default_index_view with filter only", %{resource: resource, defn: defn, page: page} do
-    defn = struct(defn, index_filters: [[only: [:name, :description]]])
-    conn = setup_conn defn, resource
-    {:safe, html} = Index.default_index_view conn, page, []
-    assert floki_text(html, "td.td-name", "Test")
-    assert floki_text(html, "td.td-description", "Something")
-  end
-  test "default_index_view with filter except", %{resource: resource, defn: defn, page: page} do
-    defn = struct(defn, index_filters: [[except: [:description]]])
-    conn = setup_conn defn, resource
-    {:safe, html} = Index.default_index_view conn, page, []
-    assert floki_text(html, "td.td-name", "Test")
-    assert Floki.find(html, "td.td-description") == []
-  end
   test "default_index_view with filter labels", %{resource: resource, defn: defn, page: page} do
-    defn = struct(defn, index_filters: [[labels: [name: "name"]]])
+    defn = struct(defn, index_filters: [[:description, name: [label: "name"]]])
     conn = setup_conn defn, resource
     {:safe, html} = Index.default_index_view conn, page, []
     assert floki_text(html, "td.td-name", "Test")

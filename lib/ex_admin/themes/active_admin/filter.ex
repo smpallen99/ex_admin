@@ -80,8 +80,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     id = "q_#{owner_key}"
     name_label = field_label(name, defn)
     if assoc.__schema__(:type, :name) do
-      repo = Application.get_env :ex_admin, :repo
-      resources = repo.all assoc
+      resources = filter_resources(name, assoc, defn)
       selected_key = case q["#{owner_key}_eq"] do
         nil -> nil
         val -> val

@@ -23,34 +23,26 @@ defmodule ExAdmin.Filter do
     theme_module(conn, Filter).theme_filter_view(conn, defn, q, order, scope)
   end
 
+  def fields(%{index_filters: false}), do: []
   def fields(%{index_filters: filters} = defn) do
-    filters = case filters do
-      [list] -> list
-      _ -> []
-    end
-    except_filters = filters[:except]
-    only_filters = filters[:only]
-    labels = filters[:labels]
-    cond do
-      filters == [] ->
-        defn.resource_model.__schema__(:fields) -- [:id]
-      except_filters != nil ->
-        defn.resource_model.__schema__(:fields) -- [:id | except_filters]
-      only_filters != nil ->
-        only_filters
-      labels != nil ->
-        case Enum.filter filters, &(not is_tuple(&1)) do
-          []    -> defn.resource_model.__schema__(:fields) -- [:id]
-          other -> other
-        end
-      filters ->
-        filters
-    end
-    |> _fields(defn)
-  end
+    # Either take the filters given by the user, or use the schema's fields.
+    # Parse the filters and only return the applicable fields.
+    filters =
+      filters
+      |> case do
+        list when is_list(list) and length(list) > 0 -> List.flatten(list)
+        _ -> defn.resource_model.__schema__(:fields) -- [:id]
+      end
+      |> Enum.map(fn
+        {field, _options} -> field
+        field when is_atom(field) -> field
+        _ -> nil
+      end)
+      |> Enum.filter(&(not is_nil(&1)))
 
-  defp _fields(filters, defn) do
-    for field <- filters do
+    # Convert the filters to a tuple representing the field name
+    # and type.
+    Enum.map filters, fn(field) ->
       {field, field_type(defn.resource_model, field)}
     end
   end
@@ -66,18 +58,39 @@ defmodule ExAdmin.Filter do
     end
   end
 
-  def field_label(field, %{index_filters: [list]}) do
-    case list[:labels] do
-      nil ->
-        humanize field
-      labels ->
-        case labels[field] do
-          nil -> humanize field
-          other -> other
-        end
+  def field_label(field, defn) do
+    case filter_options(defn, field, :label) do
+      nil -> humanize(field)
+      label -> label
     end
   end
-  def field_label(field, _defn), do: humanize(field)
+
+  def filter_options(defn, field, key \\ nil)
+  def filter_options(%{index_filters: filters}, field, key) when is_list(filters) and is_atom(key) do
+    filters
+    |> Enum.map(fn
+      f when is_atom(f) -> {f, []}
+      f when is_tuple(f) -> f
+    end)
+    |> Keyword.get(field)
+    |> case do
+      nil -> nil
+      options ->
+        if is_nil(key), do: options, else: Keyword.get(options, key)
+    end
+  end
+  def filter_options(_defn, _field, _key), do: nil
+
+  def filter_resources(field, assoc, defn) do
+    import Ecto.Query, only: [from: 2]
+
+    repo = Application.get_env :ex_admin, :repo
+
+    case filter_options(defn, field, :order_by) do
+      nil -> repo.all(assoc)
+      order_by -> repo.all(from a in assoc, order_by: ^order_by)
+    end
+  end
 
   def associations(defn) do
     fields = fields(defn) |> Keyword.keys

@@ -33,7 +33,7 @@ defmodule TestExAdmin.ExAdmin.User do
   use ExAdmin.Register
 
   register_resource TestExAdmin.User do
-    filter only: [:name, :email]
+    filter [:name, :email]
     show user do
       panel "No IDs" do
         markup_contents do

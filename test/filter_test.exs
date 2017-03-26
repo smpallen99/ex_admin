@@ -3,44 +3,46 @@ defmodule ExAdmin.FilterTest do
   alias ExAdmin.Filter
 
   ############
-  # filters
+  # filter fields
 
   test "filters" do
     defn = %TestExAdmin.ExAdmin.User{}
     assert Filter.fields(defn) == [name: :string, email: :string]
   end
-  test "filters except" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[except: [:name, :email]]]}
-    assert Filter.fields(defn) == [active: :boolean]
-  end
   test "filters all" do
     defn = %TestExAdmin.ExAdmin.User{index_filters: []}
     assert Filter.fields(defn) == [name: :string, email: :string, active: :boolean]
   end
-  test "filters only" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[only: [:name, :active]]]}
-    assert Filter.fields(defn) == [name: :string, active: :boolean]
-  end
-  test "filters only field_label" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[only: [:name, :email], labels: [email: "EMail Address"]]]}
-    assert Filter.fields(defn) == [name: :string, email: :string]
-  end
-  test "filters except field_label" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[except: [:active], labels: [email: "EMail Address"]]]}
-    assert Filter.fields(defn) == [name: :string, email: :string]
-  end
-  test "filters default field_label" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[labels: [email: "EMail Address"]]]}
-    assert Filter.fields(defn) == [name: :string, email: :string, active: :boolean]
-  end
-
-  test "filters except several fields" do
-    defn = %TestExAdmin.ExAdmin.Noprimary{index_filters: [[except: [:inserted_at, :updated_at]]]}
-    assert Filter.fields(defn) == [index: :integer, name: :string, description: :string]
+  test "filters field_label" do
+    defn = %TestExAdmin.ExAdmin.User{index_filters: [:name, :active, email: [label: "EMail Address"]]}
+    assert Filter.fields(defn) == [name: :string, active: :boolean, email: :string]
   end
 
   ############
-  # filters
+  # filter options
+  describe "filter_options" do
+    test "filter_options on empty" do
+      defn = %TestExAdmin.ExAdmin.User{index_filters: []}
+      assert Filter.filter_options(defn, :name) == nil
+      assert Filter.filter_options(defn, :name, :key) == nil
+    end
+
+    test "filter_options on atom" do
+      defn = %TestExAdmin.ExAdmin.User{index_filters: [:name]}
+      assert Filter.filter_options(defn, :name) == []
+      assert Filter.filter_options(defn, :name, :key) == nil
+    end
+
+    test "filter_options on options" do
+      defn = %TestExAdmin.ExAdmin.User{index_filters: [:name, email: [label: "EMail Address"]]}
+      assert Filter.filter_options(defn, :email) == [label: "EMail Address"]
+      assert Filter.filter_options(defn, :email, :label) == "EMail Address"
+      assert Filter.filter_options(defn, :email, :key) == nil
+    end
+  end
+
+  ############
+  # filter labels
 
   test "filter_label default" do
     defn = %TestExAdmin.ExAdmin.User{index_filters: []}
@@ -48,7 +50,7 @@ defmodule ExAdmin.FilterTest do
     assert Filter.field_label(:email, defn) == "Email"
   end
   test "filter_label label" do
-    defn = %TestExAdmin.ExAdmin.User{index_filters: [[labels: [email: "EMail Address", name: "Full Name"]]]}
+    defn = %TestExAdmin.ExAdmin.User{index_filters: [name: [label: "Full Name"], email: [label: "EMail Address"]]}
     assert Filter.field_label(:name, defn) == "Full Name"
     assert Filter.field_label(:email, defn) == "EMail Address"
   end
