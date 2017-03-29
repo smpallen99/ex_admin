@@ -241,7 +241,7 @@ For example, to support rendering a tuple, add the following file to your projec
 
 ```elixir
 # lib/render.ex
-defimpl ExAdmin.Render, for: Tuple
+defimpl ExAdmin.Render, for: Tuple do
   def to_string(tuple), do: inspect(tuple)
 end
 ```
