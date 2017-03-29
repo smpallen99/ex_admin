@@ -293,7 +293,7 @@ defmodule ExAdmin do
             acc
           end
         end)
-        |> add_custom_actions(:show, actions, id)
+        |> add_custom_actions(:show, actions, conn, resource_model, id)
         |> Enum.reverse
       action when action in [:index, :edit] ->
         if Utils.authorized_action?(conn, action, resource_model) do
@@ -301,7 +301,7 @@ defmodule ExAdmin do
         else
           []
         end
-        |> add_custom_actions(action, actions)
+        |> add_custom_actions(action, actions, conn, resource_model)
         |> Enum.reverse
       _ ->
         []
@@ -338,9 +338,29 @@ defmodule ExAdmin do
     end
   end
 
-  defp add_custom_actions(acc, action, actions, id \\ nil)
-  defp add_custom_actions(acc, _action, [], _id), do: acc
-  defp add_custom_actions(acc, action, [{action, button} | actions], id) do
+  defp add_custom_actions(acc, action, actions, conn, resource_model, id \\ nil)
+  defp add_custom_actions(acc, _action, [], _conn, _resource_model, _id), do: acc
+  defp add_custom_actions(acc, action, [{action, custom_action_name, button} | actions], conn, resource_model, id) do
+    if Utils.authorized_action?(%{action: custom_action_name}, action, resource_model) do
+      eval_custom_function(button, id, acc)
+    else
+      acc
+    end
+    |> add_custom_actions(action, actions, conn, resource_model, id)
+  end
+  defp add_custom_actions(acc, action, [{action, button} | actions], conn, resource_model, id) do
+    if Utils.authorized_action?(conn, action, resource_model) do
+      eval_custom_function(button, id, acc)
+    else
+      acc
+    end
+    |> add_custom_actions(action, actions, conn, resource_model, id)
+  end
+  defp add_custom_actions(acc, action, [_|actions], conn, resource_model, id) do
+    add_custom_actions(acc, action, actions, conn, resource_model, id)
+  end
+
+  def eval_custom_function(button, id, acc) do
     import ExAdmin.ViewHelpers
     endpoint()  # remove the compiler warning
     {fun, _} = Code.eval_quoted button, [id: id], __ENV__
@@ -349,10 +369,6 @@ defmodule ExAdmin do
       is_function(fun, 0) -> [fun.() | acc]
       true                -> acc
     end
-    |> add_custom_actions(action, actions, id)
-  end
-  defp add_custom_actions(acc, action, [_|actions], id) do
-    add_custom_actions(acc, action, actions, id)
   end
 
   defp action_link(conn, name, :delete, _id) do

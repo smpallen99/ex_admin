@@ -310,7 +310,7 @@ defmodule ExAdmin.Register do
         end
       end
       action = if type == :member_actions, do: :show, else: :index
-      [{action, fun} | acc]
+      [{action, name, fun} | acc]
     end)
   end
 
