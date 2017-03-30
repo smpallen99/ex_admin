@@ -122,7 +122,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
     id = "q_#{owner_key}"
     name_label = field_label(name, defn)
     repo = Application.get_env :ex_admin, :repo
-    name_field = ExAdmin.Helpers.get_name_field(defn.resource_model)
+    name_field = ExAdmin.Helpers.get_name_field(assoc)
     resources = if is_nil(name_field) do
       repo.all(assoc)
     else
