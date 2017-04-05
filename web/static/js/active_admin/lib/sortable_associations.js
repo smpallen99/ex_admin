@@ -18,7 +18,7 @@ $(document).ready(function() {
           //$("#progress").show();
           var positions = [];
           $.each($('table.sortable tbody tr'), function(position, obj){
-            var reg = /(\w+_?)+_(\d+)/;
+            var reg = /^(\w+_?)_([-0-9a-f]+)$/i;
             var parts = reg.exec($(obj).prop('id'));
             if (parts) {
               positions = positions.concat({'id': parts[2], 'position': position});
