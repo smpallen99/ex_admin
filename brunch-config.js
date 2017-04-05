@@ -19,7 +19,7 @@ exports.config = {
         ],
         'js/ex_admin_common.js': [
           "web/static/vendor/active_admin.js",
-          /^(web\/static\/js\/active_admin)/,
+          /^(web\/static\/vendor\/active_admin\/)/,
           "web/static/vendor/best_in_place.js",
           "web/static/vendor/best_in_place.purr.js",
           "web/static/vendor/jquery-ujs.js.js",
@@ -89,6 +89,9 @@ exports.config = {
     babel: {
       // Do not use ES6 compiler in vendor code
       ignore: [/^(web\/static\/vendor)/]
+    },
+    coffeescript: {
+      bare: true
     }
   }
 };
