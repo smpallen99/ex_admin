@@ -143,6 +143,7 @@ defmodule ExAdmin.AdminResourceController do
       order: ExQueb.get_sort_order(conn.params["order"])
     }
     model_name = model |> base_name |> titleize
+    model_id = model |> base_name |> Inflex.underscore
     pagination =
       opts[:href]
       |> build_scope_href(conn.params["scope"])
@@ -152,7 +153,7 @@ defmodule ExAdmin.AdminResourceController do
 
     {conn, _, _resource} = handle_after_filter(conn, :destroy, defn, params, resource)
     if conn.assigns.xhr do
-      render conn, "destroy.js", tr_id: String.downcase("#{model_name}_#{params[:id]}"), pagination: pagination
+      render conn, "destroy.js", tr_id: String.downcase("#{model_id}_#{params[:id]}"), pagination: pagination
 
     else
       put_flash(conn, :notice, "#{model_name} " <> (gettext "was successfully destroyed."))

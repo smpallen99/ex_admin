@@ -1016,6 +1016,23 @@ defmodule ExAdmin.Form do
     |> build_array_control_block
   end
 
+  def build_control({:embed, e}, resource, opts, model_name, field_name, ext_name) do
+    embed_content = Map.get(resource, field_name) || e.related.__struct__
+    embed_module = e.related
+
+    embed_module.__schema__(:fields)
+    |> Enum.map(& {&1, embed_module.__schema__(:type, &1)})
+    |> Enum.map(fn {field, type} ->
+      [ label(Atom.to_string(field)),
+        build_control(type,
+          embed_content,
+          %{},
+          "#{model_name}[#{field_name}]",
+          field,
+          "#{ext_name}_#{field}")
+      ]
+    end)
+  end
 
   def build_control(type, resource, opts, model_name, field_name, ext_name) do
     {field_type, value} = cond do
