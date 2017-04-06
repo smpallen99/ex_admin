@@ -223,7 +223,7 @@ defmodule ExAdmin.Helpers do
         get_resource_model resource
 
       %{__struct__: name} ->
-        name |> base_name |>  Inflex.parameterize("_")
+        name |> base_name |>  Inflex.underscore
       %{} -> :map
     end
   end
