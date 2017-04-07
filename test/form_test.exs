@@ -1,6 +1,6 @@
 defmodule ExAdmin.FormTest do
   use ExUnit.Case, async: true
-  alias TestExAdmin.{Simple, User, Role, Repo}
+  alias TestExAdmin.{Simple, User, Role, Repo, Noid}
   use Xain
 
   setup do
@@ -71,6 +71,17 @@ defmodule ExAdmin.FormTest do
       Repo.insert! Role.changeset(%Role{}, %{name: name})
     end
     item = %{type: :inputs, name: :roles, opts: %{as: :check_boxes, collection: roles}}
+    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
+    assert Floki.find(res, "div label") |> hd |> Floki.text == "Roles"
+    role_boxes = Floki.find(res, "div div.col-sm-10 input[type=checkbox]")
+    assert Enum.count(role_boxes) == 2
+  end
+
+  test "build_item :inputs as: :check_boxes collection default collection", %{conn: conn} do
+    roles = for name <- ~w(user admin) do
+      Repo.insert! Role.changeset(%Role{}, %{name: name})
+    end
+    item = %{type: :inputs, name: :roles, opts: %{as: :check_boxes}}
     res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
     assert Floki.find(res, "div label") |> hd |> Floki.text == "Roles"
     role_boxes = Floki.find(res, "div div.col-sm-10 input[type=checkbox]")

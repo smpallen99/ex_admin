@@ -887,12 +887,32 @@ defmodule ExAdmin.Form do
     end
   end
 
+
+  @doc """
+  Setups the default collection on a inputs dsl request and then calls
+  build_item again with the collection added
+  """
+  def build_item(conn, %{type: :inputs, name: name, opts: %{as: type}} = options,
+      resource, model_name, errors) when is_atom(name) do
+    # Get the model from the atom name
+    mod = name
+          |> Atom.to_string
+          |> String.capitalize
+          |> Inflex.singularize
+          |> String.to_atom
+    module = Application.get_env(:ex_admin, :module)
+              |> Module.concat(mod)
+    opts = put_in(options,[:opts, :collection], apply(module, :all, []))
+
+    # call the build item with the default collection
+    build_item(conn, opts, resource, model_name, errors)
+  end
+
   @doc """
   Handle building the items for an input block.
 
   This is where each of the fields will be build
   """
-
   def build_item(conn, %{type: :inputs, name: _field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
     Adminlog.debug "build_item 10: #{inspect _field_name}"
