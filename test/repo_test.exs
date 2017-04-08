@@ -1,7 +1,6 @@
 defmodule ExAdmin.RepoTest do
   use ExUnit.Case
   require Logger
-  alias ExAdmin.Repo
 
   defmodule Schema do
     defstruct id: 0, name: nil

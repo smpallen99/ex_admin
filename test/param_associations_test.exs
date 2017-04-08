@@ -11,7 +11,7 @@ defmodule ExAdmin.ParamAssociationsTest do
   end
 
   test "has many associations loaded properly" do
-    role = insert_role
+    role = insert_role()
     params = %{ user: %{email: "test@example.com", name: "Cory",
                products_attributes: %{"1481295208513":
                 %{_destroy: "0", price: "13.00",
@@ -29,7 +29,7 @@ defmodule ExAdmin.ParamAssociationsTest do
   end
 
   test "has many associations non choosen" do
-    role = insert_role
+    _role = insert_role()
     params = %{ user: %{email: "test@example.com", name: "Cory",
                products_attributes: %{},
               role_ids: [""]}}

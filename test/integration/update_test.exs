@@ -40,11 +40,11 @@ defmodule TestExAdmin.UpdateTest do
 
   @tag :integration
   test "has many through with many to many realtionship destroy relation " do
-    role = insert_role
+    role = insert_role()
     role2 = insert_role(%{ name: "Test2"})
 
     user = insert_user(%{ roles: [role.id, role2.id]})
-    product = insert_product(%{ user_id: user.id })
+    _product = insert_product(%{ user_id: user.id })
 
     user = get_user(user.id)
 
@@ -55,11 +55,8 @@ defmodule TestExAdmin.UpdateTest do
 
     name_field = find_element(:css, "#user_name")
     email_field = find_element(:css, "#user_email")
-    role_field = find_element(:css, "input[name*='user[role_ids][#{role.id}]']")
-    role_field2 = find_element(:css, "input[name*='user[role_ids][#{role2.id}]']")
-
     products_wrapper = find_element(:css, ".products")
-    products_adder = find_all_within_element(products_wrapper,
+    _products_adder = find_all_within_element(products_wrapper,
      :css, ".btn-primary")
 
     execute_script("document.getElementsByName('user[role_ids][#{role2.id}]')[0].checked = false;")
@@ -76,11 +73,11 @@ defmodule TestExAdmin.UpdateTest do
 
   @tag :integration
   test "validate product creation many to many " do
-    role = insert_role
+    role = insert_role()
     role2 = insert_role(%{ name: "Test2"})
 
     user = insert_user(%{ roles: [role.id, role2.id] })
-    product = insert_product(%{ user_id: user.id })
+    _product = insert_product(%{ user_id: user.id })
 
     user = get_user(user.id)
 
@@ -102,7 +99,7 @@ defmodule TestExAdmin.UpdateTest do
 
   @tag :integration
   test "update with errors keeps checkbox state " do
-    role = insert_role
+    role = insert_role()
     role2 = insert_role(%{ name: "Test2"})
 
     user = insert_user(%{ roles: [role.id, role2.id]})
@@ -114,9 +111,6 @@ defmodule TestExAdmin.UpdateTest do
     navigate_to admin_resource_path(user, :edit)
 
     email_field = find_element(:css, "#user_email")
-    role_field = find_element(:css, "input[name*='user[role_ids][#{role.id}]']")
-    role_field2 = find_element(:css, "input[name*='user[role_ids][#{role2.id}]']")
-
 
     execute_script("document.getElementsByName('user[role_ids][#{role2.id}]')[0].checked = false;")
     fill_field email_field, ""
@@ -131,7 +125,7 @@ defmodule TestExAdmin.UpdateTest do
 
   @tag :integration
   test "remove has many association and error occurs" do
-    role = insert_role
+    role = insert_role()
     role2 = insert_role(%{ name: "Test2"})
 
     user = insert_user(%{ roles: [role.id, role2.id]})
@@ -147,7 +141,7 @@ defmodule TestExAdmin.UpdateTest do
     email_field = find_element(:css, "#user_email")
 
     products_wrapper = find_element(:css, ".products")
-    products_adder = find_all_within_element(products_wrapper,
+    _products_adder = find_all_within_element(products_wrapper,
      :css, ".btn-primary")
 
     fill_field email_field, ""

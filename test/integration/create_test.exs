@@ -1,7 +1,6 @@
 defmodule TestExAdmin.CreateTest do
   use TestExAdmin.AcceptanceCase
-  alias TestExAdmin.{Noid, User, Product, Simple, Contact}
-  alias Hound.Element
+  alias TestExAdmin.{User, Product}
 
   hound_session()
   # Start hound session and destroy when tests are run
@@ -54,7 +53,7 @@ defmodule TestExAdmin.CreateTest do
 
     @tag :integration
     test "has many through with many to many realtionship form #{x} " do
-      role = insert_role
+      role = insert_role()
       role2 = insert_role(%{ name: "Test2"})
       navigate_to admin_resource_path(User, :new)
 

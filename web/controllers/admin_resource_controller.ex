@@ -48,7 +48,6 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def edit(conn, defn, params) do
-    model = defn.__struct__
     resource = conn.assigns.resource
 
     changeset = defn.resource_model.changeset(resource)
@@ -61,7 +60,6 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def new(conn, defn, params) do
-    model = defn.__struct__
     resource = conn.assigns.resource
 
     changeset = defn.resource_model.changeset(resource)

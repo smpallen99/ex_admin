@@ -46,13 +46,13 @@ defmodule TestExAdmin.TestHelpers do
   defp to_map(attrs), do: attrs
 
   def insert_product(attr \\ %{}) do
-    changes = Dict.merge(%{ title: "product1", price: 1.99 }, attr)
+    changes = Map.merge(%{ title: "product1", price: 1.99 }, attr)
     TestExAdmin.Product.changeset(%TestExAdmin.Product{}, changes)
     |> Repo.insert!
   end
 
   def insert_role(attr \\ %{}) do
-    changes = Dict.merge(%{ name: "role1" }, attr)
+    changes = Map.merge(%{ name: "role1" }, attr)
     TestExAdmin.Role.changeset(%TestExAdmin.Role{}, changes)
     |> Repo.insert!
   end

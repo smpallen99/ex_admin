@@ -170,7 +170,7 @@ defmodule TestExAdmin.Simple do
   @required_fields ~w(name)a
 
   def changeset(model, params \\ %{}) do
-    Agent.update(__MODULE__, fn (v) -> "changeset" end)
+    Agent.update(__MODULE__, fn (_v) -> "changeset" end)
     model
     |> cast(params, @fields)
     |> validate_required(@required_fields)
@@ -181,15 +181,17 @@ defmodule TestExAdmin.Simple do
   end
 
   def changeset_create(model, params \\ %{}) do
-    Agent.update(__MODULE__, fn (v) -> "changeset_create" end)
+    Agent.update(__MODULE__, fn (_v) -> "changeset_create" end)
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @fields)
+    |> validate_required(@required_fields)
   end
 
   def changeset_update(model, params \\ %{}) do
-    Agent.update(__MODULE__, fn (v) -> "changeset_update" end)
+    Agent.update(__MODULE__, fn (_v) -> "changeset_update" end)
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @fields)
+    |> validate_required(@required_fields)
   end
 
   def last_changeset do

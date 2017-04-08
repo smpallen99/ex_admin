@@ -28,7 +28,7 @@ defmodule ExAdmin.Repo do
 
   def get_assoc_model(resource, field) do
     case get_assoc_join_model(resource, field) do
-      {:ok, {assoc, second, :many_to_many}} ->
+      {:ok, {assoc, _second, :many_to_many}} ->
         {assoc, assoc}
       {:ok, {assoc, second}} ->
         {assoc.__schema__(:association, second).related, assoc}

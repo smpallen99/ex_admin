@@ -1,6 +1,5 @@
 defmodule TestExAdmin.ErrorsHelperTests do
   use ExUnit.Case
-  alias ExAdmin.Helpers
 
   defmodule TestExAdmin.Contact do
     import Ecto.Changeset
@@ -9,15 +8,15 @@ defmodule TestExAdmin.ErrorsHelperTests do
     schema "contacts" do
       field :first_name, :string, null: false
       many_to_many :phone_numbers, TestExAdmin.PhoneNumber, join_through: TestExAdmin.ContactPhoneNumber
-      timestamps
+      timestamps()
     end
 
-    @required_fields ~w(first_name)
-    @optional_fields ~w()
+    @fields ~w(first_name)a
 
     def changeset(model, params \\ %{}) do
       model
-      |> cast(params, @required_fields, @optional_fields)
+      |> cast(params, @fields)
+      |> validate_required(@fields)
       |> cast_assoc(:phone_numbers, required: false)
     end
   end
@@ -30,15 +29,15 @@ defmodule TestExAdmin.ErrorsHelperTests do
       belongs_to :contact, TestExAdmin.Contact
       belongs_to :phone_number, TestExAdmin.PhoneNumber
 
-      timestamps
+      timestamps()
     end
 
-    @required_fields ~w(contact_id phone_number_id)
-    @optional_fields ~w()
+    @fields ~w(contact_id phone_number_id)a
 
     def changeset(model, params \\ %{}) do
       model
-      |> cast(params, @required_fields, @optional_fields)
+      |> cast(params, @fields)
+      |> validate_required(@fields)
       |> assoc_constraint(:contact)
       |> assoc_constraint(:phone_number)
     end
@@ -55,15 +54,14 @@ defmodule TestExAdmin.ErrorsHelperTests do
       has_many :contacts_phone_numbers, TestExAdmin.ContactPhoneNumber
       has_many :contacts, through: [:contacts_phone_numbers, :contact]
 
-      timestamps
+      timestamps()
     end
 
-    @required_fields ~w(number label)
-    @optional_fields ~w()
+    @fields ~w(number label)a
 
     def changeset(model, params \\ %{}) do
       model
-      |> cast(params, @required_fields, @optional_fields)
+      |> cast(params, @fields)
       |> validate_required([:number, :label])
       |> validate_length(:number, min: 1, max: 255)
       |> validate_length(:label, min: 1, max: 255)
@@ -76,7 +74,7 @@ defmodule TestExAdmin.ErrorsHelperTests do
 
     errors = ExAdmin.ErrorsHelper.create_errors(changeset, TestExAdmin.Contact)
     assert changeset.valid? == false
-    assert errors == [first_name: {"can't be blank", []}]
+    assert errors == [first_name: {"can't be blank", [validation: :required]}]
   end
 
   test "nested errors are squashed" do
@@ -86,6 +84,6 @@ defmodule TestExAdmin.ErrorsHelperTests do
 
     errors = ExAdmin.ErrorsHelper.create_errors(changeset, TestExAdmin.Contact)
     assert changeset.valid? == false
-    assert errors == [first_name: {"can't be blank", []}, phone_numbers_attributes_0_number: {"can't be blank", []}]
+    assert errors == [first_name: {"can't be blank", [validation: :required]}, phone_numbers_attributes_0_number: {"can't be blank", [validation: :required]}]
   end
 end

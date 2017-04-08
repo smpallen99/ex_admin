@@ -1,7 +1,6 @@
 defmodule ExAdmin.ParamsAssociations do
   @moduledoc false
   require Logger
-  import Ecto.Query
 
   def load_associations(params, model_name, model, delete_association \\ true) do
     case Map.has_key? params, model_name do
@@ -10,7 +9,7 @@ defmodule ExAdmin.ParamsAssociations do
     end
   end
 
-  defp do_load_associations(params, model, delete_associations) do
+  defp do_load_associations(params, _model, _delete_associations) do
     Enum.reduce(Map.keys(params), params, fn(key, p) ->
       key_as_string = Atom.to_string(key)
       cond do

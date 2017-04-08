@@ -161,6 +161,7 @@ end
 ```
 
 #### Relationships
+
 We support many-to-many and has many relationships as provided by Ecto. We recommend using cast_assoc for many-to-many relationships
 and put_assoc for has-many. You can see example changesets in out [test schemas](test/support/schema.exs)
 
@@ -184,12 +185,12 @@ defmodule TestExAdmin.User do
     many_to_many :roles, TestExAdmin.Role, join_through: TestExAdmin.UserRole, on_replace: :delete
   end
 
-  @required_fields ~w(email)
-  @optional_fields ~w(name active)
+  @fields ~w(name active email)
 
   def changeset(model, params \\ %{}) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @fields)
+    |> validate_required([:email, :name])
     |> cast_assoc(:products, required: false)
     |> add_roles(params)
   end
@@ -216,12 +217,11 @@ defmodule TestExAdmin.Role do
     many_to_many :users, TestExAdmin.User, join_through: TestExAdmin.UserRole
   end
 
-  @required_fields ~w(name)
-  @optional_fields ~w()
+  @fields ~w(name)
 
   def changeset(model, params \\ %{}) do
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @fields)
   end
 end
 
