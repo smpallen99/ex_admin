@@ -24,7 +24,7 @@ defmodule ExAdmin.HelpersTest do
       "<a href='/admin/simples/1/edit' class='member_link edit_link' title='Edit'>Edit</a>" <>
       "<a href='/admin/simples/1' class='member_link delete_link'" <>
       " data-confirm='Are you sure you want to delete this?'" <>
-      " data-remote='true' data-method='delete' rel='nofollow' title='Delete'>Delete</a></td>"
+      " data-remote='true' data-method='delete' data-params='page=1' rel='nofollow' title='Delete'>Delete</a></td>"
 
     res = Helpers.build_field(resource, conn, {"Actions", %{fun: fn(res) ->
       ExAdmin.Index.build_index_links(conn, res, [:show, :edit, :delete])

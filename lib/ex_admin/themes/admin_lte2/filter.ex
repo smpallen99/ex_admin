@@ -6,6 +6,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
   import ExAdmin.Utils
   import ExAdmin.Gettext
   import ExAdmin.Filter
+  import Ecto.Query, only: [from: 2]
   use Xain
 
   def theme_filter_view(conn, defn, q, order, scope) do
@@ -61,7 +62,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
       end
   end
 
-  def build_field({name, type}, q, defn) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time, Timex.Ecto.DateTime, Timex.Ecto.Date, Timex.Ecto.Time, Timex.Ecto.DateTimeWithTimezone] do
+  def build_field({name, type}, q, defn) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time, Timex.Ecto.DateTime, Timex.Ecto.Date, Timex.Ecto.Time, Timex.Ecto.DateTimeWithTimezone, NaiveDateTime, :naive_datetime] do
     gte_value = get_value("#{name}_gte", q)
     lte_value = get_value("#{name}_lte", q)
     name_label = field_label(name, defn)
@@ -121,7 +122,12 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
     id = "q_#{owner_key}"
     name_label = field_label(name, defn)
     repo = Application.get_env :ex_admin, :repo
-    resources = repo.all assoc
+    name_field = ExAdmin.Helpers.get_name_field(assoc)
+    resources = if is_nil(name_field) do
+      repo.all(assoc)
+    else
+      repo.all(from a in assoc, order_by: [asc: ^name_field])
+    end
     selected_key = case q["#{owner_key}_eq"] do
       nil -> nil
       val -> val

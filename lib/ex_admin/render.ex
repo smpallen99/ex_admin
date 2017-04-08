@@ -91,6 +91,15 @@ defimpl ExAdmin.Render, for: DateTime do
     |> Utils.format_datetime
   end
 end
+
+defimpl ExAdmin.Render, for: NaiveDateTime do
+  def to_string(dt) do
+    dt
+    |> NaiveDateTime.to_erl
+    |> ExAdmin.Utils.format_datetime
+  end
+end
+
 # defimpl ExAdmin.Render, for: Any do
 #   def to_string(data), do: "#{inspect data}"
 # end

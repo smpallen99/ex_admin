@@ -34,6 +34,16 @@ defmodule ExAdmin.LayoutView do
     |> Phoenix.HTML.raw
   end
 
+  def footer_content do
+    default = """
+      Powered by ExAdmin. Licensed by&nbsp;
+      <a href="http://emetrotel.com" target="_blank">E-MetroTel</a>
+      &nbsp;&copy 2013-#{DateTime.utc_now.year}.
+    """
+
+    Application.get_env(:ex_admin, :footer, default)
+    |> Phoenix.HTML.raw
+  end
 
   def check_for_sidebars(conn, filters, defn) do
     if (is_nil(filters) or filters == false) and not ExAdmin.Sidebar.sidebars_visible?(conn, defn) do

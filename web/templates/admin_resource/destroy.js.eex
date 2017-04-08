@@ -1,1 +1,4 @@
 $("#<%= @tr_id %>").fadeOut();
+$('.pagination').remove();
+$('.pagination_information').remove();
+$("<%= raw(@pagination) %>").insertBefore('.download_links')

@@ -117,6 +117,16 @@ defmodule ExAdmin do
   }
   ```
 
+  ## Changing the layout footer
+
+  Changing the content of the footer can be done through ExAdmin's configuration
+  options.
+
+  Add the following to your project's `config/config.exs` file:
+
+    config :ex_admin,
+      footer: "&copy; Project Name"
+
   ## Adding SwitchUser Select Box
 
   At times, you may want an easy way to switch between users while developing and

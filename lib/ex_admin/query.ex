@@ -61,6 +61,7 @@ defmodule ExAdmin.Query do
   defp get_method(_), do: :one
 
   defp build_query(%Ecto.Query{} = query, opts, action, id, defn) do
+    id = id || []
     build_preloads(query, opts, action, id)
     |> build_order_bys(opts, action, id)
     |> build_wheres(opts, action, id, defn)

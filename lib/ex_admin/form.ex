@@ -913,11 +913,30 @@ defmodule ExAdmin.Form do
   end
 
   @doc """
+  Setups the default collection on a inputs dsl request and then calls
+  build_item again with the collection added
+  """
+  def build_item(conn, %{type: :inputs, name: name, opts: %{as: type}} = options,
+      resource, model_name, errors) when is_atom(name) do
+    # Get the model from the atom name
+    mod = name
+          |> Atom.to_string
+          |> String.capitalize
+          |> Inflex.singularize
+          |> String.to_atom
+    module = Application.get_env(:ex_admin, :module)
+              |> Module.concat(mod)
+    opts = put_in(options,[:opts, :collection], apply(module, :all, []))
+
+    # call the build item with the default collection
+    build_item(conn, opts, resource, model_name, errors)
+  end
+
+  @doc """
   Handle building the items for an input block.
 
   This is where each of the fields will be build
   """
-
   def build_item(conn, %{type: :inputs, name: _field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
     Adminlog.debug "build_item 10: #{inspect _field_name}"
@@ -1041,6 +1060,23 @@ defmodule ExAdmin.Form do
     |> build_array_control_block
   end
 
+  def build_control({:embed, e}, resource, opts, model_name, field_name, ext_name) do
+    embed_content = Map.get(resource, field_name) || e.related.__struct__
+    embed_module = e.related
+
+    embed_module.__schema__(:fields)
+    |> Enum.map(& {&1, embed_module.__schema__(:type, &1)})
+    |> Enum.map(fn {field, type} ->
+      [ label(Atom.to_string(field)),
+        build_control(type,
+          embed_content,
+          %{},
+          "#{model_name}[#{field_name}]",
+          field,
+          "#{ext_name}_#{field}")
+      ]
+    end)
+  end
 
   def build_control(type, resource, opts, model_name, field_name, ext_name) do
     {field_type, value} = cond do
@@ -1166,28 +1202,37 @@ defmodule ExAdmin.Form do
       b.(:min, [])
 
       if Keyword.get(opts, :sec) do
-        span ".time-separator"
-        b.(:sec, [])
+        markup do
+          span ".time-separator"
+          b.(:sec, [])
+        end
+      end
+
+      if Keyword.get(opts, :usec) do
+        markup do
+          span ".time-separator"
+          b.(:usec, [])
+        end
       end
     end
   end
 
   defp time_value(%{"hour" => hour, "min" => min} = map),
-    do: %{hour: hour, min: min, sec: Map.get(map, "sec", 0)}
+    do: %{hour: hour, min: min, sec: Map.get(map, "sec", 0), usec: Map.get(map, "usec", 0)}
   defp time_value(%{hour: hour, min: min} = map),
-    do: %{hour: hour, min: min, sec: Map.get(map, :sec, 0)}
+    do: %{hour: hour, min: min, sec: Map.get(map, :sec, 0), usec: Map.get(map, :usec, 0)}
 
-  defp time_value({_, {hour, min, sec, _msec}}),
-    do: %{hour: hour, min: min, sec: sec}
-  defp time_value({hour, min, sec, _mseg}),
-    do: %{hour: hour, min: min, sec: sec}
+  defp time_value({_, {hour, min, sec, usec}}),
+    do: %{hour: hour, min: min, sec: sec, usec: usec}
+  defp time_value({hour, min, sec, usec}),
+    do: %{hour: hour, min: min, sec: sec, usec: usec}
   defp time_value({_, {hour, min, sec}}),
-    do: %{hour: hour, min: min, sec: sec}
+    do: %{hour: hour, min: min, sec: sec, usec: nil}
   defp time_value({hour, min, sec}),
-    do: %{hour: hour, min: min, sec: sec}
+    do: %{hour: hour, min: min, sec: sec, usec: nil}
 
   defp time_value(nil),
-    do: %{hour: nil, min: nil, sec: nil}
+    do: %{hour: nil, min: nil, sec: nil, usec: nil}
   defp time_value(other),
     do: raise(ArgumentError, "unrecognized time #{inspect other}")
 
@@ -1213,6 +1258,7 @@ defmodule ExAdmin.Form do
   @days   map.(1..31)
   @hours  map.(0..23)
   @minsec map.(0..59)
+  @usec   map.(0..999)
 
   defp datetime_builder(form, field, date, time, parent) do
     id   = Keyword.get(parent, :id, id_from(form, field))
@@ -1238,6 +1284,9 @@ defmodule ExAdmin.Form do
       :sec, opts when time != nil ->
         {value, opts} = datetime_options(:sec, @minsec, id, name, parent, time, opts)
         build_select(:datetime, :sec, value, opts)
+      :usec, opts when time != nil ->
+        {value, opts} = datetime_options(:usec, @usec, id, name, parent, time, opts)
+        build_select(:datetime, :usec, value, opts)
     end
   end
 

@@ -156,7 +156,7 @@ defmodule Mix.Tasks.Admin.Install do
       # your app's routes
       scope "/admin", ExAdmin do
         pipe_through :browser
-        admin_routes
+        admin_routes()
       end
     """
     config

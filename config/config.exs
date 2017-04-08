@@ -17,6 +17,7 @@ use Mix.Config
 #   nest_scopes: false,
 #   scopes_index_page: false,
 #   head_template: {ExAdminDemo.AdminView, "admin_layout.html"},
+#   footer: "&copy; Project Name",
 #   logo_mini: "Ex<b>A</b>",
 #   logo_full: "Ex<b>Admin</b>",
 #   theme: ExAdmin.Theme.ActiveAdmin,

@@ -45,10 +45,13 @@
           <% end %>
         </div>
         <footer id="footer" style="font-size: 90%">
-          <hr \>
-          Powered by ExAdmin. Licensed by&nbsp;
-          <a href="http://emetrotel.com" target="_blank">E-MetroTel</a>
-          &nbsp;&copy 2013-2016.
+          <% footer = Application.get_env(:ex_admin, :footer) %>
+          <%= if footer do %>
+            <%= footer %>
+          <% else %>
+            <hr />
+            <%= ExAdmin.LayoutView.footer_content %>
+          <% end %>
         </footer>
       </div>
     </body>
