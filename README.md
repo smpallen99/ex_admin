@@ -19,6 +19,24 @@ Checkout this [Additional Live Demo](http://demo2.exadmin.info/admin) for exampl
 
 See the [docs](https://hexdocs.pm/ex_admin/) and the [Wiki](https://github.com/smpallen99/ex_admin/wiki) for more information.
 
+## Support for Phoenix 1.3 phx.new Projects
+
+This branch has experimental support for phx projects. You should be able to use this version the same as before. It will detect if your project is using the standard phx layout and place you resource appropriately.
+
+## Couple Notes:
+
+When when generating resources, use the `Context` namespace like so:
+
+```bash
+mix admin.gen.resource Blogs.Post
+```
+
+You may have to add a `changeset/2` to your schema file to get ExAdmin to work out of the box. Otherwise, you will need to define custom changesets.
+
+This version should support both the legacy and the new phx project structures. However, I have only tested phx structure.
+
+I have tested this branch manually. However, there are a number of tests failing which I still need to fix.
+
 ## Usage
 
 ExAdmin is an add on for an application using the [Phoenix Framework](http://www.phoenixframework.org) to create an CRUD administration tool with little or no code. By running a few mix tasks to define which Ecto Models you want to administer, you will have something that works with no additional code.
@@ -37,18 +55,7 @@ mix.exs
 ```elixir
   defp deps do
      ...
-     {:ex_admin, "~> 0.8"},
-     ...
-  end
-```
-
-#### GitHub with Ecto 2.0
-
-mix.exs
-```elixir
-  defp deps do
-     ...
-     {:ex_admin, github: "smpallen99/ex_admin"},
+     {:ex_admin, github: "smpallen99/ex_admin", branch: "phx-1.3"},
      ...
   end
 ```
@@ -59,7 +66,7 @@ config/config.exs
 ```elixir
 config :ex_admin,
   repo: MyProject.Repo,
-  module: MyProject,    # MyProject.Web for phoenix >= 1.3.0-rc 
+  module: MyProject,    # MyProject.Web for phoenix >= 1.3.0-rc
   modules: [
     MyProject.ExAdmin.Dashboard,
   ]

@@ -33,7 +33,9 @@ defmodule Mix.Tasks.Admin.Install do
   defmodule Config do
     @moduledoc false
     defstruct route: true, assets: true, dashboard: true,
-      package_path: nil, config: true, brunch: true
+      package_path: nil, config: true, brunch: true,
+      brunch_path: nil, assets_path: nil, vendor_path: nil,
+      phx: false
   end
 
   def run(args) do
@@ -74,46 +76,78 @@ defmodule Mix.Tasks.Admin.Install do
   defp check_config(config), do: config
 
   defp check_assets(%{assets: true, brunch: true} = config) do
+    config
+    |> check_and_set_brunch_path_phx
+    |> check_and_set_assets_path
+  end
+  defp check_assets(%{assets: true} = config) do
+    check_and_set_assets_path(config)
+    # path = Path.join ~w(priv static)
+    # unless File.exists?(path) do
+    #   Mix.raise """
+    #   Can't find #{path}
+    #   """
+    # end
+    # config
+  end
+  defp check_assets(config), do: config
+
+  defp check_and_set_brunch_path_phx(config) do
+    if File.exists? "assets/brunch-config.js" do
+      struct(config, brunch_path: "assets/brunch-config.js", phx: true)
+    else
+      check_and_set_brunch_path(config)
+    end
+  end
+
+  defp check_and_set_assets_path(config) do
+    cond do
+      File.exists?(Path.join(~w(assets css))) ->
+        struct config,
+          vendor_path: Path.join(~w(assets vendor)),
+          assets_path: Path.join(~w(assets static))
+      File.exists?(Path.join(~w(web static))) ->
+        struct config,
+          vendor_path: Path.join(~w(web static vendor)),
+          assets_path: Path.join(~w(web static assets))
+      true ->
+        Mix.raise """
+        Can't find assets path!
+        """
+    end
+  end
+
+  def check_and_set_brunch_path(config) do
     unless File.exists? "brunch-config.js" do
       Mix.raise """
       Can't find brunch-config.js
       """
     end
-    config
+    struct(config, brunch_path: "brunch-config.js")
   end
-  defp check_assets(%{assets: true} = config) do
-    path = Path.join ~w(priv static)
-    unless File.exists?(path) do
-      Mix.raise """
-      Can't find #{path}
-      """
-    end
-    config
-  end
-  defp check_assets(config), do: config
 
-  def do_assets(%Config{assets: true, brunch: true} = config) do
+  def do_assets(%Config{assets: true, brunch: true, brunch_path: brunch_path} = config) do
     base_path = Path.join(~w(priv static))
 
-    File.mkdir_p Path.join ~w{web static vendor}
-    File.mkdir_p Path.join ~w{web static assets fonts}
-    File.mkdir_p Path.join ~w{web static assets images ex_admin datepicker}
+    File.mkdir_p config.vendor_path
+    File.mkdir_p Path.join(config.assets_path, "fonts")
+    File.mkdir_p Path.join([config.assets_path | ~w{images ex_admin datepicker}])
 
     status_msg("creating", "css files")
     ~w(admin_lte2.css admin_lte2.css.map active_admin.css.css active_admin.css.css.map)
-    |> Enum.each(&(copy_vendor base_path, "css", &1))
+    |> Enum.each(&(copy_vendor config, base_path, "css", &1))
 
     status_msg("creating", "js files")
     ~w(jquery.min.js admin_lte2.js jquery.min.js.map admin_lte2.js.map)
     ++ ~w(ex_admin_common.js ex_admin_common.js.map)
-    |> Enum.each(&(copy_vendor base_path, "js", &1))
+    |> Enum.each(&(copy_vendor config, base_path, "js", &1))
 
-    copy_vendor_r(base_path, "fonts")
-    copy_vendor_r(base_path, "images")
+    copy_vendor_r(config, base_path, "fonts")
+    copy_vendor_r(config, base_path, "images")
 
-    case File.read "brunch-config.js" do
+    case File.read brunch_path do
       {:ok, file} ->
-        File.write! "brunch-config.js", file <> brunch_instructions()
+        File.write! brunch_path, file <> brunch_instructions(config)
       error ->
         Mix.raise """
         Could not open brunch-config.js file. #{inspect error}
@@ -193,37 +227,38 @@ defmodule Mix.Tasks.Admin.Install do
   end
 
   def do_dashboard(%Config{dashboard: true} = config) do
-    dest_path = Path.join [File.cwd! | ~w(web admin)]
+    web_path = web_path()
+    dest_path = Path.join(web_path, "admin")
     dest_file_path = Path.join dest_path, "dashboard.ex"
     source = Path.join([config.package_path | ~w(priv templates admin.install dashboard.exs)] )
     |> EEx.eval_file([base: get_module(),
       title_txt: (gettext "Dashboard"),
       welcome_txt: (gettext "Welcome to ExAdmin. This is the default dashboard page."),
-      add_txt: (gettext "To add dashboard sections, checkout 'web/admin/dashboards.ex'")
+      add_txt: (gettext "To add dashboard sections, checkout '${web_path}/admin/dashboards.ex'", web_path: web_path)
       ])
 
-    file = Path.join(~w(web admin dashboard.ex))
-    if File.exists?(file) do
-      notice_msg "skipping", "#{file}. It already exists."
+    if File.exists?(dest_file_path) do
+      notice_msg "skipping", "#{dest_file_path}. It already exists."
     else
-      status_msg "creating", file
+      status_msg "creating", dest_file_path
       File.mkdir_p dest_path
       File.write! dest_file_path, source
-      dashboard_instructions()
+      dashboard_instructions(config)
     end
     config
   end
   def do_dashboard(config), do: config
 
-  def dashboard_instructions do
+  def dashboard_instructions(config) do
     base = get_module()
+    module = if config.phx, do: "#{base}.Web", else: base
     Mix.shell.info """
 
     Remember to update your config file:
 
       config :ex_admin,
         repo: #{base}.Repo,
-        module: #{base},
+        module: #{module},
         modules: [
           #{base}.ExAdmin.Dashboard,
         ]
@@ -269,16 +304,21 @@ defmodule Mix.Tasks.Admin.Install do
     base_path
   end
 
-  defp copy_vendor(from_path, path, filename) do
+  defp copy_vendor(config, from_path, path, filename) do
     File.cp Path.join([get_package_path(), from_path, path, filename]),
-            Path.join([File.cwd!, "web", "static", "vendor", filename])
+            Path.join(config.vendor_path, filename)
   end
-  defp copy_vendor_r(base_path, path) do
+  defp copy_vendor_r(config, base_path, path) do
     File.cp_r Path.join([get_package_path(), base_path, path]),
-            Path.join([File.cwd!, "web", "static", "assets", path])
+            Path.join(config.assets_path, path)
   end
 
-  def brunch_instructions do
+  def brunch_instructions(config) do
+    js_match = if config.phx, do: "js", else: "web\\/static\\/js"
+    css_match = if config.phx, do: "css", else: "web\\/static\\/css"
+    css_path = if config.phx, do: "css", else: "web/static/css"
+    vendor_path = if config.phx, do: "vendor", else: "web/static/vendor"
+
     """
 
     // To add the ExAdmin generated assets to your brunch build, do the following:
@@ -293,10 +333,10 @@ defmodule Mix.Tasks.Admin.Install do
     //
     //     javascripts: {
     //       joinTo: {
-    //         "js/app.js": /^(web\\/static\\/js)|(node_modules)/,
-    //         "js/ex_admin_common.js": ["web/static/vendor/ex_admin_common.js"],
-    //         "js/admin_lte2.js": ["web/static/vendor/admin_lte2.js"],
-    //         "js/jquery.min.js": ["web/static/vendor/jquery.min.js"],
+    //         "js/app.js": /^(#{js_match})|(node_modules)/,
+    //         "js/ex_admin_common.js": ["#{vendor_path}/ex_admin_common.js"],
+    //         "js/admin_lte2.js": ["#{vendor_path}/admin_lte2.js"],
+    //         "js/jquery.min.js": ["#{vendor_path}/jquery.min.js"],
     //       }
     //     },
     //
@@ -305,7 +345,7 @@ defmodule Mix.Tasks.Admin.Install do
     //     stylesheets: {
     //       joinTo: "css/app.css",
     //       order: {
-    //         after: ["web/static/css/app.css"] // concat app.css last
+    //         after: ["#{css_path}/app.css"] // concat app.css last
     //       }
     //     },
     //
@@ -313,12 +353,12 @@ defmodule Mix.Tasks.Admin.Install do
     //
     //     stylesheets: {
     //       joinTo: {
-    //         "css/app.css": /^(web\\/static\\/css)/,
-    //         "css/admin_lte2.css": ["web/static/vendor/admin_lte2.css"],
-    //         "css/active_admin.css.css": ["web/static/vendor/active_admin.css.css"],
+    //         "css/app.css": /^(#{css_match})/,
+    //         "css/admin_lte2.css": ["#{vendor_path}/admin_lte2.css"],
+    //         "css/active_admin.css.css": ["#{vendor_path}/active_admin.css.css"],
     //       },
     //       order: {
-    //         after: ["web/static/css/app.css"] // concat app.css last
+    //         after: ["#{css_path}/app.css"] // concat app.css last
     //       }
     //     },
     //

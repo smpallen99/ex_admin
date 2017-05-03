@@ -1,12 +1,12 @@
 defmodule ExAdmin.Mixfile do
   use Mix.Project
 
-  @version "0.9.0-dev"
+  @version "0.9.1-dev"
 
   def project do
     [ app: :ex_admin,
       version: @version,
-      elixir: "~> 1.3",
+      elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env),
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       build_embedded: Mix.env == :prod,
@@ -39,7 +39,7 @@ defmodule ExAdmin.Mixfile do
   defp deps do
     [
       {:decimal, "~> 1.0"},
-      {:phoenix, "~> 1.2"},
+      {:phoenix, "~> 1.3.0-rc"},
       {:phoenix_html, "~> 2.6"},
       {:ecto, "~> 2.1"},
       {:phoenix_ecto, "~> 3.2"},

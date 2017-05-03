@@ -14,6 +14,17 @@ defmodule Mix.ExAdmin.Utils do
     |> Enum.at(1)
   end
 
+  def web_path() do
+    path1 = Path.join ["lib", to_string(Mix.Phoenix.otp_app()), "web"]
+    path2 = "web"
+    cond do
+      File.exists? path1 -> path1
+      File.exists? path2 -> path2
+      true ->
+        raise "Could not find web path '#{path1}'."
+    end
+  end
+
   @doc "Print a status message to the console"
   def status_msg(status, message),
     do: IO.puts "#{IO.ANSI.green}* #{status}#{IO.ANSI.reset} #{message}"
