@@ -116,6 +116,8 @@ defmodule ExAdmin.Register do
       Module.put_attribute(__MODULE__, :query, nil)
       Module.put_attribute(__MODULE__, :selectable_column, nil)
       Module.put_attribute(__MODULE__, :changesets, [])
+      Module.put_attribute(__MODULE__, :update_changeset, :changeset)
+      Module.put_attribute(__MODULE__, :create_changeset, :changeset)
 
       @name_column Module.get_attribute(__MODULE__, :name_column) || apply(ExAdmin.Helpers, :get_name_field, [module])
 
@@ -206,7 +208,9 @@ defmodule ExAdmin.Register do
                 changesets: Module.get_attribute(__MODULE__, :changesets),
                 plugs: plugs,
                 sidebars: sidebars,
-                scopes: scopes
+                scopes: scopes,
+                create_changeset: @create_changeset,
+                update_changeset: @update_changeset
 
       def run_query(repo, defn, action, id \\ nil) do
         %__MODULE__{}
@@ -342,6 +346,25 @@ defmodule ExAdmin.Register do
       Module.put_attribute __MODULE__, :controller, unquote(controller_mod)
     end
   end
+
+  @doc """
+  Override the changesets for a controller's update action
+  """
+  defmacro update_changeset(changeset) do
+    quote do
+      Module.put_attribute __MODULE__, :update_changeset, unquote(changeset)
+    end
+  end
+
+  @doc """
+  Override the changesets for a controller's create action
+  """
+  defmacro create_changeset(changeset) do
+    quote do
+      Module.put_attribute __MODULE__, :create_changeset, unquote(changeset)
+    end
+  end
+
 
   @doc """
   Override an action on a controller.
@@ -989,7 +1012,7 @@ defmodule ExAdmin.Register do
       filter except: [:encrypted_password], labels: [name: "Full Name"]
 
   Note: Restricting fields with the `filter` macro also removes the field columns
-        from the default index table.
+  from the default index table.
 
   """
   defmacro filter(disable) when disable in [nil, false] do

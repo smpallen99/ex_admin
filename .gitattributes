@@ -1,0 +1,4 @@
+*.min.css -diff
+*.min.js -diff
+*.css.map -diff
+*.js.map -diff

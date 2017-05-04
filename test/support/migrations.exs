@@ -42,9 +42,16 @@ defmodule TestExAdmin.Migrations do
       timestamps()
     end
 
-    create table(:simple) do
+    create table(:simples) do
       add :name, :string
       add :description, :string
+      timestamps()
+    end
+
+    create table(:custom_changeset) do
+      add :name, :string
+      add :description, :string
+      timestamps()
     end
 
     create table(:restricteds) do

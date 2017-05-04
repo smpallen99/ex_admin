@@ -45,4 +45,15 @@ defmodule TestExAdmin.TestHelpers do
   defp to_map(attrs) when is_list(attrs), do: Enum.into(attrs, %{})
   defp to_map(attrs), do: attrs
 
+  def insert_product(attr \\ %{}) do
+    changes = Map.merge(%{ title: "product1", price: 1.99 }, attr)
+    TestExAdmin.Product.changeset(%TestExAdmin.Product{}, changes)
+    |> Repo.insert!
+  end
+
+  def insert_role(attr \\ %{}) do
+    changes = Map.merge(%{ name: "role1" }, attr)
+    TestExAdmin.Role.changeset(%TestExAdmin.Role{}, changes)
+    |> Repo.insert!
+  end
 end
