@@ -169,15 +169,15 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   def theme_build_has_many_fieldset(conn, res, fields, orig_inx, ext_name, field_name, field_field_name, model_name, errors) do
     inx = cond do
       is_nil(res) -> orig_inx
-      is_nil(res.id) -> orig_inx
+      Map.get(res, :id, false) -> orig_inx
       Schema.get_id(res) ->  orig_inx
       true -> timestamp()   # case when we have errors. need to remap the inx
     end
 
-    required_list = if res do
-      res.__struct__.changeset(res).required
-    else
-      []
+    required_list = cond do
+      Map.get(res, :__struct__, false) ->
+        res.__struct__.changeset(res).required
+      true -> []
     end
 
     html = fieldset ".inputs.has_many_fields" do
@@ -185,13 +185,19 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
         humanize(field_name) |> Inflex.singularize |> h3
 
         # build the destroy field
+        checked = case Map.get(res, :_destroy) do
+          "1" -> [checked: true]
+          _ -> []
+        end
+
         base_name = "#{model_name}[#{field_field_name}][#{inx}]"
         base_id = "#{ext_name}__destroy"
         li [id: "#{base_id}_input", class: "boolean input optional"] do
           name = "#{base_name}[_destroy]"
           Xain.input type: :hidden, value: "0", name: name
           label for: base_id do
-            Xain.input type: :checkbox, id: "#{base_id}", name: name, value: "1"
+            Xain.input [type: :checkbox, id: "#{base_id}", class: "destroy", name: name, value: "1"] ++ checked
+
             text (gettext "Remove")
           end
         end
@@ -200,7 +206,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
           f_name = field[:name]
           required = if f_name in required_list, do: true, else: false
           name = "#{base_name}[#{f_name}]"
-          errors = get_errors(errors, "#{model_name}[#{field_field_name}][#{orig_inx}][#{f_name}]")
+          errors = get_errors(errors, String.to_atom("#{field_field_name}_#{orig_inx}_#{f_name}"))
           error = if errors in [nil, [], false], do: "", else: ".error"
           case field[:opts] do
             %{collection: collection} ->

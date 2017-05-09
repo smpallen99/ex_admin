@@ -809,6 +809,7 @@ defmodule ExAdmin.Form do
     field_field_name = "#{field_name}_attributes"
     human_label = "#{humanize(field_name) |> Inflex.singularize}"
     new_record_name_var = new_record_name field_name
+
     div ".has_many.#{field_name}" do
       {contents, html} = theme_module(conn, Form).build_inputs_has_many field_name,
         human_label, fn ->
@@ -817,6 +818,11 @@ defmodule ExAdmin.Form do
           |> Enum.map(fn({res, inx}) ->
             fields = fun.(res) |> Enum.reverse
             ext_name = "#{model_name}_#{field_field_name}_#{inx}"
+
+            res = cond do
+              is_tuple(res) -> elem(res, 1)
+              true -> res
+            end
 
             {new_inx, html} = build_has_many_fieldset(conn, res, fields, inx,
               ext_name, field_name, field_field_name, model_name, errors)
@@ -830,6 +836,7 @@ defmodule ExAdmin.Form do
           end)
         ext_name = "#{model_name}_#{field_field_name}_#{new_record_name_var}"
         {assoc_model, _} = assoc_model_tuple = ExAdmin.Repo.get_assoc_model(resource, field_name)
+
         fields = fun.(assoc_model_tuple) |> Enum.reverse
         {_, fieldset_contents} = build_has_many_fieldset(conn, assoc_model.__struct__,
           fields, new_record_name_var, ext_name, field_name, field_field_name,
@@ -853,25 +860,18 @@ defmodule ExAdmin.Form do
     Adminlog.debug "build_item 9: #{inspect name}"
     collection = if is_function(collection), do: collection.(conn, resource), else: collection
     errors = get_errors(errors, name)
-    name_ids = "#{Atom.to_string(name) |> Inflex.singularize}_ids"
-    assoc_ids = Enum.map(get_resource_field2(resource, name), &(Schema.get_id(&1)))
+    name_ids = "#{Atom.to_string(name)|> Inflex.singularize}_ids"
+
     name_str = "#{model_name}[#{name_ids}][]"
     required = get_required name, opts
     theme_module(conn, Form).build_inputs_collection model_name, name, name_ids, required, fn ->
       markup do
         Xain.input name: name_str, type: "hidden", value: ""
         if opts[:as] == :check_boxes do
-          theme_module(conn, Form).wrap_collection_check_boxes fn ->
-            for opt <- collection do
-              opt_id = Schema.get_id(opt)
-              name_str = "#{model_name}[#{name_ids}][#{opt_id}]"
-              selected = opt_id in assoc_ids
-              display_name = display_name opt
-              theme_module(conn, Form).collection_check_box display_name, name_str,
-                opt_id, selected
-            end
-          end
+          build_checkboxes(conn, name, collection, opts, resource, model_name, errors, name_ids)
         else
+          assoc_ids = get_resource_field2(resource, name)
+            |>Enum.map(&(Schema.get_id(&1)))
           select id: "#{model_name}_#{name_ids}", class: "form-control", multiple: "multiple",
                                      name: name_str do
             for opt <- collection do
@@ -887,12 +887,56 @@ defmodule ExAdmin.Form do
     end
   end
 
+  defp build_checkboxes(conn, name, collection, opts, resource, model_name, errors, name_ids) do
+    theme_module(conn, Form).wrap_collection_check_boxes fn ->
+      for opt <- collection do
+        opt_id = Schema.get_id(opt)
+        name_str = "#{model_name}[#{name_ids}][#{opt_id}]"
+        selected = cond do
+          errors != nil ->
+            # error and selected in params
+            request_params = Map.get(conn, :body_params, nil)
+            ids = Map.get(request_params, model_name, %{}) |>
+                  Map.get(name_ids, []) |>
+                  ExAdmin.EctoFormMappers.checkboxes_to_ids
+            Integer.to_string(opt_id) in ids
+          true ->
+            assoc_ids = Enum.map(get_resource_field2(resource, name), &(Schema.get_id(&1)))
+            # select and no error
+            opt_id in assoc_ids
+        end
+        display_name = display_name opt
+        theme_module(conn, Form).collection_check_box display_name, name_str,
+          opt_id, selected
+      end
+    end
+  end
+
+  @doc """
+  Setups the default collection on a inputs dsl request and then calls
+  build_item again with the collection added
+  """
+  def build_item(conn, %{type: :inputs, name: name, opts: %{as: type}} = options,
+      resource, model_name, errors) when is_atom(name) do
+    # Get the model from the atom name
+    mod = name
+          |> Atom.to_string
+          |> String.capitalize
+          |> Inflex.singularize
+          |> String.to_atom
+    module = Application.get_env(:ex_admin, :module)
+              |> Module.concat(mod)
+    opts = put_in(options,[:opts, :collection], apply(module, :all, []))
+
+    # call the build item with the default collection
+    build_item(conn, opts, resource, model_name, errors)
+  end
+
   @doc """
   Handle building the items for an input block.
 
   This is where each of the fields will be build
   """
-
   def build_item(conn, %{type: :inputs, name: _field_name} = item, resource, model_name, errors) do
     opts = Map.get(item, :opts, [])
     Adminlog.debug "build_item 10: #{inspect _field_name}"
@@ -1016,6 +1060,23 @@ defmodule ExAdmin.Form do
     |> build_array_control_block
   end
 
+  def build_control({:embed, e}, resource, opts, model_name, field_name, ext_name) do
+    embed_content = Map.get(resource, field_name) || e.related.__struct__
+    embed_module = e.related
+
+    embed_module.__schema__(:fields)
+    |> Enum.map(& {&1, embed_module.__schema__(:type, &1)})
+    |> Enum.map(fn {field, type} ->
+      [ label(Atom.to_string(field)),
+        build_control(type,
+          embed_content,
+          %{},
+          "#{model_name}[#{field_name}]",
+          field,
+          "#{ext_name}_#{field}")
+      ]
+    end)
+  end
 
   def build_control(type, resource, opts, model_name, field_name, ext_name) do
     {field_type, value} = cond do

@@ -1,7 +1,7 @@
 defmodule ExAdmin.Mixfile do
   use Mix.Project
 
-  @version "0.8.3-dev"
+  @version "0.9.0-dev"
 
   def project do
     [ app: :ex_admin,
@@ -57,7 +57,7 @@ defmodule ExAdmin.Mixfile do
       {:ex_queb, "~> 1.0"},
       {:excoveralls, "~> 0.5", only: :test},
       {:gettext, "~> 0.11"},
-      {:hound, "~> 1.0"}
+      {:hound, "~> 1.0", only: :test}
     ]
   end
 

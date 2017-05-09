@@ -49,11 +49,9 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def edit(conn, defn, params) do
-    model = defn.__struct__
     resource = conn.assigns.resource
 
-    changeset_fn = model.changeset_fn(defn, :update)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
+    changeset = defn.resource_model.changeset(resource)
 
     conn = Plug.Conn.assign(conn, :ea_required, changeset.required)
     {conn, params, resource} = handle_after_filter(conn, :edit, defn, params, resource)
@@ -63,11 +61,9 @@ defmodule ExAdmin.AdminResourceController do
   end
 
   def new(conn, defn, params) do
-    model = defn.__struct__
     resource = conn.assigns.resource
 
-    changeset_fn = model.changeset_fn(defn, :create)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
+    changeset = defn.resource_model.changeset(resource)
 
     conn = Plug.Conn.assign(conn, :ea_required, changeset.required)
     {conn, params, resource} = handle_after_filter(conn, :new, defn, params, resource)
@@ -80,13 +76,12 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
 
-    changeset_fn = model.changeset_fn(defn, :create)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
+    changeset = apply(defn.resource_model, defn.create_changeset, [resource, params[defn.resource_name]])
 
     case ExAdmin.Repo.insert(changeset) do
       {:error, changeset} ->
         conn |> handle_changeset_error(defn, changeset, params)
-      resource ->
+      {:ok, resource} ->
         {conn, _, resource} = handle_after_filter(conn, :create, defn, params, resource)
         put_flash(conn, :notice, (gettext "%{model_name} was successfully created.", model_name: (model |> base_name |> titleize) ))
         |> redirect(to: admin_resource_path(resource, :show))
@@ -97,13 +92,11 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
 
-    changeset_fn = model.changeset_fn(defn, :update)
-    changeset = ExAdmin.Repo.changeset(changeset_fn, resource, params[defn.resource_name])
-
+    changeset = apply(defn.resource_model, defn.update_changeset, [resource, params[defn.resource_name]])
     case ExAdmin.Repo.update(changeset) do
       {:error, changeset} ->
         conn |> handle_changeset_error(defn, changeset, params)
-      resource ->
+      {:ok, resource} ->
         {conn, _, resource} = handle_after_filter(conn, :update, defn, params, resource)
         put_flash(conn, :notice, "#{model |> base_name |> titleize} " <> (gettext "was successfully updated."))
         |> redirect(to: admin_resource_path(resource, :show))
@@ -143,6 +136,7 @@ defmodule ExAdmin.AdminResourceController do
       order: ExQueb.get_sort_order(conn.params["order"])
     }
     model_name = model |> base_name |> titleize
+    model_id = model |> base_name |> Inflex.underscore
     pagination =
       opts[:href]
       |> build_scope_href(conn.params["scope"])
@@ -152,7 +146,7 @@ defmodule ExAdmin.AdminResourceController do
 
     {conn, _, _resource} = handle_after_filter(conn, :destroy, defn, params, resource)
     if conn.assigns.xhr do
-      render conn, "destroy.js", tr_id: String.downcase("#{model_name}_#{params[:id]}"), pagination: pagination
+      render conn, "destroy.js", tr_id: String.downcase("#{model_id}_#{params[:id]}"), pagination: pagination
 
     else
       put_flash(conn, :notice, "#{model_name} " <> (gettext "was successfully destroyed."))
@@ -266,5 +260,4 @@ defmodule ExAdmin.AdminResourceController do
       %{conn | resp_headers: [{"content-type", content_type}|resp_headers]}
     end
   end
-
 end

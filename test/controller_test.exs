@@ -137,9 +137,11 @@ defmodule ExAdminTest.ControllerTest do
   end
 
   test "new form" do
+    TestExAdmin.Simple.start_link
     conn = get build_conn(), admin_resource_path(Simple, :new), %{}
     assert html_response(conn, 200) =~ ~r/New Simple/
     refute Floki.find(conn.resp_body, "input#simple_name") == []
+    TestExAdmin.Simple.stop
   end
 
   test "restricted actions" do
