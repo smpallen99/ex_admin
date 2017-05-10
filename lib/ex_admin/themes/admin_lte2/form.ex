@@ -9,6 +9,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
   import ExAdmin.Helpers
   import ExAdmin.Gettext
   alias ExAdmin.Schema
+  import ExAdmin.Form.Fields, only: [input_collection: 9]
 
   @doc false
   def build_form(conn, resource, items, params, script_block, global_script) do
@@ -216,21 +217,21 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
               collection = if is_function(collection), do: collection.(conn, res), else: collection
               div ".form-group", [id: "#{ext_name}_label_input"] do
                 label ".col-sm-2.control-label", for: "#{ext_name}_#{f_name}" do
-                  text humanize(f_name)
+                  text humanize(f_name) 
                   required_abbr required
                 end
+
+                binary_tuple = binary_tuple?(collection)
+
                 div ".col-sm-10" do
-                  select "##{ext_name}_#{f_name}#{error}.form-control", [name: name ] do
-                    for opt <- collection do
-                      cond do
-                        not is_nil(res) and (Map.get(res, f_name) == opt) ->
-                          option "#{opt}", [value: escape_value(opt), selected: :selected]
-                        true ->
-                          option "#{opt}", [value: escape_value(opt)]
-                      end
+                  markup do
+                    if binary_tuple do
+                      build_select_theme_binary_tuple_list(collection, field, field[:name], res, model_name, ext_name)
+                    else
+                      input_collection(res, collection, model_name, field[:name], nil, nil, field, conn.params, error)
                     end
+                    build_errors(errors, field[:opts][:hint])
                   end
-                  build_errors(errors, field[:opts][:hint])
                 end
               end
             _ ->
@@ -311,5 +312,46 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
         end
       end
     end
+  end
+
+  defp build_select_theme_binary_tuple_list(collection, field, field_name, resource, model_name, ext_name) do
+    html_opts = field[:opts][:html_opts] || []
+    html_opts = Keyword.merge([name: "#{model_name}[#{field_name}]"], html_opts)
+    select("##{ext_name}_id.form-control", html_opts) do
+      handle_prompt(field_name, field)
+      for field <- collection do
+        {value, name} = case field do
+          {value, name} -> {value, name}
+          other -> {other, other}
+        end
+
+        selected = if Map.get(resource, field_name) == value,
+          do: [selected: :selected], else: []
+        option(name, [value: value] ++ selected)
+      end
+    end
+  end
+
+  defp handle_prompt(field_name, field) do
+    case get_prompt(field_name, field) do
+      false -> nil
+      prompt -> option(prompt, value: "")
+    end
+  end
+
+  defp get_prompt(field_name, field) do
+    case Map.get field[:opts], :prompt, nil do
+      nil ->
+        nm = humanize("#{field_name}")
+        |> articlize
+        (gettext "Select %{nm}",nm: nm)
+      other -> other
+    end
+  end
+
+  defp binary_tuple?([]), do: false
+
+  defp binary_tuple?(collection) do
+    Enum.all?(collection, &(is_binary(&1) or (is_tuple(&1) and (tuple_size(&1) == 2))))
   end
 end

@@ -9,6 +9,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
   import ExAdmin.Helpers
   import ExAdmin.Gettext
   alias ExAdmin.Schema
+  import ExAdmin.Form.Fields, only: [input_collection: 9]
 
   @doc false
   def build_form(conn, resource, items, params, script_block, global_script) do
@@ -216,16 +217,17 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
                   text humanize(f_name)
                   required_abbr required
                 end
-                select "##{ext_name}_#{f_name}", [name: name ] do
-                  for opt <- collection do
-                    if not is_nil(res) and (Map.get(res, f_name) == opt) do
-                      option "#{opt}", [value: escape_value(opt), selected: :selected]
-                    else
-                      option "#{opt}", [value: escape_value(opt)]
-                    end
+
+                binary_tuple = binary_tuple?(collection)
+
+                markup do
+                  if binary_tuple do
+                    build_select_theme_binary_tuple_list(collection, field, field[:name], res, model_name, ext_name)
+                  else
+                    input_collection(res, collection, model_name, field[:name], nil, nil, field, conn.params, error)
                   end
+                  build_errors(errors, field[:opts][:hint])
                 end
-                build_errors(errors, field[:opts][:hint])
               end
             _ ->
               li ".string.input.stringish#{error}", id: "#{ext_name}_#{f_name}_input"  do
@@ -293,5 +295,46 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
         end
       end
     end
+  end
+  
+  defp build_select_theme_binary_tuple_list(collection, item, field_name, resource, model_name, ext_name) do
+    html_opts = item[:opts][:html_opts] || []
+    html_opts = Keyword.merge([name: "#{model_name}[#{field_name}]"], html_opts)
+    select "##{ext_name}_#{field_name}", html_opts do
+      handle_prompt(field_name, item)
+      for item <- collection do
+        {value, name} = case item do
+          {value, name} -> {value, name}
+          other -> {other, other}
+        end
+
+        selected = if Map.get(resource, field_name) == value,
+          do: [selected: :selected], else: []
+        option(name, [value: value] ++ selected)
+      end
+    end
+  end
+
+  defp handle_prompt(field_name, item) do
+    case get_prompt(field_name, item) do
+      false -> nil
+      prompt -> option(prompt, value: "")
+    end
+  end
+
+  defp get_prompt(field_name, item) do
+    case Map.get item[:opts], :prompt, nil do
+      nil ->
+        nm = humanize("#{field_name}")
+        |> articlize
+        (gettext "Select %{nm}",nm: nm)
+      other -> other
+    end
+  end
+
+  defp binary_tuple?([]), do: false
+
+  defp binary_tuple?(collection) do
+    Enum.all?(collection, &(is_binary(&1) or (is_tuple(&1) and (tuple_size(&1) == 2))))
   end
 end
