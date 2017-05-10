@@ -188,7 +188,7 @@ defmodule ExAdmin.Register do
 
       defstruct controller: @controller,
                 controller_methods: Module.get_attribute(__MODULE__, :controller_methods),
-                title_actions: &ExAdmin.default_resource_title_actions/2,
+                title_actions: &ExAdmin.ResourceTitleActions.default/2,
                 type: :resource,
                 resource_model: module,
                 resource_name: resource_name(module),
@@ -314,7 +314,7 @@ defmodule ExAdmin.Register do
         end
       end
       action = if type == :member_actions, do: :show, else: :index
-      [{action, fun} | acc]
+      [{action, name, fun} | acc]
     end)
   end
 
