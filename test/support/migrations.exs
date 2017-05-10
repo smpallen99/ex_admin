@@ -68,6 +68,7 @@ defmodule TestExAdmin.Migrations do
     create table(:phone_numbers) do
       add :number, :string
       add :label, :string
+      add :contacted_on, :date
       timestamps()
     end
 

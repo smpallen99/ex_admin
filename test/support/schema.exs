@@ -233,6 +233,7 @@ defmodule TestExAdmin.PhoneNumber do
   schema "phone_numbers" do
     field :number, :string
     field :label, :string
+    field :contacted_on, :date
     has_many :contacts_phone_numbers, TestExAdmin.ContactPhoneNumber
     has_many :contacts, through: [:contacts_phone_numbers, :contact]
     timestamps()
@@ -242,7 +243,7 @@ defmodule TestExAdmin.PhoneNumber do
 
   def changeset(model, params \\ %{}) do
     model
-    |> cast(params, @fields)
+    |> cast(params, @fields ++ [:contacted_on])
     |> validate_required(@fields)
   end
 
