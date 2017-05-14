@@ -59,7 +59,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     end
   end
 
-  def build_field({name, num}, q, defn) when num in [:integer, :id, :decimal] do
+  def build_field({name, num}, q, defn) when num in [:integer, :id, :decimal, :float] do
     unless check_and_build_association(name, q, defn) do
       name_label = field_label(name, defn)
       selected_name = integer_selected_name(name, q)
