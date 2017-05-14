@@ -422,6 +422,19 @@ config :ex_admin,
   ...
 ```
 
+### Overriding the model name
+
+You can override the name of a model by defining a `model_name/0` function on
+the module. This is useful if you want to use a different module for some of
+your actions.
+
+admin/my_model.ex
+```elixir
+def model_name do
+  "custom_name"
+end
+```
+
 ## Authentication
 
 ExAdmin leaves the job of authentication to 3rd party packages. For an example of using [Coherence](https://github.com/smpallen99/coherence) checkout the [Contact Demo Project](https://github.com/smpallen99/contact_demo).
