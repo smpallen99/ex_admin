@@ -6,7 +6,6 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
   import ExAdmin.Utils
   import ExAdmin.Gettext
   import ExAdmin.Filter
-  import Ecto.Query, only: [from: 2]
   use Xain
 
   def theme_filter_view(conn, defn, q, order, scope) do
@@ -121,13 +120,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
   def build_field({name, %Ecto.Association.BelongsTo{related: assoc, owner_key: owner_key}}, q, defn) do
     id = "q_#{owner_key}"
     name_label = field_label(name, defn)
-    repo = Application.get_env :ex_admin, :repo
-    name_field = ExAdmin.Helpers.get_name_field(assoc)
-    resources = if is_nil(name_field) do
-      repo.all(assoc)
-    else
-      repo.all(from a in assoc, order_by: [asc: ^name_field])
-    end
+    resources = filter_resources(name, assoc, defn)
     selected_key = case q["#{owner_key}_eq"] do
       nil -> nil
       val -> val
