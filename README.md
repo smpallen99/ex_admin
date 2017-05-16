@@ -292,6 +292,7 @@ defmodule MyProject.ExAdmin.Contact do
         input contact, :first_name
         input contact, :last_name
         input contact, :email
+        input contact, :register_date, type: Date # if you use Ecto :date type in your schema
         input contact, :category, collection: MyProject.Category.all
       end
 
