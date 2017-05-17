@@ -49,6 +49,10 @@ defmodule ExAdmin.ErrorsHelper do
     end)
   end
 
+  defp flatten_errors(%{__struct__: _} = errors_map, assoc_prefixes, prefix) do
+    nil
+  end
+
   defp flatten_errors(%{} = errors_map, assoc_prefixes, prefix) do
     Enum.map(errors_map, fn({k, x}) ->
       with k <- if(not is_atom(k), do: String.to_atom(k), else: k),
