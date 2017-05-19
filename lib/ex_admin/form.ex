@@ -21,6 +21,7 @@ defmodule ExAdmin.Form do
               input contact, :first_name
               input contact, :last_name
               input contact, :email
+              input contact, :register_date, type: Date
               input contact, :category, collection: MyProject.Category.all
             end
 
@@ -63,6 +64,9 @@ defmodule ExAdmin.Form do
   ### Specifying type of control
 
       input user, :password, type: :password
+
+      # If you use :naive_datetime or :utc_datetime in your schema instead of Ecto.DateTime
+      input user, :register_datetime, type: DateTime
 
   ### Array field support
 
