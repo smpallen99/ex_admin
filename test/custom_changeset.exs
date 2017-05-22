@@ -3,7 +3,7 @@ defmodule ExAdminTest.ControllerTest do
   require Logger
 
   import TestExAdmin.TestHelpers
-  alias TestExAdmin.{Noid, User, Product, Simple}
+  alias TestExAdmin.{Noid, Map, User, Product, Simple}
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(TestExAdmin.Repo)
@@ -28,5 +28,21 @@ defmodule ExAdminTest.ControllerTest do
     assert TestExAdmin.Simple.last_changeset == "changeset_update"
 
     TestExAdmin.Simple.stop
+  end
+
+  test "calls the create changeset when no custom change set is specified and in create path" do
+    TestExAdmin.Maps.start_link
+    conn = post build_conn(), admin_resource_path(TestExAdmin.Maps, :create), map: %{}
+    assert TestExAdmin.Maps.last_changeset == "create_changeset"
+
+    TestExAdmin.Map.stop
+  end
+
+  test "calls the update changeset when no custom change set is specified and in update path" do
+    TestExAdmin.Maps.start_link
+    conn = post build_conn(), admin_resource_path(TestExAdmin.Maps, :create), map: %{}
+    assert TestExAdmin.Maps.last_changeset == "create_changeset"
+
+    TestExAdmin.Maps.stop
   end
 end
