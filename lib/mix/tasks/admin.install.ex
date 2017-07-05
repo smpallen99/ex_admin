@@ -74,7 +74,8 @@ defmodule Mix.Tasks.Admin.Install do
   defp check_config(config), do: config
 
   defp check_assets(%{assets: true, brunch: true} = config) do
-    unless File.exists? "brunch-config.js" do
+    path = Path.join ~w(assets brunch-config.js)
+    unless File.exists? path do
       Mix.raise """
       Can't find brunch-config.js
       """
@@ -111,12 +112,13 @@ defmodule Mix.Tasks.Admin.Install do
     copy_vendor_r(base_path, "fonts")
     copy_vendor_r(base_path, "images")
 
-    case File.read "brunch-config.js" do
+    brunch_config_path = Path.join ~w{assets brunch-config.js}
+    case File.read brunch_config_path do
       {:ok, file} ->
-        File.write! "brunch-config.js", file <> brunch_instructions()
+        File.write! brunch_config_path, file <> brunch_instructions()
       error ->
         Mix.raise """
-        Could not open brunch-config.js file. #{inspect error}
+        Could not open #{brunch_config_path} file. #{inspect error}
         """
     end
     config
