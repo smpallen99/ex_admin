@@ -40,6 +40,13 @@ defmodule ExAdminTest.Render do
     assert String.starts_with?(result, "2016-12-13 ")
     assert String.ends_with?(result, ":10:10")
   end
+  test "Ecto.DateTime without localtime conversion" do
+    Application.put_env(:ex_admin, :convert_local_time, false)
+    dt_str = "2016-12-13 10:10:10"
+    dt = Ecto.DateTime.cast! dt_str
+    assert Render.to_string(dt) == "2016-12-13 10:10:10"
+    Application.put_env(:ex_admin, :convert_local_time, true)
+  end
   test "Date" do
     assert Render.to_string(~D[2016-10-10]) == "2016-10-10"
   end
