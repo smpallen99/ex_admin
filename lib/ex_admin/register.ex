@@ -844,10 +844,10 @@ defmodule ExAdmin.Register do
   end
 
   @doc false
-  # Note: `actions/2` has been depreciated. Please use `action_items/1` instead
+  # Note: `actions/2` has been deprecated. Please use `action_items/1` instead
   defmacro actions(:all, opts \\ quote(do: [])) do
     require Logger
-    Logger.warn "actions/2 has been depreciated. Please use action_items/1 instead"
+    Logger.warn "actions/2 has been deprecated. Please use action_items/1 instead"
     quote do
       opts = unquote(opts)
       Module.put_attribute __MODULE__, :actions, unquote(opts)
