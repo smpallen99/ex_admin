@@ -22,7 +22,7 @@
               <%= Phoenix.HTML.Link.link (gettext "Profile"), to: ExAdmin.Utils.admin_resource_path(current_user(@conn)) %>
             </li>
             <li>
-              <%= Phoenix.HTML.Link.link (gettext "Logout"), to: session_path(@conn, :destroy), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
+              <%= Phoenix.HTML.Link.link (gettext "Logout"), to: session_path(@conn, :delete), "data-method": "delete", "data-csrf": Plug.CSRFProtection.get_csrf_token, rel: "nofollow" %>
             </li>
           </ul>
         </li>
