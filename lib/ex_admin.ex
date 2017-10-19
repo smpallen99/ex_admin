@@ -33,7 +33,7 @@ defmodule ExAdmin do
   * `show` - Customize the show page
   * `form` - Customize the new and edit pages
   * `menu` - Customize the menu item
-  * `controller` - Customer the controller
+  * `controller` - Customize the controller
 
   ## Custom Ecto Types
 
