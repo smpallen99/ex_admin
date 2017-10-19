@@ -7,6 +7,7 @@ defmodule TestExAdmin.ErrorsHelperTests do
 
     schema "contacts" do
       field :first_name, :string, null: false
+      field :birthday, :date
       many_to_many :phone_numbers, TestExAdmin.PhoneNumber, join_through: TestExAdmin.ContactPhoneNumber
       timestamps()
     end
@@ -15,7 +16,7 @@ defmodule TestExAdmin.ErrorsHelperTests do
 
     def changeset(model, params \\ %{}) do
       model
-      |> cast(params, @fields)
+      |> cast(params, [:birthday | @fields])
       |> validate_required(@fields)
       |> cast_assoc(:phone_numbers, required: false)
     end
@@ -70,6 +71,15 @@ defmodule TestExAdmin.ErrorsHelperTests do
 
   test "simple errors" do
     params = %{}
+    changeset = TestExAdmin.Contact.changeset(%TestExAdmin.Contact{}, params)
+
+    errors = ExAdmin.ErrorsHelper.create_errors(changeset, TestExAdmin.Contact)
+    assert changeset.valid? == false
+    assert errors == [first_name: {"can't be blank", [validation: :required]}]
+  end
+
+  test "simple errors when schema has field with struct type" do
+    params = %{birthday: %{day: 8, month: 6, year: 2017}}
     changeset = TestExAdmin.Contact.changeset(%TestExAdmin.Contact{}, params)
 
     errors = ExAdmin.ErrorsHelper.create_errors(changeset, TestExAdmin.Contact)
