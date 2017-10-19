@@ -15,7 +15,7 @@ defmodule Mix.ExAdmin.Utils do
   end
 
   def web_path() do
-    path1 = Path.join ["lib", to_string(Mix.Phoenix.otp_app()), "web"]
+    path1 = Path.join ["lib", to_string(Mix.Phoenix.otp_app()) <> "_web"]
     path2 = "web"
     cond do
       File.exists? path1 -> path1
