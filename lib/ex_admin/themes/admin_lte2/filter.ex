@@ -61,7 +61,7 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
       end
   end
 
-  def build_field({name, type}, q, defn) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time, Timex.Ecto.DateTime, Timex.Ecto.Date, Timex.Ecto.Time, Timex.Ecto.DateTimeWithTimezone, NaiveDateTime, :naive_datetime] do
+  def build_field({name, type}, q, defn) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time, Timex.Ecto.DateTime, Timex.Ecto.Date, Timex.Ecto.Time, Timex.Ecto.DateTimeWithTimezone, NaiveDateTime, :naive_datetime, DateTime, :utc_datetime] do
     gte_value = get_value("#{name}_gte", q)
     lte_value = get_value("#{name}_lte", q)
     name_label = field_label(name, defn)

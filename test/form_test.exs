@@ -31,6 +31,19 @@ defmodule ExAdmin.FormTest do
     refute options == []
   end
 
+  test "build_control NativeDateTime" do
+    res = ExAdmin.Form.build_control(DateTime, %Simple{inserted_at: DateTime.utc_now}, %{}, "simple", :inserted_at, "simple_inserted_at")
+    select = Floki.find(res, "select[name='simple[inserted_at][year]']")
+    refute select == []
+    options = Floki.find(res, "select[name='simple[inserted_at][year]'] option")
+    refute options == []
+
+    select = Floki.find(res, "select[name='simple[inserted_at][hour]']")
+    refute select == []
+    options = Floki.find(res, "select[name='simple[inserted_at][hour]'] option")
+    refute options == []
+  end
+
   test "build_control Date" do
     res = ExAdmin.Form.build_control(Ecto.Date, %Simple{inserted_at: Ecto.DateTime.utc}, %{}, "simple", :inserted_at, "simple_inserted_at")
     select = Floki.find(res, "select[name='simple[inserted_at][year]']")
