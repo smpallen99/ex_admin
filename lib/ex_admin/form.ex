@@ -338,10 +338,10 @@ defmodule ExAdmin.Form do
       For example `input post :user, fields: [:first_name, :last_name]`
       would render a control like:
 
-          `<select>`
-            `<option id="1">José Valim</option>`
-            `<option id="2">Chris McCord</option>
-          `</select>`
+          <select>
+            <option id="1">José Valim</option>
+            <option id="2">Chris McCord</option>
+          </select>
 
     * `:prompt` - Sets a HTML placeholder
 
