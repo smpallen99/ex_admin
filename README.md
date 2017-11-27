@@ -163,7 +163,7 @@ end
 #### Relationships
 
 We support many-to-many and has many relationships as provided by Ecto. We recommend using cast_assoc for many-to-many relationships
-and put_assoc for has-many. You can see example changesets in out [test schemas](test/support/schema.exs)
+and put_assoc for has-many. You can see example changesets in our [test schemas](test/support/schema.exs)
 
 When passing in results from a form for relationships we do some coercing to make it easier to work with them in your changeset.
 For collection checkboxes we will pass an array of the selected options ids to your changeset so you can get them and use put_assoc as [seen here](test/support/schema.exs#L26-L35)
