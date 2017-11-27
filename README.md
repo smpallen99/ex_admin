@@ -21,7 +21,7 @@ See the [docs](https://hexdocs.pm/ex_admin/) and the [Wiki](https://github.com/s
 
 ## Usage
 
-ExAdmin is an add on for an application using the [Phoenix Framework](http://www.phoenixframework.org) to create an CRUD administration tool with little or no code. By running a few mix tasks to define which Ecto Models you want to administer, you will have something that works with no additional code.
+ExAdmin is an add on for an application using the [Phoenix Framework](http://www.phoenixframework.org) to create a CRUD administration tool with little or no code. By running a few mix tasks to define which Ecto Models you want to administer, you will have something that works with no additional code.
 
 Before using ExAdmin, you will need a Phoenix project and an Ecto model created.
 
@@ -171,7 +171,7 @@ For collection checkboxes we will pass an array of the selected options ids to y
 In order to support has many deletions you need you to setup a virtual attribute on your schema's. On the related schema you will
 need to add an _destroy virtual attribute so we can track the destroy property in the form. You will also need to cast this in your changeset. Here is an example changeset. In this scenario a User has many products and products can be deleted. We also have many roles associated.
 
-```elxiir
+```elixir
 defmodule TestExAdmin.User do
   import Ecto.Changeset
   use Ecto.Schema
