@@ -249,6 +249,9 @@ defmodule TestExAdmin.PhoneNumber do
   def labels, do: ["Primary Phone", "Secondary Phone", "Home Phone",
                    "Work Phone", "Mobile Phone", "Other Phone"]
 
+  def tuple_labels, do: [{"primary phone", "Primary Phone"}, {"secondary phone", "Secondary Phone"}, {"home phone", "Home Phone"},
+                         {"work phone", "Work Phone"}, {"mobile phone", "Mobile Phone"}, {"other phone", "Other Phone"}]
+
   def all_labels do
     (from p in PhoneNumber, group_by: p.label, select: p.label)
     |> Repo.all
