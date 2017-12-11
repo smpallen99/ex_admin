@@ -15,7 +15,7 @@ defmodule Mix.ExAdmin.Utils do
   end
 
   def web_path() do
-    path1 = Path.join ["lib", to_string(Mix.Phoenix.otp_app()) <> "_web"]
+    path1 = Path.join ["lib", to_string(Mix.Phoenix.otp_app())]
     path2 = "web"
     cond do
       File.exists? path1 -> path1
@@ -42,4 +42,3 @@ defmodule Mix.ExAdmin.Utils do
   @doc "Print an error message in red"
   def error(message), do: IO.puts "==> #{IO.ANSI.red}#{message}#{IO.ANSI.reset}"
 end
-
