@@ -132,6 +132,7 @@ defmodule ExAdmin.Index do
       import ExAdmin.CSV, only: [csv: 1, csv: 2]
       import ExAdmin.Register
       import ExAdmin.Index
+
       def index_view(var!(conn), page, scope_counts) do
         import ExAdmin.Form, except: [actions: 1]
         import ExAdmin.Register, except: [actions: 1]
@@ -144,18 +145,29 @@ defmodule ExAdmin.Index do
         opts = unquote(opts)
         unquote(contents)
 
-        selectable = case Macro.expand(var!(selectable_column, ExAdmin.Index), __ENV__) do
-          nil -> false
-          other -> other
-        end
-        actions = ExAdmin.Index.get_index_actions(var!(conn).assigns.defn, var!(actions, ExAdmin.Index))
-        opts = Enum.into(opts, %{})
-        |> Map.put(:column_list, var!(columns, ExAdmin.Show) |> Enum.reverse)
-        |> Map.put(:selectable_column, selectable)
-        |> Map.put(:actions, actions)
+        selectable =
+          case Macro.expand(var!(selectable_column, ExAdmin.Index), __ENV__) do
+            nil -> false
+            other -> other
+          end
+
+        actions =
+          ExAdmin.Index.get_index_actions(var!(conn).assigns.defn, var!(actions, ExAdmin.Index))
+
+        opts =
+          Enum.into(opts, %{})
+          |> Map.put(:column_list, var!(columns, ExAdmin.Show) |> Enum.reverse())
+          |> Map.put(:selectable_column, selectable)
+          |> Map.put(:actions, actions)
 
         markup safe: true do
-          ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, var!(cell, ExAdmin.Index), opts)
+          ExAdmin.Index.render_index_pages(
+            var!(conn),
+            page,
+            scope_counts,
+            var!(cell, ExAdmin.Index),
+            opts
+          )
         end
       end
     end
@@ -163,16 +175,16 @@ defmodule ExAdmin.Index do
 
   @doc false
   def get_index_actions(defn, actions) do
-    actions = case actions do
-      [] -> @default_actions
-      nil -> @default_actions
-      false -> []
-      list -> list
-    end
+    actions =
+      case actions do
+        [] -> @default_actions
+        nil -> @default_actions
+        false -> []
+        list -> list
+      end
 
-    actions -- (@default_actions -- defn.actions)
+    actions -- @default_actions -- defn.actions
   end
-
 
   @doc """
   Define which actions will be displayed in the index view.
@@ -183,9 +195,10 @@ defmodule ExAdmin.Index do
       actions [:new, :delete]
   """
   defmacro actions(opts \\ []) do
-    if opts != nil and opts != false and (opts -- @default_actions) != [] do
-      raise ArgumentError, "Only #{inspect @default_actions} are allowed!"
+    if opts != nil and opts != false and opts -- @default_actions != [] do
+      raise ArgumentError, "Only #{inspect(@default_actions)} are allowed!"
     end
+
     quote do
       var!(actions, ExAdmin.Index) = unquote(opts)
     end
@@ -234,34 +247,44 @@ defmodule ExAdmin.Index do
   def default_index_view(conn, page, scope_counts) do
     case conn.assigns.defn do
       nil ->
-        throw :invalid_route
+        throw(:invalid_route)
+
       %{__struct__: _} = defn ->
-        columns = case defn.index_filters do
-          [] -> []
-          [false] -> []
-          [_] ->
-            ExAdmin.Filter.fields(conn.assigns.defn)
-            |> Keyword.keys
-        end
-        |> case do
-          [] ->
-            defn.resource_model.__schema__(:fields)
-            |> Enum.filter(&(not &1 in [:inserted_at, :updated_at]))
-          other ->
-            other
-        end
-        |> Enum.map(&({translate_field(defn, &1), %{}}))
+        columns =
+          case defn.index_filters do
+            [] ->
+              []
 
-        columns = if :id in defn.resource_model.__schema__(:fields) and Enum.any?(columns, (&(elem(&1, 0) == :id))) do
-          Keyword.put columns, :id, %{link: true}
-        else
-          columns
-        end
+            [false] ->
+              []
 
-        opts = %{}
-        |> Map.put(:column_list, columns)
-        |> Map.put(:selectable_column, true)
-        |> Map.put(:actions, get_index_actions(defn, []))
+            [_] ->
+              ExAdmin.Filter.fields(conn.assigns.defn)
+              |> Keyword.keys()
+          end
+          |> case do
+            [] ->
+              defn.resource_model.__schema__(:fields)
+              |> Enum.filter(&(&1 not in [:inserted_at, :updated_at]))
+
+            other ->
+              other
+          end
+          |> Enum.map(&{translate_field(defn, &1), %{}})
+
+        columns =
+          if :id in defn.resource_model.__schema__(:fields) and
+               Enum.any?(columns, &(elem(&1, 0) == :id)) do
+            Keyword.put(columns, :id, %{link: true})
+          else
+            columns
+          end
+
+        opts =
+          %{}
+          |> Map.put(:column_list, columns)
+          |> Map.put(:selectable_column, true)
+          |> Map.put(:actions, get_index_actions(defn, []))
 
         markup safe: true do
           ExAdmin.Index.render_index_pages(var!(conn), page, scope_counts, nil, opts)
@@ -276,10 +299,11 @@ defmodule ExAdmin.Index do
   def render_index_pages(conn, page, scope_counts, cell, page_opts) do
     # require IEx
     # IEx.pry
-    name = resource_model(conn) |> titleize |> Inflex.pluralize
+    name = resource_model(conn) |> titleize |> Inflex.pluralize()
     defn = conn.assigns.defn
-    label = get_resource_label(conn) |> Inflex.pluralize
-    batch_actions = (not false in defn.batch_actions) and :delete in page_opts[:actions]
+    label = get_resource_label(conn) |> Inflex.pluralize()
+    batch_actions = false not in defn.batch_actions and :delete in page_opts[:actions]
+
     opts = %{
       columns: Map.get(page_opts, :columns, 3),
       column_list: Map.get(page_opts, :column_list),
@@ -300,51 +324,74 @@ defmodule ExAdmin.Index do
       selectable_column: page_opts[:selectable_column],
       actions: page_opts[:actions]
     }
+
     _render_index_page(conn, opts, page_opts)
   end
 
   defp _render_index_page(conn, opts, %{as: :grid}) do
-    Module.concat(conn.assigns.theme, Index).wrap_index_grid fn ->
-      Module.concat(conn.assigns.theme, Index).batch_action_form conn,
-          false, opts[:scopes], opts[:resource_model], opts[:scope_counts], fn ->
-        if opts[:count] == 0 do
-          Module.concat(conn.assigns.theme, Index).blank_slate_page(conn, opts)
-        else
-          Module.concat(conn.assigns.theme, Index).paginated_collection_grid(conn, opts)
+    Module.concat(conn.assigns.theme, Index).wrap_index_grid(fn ->
+      Module.concat(conn.assigns.theme, Index).batch_action_form(
+        conn,
+        false,
+        opts[:scopes],
+        opts[:resource_model],
+        opts[:scope_counts],
+        fn ->
+          if opts[:count] == 0 do
+            Module.concat(conn.assigns.theme, Index).blank_slate_page(conn, opts)
+          else
+            Module.concat(conn.assigns.theme, Index).paginated_collection_grid(conn, opts)
+          end
         end
-      end
-    end
+      )
+    end)
   end
+
   defp _render_index_page(conn, opts, page_opts) do
     page = opts[:page]
     actions = opts[:actions]
-    opts = Map.put(opts, :fields, get_resource_fields page.entries)
+    opts = Map.put(opts, :fields, get_resource_fields(page.entries))
     columns = page_opts[:column_list]
-    custom_actions_column? = Enum.any? columns, &((elem &1, 0) == "Actions")
-    columns = if custom_actions_column? || Enum.empty?(actions) do
-      columns
-    else
-        columns ++ [{"Actions", %{fun: fn(resource) -> build_index_links(conn, resource, actions, page.page_number) end,
-                                label: ExAdmin.Gettext.gettext("Actions") }}]
-    end
-    opts = Map.put opts, :column_list, columns
+    custom_actions_column? = Enum.any?(columns, &(elem(&1, 0) == "Actions"))
 
-    Module.concat(conn.assigns.theme, Index).wrap_index_grid fn ->
-      Module.concat(conn.assigns.theme, Index).batch_action_form conn,
-          opts[:batch_actions], opts[:scopes], opts[:resource_model], opts[:scope_counts], fn ->
-        if opts[:count] == 0 do
-          Module.concat(conn.assigns.theme, Index).blank_slate_page(conn, opts)
-        else
-          Module.concat(conn.assigns.theme, Index).paginated_collection_table(conn, opts)
-        end
+    columns =
+      if custom_actions_column? || Enum.empty?(actions) do
+        columns
+      else
+        columns ++
+          [
+            {"Actions", %{
+              fun: fn resource -> build_index_links(conn, resource, actions, page.page_number) end,
+              label: ExAdmin.Gettext.gettext("Actions")
+            }}
+          ]
       end
-    end
+
+    opts = Map.put(opts, :column_list, columns)
+
+    Module.concat(conn.assigns.theme, Index).wrap_index_grid(fn ->
+      Module.concat(conn.assigns.theme, Index).batch_action_form(
+        conn,
+        opts[:batch_actions],
+        opts[:scopes],
+        opts[:resource_model],
+        opts[:scope_counts],
+        fn ->
+          if opts[:count] == 0 do
+            Module.concat(conn.assigns.theme, Index).blank_slate_page(conn, opts)
+          else
+            Module.concat(conn.assigns.theme, Index).paginated_collection_table(conn, opts)
+          end
+        end
+      )
+    end)
   end
 
   @doc """
   Build the scope link.
   """
   def build_scope_href(href, nil), do: href
+
   def build_scope_href(href, scope) do
     String.replace(href, "?", "?scope=#{scope}&")
   end
@@ -359,24 +406,25 @@ defmodule ExAdmin.Index do
   Build the filter link.
   """
   def build_filter_href(href, nil), do: href
+
   def build_filter_href(href, q) do
     q
-    |> Map.to_list
-    |> Enum.reduce(href, fn({name, value}, acc) ->
+    |> Map.to_list()
+    |> Enum.reduce(href, fn {name, value}, acc ->
       acc <> "&q%5B" <> name <> "%5D=" <> value
     end)
   end
 
   @doc false
   def download_links(conn, opts) do
-    div ".download_links " <> (gettext "Download:") <> " " do
-      a "CSV", href: build_csv_href(conn, opts)
+    div ".download_links " <> gettext("Download:") <> " " do
+      a("CSV", href: build_csv_href(conn, opts))
     end
   end
 
   @doc false
   def build_csv_href(conn, opts) do
-    admin_resource_path(conn, :csv) <> "?order="
+    (admin_resource_path(conn, :csv) <> "?order=")
     |> build_scope_href(conn.params["scope"])
     |> build_order_href(opts[:order])
     |> build_filter_href(conn.params["q"])
@@ -384,10 +432,12 @@ defmodule ExAdmin.Index do
 
   @doc false
   def parameterize(name, seperator \\ "_")
+
   def parameterize(atom, seperator) when is_atom(atom) do
     Atom.to_string(atom)
     |> parameterize(seperator)
   end
+
   def parameterize(string, seperator) do
     Inflex.parameterize(string, seperator)
   end
@@ -396,12 +446,13 @@ defmodule ExAdmin.Index do
   def build_index_links(conn, resource, actions, page_num \\ 1) do
     resource_model = resource.__struct__
 
-    links = case actions do
-      nil -> []
-      other -> other
-    end
+    links =
+      case actions do
+        nil -> []
+        other -> other
+      end
 
-    list = get_authorized_links(conn, links, resource_model) |> Enum.reverse
+    list = get_authorized_links(conn, links, resource_model) |> Enum.reverse()
     labels = conn.assigns.defn.action_labels
 
     Module.concat(conn.assigns.theme, Index).handle_action_links(list, resource, labels, page_num)
@@ -409,8 +460,8 @@ defmodule ExAdmin.Index do
 
   @doc false
   def get_authorized_links(conn, links, resource_model) do
-    Enum.reduce links, [], fn(item, acc) ->
+    Enum.reduce(links, [], fn item, acc ->
       if ExAdmin.Utils.authorized_action?(conn, item, resource_model), do: [item | acc], else: acc
-    end
+    end)
   end
 end

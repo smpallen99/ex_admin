@@ -6,9 +6,15 @@ defmodule TestExAdmin.ErrorsHelperTests do
     use Ecto.Schema
 
     schema "contacts" do
-      field :first_name, :string, null: false
-      field :birthday, :date
-      many_to_many :phone_numbers, TestExAdmin.PhoneNumber, join_through: TestExAdmin.ContactPhoneNumber
+      field(:first_name, :string, null: false)
+      field(:birthday, :date)
+
+      many_to_many(
+        :phone_numbers,
+        TestExAdmin.PhoneNumber,
+        join_through: TestExAdmin.ContactPhoneNumber
+      )
+
       timestamps()
     end
 
@@ -27,8 +33,8 @@ defmodule TestExAdmin.ErrorsHelperTests do
     use Ecto.Schema
 
     schema "contacts_phone_numbers" do
-      belongs_to :contact, TestExAdmin.Contact
-      belongs_to :phone_number, TestExAdmin.PhoneNumber
+      belongs_to(:contact, TestExAdmin.Contact)
+      belongs_to(:phone_number, TestExAdmin.PhoneNumber)
 
       timestamps()
     end
@@ -49,11 +55,11 @@ defmodule TestExAdmin.ErrorsHelperTests do
     use Ecto.Schema
 
     schema "phone_numbers" do
-      field :number, :string, null: false
-      field :label, :string, null: false
+      field(:number, :string, null: false)
+      field(:label, :string, null: false)
 
-      has_many :contacts_phone_numbers, TestExAdmin.ContactPhoneNumber
-      has_many :contacts, through: [:contacts_phone_numbers, :contact]
+      has_many(:contacts_phone_numbers, TestExAdmin.ContactPhoneNumber)
+      has_many(:contacts, through: [:contacts_phone_numbers, :contact])
 
       timestamps()
     end
@@ -88,12 +94,18 @@ defmodule TestExAdmin.ErrorsHelperTests do
   end
 
   test "nested errors are squashed" do
-    params = %{phone_numbers: %{"1483927542828": %{_destroy: "0", label: "Primary Phone",
-                 number: nil}}}
+    params = %{
+      phone_numbers: %{"1483927542828": %{_destroy: "0", label: "Primary Phone", number: nil}}
+    }
+
     changeset = TestExAdmin.Contact.changeset(%TestExAdmin.Contact{}, params)
 
     errors = ExAdmin.ErrorsHelper.create_errors(changeset, TestExAdmin.Contact)
     assert changeset.valid? == false
-    assert errors == [first_name: {"can't be blank", [validation: :required]}, phone_numbers_attributes_0_number: {"can't be blank", [validation: :required]}]
+
+    assert errors == [
+             first_name: {"can't be blank", [validation: :required]},
+             phone_numbers_attributes_0_number: {"can't be blank", [validation: :required]}
+           ]
   end
 end

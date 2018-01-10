@@ -8,12 +8,13 @@ defmodule ExAdmin.EctoFormMappers do
 
   defp filter_checkboxes(params) do
     # convert to array of id's
-    Enum.filter_map(params,
-      fn(x) ->
-          elem(x, 1) == "on"
+    Enum.filter_map(
+      params,
+      fn x ->
+        elem(x, 1) == "on"
       end,
       fn
-        {item, _} when is_atom(item) -> Atom.to_string item
+        {item, _} when is_atom(item) -> Atom.to_string(item)
         {item, _} -> item
       end
     )
