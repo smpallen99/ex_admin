@@ -467,8 +467,8 @@ defmodule ExAdmin.Register do
 
   ## Examples
 
-  The following example illustrates how to add a sync action that will
-  be run before the index page is loaded.
+  The following example illustrates how to configure custom changeset functions
+  for create and update actions.
 
       changesets create: &__MODULE__.create_changeset/2,
                  update: &__MODULE__.update_changeset/2
