@@ -160,7 +160,7 @@ defmodule ExAdmin.ViewHelpers do
 
     case Decimal.round(num, rnd) |> Decimal.to_string() |> String.split(".") do
       [int, dec] ->
-        del <> wrap_negative(int <> sep <> String.ljust(dec, 2, ?0), neg_opts)
+        del <> wrap_negative(int <> sep <> String.pad_trailing(dec, 2, "0"), neg_opts)
 
       [int] ->
         del <> wrap_negative(int <> sep <> "00", neg_opts)
