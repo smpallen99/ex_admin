@@ -81,7 +81,8 @@ defmodule ExAdmin.Filter do
 
   def filter_options(defn, field, key \\ nil)
 
-  def filter_options(%{index_filters: filters}, field, key) when is_list(filters) and is_atom(key) do
+  def filter_options(%{index_filters: filters}, field, key)
+      when is_list(filters) and is_atom(key) do
     filters
     |> List.flatten()
     |> Enum.map(fn

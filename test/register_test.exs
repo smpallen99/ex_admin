@@ -136,31 +136,36 @@ defmodule TestExAdmin.RegisterTest do
   end
 
   test "action_items with action_item" do
-    show =
-      {
-        :show,
-        {:fn, [line: 78], [
-          {:->, [line: 78], [
+    show = {
+      :show,
+      {:fn, [line: 78],
+       [
+         {:->, [line: 78],
+          [
             [{:id, [line: 78], nil}],
-            {:action_item_link, [line: 79], [
-              "Lock User!",
-              [
-                href:
-                  {:<<>>, [line: 79], [
-                    "/admin/users/lock/",
-                    {:::, [line: 79], [
-                      {{:., [line: 79], [Kernel, :to_string]}, [line: 79], [
-                        {:id, [line: 79], nil}
-                      ]},
-                      {:binary, [line: 79], nil}
-                    ]}
-                  ]},
-                "data-method": :put
-              ]
-            ]}
+            {:action_item_link, [line: 79],
+             [
+               "Lock User!",
+               [
+                 href:
+                   {:<<>>, [line: 79],
+                    [
+                      "/admin/users/lock/",
+                      {:::, [line: 79],
+                       [
+                         {{:., [line: 79], [Kernel, :to_string]}, [line: 79],
+                          [
+                            {:id, [line: 79], nil}
+                          ]},
+                         {:binary, [line: 79], nil}
+                       ]}
+                    ]},
+                 "data-method": :put
+               ]
+             ]}
           ]}
-        ]}
-      }
+       ]}
+    }
 
     index = {:index, quote(do: fn -> :test end)}
 

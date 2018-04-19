@@ -372,14 +372,16 @@ defmodule TestExAdmin.Maps do
   end
 
   def create_changeset(model, params \\ %{}) do
-    IO.inspect "In create"
-    Agent.update(__MODULE__, fn (_v) -> "create_changeset" end)
+    IO.inspect("In create")
+    Agent.update(__MODULE__, fn _v -> "create_changeset" end)
+
     model
     |> cast(params, @fields)
   end
 
   def update_update(model, params \\ %{}) do
-    Agent.update(__MODULE__, fn (_v) -> "update_changeset" end)
+    Agent.update(__MODULE__, fn _v -> "update_changeset" end)
+
     model
     |> cast(params, @fields)
   end

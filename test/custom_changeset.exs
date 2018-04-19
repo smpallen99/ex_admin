@@ -31,18 +31,18 @@ defmodule ExAdminTest.ControllerTest do
   end
 
   test "calls the create changeset when no custom change set is specified and in create path" do
-    TestExAdmin.Maps.start_link
-    conn = post build_conn(), admin_resource_path(TestExAdmin.Maps, :create), map: %{}
-    assert TestExAdmin.Maps.last_changeset == "create_changeset"
+    TestExAdmin.Maps.start_link()
+    conn = post(build_conn(), admin_resource_path(TestExAdmin.Maps, :create), map: %{})
+    assert TestExAdmin.Maps.last_changeset() == "create_changeset"
 
-    TestExAdmin.Map.stop
+    TestExAdmin.Map.stop()
   end
 
   test "calls the update changeset when no custom change set is specified and in update path" do
-    TestExAdmin.Maps.start_link
-    conn = post build_conn(), admin_resource_path(TestExAdmin.Maps, :create), map: %{}
-    assert TestExAdmin.Maps.last_changeset == "create_changeset"
+    TestExAdmin.Maps.start_link()
+    conn = post(build_conn(), admin_resource_path(TestExAdmin.Maps, :create), map: %{})
+    assert TestExAdmin.Maps.last_changeset() == "create_changeset"
 
-    TestExAdmin.Maps.stop
+    TestExAdmin.Maps.stop()
   end
 end

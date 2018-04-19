@@ -37,12 +37,13 @@ defmodule ExAdminTest do
     result = ExAdmin.action_button(conn, defn, "Simple", :show, :delete, defn.actions, "17")
 
     assert result == [
-             {"Delete Simple", [
-               href: "/admin/simples/1",
-               "data-confirm": "Are you sure you want to delete this?",
-               "data-method": :delete,
-               rel: :nofollow
-             ]}
+             {"Delete Simple",
+              [
+                href: "/admin/simples/1",
+                "data-confirm": "Are you sure you want to delete this?",
+                "data-method": :delete,
+                rel: :nofollow
+              ]}
            ]
 
     result = ExAdmin.action_button(conn, defn, "Simple", :index, :new, defn.actions, "17")
@@ -61,12 +62,13 @@ defmodule ExAdminTest do
              edit: [{"Edit Simple", [href: "/admin/simples/1/edit"]}],
              new: [{"New Simple", [href: "/admin/simples/new"]}],
              delete: [
-               {"Delete Simple", [
-                 href: "/admin/simples/1",
-                 "data-confirm": "Are you sure you want to delete this?",
-                 "data-method": :delete,
-                 rel: :nofollow
-               ]}
+               {"Delete Simple",
+                [
+                  href: "/admin/simples/1",
+                  "data-confirm": "Are you sure you want to delete this?",
+                  "data-method": :delete,
+                  rel: :nofollow
+                ]}
              ]
            ]
 
@@ -97,12 +99,13 @@ defmodule ExAdminTest do
              edit: [{"Edit Simple", [href: "/admin/simples/1/edit"]}],
              new: [{"New Simple", [href: "/admin/simples/new"]}],
              delete: [
-               {"Delete Simple", [
-                 href: "/admin/simples/1",
-                 "data-confirm": "Are you sure you want to delete this?",
-                 "data-method": :delete,
-                 rel: :nofollow
-               ]}
+               {"Delete Simple",
+                [
+                  href: "/admin/simples/1",
+                  "data-confirm": "Are you sure you want to delete this?",
+                  "data-method": :delete,
+                  rel: :nofollow
+                ]}
              ],
              custom: [{"Custom Show", [href: "/custom/1"]}]
            ]

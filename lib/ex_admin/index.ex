@@ -360,10 +360,13 @@ defmodule ExAdmin.Index do
       else
         columns ++
           [
-            {"Actions", %{
-              fun: fn resource -> build_index_links(conn, resource, actions, page.page_number) end,
-              label: ExAdmin.Gettext.gettext("Actions")
-            }}
+            {"Actions",
+             %{
+               fun: fn resource ->
+                 build_index_links(conn, resource, actions, page.page_number)
+               end,
+               label: ExAdmin.Gettext.gettext("Actions")
+             }}
           ]
       end
 
