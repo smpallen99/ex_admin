@@ -1385,7 +1385,7 @@ defmodule ExAdmin.Form do
     |> build_array_control_block
   end
 
-  def build_control({:embed, e}, resource, opts, model_name, field_name, ext_name) do
+  def build_control({:embed, e}, resource, _opts, model_name, field_name, ext_name) do
     embed_content = Map.get(resource, field_name) || e.related.__struct__
     embed_module = e.related
 
