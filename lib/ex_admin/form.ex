@@ -21,6 +21,7 @@ defmodule ExAdmin.Form do
               input contact, :first_name
               input contact, :last_name
               input contact, :email
+              input contact, :register_date, type: Date
               input contact, :category, collection: MyProject.Category.all
             end
 
@@ -63,6 +64,9 @@ defmodule ExAdmin.Form do
   ### Specifying type of control
 
       input user, :password, type: :password
+
+      # If you use :naive_datetime or :utc_datetime in your schema instead of Ecto.DateTime
+      input user, :register_datetime, type: DateTime
 
   ### Array field support
 
@@ -1027,11 +1031,19 @@ defmodule ExAdmin.Form do
     %{name: model_name, model: resource, id: model_name, class: "form-control"}
     |> time_select(field_name, Map.get(opts, :options, []))
   end
-  def build_control(Date, resource, opts, model_name, field_name, _ext_name) do
+  def build_control(Elixir.DateTime, resource, opts, model_name, field_name, _ext_name) do
+    %{name: model_name, model: resource, id: model_name, class: "form-control"}
+    |> datetime_select(field_name, Map.get(opts, :options, []))
+  end
+  def build_control(Elixir.NaiveDateTime, resource, opts, model_name, field_name, _ext_name) do
+    %{name: model_name, model: resource, id: model_name, class: "form-control"}
+    |> datetime_select(field_name, Map.get(opts, :options, []))
+  end
+  def build_control(Elixir.Date, resource, opts, model_name, field_name, _ext_name) do
     %{name: model_name, model: resource, id: model_name, class: "form-control"}
     |> date_select(field_name, Map.get(opts, :options, []))
   end
-  def build_control(Time, resource, opts, model_name, field_name, _ext_name) do
+  def build_control(Elixir.Time, resource, opts, model_name, field_name, _ext_name) do
     %{name: model_name, model: resource, id: model_name, class: "form-control"}
     |> time_select(field_name, Map.get(opts, :options, []))
   end
