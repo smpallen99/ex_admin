@@ -1594,7 +1594,7 @@ defmodule ExAdmin.Form do
   map =
     &Enum.map(&1, fn i ->
       i = Integer.to_string(i)
-      {String.rjust(i, 2, ?0), i}
+      {String.pad_leading(i, 2, "0"), i}
     end)
 
   @days map.(1..31)
@@ -1815,11 +1815,11 @@ defmodule ExAdmin.Form do
   defp map_array_errors(nil, _, _), do: nil
 
   defp map_array_errors(errors, field_name, inx) do
-    Enum.filter_map(
-      errors || [],
-      fn {k, {_err, opts}} -> k == field_name and opts[:index] == inx end,
-      fn {_k, {err, opts}} -> {opts[:field], err} end
-    )
+    errors = errors || []
+
+    errors
+    |> Enum.filter(fn {k, {_err, opts}} -> k == field_name and opts[:index] == inx end)
+    |> Enum.map(fn {_k, {err, opts}} -> {opts[:field], err} end)
   end
 
   @doc false
