@@ -6,7 +6,7 @@ defmodule ExAdmin.EctoFormMapper do
   test "build for checkboxes" do
     role = insert_role
     role2 = insert_role
-    params = %{ roles: %{"#{role.id}": "on"} }
+    params = %{roles: %{"#{role.id}": "on"}}
     expected_ids = ["#{role.id}"]
     ids = Params.build_for_checkboxes(params[:roles])
     expected_loaded = [role]

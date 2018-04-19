@@ -14,7 +14,6 @@ defmodule ExAdmin.Page do
     end
   end
 
-
   @doc """
   Display contents on a page. Use Xain markup to create the page.
 
@@ -57,6 +56,7 @@ defmodule ExAdmin.Page do
         import ExAdmin.ViewHelpers
         use Xain
         _ = var!(conn)
+
         markup safe: true do
           unquote(block)
         end
@@ -72,7 +72,7 @@ defmodule ExAdmin.Page do
       var!(columns, ExAdmin.Show) = []
       var!(columns, ExAdmin.Page) = []
       unquote(block)
-      cols = var!(columns, ExAdmin.Page) |> Enum.reverse
+      cols = var!(columns, ExAdmin.Page) |> Enum.reverse()
       var!(columns, ExAdmin.Page) = []
       theme_module(Page).columns(cols)
     end
@@ -81,13 +81,14 @@ defmodule ExAdmin.Page do
   @doc """
   Define a column.
   """
-  defmacro column([do: block]) do
+  defmacro column(do: block) do
     quote do
-      html = markup do
-        unquote(block)
-      end
+      html =
+        markup do
+          unquote(block)
+        end
+
       var!(columns, ExAdmin.Page) = [html | var!(columns, ExAdmin.Page)]
     end
   end
-
 end

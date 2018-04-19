@@ -4,12 +4,18 @@ defmodule TestExAdmin.User do
   import Ecto.Query
 
   schema "users" do
-    field :name, :string
-    field :email, :string
-    field :active, :boolean, default: true
-    has_many :products, TestExAdmin.Product, on_replace: :delete
-    has_many :noids, TestExAdmin.Noid
-    many_to_many :roles, TestExAdmin.Role, join_through: TestExAdmin.UserRole, on_replace: :delete
+    field(:name, :string)
+    field(:email, :string)
+    field(:active, :boolean, default: true)
+    has_many(:products, TestExAdmin.Product, on_replace: :delete)
+    has_many(:noids, TestExAdmin.Noid)
+
+    many_to_many(
+      :roles,
+      TestExAdmin.Role,
+      join_through: TestExAdmin.UserRole,
+      on_replace: :delete
+    )
   end
 
   @fields ~w(name active email)a
@@ -17,7 +23,6 @@ defmodule TestExAdmin.User do
 
   def changeset(model, params \\ %{}) do
     model
-
     |> cast(params, @fields)
     |> validate_required(@required_fields)
     |> cast_assoc(:noids, required: false)
@@ -28,7 +33,7 @@ defmodule TestExAdmin.User do
   def add_roles(changeset, params) do
     if Enum.count(Map.get(params, :roles, [])) > 0 do
       ids = params[:roles]
-      roles = TestExAdmin.Repo.all(from r in TestExAdmin.Role, where: r.id in ^ids)
+      roles = TestExAdmin.Repo.all(from(r in TestExAdmin.Role, where: r.id in ^ids))
       put_assoc(changeset, :roles, roles)
     else
       changeset
@@ -42,9 +47,9 @@ defmodule TestExAdmin.Role do
   alias TestExAdmin.Repo
 
   schema "roles" do
-    field :name, :string
-    has_many :uses_roles, TestExAdmin.UserRole
-    many_to_many :users, TestExAdmin.User, join_through: TestExAdmin.UserRole
+    field(:name, :string)
+    has_many(:uses_roles, TestExAdmin.UserRole)
+    many_to_many(:users, TestExAdmin.User, join_through: TestExAdmin.UserRole)
   end
 
   @fields ~w(name)a
@@ -56,7 +61,7 @@ defmodule TestExAdmin.Role do
   end
 
   def all do
-    Repo.all __MODULE__
+    Repo.all(__MODULE__)
   end
 end
 
@@ -65,8 +70,8 @@ defmodule TestExAdmin.UserRole do
   import Ecto.Changeset
 
   schema "users_roles" do
-    belongs_to :user, TestExAdmin.User
-    belongs_to :role, TestExAdmin.Role
+    belongs_to(:user, TestExAdmin.User)
+    belongs_to(:role, TestExAdmin.Role)
 
     timestamps()
   end
@@ -85,10 +90,10 @@ defmodule TestExAdmin.Product do
   import Ecto.Changeset
 
   schema "products" do
-    field :_destroy, :boolean, virtual: true
-    field :title, :string
-    field :price, :decimal
-    belongs_to :user, TestExAdmin.User
+    field(:_destroy, :boolean, virtual: true)
+    field(:title, :string)
+    field(:price, :decimal)
+    belongs_to(:user, TestExAdmin.User)
   end
 
   @fields ~w(title price user_id)a
@@ -96,7 +101,6 @@ defmodule TestExAdmin.Product do
 
   def changeset(model, params \\ %{}) do
     model
-
     |> cast(params, @fields)
     |> validate_required(@required_fields)
     |> mark_for_deletion()
@@ -118,9 +122,9 @@ defmodule TestExAdmin.Noid do
   @primary_key {:name, :string, []}
   # @derive {Phoenix.Param, key: :name}
   schema "noids" do
-    field :description, :string
-    field :company, :string
-    belongs_to :user, TestExAdmin.User, foreign_key: :user_id, references: :id
+    field(:description, :string)
+    field(:company, :string)
+    belongs_to(:user, TestExAdmin.User, foreign_key: :user_id, references: :id)
   end
 
   @fields ~w(name description company user_id)a
@@ -138,9 +142,9 @@ defmodule TestExAdmin.Noprimary do
   use Ecto.Schema
   @primary_key false
   schema "noprimarys" do
-    field :index, :integer
-    field :name, :string
-    field :description, :string
+    field(:index, :integer)
+    field(:name, :string)
+    field(:description, :string)
     timestamps()
   end
 
@@ -159,9 +163,9 @@ defmodule TestExAdmin.Simple do
   use Ecto.Schema
 
   schema "simples" do
-    field :name, :string
-    field :description, :string
-    field :exists?, :boolean, virtual: true
+    field(:name, :string)
+    field(:description, :string)
+    field(:exists?, :boolean, virtual: true)
 
     timestamps()
   end
@@ -170,7 +174,8 @@ defmodule TestExAdmin.Simple do
   @required_fields ~w(name)a
 
   def changeset(model, params \\ %{}) do
-    Agent.update(__MODULE__, fn (_v) -> "changeset" end)
+    Agent.update(__MODULE__, fn _v -> "changeset" end)
+
     model
     |> cast(params, @fields)
     |> validate_required(@required_fields)
@@ -181,14 +186,16 @@ defmodule TestExAdmin.Simple do
   end
 
   def changeset_create(model, params \\ %{}) do
-    Agent.update(__MODULE__, fn (_v) -> "changeset_create" end)
+    Agent.update(__MODULE__, fn _v -> "changeset_create" end)
+
     model
     |> cast(params, @fields)
     |> validate_required(@required_fields)
   end
 
   def changeset_update(model, params \\ %{}) do
-    Agent.update(__MODULE__, fn (_v) -> "changeset_update" end)
+    Agent.update(__MODULE__, fn _v -> "changeset_update" end)
+
     model
     |> cast(params, @fields)
     |> validate_required(@required_fields)
@@ -208,9 +215,8 @@ defmodule TestExAdmin.Restricted do
   use Ecto.Schema
 
   schema "restricteds" do
-    field :name, :string
-    field :description, :string
-
+    field(:name, :string)
+    field(:description, :string)
   end
 
   @fields ~w(name description)a
@@ -231,10 +237,10 @@ defmodule TestExAdmin.PhoneNumber do
   alias TestExAdmin.Repo
 
   schema "phone_numbers" do
-    field :number, :string
-    field :label, :string
-    has_many :contacts_phone_numbers, TestExAdmin.ContactPhoneNumber
-    has_many :contacts, through: [:contacts_phone_numbers, :contact]
+    field(:number, :string)
+    field(:label, :string)
+    has_many(:contacts_phone_numbers, TestExAdmin.ContactPhoneNumber)
+    has_many(:contacts, through: [:contacts_phone_numbers, :contact])
     timestamps()
   end
 
@@ -246,12 +252,19 @@ defmodule TestExAdmin.PhoneNumber do
     |> validate_required(@fields)
   end
 
-  def labels, do: ["Primary Phone", "Secondary Phone", "Home Phone",
-                   "Work Phone", "Mobile Phone", "Other Phone"]
+  def labels,
+    do: [
+      "Primary Phone",
+      "Secondary Phone",
+      "Home Phone",
+      "Work Phone",
+      "Mobile Phone",
+      "Other Phone"
+    ]
 
   def all_labels do
-    (from p in PhoneNumber, group_by: p.label, select: p.label)
-    |> Repo.all
+    from(p in PhoneNumber, group_by: p.label, select: p.label)
+    |> Repo.all()
   end
 end
 
@@ -260,10 +273,10 @@ defmodule TestExAdmin.Contact do
   use Ecto.Schema
 
   schema "contacts" do
-    field :first_name, :string
-    field :last_name, :string
-    has_many :contacts_phone_numbers, TestExAdmin.ContactPhoneNumber
-    has_many :phone_numbers, through: [:contacts_phone_numbers, :phone_number]
+    field(:first_name, :string)
+    field(:last_name, :string)
+    has_many(:contacts_phone_numbers, TestExAdmin.ContactPhoneNumber)
+    has_many(:phone_numbers, through: [:contacts_phone_numbers, :phone_number])
     timestamps()
   end
 
@@ -281,8 +294,8 @@ defmodule TestExAdmin.ContactPhoneNumber do
   use Ecto.Schema
 
   schema "contacts_phone_numbers" do
-    belongs_to :contact, TestExAdmin.Contact
-    belongs_to :phone_number, TestExAdmin.PhoneNumber
+    belongs_to(:contact, TestExAdmin.Contact)
+    belongs_to(:phone_number, TestExAdmin.PhoneNumber)
   end
 
   @fields ~w(contact_id phone_number_id)a
@@ -301,7 +314,7 @@ defmodule TestExAdmin.UUIDSchema do
   @primary_key {:key, :binary_id, autogenerate: true}
 
   schema "uuid_schemas" do
-    field :name, :string
+    field(:name, :string)
     timestamps()
   end
 
@@ -312,16 +325,15 @@ defmodule TestExAdmin.UUIDSchema do
     |> cast(params, @fields)
     |> validate_required(@fields)
   end
-
 end
 
 defmodule TestExAdmin.ModelDisplayName do
   use Ecto.Schema
 
   schema "model_display_name" do
-    field :first, :string
-    field :name, :string
-    field :other, :string
+    field(:first, :string)
+    field(:name, :string)
+    field(:other, :string)
   end
 
   def display_name(resource) do
@@ -337,18 +349,46 @@ defmodule TestExAdmin.DefnDisplayName do
   use Ecto.Schema
 
   schema "defn_display_name" do
-    field :first, :string
-    field :second, :string
-    field :name, :string
+    field(:first, :string)
+    field(:second, :string)
+    field(:name, :string)
   end
 end
 
 defmodule TestExAdmin.Maps do
   use Ecto.Schema
+  import Ecto.Changeset
 
   schema "maps" do
-    field :name, :string
-    field :addresses, {:array, :map}
-    field :stats, :map
+    field(:name, :string)
+    field(:addresses, {:array, :map})
+    field(:stats, :map)
+  end
+
+  @fields ~w(name addresses stats)
+
+  def start_link do
+    Agent.start_link(fn -> nil end, name: __MODULE__)
+  end
+
+  def create_changeset(model, params \\ %{}) do
+    IO.inspect "In create"
+    Agent.update(__MODULE__, fn (_v) -> "create_changeset" end)
+    model
+    |> cast(params, @fields)
+  end
+
+  def update_update(model, params \\ %{}) do
+    Agent.update(__MODULE__, fn (_v) -> "update_changeset" end)
+    model
+    |> cast(params, @fields)
+  end
+
+  def last_changeset do
+    Agent.get(__MODULE__, fn changeset -> changeset end)
+  end
+
+  def stop do
+    Agent.stop(__MODULE__)
   end
 end

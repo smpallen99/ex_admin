@@ -84,8 +84,10 @@ defmodule ExAdmin.CSV do
 
   """
   defmacro csv(opts \\ [], block \\ [])
+
   defmacro csv(block_or_opts, block) do
     {block, opts} = if block == [], do: {block_or_opts, block}, else: {block, block_or_opts}
+
     quote location: :keep do
       import ExAdmin.Register, except: [column: 1, column: 2]
       import unquote(__MODULE__)
@@ -93,13 +95,15 @@ defmodule ExAdmin.CSV do
       def build_csv(resources) do
         var!(columns, ExAdmin.CSV) = []
         unquote(block)
+
         case var!(columns, ExAdmin.CSV) do
           [] ->
             unquote(block)
             |> ExAdmin.CSV.build_csv(resources, unquote(opts))
+
           schema ->
             schema
-            |> Enum.reverse
+            |> Enum.reverse()
             |> ExAdmin.CSV.build_csv(resources, unquote(opts))
         end
       end
@@ -129,7 +133,7 @@ defmodule ExAdmin.CSV do
   @doc false
   def default_schema([resource | _]) do
     resource.__struct__.__schema__(:fields)
-    |> Enum.map(&(build_default_column(&1)))
+    |> Enum.map(&build_default_column(&1))
   end
 
   @doc false
@@ -139,29 +143,31 @@ defmodule ExAdmin.CSV do
 
   @doc false
   def build_csv(schema, resources, opts) do
-    schema = normalize_schema schema
-    Enum.reduce(resources, build_header_row(schema, opts), &(build_row(&2, &1, schema)))
-    |> Enum.reverse
-    |> CSVLixir.write
+    schema = normalize_schema(schema)
+
+    Enum.reduce(resources, build_header_row(schema, opts), &build_row(&2, &1, schema))
+    |> Enum.reverse()
+    |> CSVLixir.write()
   end
+
   def build_csv(resources) do
     default_schema(resources)
     |> build_csv(resources, [])
   end
 
   defp normalize_schema(schema) do
-    Enum.map schema, fn
+    Enum.map(schema, fn
       {name, fun} -> %{field: name, fun: fun}
       name when is_atom(name) -> %{field: name, fun: nil}
       map -> map
-    end
+    end)
   end
 
   @doc false
   def build_header_row(schema, opts) do
     if Keyword.get(opts, :header, true) do
       humanize? = Keyword.get(opts, :humanize, true)
-      [(for field <- schema, do: column_name(field[:field], humanize?))]
+      [for(field <- schema, do: column_name(field[:field], humanize?))]
     else
       []
     end
@@ -172,19 +178,22 @@ defmodule ExAdmin.CSV do
 
   @doc false
   def build_row(acc, resource, schema) do
-    row = Enum.reduce(schema, [], fn
-      %{field: name, fun: nil}, acc ->
-        [(Map.get(resource, name) |> ExAdmin.Render.to_string) | acc]
-      %{field: _name, fun: fun}, acc ->
-        [(fun.(resource) |> ExAdmin.Render.to_string) | acc]
-    end)
-    |> Enum.reverse
+    row =
+      Enum.reduce(schema, [], fn
+        %{field: name, fun: nil}, acc ->
+          [Map.get(resource, name) |> ExAdmin.Render.to_string() | acc]
+
+        %{field: _name, fun: fun}, acc ->
+          [fun.(resource) |> ExAdmin.Render.to_string() | acc]
+      end)
+      |> Enum.reverse()
+
     [row | acc]
   end
 
   @doc false
   def write_csv(csv) do
     csv
-    |> CSVLixir.write
+    |> CSVLixir.write()
   end
 end

@@ -39,11 +39,13 @@ defmodule TestExAdmin.ConnCase do
   end
 
   setup _tags do
-    conn = if function_exported? Phoenix.ConnTest, :build_conn, 0 do
-      Phoenix.ConnTest.build_conn()
-    else
-      Phoenix.ConnTest.conn()
-    end
+    conn =
+      if function_exported?(Phoenix.ConnTest, :build_conn, 0) do
+        Phoenix.ConnTest.build_conn()
+      else
+        Phoenix.ConnTest.conn()
+      end
+
     {:ok, conn: conn}
   end
 end
