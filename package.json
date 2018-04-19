@@ -1,12 +1,12 @@
 {
-  "repository": {
-  },
+  "repository": {},
   "dependencies": {
     "babel-brunch": "~6.1.1",
     "brunch": "~2.10.9",
     "clean-css-brunch": "~2.10.0",
     "css-brunch": "~2.10.0",
     "javascript-brunch": "~2.10.0",
+    "coffee-script-brunch": "^2.10.1",
     "sass-brunch": "~2.10.4",
     "uglify-js-brunch": "~2.10.0"
   }

@@ -145,6 +145,10 @@ defmodule TestExAdmin.ExAdmin.Simple do
   end
 end
 
+defmodule TestExAdmin.ExAdmin.Maps do
+  use ExAdmin.Register
+end
+
 defmodule TestExAdmin.ExAdmin.UUIDSchema do
   use ExAdmin.Register
 

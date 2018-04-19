@@ -19,15 +19,13 @@ exports.config = {
         ],
         'js/ex_admin_common.js': [
           "web/static/vendor/active_admin.js",
-          "web/static/vendor/active_admin_lib.js",
+          /^(web\/static\/vendor\/active_admin\/)/,
           "web/static/vendor/best_in_place.js",
           "web/static/vendor/best_in_place.purr.js",
           "web/static/vendor/jquery-ujs.js.js",
           "web/static/vendor/themes/admin_lte2/plugins/select2/select2.js",
           "web/static/vendor/association_filler_opts.js",
-        ],
-        // 'js/active_admin.js': [
-        // ]
+        ]
       }
     },
     //   // To use a separate vendor.js bundle, specify two files path
@@ -91,6 +89,9 @@ exports.config = {
     babel: {
       // Do not use ES6 compiler in vendor code
       ignore: [/^(web\/static\/vendor)/]
+    },
+    coffeescript: {
+      bare: true
     }
   }
 };

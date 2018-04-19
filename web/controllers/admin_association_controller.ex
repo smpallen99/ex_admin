@@ -48,7 +48,11 @@ defmodule ExAdmin.AdminAssociationController do
 
     selected_ids
     |> Enum.each(fn(assoc_id) ->
-      assoc_id = String.to_integer(assoc_id)
+      assoc_id = if String.match?(assoc_id, ~r/^\d+$/) do
+        String.to_integer(assoc_id)
+      else
+        assoc_id
+      end
       Ecto.build_assoc(resource, through_assoc, %{resource_key => resource_id, assoc_key => assoc_id})
       |> repo().insert!
     end)
