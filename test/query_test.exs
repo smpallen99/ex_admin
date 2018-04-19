@@ -8,12 +8,20 @@ defmodule ExAdmin.QueryTest do
   end
 
   test "run_query with resource with non default primary key" do
-    insert_noid name: "query1"
+    insert_noid(name: "query1")
     query_opts = %{all: [preload: []]}
-    res = ExAdmin.Query.run_query(TestExAdmin.Noid,  TestExAdmin.Repo, %TestExAdmin.ExAdmin.Noid{},
-      :show, "query1", query_opts)
-    |> ExAdmin.Query.execute_query(TestExAdmin.Repo, :show, "query1")
+
+    res =
+      ExAdmin.Query.run_query(
+        TestExAdmin.Noid,
+        TestExAdmin.Repo,
+        %TestExAdmin.ExAdmin.Noid{},
+        :show,
+        "query1",
+        query_opts
+      )
+      |> ExAdmin.Query.execute_query(TestExAdmin.Repo, :show, "query1")
+
     assert res.name == "query1"
   end
-
 end

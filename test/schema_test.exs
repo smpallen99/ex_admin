@@ -17,7 +17,7 @@ defmodule ExAdmin.SchemaTest do
   end
 
   test "handles query input without a primary key" do
-    query = from c in TestExAdmin.Noid
+    query = from(c in TestExAdmin.Noid)
     assert Schema.primary_key(query) == :name
   end
 

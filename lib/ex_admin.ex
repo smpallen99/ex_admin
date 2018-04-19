@@ -161,9 +161,9 @@ defmodule ExAdmin do
   import ExAdmin.Utils, only: [titleize: 1, humanize: 1, admin_resource_path: 2]
   require ExAdmin.Register
 
-  Code.ensure_compiled ExAdmin.Register
+  Code.ensure_compiled(ExAdmin.Register)
 
-  Module.register_attribute __MODULE__, :registered, accumulate: true, persist: true
+  Module.register_attribute(__MODULE__, :registered, accumulate: true, persist: true)
 
   @default_theme ExAdmin.Theme.AdminLte2
 
@@ -177,24 +177,29 @@ defmodule ExAdmin do
   # check for old xain.after_callback format and issue a compile time
   # exception if not configured correctly.
 
-  case Application.get_env :xain, :after_callback do
-    nil -> nil
-    {_, _} -> nil
+  case Application.get_env(:xain, :after_callback) do
+    nil ->
+      nil
+
+    {_, _} ->
+      nil
+
     _ ->
-      raise ExAdmin.CompileError, message: "Invalid xain_callback in config. Use {Phoenix.HTML, :raw}"
+      raise ExAdmin.CompileError,
+        message: "Invalid xain_callback in config. Use {Phoenix.HTML, :raw}"
   end
 
   @doc false
-  def registered, do: Application.get_env(:ex_admin, :modules, []) |> Enum.reverse
+  def registered, do: Application.get_env(:ex_admin, :modules, []) |> Enum.reverse()
 
   @doc false
   def put_data(key, value) do
-    Agent.update __MODULE__, &(Map.put(&1, key, value))
+    Agent.update(__MODULE__, &Map.put(&1, key, value))
   end
 
   @doc false
   def get_data(key) do
-    Agent.get __MODULE__, &(Map.get(&1, key))
+    Agent.get(__MODULE__, &Map.get(&1, key))
   end
 
   @doc false
@@ -203,6 +208,7 @@ defmodule ExAdmin do
       case get_registered_resource(reg) do
         %{resource_model: rm} = item ->
           {rm, item}
+
         %{type: :page} = item ->
           {nil, item}
       end
@@ -220,33 +226,45 @@ defmodule ExAdmin do
       get_registered_resource(reg)
     end
   end
+
   @doc false
   def get_registered(resource_model) do
     get_all_registered()
     |> Keyword.get(resource_model)
   end
 
-
   def get_registered_by_association(resource, assoc_name) do
     resource_model = resource.__struct__
-    assoc_model = case resource_model.__schema__(:association, assoc_name) do
-      %{through: [link1, link2]} ->
-        resource |> Ecto.build_assoc(link1) |> Ecto.build_assoc(link2) |> Map.get(:__struct__)
-      %{queryable: assoc_model} ->
-        assoc_model
-      nil ->
-        raise ArgumentError.exception("Association #{assoc_name} is not found.\n#{inspect(resource_model)}.__schema__(:association, #{inspect(assoc_name)}) returns nil")
-      _ ->
-        raise ArgumentError.exception("Association type of #{assoc_name} is not supported. Please, fill an issue.")
-    end
-    Enum.find get_registered(), %{}, &(Map.get(&1, :resource_model) == assoc_model)
-  end
 
+    assoc_model =
+      case resource_model.__schema__(:association, assoc_name) do
+        %{through: [link1, link2]} ->
+          resource |> Ecto.build_assoc(link1) |> Ecto.build_assoc(link2) |> Map.get(:__struct__)
+
+        %{queryable: assoc_model} ->
+          assoc_model
+
+        nil ->
+          raise ArgumentError.exception(
+                  "Association #{assoc_name} is not found.\n#{inspect(resource_model)}.__schema__(:association, #{
+                    inspect(assoc_name)
+                  }) returns nil"
+                )
+
+        _ ->
+          raise ArgumentError.exception(
+                  "Association type of #{assoc_name} is not supported. Please, fill an issue."
+                )
+      end
+
+    Enum.find(get_registered(), %{}, &(Map.get(&1, :resource_model) == assoc_model))
+  end
 
   @doc false
   def get_controller_path(%{} = resource) do
-    get_controller_path Map.get(resource, :__struct__)
+    get_controller_path(Map.get(resource, :__struct__))
   end
+
   @doc false
   def get_controller_path(resource_model) when is_atom(resource_model) do
     get_all_registered()
@@ -266,6 +284,7 @@ defmodule ExAdmin do
     case get_registered(name) do
       nil ->
         &__MODULE__.default_page_title_actions/2
+
       %{title_actions: actions} ->
         actions
     end
@@ -274,27 +293,33 @@ defmodule ExAdmin do
   @doc false
   def get_name_from_controller(controller) when is_atom(controller) do
     get_all_registered()
-    |> Enum.find_value(fn({name, %{controller: c_name}}) ->
+    |> Enum.find_value(fn {name, %{controller: c_name}} ->
       if c_name == controller, do: name
     end)
   end
 
   @doc false
-  def default_resource_title_actions(%Plug.Conn{params: params} = conn, %{resource_model: resource_model} = defn) do
+  def default_resource_title_actions(
+        %Plug.Conn{params: params} = conn,
+        %{resource_model: resource_model} = defn
+      ) do
     singular = ExAdmin.Utils.displayable_name_singular(conn) |> titleize
     actions = defn.actions
+
     case Utils.action_name(conn) do
       :show ->
         id = Map.get(params, "id")
-        Enum.reduce([:edit, :new, :delete], [], fn(action, acc) ->
+
+        Enum.reduce([:edit, :new, :delete], [], fn action, acc ->
           if Utils.authorized_action?(conn, action, resource_model) do
-            [{action, action_button(conn, defn, singular, :show, action, actions, id)}|acc]
+            [{action, action_button(conn, defn, singular, :show, action, actions, id)} | acc]
           else
             acc
           end
         end)
         |> add_custom_actions(:show, actions, id)
-        |> Enum.reverse
+        |> Enum.reverse()
+
       action when action in [:index, :edit] ->
         if Utils.authorized_action?(conn, action, resource_model) do
           [{:new, action_button(conn, defn, singular, action, :new, actions)}]
@@ -302,7 +327,8 @@ defmodule ExAdmin do
           []
         end
         |> add_custom_actions(action, actions)
-        |> Enum.reverse
+        |> Enum.reverse()
+
       _ ->
         []
     end
@@ -340,27 +366,34 @@ defmodule ExAdmin do
 
   defp add_custom_actions(acc, action, actions, id \\ nil)
   defp add_custom_actions(acc, _action, [], _id), do: acc
+
   defp add_custom_actions(acc, action, [{action, button} | actions], id) do
     import ExAdmin.ViewHelpers
-    endpoint()  # remove the compiler warning
-    {fun, _} = Code.eval_quoted button, [id: id], __ENV__
+    # remove the compiler warning
+    endpoint()
+    {fun, _} = Code.eval_quoted(button, [id: id], __ENV__)
+
     cond do
       is_function(fun, 1) -> [fun.(id) | acc]
       is_function(fun, 0) -> [fun.() | acc]
-      true                -> acc
+      true -> acc
     end
     |> add_custom_actions(action, actions, id)
   end
-  defp add_custom_actions(acc, action, [_|actions], id) do
+
+  defp add_custom_actions(acc, action, [_ | actions], id) do
     add_custom_actions(acc, action, actions, id)
   end
 
   defp action_link(conn, name, :delete, _id) do
-    {name,
-      [href: admin_resource_path(conn, :destroy),
-        "data-confirm": Utils.confirm_message,
-        "data-method": :delete, rel: :nofollow]}
+    {name, [
+      href: admin_resource_path(conn, :destroy),
+      "data-confirm": Utils.confirm_message(),
+      "data-method": :delete,
+      rel: :nofollow
+    ]}
   end
+
   defp action_link(conn, name, action, _id) do
     {name, [href: admin_resource_path(conn, action)]}
   end
@@ -368,12 +401,14 @@ defmodule ExAdmin do
   @doc false
   def has_action?(conn, defn, action) do
     if ExAdmin.Utils.authorized_action?(conn, action, defn),
-      do: _has_action?(defn, action), else: false
+      do: _has_action?(defn, action),
+      else: false
   end
 
   defp _has_action?(defn, action) do
-    except = Keyword.get defn.actions, :except, []
-    only = Keyword.get defn.actions, :only, []
+    except = Keyword.get(defn.actions, :except, [])
+    only = Keyword.get(defn.actions, :only, [])
+
     cond do
       action in defn.actions -> true
       action in only -> true
@@ -381,5 +416,4 @@ defmodule ExAdmin do
       true -> false
     end
   end
-
 end

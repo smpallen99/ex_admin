@@ -6,16 +6,18 @@ defmodule ExAdmin.ChangesetTest do
   defmodule Schema do
     defstruct id: 0, name: nil
   end
+
   defmodule Schema2 do
     defstruct id: 0, field: nil
   end
+
   defmodule Cs1 do
     defstruct model: nil, changes: %{}
   end
+
   defmodule Cs2 do
     defstruct data: nil, changes: %{}
   end
-
 
   test "sets data for ecto2" do
     cs = %Cs2{data: %Schema{id: 1, name: "test"}}
@@ -30,15 +32,14 @@ defmodule ExAdmin.ChangesetTest do
   end
 
   test "get data for ecto2" do
-    data = Changeset.get_data %Cs2{data: %Schema{id: 1, name: "T"}}
+    data = Changeset.get_data(%Cs2{data: %Schema{id: 1, name: "T"}})
     assert data.id == 1
     assert data.name == "T"
   end
 
   test "get data for ecto1" do
-    data = Changeset.get_data %Cs1{model: %Schema{id: 2, name: "TT"}}
+    data = Changeset.get_data(%Cs1{model: %Schema{id: 2, name: "TT"}})
     assert data.id == 2
     assert data.name == "TT"
   end
-
 end

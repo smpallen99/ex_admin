@@ -14,7 +14,7 @@ defmodule TestExAdmin.UpdateTest do
     noid = insert_noid(user_id: user.id, name: "controller 1")
     _user2 = insert_user()
     current_window_handle() |> maximize_window
-    navigate_to admin_resource_path(Noid, :index)
+    navigate_to(admin_resource_path(Noid, :index))
     click(find_element(:class, "edit_link"))
 
     name_field = find_element(:name, "noid[name]")
@@ -27,9 +27,9 @@ defmodule TestExAdmin.UpdateTest do
     assert attribute_value(company_field, "value") == noid.company
     assert attribute_value(user_field, "value") == "#{noid.user_id}"
 
-    fill_field name_field, "Cory"
-    fill_field description_field, "Updated"
-    fill_field company_field, "This"
+    fill_field(name_field, "Cory")
+    fill_field(description_field, "Updated")
+    fill_field(company_field, "This")
 
     click(find_element(:name, "commit"))
 
@@ -41,29 +41,34 @@ defmodule TestExAdmin.UpdateTest do
   @tag :integration
   test "has many through with many to many realtionship destroy relation " do
     role = insert_role()
-    role2 = insert_role(%{ name: "Test2"})
+    role2 = insert_role(%{name: "Test2"})
 
-    user = insert_user(%{ roles: [role.id, role2.id]})
-    _product = insert_product(%{ user_id: user.id })
+    user = insert_user(%{roles: [role.id, role2.id]})
+    _product = insert_product(%{user_id: user.id})
 
     user = get_user(user.id)
 
     assert Enum.count(user.products) == 1
     assert Enum.count(user.roles) == 2
 
-    navigate_to admin_resource_path(user, :edit)
+    navigate_to(admin_resource_path(user, :edit))
 
     name_field = find_element(:css, "#user_name")
     email_field = find_element(:css, "#user_email")
     products_wrapper = find_element(:css, ".products")
-    _products_adder = find_all_within_element(products_wrapper,
-     :css, ".btn-primary")
+    _products_adder = find_all_within_element(products_wrapper, :css, ".btn-primary")
 
-    execute_script("document.getElementsByName('user[role_ids][#{role2.id}]')[0].checked = false;")
-    fill_field name_field, "Cory"
-    fill_field email_field, "test@example.com"
+    execute_script(
+      "document.getElementsByName('user[role_ids][#{role2.id}]')[0].checked = false;"
+    )
 
-    execute_script("document.getElementsByName('user[products_attributes][0][_destroy]')[0].checked = true;")
+    fill_field(name_field, "Cory")
+    fill_field(email_field, "test@example.com")
+
+    execute_script(
+      "document.getElementsByName('user[products_attributes][0][_destroy]')[0].checked = true;"
+    )
+
     click(find_element(:name, "commit"))
     user = get_user(user.id)
 
@@ -74,17 +79,17 @@ defmodule TestExAdmin.UpdateTest do
   @tag :integration
   test "validate product creation many to many " do
     role = insert_role()
-    role2 = insert_role(%{ name: "Test2"})
+    role2 = insert_role(%{name: "Test2"})
 
-    user = insert_user(%{ roles: [role.id, role2.id] })
-    _product = insert_product(%{ user_id: user.id })
+    user = insert_user(%{roles: [role.id, role2.id]})
+    _product = insert_product(%{user_id: user.id})
 
     user = get_user(user.id)
 
     assert Enum.count(user.products) == 1
     assert Enum.count(user.roles) == 2
 
-    navigate_to admin_resource_path(user, :edit)
+    navigate_to(admin_resource_path(user, :edit))
 
     product_title = find_element(:name, "user[products_attributes][0][title]")
     fill_field(product_title, "")
@@ -100,20 +105,23 @@ defmodule TestExAdmin.UpdateTest do
   @tag :integration
   test "update with errors keeps checkbox state " do
     role = insert_role()
-    role2 = insert_role(%{ name: "Test2"})
+    role2 = insert_role(%{name: "Test2"})
 
-    user = insert_user(%{ roles: [role.id, role2.id]})
+    user = insert_user(%{roles: [role.id, role2.id]})
 
     user = get_user(user.id)
 
     assert Enum.count(user.roles) == 2
 
-    navigate_to admin_resource_path(user, :edit)
+    navigate_to(admin_resource_path(user, :edit))
 
     email_field = find_element(:css, "#user_email")
 
-    execute_script("document.getElementsByName('user[role_ids][#{role2.id}]')[0].checked = false;")
-    fill_field email_field, ""
+    execute_script(
+      "document.getElementsByName('user[role_ids][#{role2.id}]')[0].checked = false;"
+    )
+
+    fill_field(email_field, "")
 
     click(find_element(:name, "commit"))
 
@@ -126,25 +134,24 @@ defmodule TestExAdmin.UpdateTest do
   @tag :integration
   test "remove has many association and error occurs" do
     role = insert_role()
-    role2 = insert_role(%{ name: "Test2"})
+    role2 = insert_role(%{name: "Test2"})
 
-    user = insert_user(%{ roles: [role.id, role2.id]})
-    product = insert_product(%{ user_id: user.id })
+    user = insert_user(%{roles: [role.id, role2.id]})
+    product = insert_product(%{user_id: user.id})
 
     user = get_user(user.id)
 
     assert Enum.count(user.products) == 1
     assert Enum.count(user.roles) == 2
 
-    navigate_to admin_resource_path(user, :edit)
+    navigate_to(admin_resource_path(user, :edit))
 
     email_field = find_element(:css, "#user_email")
 
     products_wrapper = find_element(:css, ".products")
-    _products_adder = find_all_within_element(products_wrapper,
-     :css, ".btn-primary")
+    _products_adder = find_all_within_element(products_wrapper, :css, ".btn-primary")
 
-    fill_field email_field, ""
+    fill_field(email_field, "")
 
     execute_script("document.getElementsByClassName('destroy')[0].checked = true")
 
@@ -152,8 +159,9 @@ defmodule TestExAdmin.UpdateTest do
 
     products_wrapper = find_element(:css, ".products")
     product_destroy = find_within_element(products_wrapper, :css, ".destroy")
-    product_title = find_within_element(products_wrapper,
-     :name, "user[products_attributes][0][title]")
+
+    product_title =
+      find_within_element(products_wrapper, :name, "user[products_attributes][0][title]")
 
     assert attribute_value(product_title, "value") == product.title
     assert attribute_value(product_destroy, "checked") == "true"
@@ -161,7 +169,7 @@ defmodule TestExAdmin.UpdateTest do
 
   defp get_user(id) do
     Repo.get!(TestExAdmin.User, id)
-      |> Repo.preload(:roles)
-      |> Repo.preload(:products)
+    |> Repo.preload(:roles)
+    |> Repo.preload(:products)
   end
 end

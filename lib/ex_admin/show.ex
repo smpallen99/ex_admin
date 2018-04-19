@@ -56,14 +56,16 @@ defmodule ExAdmin.Show do
       end
 
   """
-  defmacro show(resource, [do: contents]) do
+  defmacro show(resource, do: contents) do
     quote location: :keep do
       import ExAdmin.CSV, only: [csv: 1, csv: 2]
       import ExAdmin.Register
+
       def show_view(var!(conn), unquote(resource) = var!(resource)) do
         import ExAdmin.Utils
         import ExAdmin.ViewHelpers
         _ = var!(resource)
+
         markup safe: true do
           unquote(contents)
         end
@@ -108,13 +110,14 @@ defmodule ExAdmin.Show do
 
   """
   defmacro attributes_table(name \\ nil, opts_or_block)
+
   defmacro attributes_table(name, do: block) do
     quote location: :keep do
       var!(rows, ExAdmin.Show) = []
       unquote(block)
-      rows = var!(rows, ExAdmin.Show) |> Enum.reverse
+      rows = var!(rows, ExAdmin.Show) |> Enum.reverse()
       schema = %{name: unquote(name), rows: rows}
-      ExAdmin.Table.attributes_table var!(conn), var!(resource), schema
+      ExAdmin.Table.attributes_table(var!(conn), var!(resource), schema)
     end
   end
 
@@ -152,10 +155,10 @@ defmodule ExAdmin.Show do
     quote location: :keep do
       var!(rows, ExAdmin.Show) = []
       unquote(block)
-      rows = var!(rows, ExAdmin.Show) |> Enum.reverse
+      rows = var!(rows, ExAdmin.Show) |> Enum.reverse()
       resource = unquote(resource)
       schema = %{rows: rows}
-      ExAdmin.Table.attributes_table_for var!(conn), resource, schema
+      ExAdmin.Table.attributes_table_for(var!(conn), resource, schema)
     end
   end
 
@@ -172,9 +175,11 @@ defmodule ExAdmin.Show do
     quote do
       var!(elements, ExAdmin.Show) = []
       unquote(block)
+
       ExAdmin.Table.panel(
         var!(conn),
-        [ {:name, unquote(name)}, {:opts, unquote(opts)} | var!(elements, ExAdmin.Show) ], unquote(opts)
+        [{:name, unquote(name)}, {:opts, unquote(opts)} | var!(elements, ExAdmin.Show)],
+        unquote(opts)
       )
     end
   end
@@ -217,33 +222,40 @@ defmodule ExAdmin.Show do
 
   """
   defmacro table_for(resources, opts, do: block) do
-    block = if Keyword.has_key?(opts, :sortable) do
-      ensure_sort_handle_column(block)
-    else
-      block
-    end
+    block =
+      if Keyword.has_key?(opts, :sortable) do
+        ensure_sort_handle_column(block)
+      else
+        block
+      end
 
     quote do
-      opts = unquote(opts) |> ExAdmin.Show.prepare_sortable_opts
+      opts = unquote(opts) |> ExAdmin.Show.prepare_sortable_opts()
 
       var!(columns, ExAdmin.Show) = []
       unquote(block)
-      columns = var!(columns, ExAdmin.Show) |> Enum.reverse
+      columns = var!(columns, ExAdmin.Show) |> Enum.reverse()
 
-      var!(elements, ExAdmin.Show) = var!(elements, ExAdmin.Show) ++ [{
-        :table_for,
-        %{resources: unquote(resources), columns: columns, opts: opts}
-      }]
+      var!(elements, ExAdmin.Show) =
+        var!(elements, ExAdmin.Show) ++
+          [
+            {
+              :table_for,
+              %{resources: unquote(resources), columns: columns, opts: opts}
+            }
+          ]
     end
   end
+
   defmacro table_for(resources, do: block) do
     quote do
-      table_for unquote(resources), [], do: unquote(block)
+      table_for(unquote(resources), [], do: unquote(block))
     end
   end
 
   defp ensure_sort_handle_column({:__block__, trace, cols} = block) do
-    has_sort_handle_column = Enum.any?(cols, fn({ctype, _, _}) -> ctype == :sort_handle_column end)
+    has_sort_handle_column = Enum.any?(cols, fn {ctype, _, _} -> ctype == :sort_handle_column end)
+
     if has_sort_handle_column do
       block
     else
@@ -255,23 +267,29 @@ defmodule ExAdmin.Show do
     case opts[:sortable] do
       [resource: resource, assoc_name: assoc_name] ->
         path = ExAdmin.Utils.admin_association_path(resource, assoc_name, :update_positions)
+
         [
           class: "table sortable",
           "data-sortable-link": path
-        ] |> Keyword.merge(Keyword.drop(opts, [:sortable]))
+        ]
+        |> Keyword.merge(Keyword.drop(opts, [:sortable]))
 
       _ ->
         opts
     end
   end
 
-
   defmacro sortable_table_for(resource, assoc_name, do: block) do
     quote do
       resource = unquote(resource)
       assoc_name = unquote(assoc_name)
       resources = Map.get(resource, assoc_name)
-      table_for resources, [sortable: [resource: resource, assoc_name: assoc_name]], do: unquote(block)
+
+      table_for(
+        resources,
+        [sortable: [resource: resource, assoc_name: assoc_name]],
+        do: unquote(block)
+      )
     end
   end
 
@@ -295,12 +313,19 @@ defmodule ExAdmin.Show do
   """
   defmacro markup_contents(do: block) do
     quote do
-      content = markup :nested do
-        unquote(block)
-      end
-      var!(elements, ExAdmin.Show) = var!(elements, ExAdmin.Show) ++ [{
-        :contents, %{contents: content}
-      }]
+      content =
+        markup :nested do
+          unquote(block)
+        end
+
+      var!(elements, ExAdmin.Show) =
+        var!(elements, ExAdmin.Show) ++
+          [
+            {
+              :contents,
+              %{contents: content}
+            }
+          ]
     end
   end
 
@@ -326,9 +351,10 @@ defmodule ExAdmin.Show do
   """
   defmacro association_filler(resource, assoc_name, opts) do
     quote bind_quoted: [resource: resource, assoc_name: assoc_name, opts: opts] do
-      opts = ExAdmin.Schema.get_intersection_keys(resource, assoc_name)
-      |> Keyword.merge([assoc_name: to_string(assoc_name)])
-      |> Keyword.merge(opts)
+      opts =
+        ExAdmin.Schema.get_intersection_keys(resource, assoc_name)
+        |> Keyword.merge(assoc_name: to_string(assoc_name))
+        |> Keyword.merge(opts)
 
       association_filler(resource, opts)
     end
@@ -364,14 +390,15 @@ defmodule ExAdmin.Show do
   defmacro association_filler(resource, opts) do
     quote bind_quoted: [resource: resource, opts: opts] do
       required_opts = [:resource_key, :assoc_name, :assoc_key]
+
       unless MapSet.subset?(MapSet.new(required_opts), MapSet.new(Keyword.keys(opts))) do
         raise ArgumentError.exception("""
-          `association_filler` macro requires following options:
-          #{inspect(required_opts)}
-          For example:
-          association_filler(category, resource_key: "category_id", assoc_name: "properties",
-            assoc_key: "property_id", autocomplete: false)
-        """)
+                `association_filler` macro requires following options:
+                #{inspect(required_opts)}
+                For example:
+                association_filler(category, resource_key: "category_id", assoc_name: "properties",
+                  assoc_key: "property_id", autocomplete: false)
+              """)
       end
 
       hr
@@ -383,26 +410,42 @@ defmodule ExAdmin.Show do
   @doc false
   def build_association_filler_form(resource, true = _autocomplete, opts) do
     path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name], :add)
+
     markup do
-      Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
-        Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
-        Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
-        Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
+      Xain.form class: "association_filler_form",
+                name: "select_#{opts[:assoc_name]}",
+                method: "post",
+                action: path do
+        Xain.input(
+          name: "_csrf_token",
+          value: Plug.CSRFProtection.get_csrf_token(),
+          type: "hidden"
+        )
+
+        Xain.input(name: "resource_key", value: opts[:resource_key], type: "hidden")
+        Xain.input(name: "assoc_key", value: opts[:assoc_key], type: "hidden")
 
         Xain.select class: "association_filler", multiple: "multiple", name: "selected_ids[]" do
-          option ""
+          option("")
         end
-        Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
+
+        Xain.input(
+          value: "Save",
+          type: "submit",
+          class: "btn btn-primary",
+          style: "margin-left: 1em;"
+        )
       end
 
       associations_path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name])
+
       script type: "text/javascript" do
-        text """
+        text("""
         $(document).ready(function() {
           ExAdmin.association_filler_opts.ajax.url = "#{associations_path}";
           $(".association_filler").select2(ExAdmin.association_filler_opts);
         });
-        """
+        """)
       end
     end
   end
@@ -413,27 +456,35 @@ defmodule ExAdmin.Show do
     assoc_defn = ExAdmin.get_registered_by_association(resource, assoc_name)
     path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name], :add)
 
-    Xain.form class: "association_filler_form", name: "select_#{opts[:assoc_name]}", method: "post", action: path do
-      Xain.input name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token, type: "hidden"
-      Xain.input name: "resource_key", value: opts[:resource_key], type: "hidden"
-      Xain.input name: "assoc_key", value: opts[:assoc_key], type: "hidden"
+    Xain.form class: "association_filler_form",
+              name: "select_#{opts[:assoc_name]}",
+              method: "post",
+              action: path do
+      Xain.input(name: "_csrf_token", value: Plug.CSRFProtection.get_csrf_token(), type: "hidden")
+      Xain.input(name: "resource_key", value: opts[:resource_key], type: "hidden")
+      Xain.input(name: "assoc_key", value: opts[:assoc_key], type: "hidden")
 
       Xain.select class: "select2", multiple: "multiple", name: "selected_ids[]" do
         ExAdmin.Model.potential_associations_query(resource, assoc_defn.__struct__, assoc_name)
         |> repo().all
-        |> Enum.each(fn(opt) ->
-          option ExAdmin.Helpers.display_name(opt), value: ExAdmin.Schema.get_id(opt)
+        |> Enum.each(fn opt ->
+          option(ExAdmin.Helpers.display_name(opt), value: ExAdmin.Schema.get_id(opt))
         end)
       end
-      Xain.input value: "Save", type: "submit", class: "btn btn-primary", style: "margin-left: 1em;"
+
+      Xain.input(
+        value: "Save",
+        type: "submit",
+        class: "btn btn-primary",
+        style: "margin-left: 1em;"
+      )
     end
   end
-
 
   @doc false
   def default_show_view(conn, resource) do
     markup safe: true do
-      default_attributes_table conn, resource
+      default_attributes_table(conn, resource)
     end
   end
 
@@ -441,23 +492,29 @@ defmodule ExAdmin.Show do
   def default_attributes_table(conn, resource, opts \\ []) do
     case conn.assigns.defn do
       nil ->
-        throw :invalid_route
+        throw(:invalid_route)
+
       %{__struct__: _} = defn ->
-        columns = defn.resource_model.__schema__(:fields)
-        |> get_default_attributes(Enum.into(opts, %{}))
-        |> Enum.map(&({translate_field(defn, &1), %{}}))
-        |> Enum.reject(&(is_nil(&1)))
-        ExAdmin.Table.attributes_table conn, resource, %{rows: columns}
+        columns =
+          defn.resource_model.__schema__(:fields)
+          |> get_default_attributes(Enum.into(opts, %{}))
+          |> Enum.map(&{translate_field(defn, &1), %{}})
+          |> Enum.reject(&is_nil(&1))
+
+        ExAdmin.Table.attributes_table(conn, resource, %{rows: columns})
     end
   end
 
   defp get_default_attributes(fields, %{only: only}) do
     Enum.filter(only, &(&1 in fields))
   end
+
   defp get_default_attributes(fields, %{except: except} = opts) do
     get_default_attributes(fields, Map.delete(opts, :except)) -- except
   end
+
   defp get_default_attributes(fields, %{all: true}), do: fields
+
   defp get_default_attributes(fields, _) do
     fields
     |> Enum.reject(&(&1 in [:id, :inserted_at, :updated_at]))

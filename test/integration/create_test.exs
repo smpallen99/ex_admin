@@ -6,9 +6,10 @@ defmodule TestExAdmin.CreateTest do
   # Start hound session and destroy when tests are run
   setup do
     old_theme = Application.get_env(:ex_admin, :theme)
-    on_exit fn ->
+
+    on_exit(fn ->
       Application.put_env(:ex_admin, :theme, old_theme)
-    end
+    end)
 
     user = insert_user()
     current_window_handle() |> maximize_window
@@ -16,22 +17,23 @@ defmodule TestExAdmin.CreateTest do
   end
 
   for x <- [ExAdmin.Theme.ActiveAdmin, ExAdmin.Theme.AdminLte2] do
-    Application.put_env :ex_admin, :theme, x
+    Application.put_env(:ex_admin, :theme, x)
 
     @tag :integration
-    test "create a product #{x}", %{ user: user } do
-      navigate_to admin_resource_path(Product, :new)
+    test "create a product #{x}", %{user: user} do
+      navigate_to(admin_resource_path(Product, :new))
 
       title_field = find_element(:name, "product[title]")
       price_field = find_element(:name, "product[price]")
       _user_field = find_element(:name, "product[user_id]")
 
-      fill_field title_field, "Test Create"
-      fill_field price_field, ".99"
+      fill_field(title_field, "Test Create")
+      fill_field(price_field, ".99")
+
       find_element(:css, "select[name*='product[user_id]']")
-        |> find_all_within_element(:css, "option")
-        |> Enum.find(fn(x) -> attribute_value(x, "value") == "#{user.id}" end)
-        |> click
+      |> find_all_within_element(:css, "option")
+      |> Enum.find(fn x -> attribute_value(x, "value") == "#{user.id}" end)
+      |> click
 
       click(find_element(:name, "commit"))
 
@@ -42,7 +44,7 @@ defmodule TestExAdmin.CreateTest do
 
     @tag :integration
     test "validate product creation  #{x}" do
-      navigate_to admin_resource_path(Product, :new)
+      navigate_to(admin_resource_path(Product, :new))
       click(find_element(:name, "commit"))
 
       title_wrapper = find_element(:css, "#product_title_input")
@@ -54,8 +56,8 @@ defmodule TestExAdmin.CreateTest do
     @tag :integration
     test "has many through with many to many realtionship form #{x} " do
       role = insert_role()
-      role2 = insert_role(%{ name: "Test2"})
-      navigate_to admin_resource_path(User, :new)
+      role2 = insert_role(%{name: "Test2"})
+      navigate_to(admin_resource_path(User, :new))
 
       name_field = find_element(:css, "#user_name")
       email_field = find_element(:css, "#user_email")
@@ -63,15 +65,14 @@ defmodule TestExAdmin.CreateTest do
       role_field2 = find_element(:css, "input[name*='user[role_ids][#{role2.id}]']")
 
       products_wrapper = find_element(:css, ".products")
-      products_adder = find_all_within_element(products_wrapper,
-       :css, ".btn-primary")
+      products_adder = find_all_within_element(products_wrapper, :css, ".btn-primary")
 
-      click role_field
-      click role_field2
-      fill_field name_field, "Cory"
-      fill_field email_field, "test@example.com"
+      click(role_field)
+      click(role_field2)
+      fill_field(name_field, "Cory")
+      fill_field(email_field, "test@example.com")
 
-      click List.first(products_adder)
+      click(List.first(products_adder))
 
       product_fields = find_all_within_element(products_wrapper, :css, "input[type='text']")
 
@@ -80,7 +81,8 @@ defmodule TestExAdmin.CreateTest do
 
       click(find_element(:name, "commit"))
 
-      user = Repo.one(from x in User, order_by: [desc: x.id], limit: 1)
+      user =
+        Repo.one(from(x in User, order_by: [desc: x.id], limit: 1))
         |> Repo.preload(:roles)
         |> Repo.preload(:products)
 

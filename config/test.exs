@@ -4,7 +4,8 @@ config :ex_admin, TestExAdmin.Endpoint,
   http: [port: 4001],
   secret_key_base: "HL0pikQMxNSA58DV3mf26O/eh1e4vaJDmx1qLgqBcnS14gbKu9Xn3x114D+mHYcX",
   server: true
-  #debug_errors: true
+
+# debug_errors: true
 
 config :ex_admin, TestExAdmin.Repo,
   adapter: Ecto.Adapters.Postgres,
@@ -25,7 +26,7 @@ config :ex_admin,
     TestExAdmin.ExAdmin.Simple,
     TestExAdmin.ExAdmin.ModelDisplayName,
     TestExAdmin.ExAdmin.DefnDisplayName,
-    TestExAdmin.ExAdmin.RestrictedEdit,
+    TestExAdmin.ExAdmin.RestrictedEdit
   ]
 
 config :xain,
