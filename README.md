@@ -21,7 +21,7 @@ See the [docs](https://hexdocs.pm/ex_admin/) and the [Wiki](https://github.com/s
 
 ## Usage
 
-ExAdmin is an add on for an application using the [Phoenix Framework](http://www.phoenixframework.org) to create an CRUD administration tool with little or no code. By running a few mix tasks to define which Ecto Models you want to administer, you will have something that works with no additional code.
+ExAdmin is an add on for an application using the [Phoenix Framework](http://www.phoenixframework.org) to create a CRUD administration tool with little or no code. By running a few mix tasks to define which Ecto Models you want to administer, you will have something that works with no additional code.
 
 Before using ExAdmin, you will need a Phoenix project and an Ecto model created.
 
@@ -59,7 +59,7 @@ config/config.exs
 ```elixir
 config :ex_admin,
   repo: MyProject.Repo,
-  module: MyProject,
+  module: MyProject,    # MyProject.Web for phoenix >= 1.3.0-rc 
   modules: [
     MyProject.ExAdmin.Dashboard,
   ]
@@ -163,7 +163,7 @@ end
 #### Relationships
 
 We support many-to-many and has many relationships as provided by Ecto. We recommend using cast_assoc for many-to-many relationships
-and put_assoc for has-many. You can see example changesets in out [test schemas](test/support/schema.exs)
+and put_assoc for has-many. You can see example changesets in our [test schemas](test/support/schema.exs)
 
 When passing in results from a form for relationships we do some coercing to make it easier to work with them in your changeset.
 For collection checkboxes we will pass an array of the selected options ids to your changeset so you can get them and use put_assoc as [seen here](test/support/schema.exs#L26-L35)
@@ -171,7 +171,7 @@ For collection checkboxes we will pass an array of the selected options ids to y
 In order to support has many deletions you need you to setup a virtual attribute on your schema's. On the related schema you will
 need to add an _destroy virtual attribute so we can track the destroy property in the form. You will also need to cast this in your changeset. Here is an example changeset. In this scenario a User has many products and products can be deleted. We also have many roles associated.
 
-```elxiir
+```elixir
 defmodule TestExAdmin.User do
   import Ecto.Changeset
   use Ecto.Schema
@@ -420,6 +420,19 @@ config :ex_admin,
     {"ActiveAdmin", ExAdmin.Theme.ActiveAdmin}
   ],
   ...
+```
+
+### Overriding the model name
+
+You can override the name of a model by defining a `model_name/0` function on
+the module. This is useful if you want to use a different module for some of
+your actions.
+
+admin/my_model.ex
+```elixir
+def model_name do
+  "custom_name"
+end
 ```
 
 ## Authentication

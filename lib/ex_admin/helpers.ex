@@ -34,11 +34,13 @@ defmodule ExAdmin.Helpers do
     end
   end
 
+  def model_name(%{__struct__: name}), do: model_name(name)
   def model_name(resource) when is_atom(resource) do
-    resource |> ExAdmin.Utils.base_name |> Inflex.underscore()
-  end
-  def model_name(%{__struct__: name}) do
-    model_name name
+    if has_function?(resource, :model_name, 0) do
+      resource.model_name()
+    else
+      resource |> ExAdmin.Utils.base_name |> Inflex.underscore()
+    end
   end
 
   def build_link_for({:safe, _} = safe_contents, d, a, b, c) do

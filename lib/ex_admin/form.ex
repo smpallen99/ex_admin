@@ -338,10 +338,10 @@ defmodule ExAdmin.Form do
       For example `input post :user, fields: [:first_name, :last_name]`
       would render a control like:
 
-          `<select>`
-            `<option id="1">José Valim</option>`
-            `<option id="2">Chris McCord</option>
-          `</select>`
+          <select>
+            <option id="1">José Valim</option>
+            <option id="2">Chris McCord</option>
+          </select>
 
     * `:prompt` - Sets a HTML placeholder
 
@@ -1011,11 +1011,27 @@ defmodule ExAdmin.Form do
     %{name: model_name, model: resource, id: model_name, class: "form-control"}
     |> datetime_select(field_name, Map.get(opts, :options, []))
   end
+  def build_control(DateTime, resource, opts, model_name, field_name, _ext_name) do
+    %{name: model_name, model: resource, id: model_name, class: "form-control"}
+    |> datetime_select(field_name, Map.get(opts, :options, []))
+  end
+  def build_control(NaiveDateTime, resource, opts, model_name, field_name, _ext_name) do
+    %{name: model_name, model: resource, id: model_name, class: "form-control"}
+    |> datetime_select(field_name, Map.get(opts, :options, []))
+  end
   def build_control(Ecto.Date, resource, opts, model_name, field_name, _ext_name) do
     %{name: model_name, model: resource, id: model_name, class: "form-control"}
     |> date_select(field_name, Map.get(opts, :options, []))
   end
   def build_control(Ecto.Time, resource, opts, model_name, field_name, _ext_name) do
+    %{name: model_name, model: resource, id: model_name, class: "form-control"}
+    |> time_select(field_name, Map.get(opts, :options, []))
+  end
+  def build_control(Date, resource, opts, model_name, field_name, _ext_name) do
+    %{name: model_name, model: resource, id: model_name, class: "form-control"}
+    |> date_select(field_name, Map.get(opts, :options, []))
+  end
+  def build_control(Time, resource, opts, model_name, field_name, _ext_name) do
     %{name: model_name, model: resource, id: model_name, class: "form-control"}
     |> time_select(field_name, Map.get(opts, :options, []))
   end
@@ -1221,6 +1237,8 @@ defmodule ExAdmin.Form do
     do: %{hour: hour, min: min, sec: Map.get(map, "sec", 0), usec: Map.get(map, "usec", 0)}
   defp time_value(%{hour: hour, min: min} = map),
     do: %{hour: hour, min: min, sec: Map.get(map, :sec, 0), usec: Map.get(map, :usec, 0)}
+  defp time_value(%{hour: hour, minute: min} = map),
+    do: %{hour: hour, min: min, sec: Map.get(map, :second, 0), usec: elem(Map.get(map, :microsecond, {0,0}),0)}
 
   defp time_value({_, {hour, min, sec, usec}}),
     do: %{hour: hour, min: min, sec: sec, usec: usec}
@@ -1230,7 +1248,6 @@ defmodule ExAdmin.Form do
     do: %{hour: hour, min: min, sec: sec, usec: nil}
   defp time_value({hour, min, sec}),
     do: %{hour: hour, min: min, sec: sec, usec: nil}
-
   defp time_value(nil),
     do: %{hour: nil, min: nil, sec: nil, usec: nil}
   defp time_value(other),
@@ -1290,7 +1307,7 @@ defmodule ExAdmin.Form do
     end
   end
 
-  defp build_select(_name, _type, value, opts) do
+  defp build_select(_name, type, value, opts) do
     value = if Range.range? value do
       Enum.map value, fn(x) ->
         val = Integer.to_string x
@@ -1300,6 +1317,7 @@ defmodule ExAdmin.Form do
       value
     end
     select "", [{:class, "form-control date-time"} |opts] do
+      if opts[:prompt], do: handle_prompt(type, [opts: %{prompt: opts[:prompt]}])
       current_value = "#{opts[:value]}"
       Enum.map value, fn({k,v}) ->
         selected = if v == current_value, do: [selected: "selected"], else: []

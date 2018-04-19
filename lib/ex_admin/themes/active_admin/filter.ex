@@ -47,7 +47,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     end
   end
 
-  def build_field({name, type}, q, defn) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time, Timex.Ecto.DateTime, Timex.Ecto.Date, Timex.Ecto.Time, Timex.Ecto.DateTimeWithTimezone, NaiveDateTime, :naive_datetime] do
+  def build_field({name, type}, q, defn) when type in [Ecto.DateTime, Ecto.Date, Ecto.Time, Timex.Ecto.DateTime, Timex.Ecto.Date, Timex.Ecto.Time, Timex.Ecto.DateTimeWithTimezone, NaiveDateTime, :naive_datetime, DateTime, :utx_datetime] do
     name_label = field_label(name, defn)
     gte_value = get_value("#{name}_gte", q)
     lte_value = get_value("#{name}_lte", q)
@@ -59,7 +59,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     end
   end
 
-  def build_field({name, num}, q, defn) when num in [:integer, :id, :decimal] do
+  def build_field({name, num}, q, defn) when num in [:integer, :id, :decimal, :float] do
     unless check_and_build_association(name, q, defn) do
       name_label = field_label(name, defn)
       selected_name = integer_selected_name(name, q)
@@ -80,8 +80,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Filter do
     id = "q_#{owner_key}"
     name_label = field_label(name, defn)
     if assoc.__schema__(:type, :name) do
-      repo = Application.get_env :ex_admin, :repo
-      resources = repo.all assoc
+      resources = filter_resources(name, assoc, defn)
       selected_key = case q["#{owner_key}_eq"] do
         nil -> nil
         val -> val

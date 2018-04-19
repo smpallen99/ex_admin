@@ -327,6 +327,10 @@ defmodule TestExAdmin.ModelDisplayName do
   def display_name(resource) do
     resource.other
   end
+
+  def model_name do
+    "custom_name"
+  end
 end
 
 defmodule TestExAdmin.DefnDisplayName do

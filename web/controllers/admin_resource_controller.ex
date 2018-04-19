@@ -177,6 +177,7 @@ defmodule ExAdmin.AdminResourceController do
 
   defp to_integer(:id, string), do: string
   defp to_integer(:string, string), do: string
+  defp to_integer(:binary_id, string), do: string
   defp to_integer(:integer, string) do
     case Integer.parse string do
       {int, ""} -> int

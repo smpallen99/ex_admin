@@ -5,12 +5,18 @@ before_script:
   - nohup phantomjs --wd &
 language: elixir
 elixir:
-  - 1.3.1
+  - 1.4
+  - 1.3
 otp_release:
-  - 18.2.1
+  - 20.0
+  - 19.3
+  - 18.3
+matrix:
+  exclude:
+    - elixir: 1.3
+      otp_release: 20.0
 sudo: false
 script: mix test --include integration:true
 notification:
   recipients:
     - smpallen99@yahoo.com
-

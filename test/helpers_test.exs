@@ -88,4 +88,20 @@ defmodule ExAdmin.HelpersTest do
   test "display_name first string field" do
     assert Helpers.display_name(%TestExAdmin.PhoneNumber{number: "5555"}) == "5555"
   end
+
+  test "model_name from atom" do
+    assert Helpers.model_name(TestExAdmin.PhoneNumber) == "phone_number"
+  end
+
+  test "model_name from struct" do
+    assert Helpers.model_name(%TestExAdmin.PhoneNumber{}) == "phone_number"
+  end
+
+  test "model_name from atom override" do
+    assert Helpers.model_name(TestExAdmin.ModelDisplayName) == "custom_name"
+  end
+
+  test "model_name from struct override" do
+    assert Helpers.model_name(%TestExAdmin.ModelDisplayName{}) == "custom_name"
+  end
 end
