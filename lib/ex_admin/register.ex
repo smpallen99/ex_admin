@@ -434,10 +434,29 @@ defmodule ExAdmin.Register do
 
   The after filter is executed after the controller action(s) are
   executed and before the page is rendered/redirected. In the case of `update`
-  and `create`, it is only called on success.
+  and `create`, it is only called on success. 
 
   Normally, the function should return the conn struct. However, you can also
   return a `{conn, params, resource}` to modify the params and resource.
+
+  The after filter can apply changes to the paramaters (`params`) and the model schema (`resource`).
+  This is the filter you want to use if you need to apply changes to the model schema
+  before writing it to the database.
+
+  ## Example Use Case - User Management
+
+  You might want to use this filter if you want to use ExAdmin to add users to your web application.
+
+  When new users register themselves, you often want to confirm (at least) their email address.
+  This is usually done by sending an email with a confirmation link.
+  By following the link, users prove that the supplied email address exists and is under their control.
+  Depending on your application, you might even have some further confirmation steps.
+  
+  When adding a user through ExAdmin, you typically want to confirm the user immediately,
+  skipping the usual confirmation steps.
+
+  This filter allows you to mark your user as confirmed before saving it to the database,
+  bypassing the usual confirmation workflow.
 
   ## Examples
 
