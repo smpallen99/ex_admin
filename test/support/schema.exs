@@ -345,10 +345,38 @@ end
 
 defmodule TestExAdmin.Maps do
   use Ecto.Schema
+  import Ecto.Changeset
 
   schema "maps" do
     field :name, :string
     field :addresses, {:array, :map}
     field :stats, :map
+  end
+
+  @fields ~w(name addresses stats)
+
+  def start_link do
+    Agent.start_link(fn -> nil end, name: __MODULE__)
+  end
+
+  def create_changeset(model, params \\ %{}) do
+    IO.inspect "In create"
+    Agent.update(__MODULE__, fn (_v) -> "create_changeset" end)
+    model
+    |> cast(params, @fields)
+  end
+
+  def update_update(model, params \\ %{}) do
+    Agent.update(__MODULE__, fn (_v) -> "update_changeset" end)
+    model
+    |> cast(params, @fields)
+  end
+
+  def last_changeset do
+    Agent.get(__MODULE__, fn changeset -> changeset end)
+  end
+
+  def stop do
+    Agent.stop(__MODULE__)
   end
 end
