@@ -1,0 +1,256 @@
+msgid ""
+msgstr ""
+"Language: pl_PL\n"
+
+#: web/controllers/admin_resource_controller.ex:156
+msgid "was successfully destroyed."
+msgid_plural "zostały usunięte."
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/ex_admin/themes/active_admin/index.ex:145
+#: lib/ex_admin/themes/admin_lte2/index.ex:139
+msgid "Batch Actions"
+msgstr "Czynności na wielu rekordach"
+
+#: lib/ex_admin/themes/active_admin/index.ex:33
+#: lib/ex_admin/themes/admin_lte2/index.ex:32
+msgid "Create one"
+msgstr "Utwórz"
+
+#: lib/ex_admin/themes/active_admin/index.ex:116
+#: lib/ex_admin/themes/admin_lte2/index.ex:110 lib/ex_admin/view_helpers.ex:63
+msgid "Edit"
+msgstr "Edytuj"
+
+#: lib/ex_admin/themes/active_admin/filter.ex:14
+#: lib/ex_admin/themes/admin_lte2/filter.ex:15
+msgid "Filters"
+msgstr "Filtry"
+
+#: lib/ex_admin/view_helpers.ex:65
+msgid "New"
+msgstr "Nowy"
+
+#: lib/mix/tasks/admin.install.ex:202
+msgid "To add dashboard sections, checkout 'web/admin/dashboards.ex'"
+msgstr "Aby dodać sekcje tablicy, zobacz 'web/admin/dashboards.ex'"
+
+#: lib/mix/tasks/admin.install.ex:201
+msgid "Welcome to ExAdmin. This is the default dashboard page."
+msgstr "Witaj w ExAdmin. To jest domyślna tablica."
+
+#: web/templates/admin_resource/index.html.eex:7
+msgid "Welcome to Notifier"
+msgstr "Witaj w Powiadomieniach"
+
+#: web/controllers/admin_resource_controller.ex:5
+msgid "invalid after_filter return:"
+msgstr "after_filter zwrócił nieprawidłową wartość:"
+
+#: web/controllers/admin_resource_controller.ex:134
+msgid "was successfully destroyed."
+msgstr "został(a) usunięty(a)."
+
+#: web/controllers/admin_resource_controller.ex:107
+msgid "was successfully updated."
+msgstr "został(a) zaktualizowany(a)."
+
+#: lib/ex_admin/themes/active_admin/index.ex:131
+#: lib/ex_admin/themes/admin_lte2/index.ex:125
+msgid "Are you sure you want to delete these %{name}? You wont be able to undo this."
+msgstr "Czy na pewno chcesz usunąć %{name}? Ta operacja jest nieodwracalna."
+
+#: lib/ex_admin/themes/admin_lte2/filter.ex:27
+msgid "Clear Filters"
+msgstr "Wyczyść filtry"
+
+#: lib/ex_admin/themes/active_admin/form.ex:239
+#: lib/ex_admin/themes/active_admin/form.ex:286
+#: lib/ex_admin/themes/active_admin/index.ex:119
+#: lib/ex_admin/themes/admin_lte2/form.ex:246
+#: lib/ex_admin/themes/admin_lte2/form.ex:297
+#: lib/ex_admin/themes/admin_lte2/index.ex:113
+msgid "Delete"
+msgstr "Usuń"
+
+#: lib/ex_admin/themes/active_admin/filter.ex:23
+#: lib/ex_admin/themes/admin_lte2/filter.ex:26
+msgid "Filter"
+msgstr "Filtruj"
+
+#: lib/ex_admin/themes/active_admin/index.ex:113
+#: lib/ex_admin/themes/admin_lte2/index.ex:107
+msgid "View"
+msgstr "Zobacz"
+
+#: lib/ex_admin/themes/active_admin/index.ex:152
+#: lib/ex_admin/themes/admin_lte2/index.ex:146
+msgid "Delete Selected"
+msgstr "Usuń zaznaczone"
+
+#: web/controllers/admin_resource_controller.ex:90
+msgid "%{model_name} was successfully created."
+msgstr "%{through_assoc} został(a) utworzony(a)."
+
+#: web/controllers/admin_association_controller.ex:57
+msgid "%{through_assoc} was successfully added."
+msgstr "%{through_assoc} został(a) dodany(a)."
+
+#: lib/ex_admin/utils.ex:279
+msgid "Are you sure you want to delete this?"
+msgstr "Czy na pewno chcesz to skasować?"
+
+#: lib/ex_admin/themes/active_admin/form.ex:110
+#: lib/ex_admin/themes/admin_lte2/form.ex:102
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: lib/ex_admin/themes/active_admin/form.ex:103
+#: lib/ex_admin/themes/admin_lte2/form.ex:99
+msgid "Create"
+msgstr "Utwórz"
+
+#: lib/ex_admin/index.ex:372
+msgid "Download:"
+msgstr "Pobierz"
+
+#: web/templates/themes/active_admin/layout/header.html.eex:11
+#: web/templates/themes/admin_lte2/layout/header.html.eex:25
+msgid "Logout"
+msgstr "Wyloguj"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:22
+msgid "Profile"
+msgstr "Profil"
+
+#: lib/ex_admin/themes/active_admin/form.ex:195
+#: lib/ex_admin/themes/admin_lte2/form.ex:196
+msgid "Remove"
+msgstr "Usuń"
+
+#: lib/ex_admin/themes/admin_lte2/filter.ex:43
+msgid "Search %{name_label}"
+msgstr "Szukaj %{name_label}"
+
+#: lib/ex_admin/themes/active_admin/form.ex:103
+#: lib/ex_admin/themes/admin_lte2/form.ex:99
+msgid "Update"
+msgstr "Zaktualizuj"
+
+#: lib/ex_admin/themes/active_admin/table.ex:21
+#: lib/ex_admin/themes/admin_lte2/table.ex:27
+msgid "%{resource_model} Details"
+msgstr "Szczegóły %{resource_model}"
+
+#: lib/mix/tasks/admin.install.ex:200
+msgid "Dashboard"
+msgstr "Tablica"
+
+#: lib/ex_admin/paginate.ex:38
+msgid "Displaying"
+msgstr "Wyświetlanie"
+
+#: lib/ex_admin/paginate.ex:58
+msgid "Displaying "
+msgstr "Wyświetlanie "
+
+#: lib/ex_admin/paginate.ex:48
+msgid "Displaying %{name}"
+msgstr "Wyświetlanie %{name}"
+
+#: lib/ex_admin/filter.ex:11
+msgid "Equal To"
+msgstr "Równe"
+
+#: lib/ex_admin/filter.ex:11
+msgid "Greater Than"
+msgstr "Większe niż"
+
+#: lib/ex_admin/paginate.ex:68
+msgid "Last »"
+msgstr "Ostatnia »"
+
+#: lib/ex_admin/filter.ex:11
+msgid "Less Than"
+msgstr "Mniejsze niż"
+
+#: lib/ex_admin/paginate.ex:67
+msgid "Next ›"
+msgstr "Następna ›"
+
+#: lib/ex_admin/paginate.ex:59
+msgid "all %{total}"
+msgstr "wszystkich %{total}"
+
+#: lib/ex_admin/paginate.ex:42 lib/ex_admin/paginate.ex:52
+msgid "in total"
+msgstr "łącznie"
+
+#: lib/ex_admin/paginate.ex:40 lib/ex_admin/paginate.ex:50
+msgid "of"
+msgstr "z"
+
+#: lib/ex_admin/paginate.ex:65
+msgid "« First"
+msgstr "‹ Pierwsza"
+
+#: lib/ex_admin/paginate.ex:66
+msgid "‹ Prev"
+msgstr "‹ Wstecz"
+
+#: lib/ex_admin/form/fields.ex:150
+msgid "Select %{nm}"
+msgstr "Wybierz %{nm}"
+
+#: lib/ex_admin/themes/active_admin/index.ex:29
+#: lib/ex_admin/themes/admin_lte2/index.ex:28
+msgid "No %{label} found."
+msgstr "Nie znaleziono %{label}."
+
+#: lib/ex_admin/themes/active_admin/index.ex:31
+#: lib/ex_admin/themes/admin_lte2/index.ex:30
+msgid "There are no %{label} yet. "
+msgstr "Jeszcze nie ma %{label}."
+
+#: lib/ex_admin/utils.ex:112
+msgid "a"
+msgstr ""
+
+#: lib/ex_admin/utils.ex:110
+msgid "an"
+msgstr ""
+
+#: lib/ex_admin/filter.ex:12
+msgid "Contains"
+msgstr "Zawiera"
+
+#: lib/ex_admin/filter.ex:12
+msgid "End With"
+msgstr "Kończy się"
+
+#: lib/ex_admin/filter.ex:12
+msgid "Equals"
+msgstr "Jest równe"
+
+#: lib/ex_admin/filter.ex:12
+msgid "Starts With"
+msgstr "Rozpoczyna się"
+
+#: lib/ex_admin/index.ex:328
+#: web/templates/themes/admin_lte2/layout/header.html.eex:63
+msgid "Actions"
+msgstr "Czynności"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:48
+#: web/templates/themes/admin_lte2/layout/header.html.eex:52
+msgid "Resources"
+msgstr "Zasoby"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:72
+msgid "Scopes"
+msgstr "Zakresy"
+
+#: web/templates/themes/admin_lte2/layout/header.html.eex:33
+msgid "Themes"
+msgstr "Skórki"

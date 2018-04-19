@@ -33,6 +33,8 @@ defmodule ExAdmin.ErrorsHelper do
 
   defp flatten_errors(errors_array, assoc_prefixes, prefix \\ nil)
   defp flatten_errors(%Ecto.Changeset{changes: changes, errors: errors}, assoc_prefixes, prefix) when errors == [] or is_nil(prefix) do
+    changes = Enum.reject(changes, fn({_,v}) -> is_struct(v) end)
+    |> Enum.into(%{})
     errors ++ flatten_errors(changes, assoc_prefixes, prefix)
   end
 
@@ -49,9 +51,7 @@ defmodule ExAdmin.ErrorsHelper do
     end)
   end
 
-  defp flatten_errors(%{__struct__: _} = errors_map, assoc_prefixes, prefix) do
-    nil
-  end
+  defp flatten_errors(%{__struct__: _struct}, _, _), do: nil
 
   defp flatten_errors(%{} = errors_map, assoc_prefixes, prefix) do
     Enum.map(errors_map, fn({k, x}) ->
@@ -84,4 +84,7 @@ defmodule ExAdmin.ErrorsHelper do
       end
     end)
   end
+
+  defp is_struct(%{__struct__: _}), do: true
+  defp is_struct(_), do: false
 end

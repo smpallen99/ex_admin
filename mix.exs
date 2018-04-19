@@ -46,7 +46,6 @@ defmodule ExAdmin.Mixfile do
       {:postgrex, "~> 0.13", only: :test},
       {:floki, "~> 0.8", only: :test},
       {:cowboy, "~> 1.0"},
-      {:phoenix_html, "~> 2.5"},
       {:inflex, "~> 1.7"},
       {:scrivener_ecto, "~> 1.1"},
       {:xain, "~> 0.6"},
