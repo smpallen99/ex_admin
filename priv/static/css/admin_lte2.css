@@ -43,6 +43,7 @@ div#titlebar_right {
   border: 0;
   border-radius: 0;
   -webkit-appearance: none;
+  -moz-appearance: none;
 }
 .filter-select select:focus {
   outline: none;
