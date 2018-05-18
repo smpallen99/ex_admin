@@ -206,8 +206,9 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
         end
 
         for field <- fields do
-          f_name = field[:name]
-          required = if f_name in required_list, do: true, else: false
+          f_name = field[:opts][:label] || field[:name]
+          type = field[:opts][:type] || :text
+          required = if field[:name] in required_list, do: true, else: false
           name = "#{base_name}[#{f_name}]"
           errors = get_errors(errors, String.to_atom("#{field_field_name}_#{orig_inx}_#{f_name}"))
           error = if errors in [nil, [], false], do: "", else: ".has-error"
@@ -245,7 +246,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
                   required_abbr required
                 end
                 div ".col-sm-10#{error}" do
-                  Xain.input([type: :text, maxlength: "255", id: "#{ext_name}_#{f_name}",
+                  Xain.input([type: type, id: "#{ext_name}_#{f_name}",
                     class: "form-control", name: name] ++ val)
                   build_errors(errors, field[:opts][:hint])
                 end
