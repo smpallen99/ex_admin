@@ -48,8 +48,8 @@ defmodule ExAdmin.Navigation do
 
   def nav_link(conn, %{controller: controller, resource_model: resource_model} = registered, opts) do
     controller_name = controller_name(controller)
-    path = admin_resource_path(resource_model, :index)
     menu = Map.get(registered, :menu, %{})
+    path = Map.get(menu, :url, admin_resource_path(resource_model, :index))
     name = Map.get(menu, :label, controller_name |> titleize |> Inflex.pluralize())
 
     theme_module(conn, Layout).link_to_active(
