@@ -4,19 +4,25 @@ defmodule ExAdmin.Mixfile do
   @version "0.9.1-dev"
 
   def project do
-    [ app: :ex_admin,
+    [
+      app: :ex_admin,
       version: @version,
       elixir: "~> 1.4",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       name: "ExAdmin",
       docs: [extras: ["README.md"], main: "ExAdmin"],
       deps: deps(),
       package: package(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
       description: """
       An Elixir Phoenix Auto Administration Package.
       """
@@ -24,17 +30,30 @@ defmodule ExAdmin.Mixfile do
   end
 
   def application do
-    [ applications: applications(Mix.env)]
+    [applications: applications(Mix.env())]
   end
 
   defp applications(:test) do
     [:plug, :cowboy | applications(:prod)]
   end
+
   defp applications(_) do
-    [:gettext, :phoenix, :ecto, :inflex, :scrivener, :scrivener_ecto, :csvlixir, :logger, :ex_queb, :xain]
+    [
+      :gettext,
+      :phoenix,
+      :ecto,
+      :inflex,
+      :scrivener,
+      :scrivener_ecto,
+      :csvlixir,
+      :logger,
+      :ex_queb,
+      :xain
+    ]
   end
+
   defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
-  defp elixirc_paths(_),     do: ["lib", "web"]
+  defp elixirc_paths(_), do: ["lib", "web"]
 
   defp deps do
     [
@@ -50,7 +69,7 @@ defmodule ExAdmin.Mixfile do
       {:scrivener_ecto, "~> 1.1"},
       {:xain, "~> 0.6"},
       {:csvlixir, "~> 1.0.0"},
-      {:exactor, "~> 2.2.0"},
+      {:exactor, "~> 2.2.0", warn_missing: false},
       {:ex_doc, "~> 0.11", only: :dev},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_queb, "~> 1.0"},
@@ -61,9 +80,12 @@ defmodule ExAdmin.Mixfile do
   end
 
   defp package do
-    [ maintainers: ["Stephen Pallen", "Roman Smirnov"],
+    [
+      maintainers: ["Stephen Pallen", "Roman Smirnov"],
       licenses: ["MIT"],
-      links: %{ "Github" => "https://github.com/smpallen99/ex_admin" },
-      files: ~w(lib priv web README.md package.json mix.exs LICENSE brunch-config.js AdminLte-LICENSE)]
+      links: %{"Github" => "https://github.com/smpallen99/ex_admin"},
+      files:
+        ~w(lib priv web README.md package.json mix.exs LICENSE brunch-config.js AdminLte-LICENSE)
+    ]
   end
 end
