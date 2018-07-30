@@ -10,13 +10,13 @@
     <meta name="csrf-token" id="_csrf_token" content="<%= Plug.CSRFProtection.get_csrf_token %>" />
     <%= favicon() %>
     <title><%= site_title() %></title>
-    <link rel="stylesheet" href="<%= static_url(@conn, "/css/admin_lte2.css") %>">
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/admin_lte2.css") %>">
     <!-- Ionicons -->
     <%# <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"> %>
     <!-- Theme style -->
 
     <!-- jQuery 2.1.4 & jquery-ui 1.11.4 -->
-    <script src="<%= static_url(@conn, "/js/jquery.min.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/jquery.min.js") %>"></script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -69,8 +69,8 @@
       $.widget.bridge('uibutton', $.ui.button);
     </script>
     <!-- Bootstrap 3.3.5 -->
-    <script src='<%= static_url(@conn, "/js/ex_admin_common.js") %>'></script>
-    <script src='<%= static_url(@conn, "/js/admin_lte2.js") %>'></script>
+    <script src='<%= static_path(@conn, "/js/ex_admin_common.js") %>'></script>
+    <script src='<%= static_path(@conn, "/js/admin_lte2.js") %>'></script>
   </body>
   <script type="text/javascript">
     $(function() {
