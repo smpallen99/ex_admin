@@ -31,7 +31,8 @@ use Mix.Config
 #   logout_user: nil,
 #   modules: [
 #     Nested.ExAdmin.Dashboard,
-#   ]
+#   ],
+#   log_level: :debug
 config :ex_admin,
   repo: MyProject.Repo,
   module: MyProject,
