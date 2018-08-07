@@ -13,7 +13,7 @@ defmodule ExAdmin.Web do
 
   def controller do
     quote do
-      use Phoenix.Controller
+      use Phoenix.Controller, log: Application.get_env(:ex_admin, :log_level, :debug)
 
       import Ecto.Schema
       import Ecto.Query, only: [from: 1, from: 2]
