@@ -349,6 +349,8 @@ defmodule ExAdmin.Register do
               label -> label
             end
 
+          class = unquote(opts)[:opts][:class]
+
           module = unquote(module)
           type = unquote(type)
 
@@ -356,13 +358,18 @@ defmodule ExAdmin.Register do
             fn id ->
               resource = struct(module.__struct__, id: id)
               url = ExAdmin.Utils.admin_resource_path(resource, :member, [name])
-              ExAdmin.ViewHelpers.action_item_link(human_name, href: url, "data-method": :put)
+
+              ExAdmin.ViewHelpers.action_item_link(human_name,
+                href: url,
+                "data-method": :put,
+                class: class
+              )
             end
           else
             fn id ->
               resource = module
               url = ExAdmin.Utils.admin_resource_path(resource, :collection, [name])
-              ExAdmin.ViewHelpers.action_item_link(human_name, href: url)
+              ExAdmin.ViewHelpers.action_item_link(human_name, href: url, class: class)
             end
           end
         end
