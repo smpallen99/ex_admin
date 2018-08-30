@@ -349,7 +349,23 @@ defmodule ExAdmin.Register do
               label -> label
             end
 
-          class = unquote(opts)[:opts][:class]
+          attrs = []
+
+          attrs =
+            if unquote(opts)[:opts][:class] do
+              class = unquote(opts)[:opts][:class]
+              attrs ++ [class: class]
+            else
+              attrs
+            end
+
+          attrs =
+            if unquote(opts)[:opts][:data_confirm] do
+              data_confirm = unquote(opts)[:opts][:data_confirm]
+              attrs ++ ["data-confirm": data_confirm]
+            else
+              attrs
+            end
 
           module = unquote(module)
           type = unquote(type)
@@ -359,17 +375,16 @@ defmodule ExAdmin.Register do
               resource = struct(module.__struct__, id: id)
               url = ExAdmin.Utils.admin_resource_path(resource, :member, [name])
 
-              ExAdmin.ViewHelpers.action_item_link(human_name,
-                href: url,
-                "data-method": :put,
-                class: class
-              )
+              attrs = [href: url, "data-method": :put] ++ attrs
+
+              ExAdmin.ViewHelpers.action_item_link(human_name, attrs)
             end
           else
             fn id ->
               resource = module
               url = ExAdmin.Utils.admin_resource_path(resource, :collection, [name])
-              ExAdmin.ViewHelpers.action_item_link(human_name, href: url, class: class)
+              attrs = [href: url] ++ attrs
+              ExAdmin.ViewHelpers.action_item_link(human_name, attrs)
             end
           end
         end
