@@ -1,7 +1,7 @@
 defmodule ExAdmin.Mixfile do
   use Mix.Project
 
-  @version "0.9.0-dev"
+  @version "0.10.0-dev"
 
   def project do
     [
@@ -81,9 +81,9 @@ defmodule ExAdmin.Mixfile do
 
   defp package do
     [
-      maintainers: ["Stephen Pallen", "Roman Smirnov"],
+      maintainers: ["Jared Smith"],
       licenses: ["MIT"],
-      links: %{"Github" => "https://github.com/smpallen99/ex_admin"},
+      links: %{"Github" => "https://github.com/sublimecoder/ex_admin"},
       files:
         ~w(lib priv web README.md package.json mix.exs LICENSE brunch-config.js AdminLte-LICENSE)
     ]
