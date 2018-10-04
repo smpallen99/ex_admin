@@ -1,9 +1,13 @@
 # ExAdmin
 
+This is a fork of the [ex_admin](https://github.com/smpallen99/ex_admin) since
+the maintenance of ex_admin has been slow and new features are not
+being added. Contributions are welcome.
+
 [![Build Status][travis-img]][travis] [![Hex Version][hex-img]][hex] [![License][license-img]][license]
 
-[travis-img]: https://travis-ci.org/smpallen99/ex_admin.svg?branch=master
-[travis]: https://travis-ci.org/smpallen99/ex_admin
+[travis-img]: https://travis-ci.org/sublimecoder/ex_admin.svg?branch=master
+[travis]: https://travis-ci.org/sublimecoder/ex_admin
 [hex-img]: https://img.shields.io/hexpm/v/ex_admin.svg
 [hex]: https://hex.pm/packages/ex_admin
 [license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg
@@ -31,24 +35,11 @@ Before using ExAdmin, you will need a Phoenix project and an Ecto model created.
 
 Add ex_admin to your deps:
 
-#### Hex
-
 mix.exs
 ```elixir
   defp deps do
      ...
-     {:ex_admin, "~> 0.8"},
-     ...
-  end
-```
-
-#### GitHub with Ecto 2.0
-
-mix.exs
-```elixir
-  defp deps do
-     ...
-     {:ex_admin, github: "smpallen99/ex_admin"},
+     {:ex_admin, github: "sublimecoder/ex_admin"},
      ...
   end
 ```
@@ -59,7 +50,7 @@ config/config.exs
 ```elixir
 config :ex_admin,
   repo: MyProject.Repo,
-  module: MyProject,    # MyProject.Web for phoenix >= 1.3.0-rc 
+  module: MyProject.Web,  
   modules: [
     MyProject.ExAdmin.Dashboard,
   ]
