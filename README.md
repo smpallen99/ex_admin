@@ -4,12 +4,10 @@ This is a fork of the [ex_admin](https://github.com/smpallen99/ex_admin) since
 the maintenance of ex_admin has been slow and new features are not
 being added. Contributions are welcome.
 
-[![Build Status][travis-img]][travis] [![Hex Version][hex-img]][hex] [![License][license-img]][license]
+[![Build Status][travis-img]][travis] [![License][license-img]][license]
 
 [travis-img]: https://travis-ci.org/sublimecoder/ex_admin.svg?branch=master
 [travis]: https://travis-ci.org/sublimecoder/ex_admin
-[hex-img]: https://img.shields.io/hexpm/v/ex_admin.svg
-[hex]: https://hex.pm/packages/ex_admin
 [license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg
 [license]: http://opensource.org/licenses/MIT
 
