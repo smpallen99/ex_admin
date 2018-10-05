@@ -15,7 +15,7 @@ Note: This version has been updated to support both Ecto 1.1 and Ecto 2.0. See [
 
 ExAdmin is an auto administration package for [Elixir](http://elixir-lang.org/) and the [Phoenix Framework](http://www.phoenixframework.org/), a port/inspiration of [ActiveAdmin](http://activeadmin.info/) for Ruby on Rails.
 
-See the [docs](https://hexdocs.pm/ex_admin/) and the [Wiki](https://github.com/sublimecoder/ex_admin/wiki) for more information.
+See the [Wiki](https://github.com/sublimecoder/ex_admin/wiki) for more information.
 
 ## Usage
 
@@ -425,7 +425,7 @@ end
 
 ExAdmin leaves the job of authentication to 3rd party packages. For an example of using [Coherence](https://github.com/smpallen99/coherence) checkout the [Contact Demo Project](https://github.com/smpallen99/contact_demo).
 
-Visit the [Wiki](https://github.com/smpallen99/ex_admin/wiki/Add-authentication) for more information on adding Authentication.
+Visit the [Wiki](https://github.com/sublimecoder/ex_admin/wiki/Add-authentication) for more information on adding Authentication.
 
 ## Contributing
 
