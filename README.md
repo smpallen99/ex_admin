@@ -431,15 +431,7 @@ Visit the [Wiki](https://github.com/smpallen99/ex_admin/wiki/Add-authentication)
 
 We appreciate any contribution to ExAdmin. Check our [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](CONTRIBUTING.md) guides for more information. We usually keep a list of features and bugs [in the issue tracker][1].
 
-## References
-
-* Detailed Example [ExAdmin Demo](https://github.com/smpallen99/ex_admin_demo)
-* For a brief tutorial, please visit [Elixir Survey Tutorial](https://github.com/smpallen99/elixir_survey_tutorial)
-* [Live Demo](http://demo.exadmin.info/admin)
-* [Docs](https://hexdocs.pm/ex_admin/)
-
-  [1]: https://github.com/smpallen99/ex_admin/issues
-  [2]: http://groups.google.com/group/exadmin-talk
+  [1]: https://github.com/sublimecoder/ex_admin/issues
 
 ## License
 
