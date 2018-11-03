@@ -88,7 +88,9 @@ defmodule ExAdmin.Table do
 
             {f_name, opts} ->
               build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn contents, f_name ->
-                td(".td-#{parameterize(f_name)} #{contents}")
+                td ".td-#{parameterize(f_name)}" do
+                  Phoenix.HTML.raw(contents)
+                end
               end)
           end
         end
