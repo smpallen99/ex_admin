@@ -27,35 +27,37 @@ defmodule ExAdmin.Table do
   def do_attributes_table_for(conn, resource, resource_model, schema, table_opts) do
     primary_key = Schema.get_id(resource)
 
-    div ".panel_contents" do
-      id = "attributes_table_#{resource_model}_#{primary_key}"
+    markup do
+      div ".panel_contents" do
+        id = "attributes_table_#{resource_model}_#{primary_key}"
 
-      div ".attributes_table.#{resource_model}#{id}" do
-        table table_opts do
-          tbody do
-            for field_name <- Map.get(schema, :rows, []) do
-              build_field(resource, conn, field_name, fn
-                _contents, {:map, f_name} ->
-                  field_value =
-                    case Map.get(resource, f_name) do
-                      nil -> []
-                      value -> value
+        div ".attributes_table.#{resource_model}#{id}" do
+          table table_opts do
+            tbody do
+              for field_name <- Map.get(schema, :rows, []) do
+                build_field(resource, conn, field_name, fn
+                  _contents, {:map, f_name} ->
+                    field_value =
+                      case Map.get(resource, f_name) do
+                        nil -> []
+                        value -> value
+                      end
+
+                    for {k, v} <- field_value do
+                      tr do
+                        value = ExAdmin.Render.to_string(v)
+                        field_header("#{f_name} #{k}")
+                        td(".td-#{parameterize(k)} #{value}")
+                      end
                     end
 
-                  for {k, v} <- field_value do
+                  contents, f_name ->
                     tr do
-                      value = ExAdmin.Render.to_string(v)
-                      field_header("#{f_name} #{k}")
-                      td(".td-#{parameterize(k)} #{value}")
+                      field_header(field_name)
+                      handle_contents(contents, f_name)
                     end
-                  end
-
-                contents, f_name ->
-                  tr do
-                    field_header(field_name)
-                    handle_contents(contents, f_name)
-                  end
-              end)
+                end)
+              end
             end
           end
         end
@@ -77,16 +79,18 @@ defmodule ExAdmin.Table do
     odd_even = if Integer.is_even(inx), do: "even", else: "odd"
     tr_id = if Map.has_key?(resource, :id), do: resource.id, else: inx
 
-    tr ".#{odd_even}##{model_name}_#{tr_id}" do
-      for field <- columns do
-        case field do
-          {f_name, fun} when is_function(fun) ->
-            td(".td-#{parameterize(f_name)} #{fun.(resource)}")
+    markup do
+      tr ".#{odd_even}##{model_name}_#{tr_id}" do
+        for field <- columns do
+          case field do
+            {f_name, fun} when is_function(fun) ->
+              td(".td-#{parameterize(f_name)} #{fun.(resource)}")
 
-          {f_name, opts} ->
-            build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn contents, f_name ->
-              td(".td-#{parameterize(f_name)} #{contents}")
-            end)
+            {f_name, opts} ->
+              build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn contents, f_name ->
+                td(".td-#{parameterize(f_name)} #{contents}")
+              end)
+          end
         end
       end
     end
@@ -95,23 +99,32 @@ defmodule ExAdmin.Table do
   defp do_panel_resource(conn, %{} = resource, inx, model_name, columns) do
     odd_even = if Integer.is_even(inx), do: "even", else: "odd"
 
-    tr ".#{odd_even}##{model_name}_#{inx}" do
-      for field <- columns do
-        case field do
-          {f_name, fun} when is_function(fun) ->
-            td(".td-#{parameterize(f_name)} #{fun.(resource)}")
+    markup do
+      tr ".#{odd_even}##{model_name}_#{inx}" do
+        for field <- columns do
+          case field do
+            {f_name, fun} when is_function(fun) ->
+              td(".td-#{parameterize(f_name)} #{fun.(resource)}")
 
-          {f_name, opts} ->
-            build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn contents, f_name ->
-              td(".td-#{parameterize(f_name)} #{contents}")
-            end)
+            {f_name, opts} ->
+              build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn contents, f_name ->
+                td(".td-#{parameterize(f_name)} #{contents}")
+              end)
+          end
         end
       end
     end
   end
 
   def do_panel(conn, columns \\ [], table_opts \\ [], output \\ [])
-  def do_panel(_conn, [], _table_opts, output), do: Enum.join(Enum.reverse(output))
+
+  def do_panel(_conn, [], _table_opts, output),
+    do:
+      output
+      |> Enum.reverse()
+      |> Enum.map(&Phoenix.HTML.safe_to_string(Phoenix.HTML.html_escape(&1)))
+      |> Enum.join()
+      |> Phoenix.HTML.raw()
 
   def do_panel(
         conn,
@@ -258,52 +271,68 @@ defmodule ExAdmin.Table do
   end
 
   def handle_contents(%Ecto.DateTime{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
+    markup do
+      td class: to_class("td-", field_name) do
+        text(to_string(dt))
+      end
     end
   end
 
   def handle_contents(%DateTime{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
+    markup do
+      td class: to_class("td-", field_name) do
+        text(to_string(dt))
+      end
     end
   end
 
   def handle_contents(%NaiveDateTime{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
+    markup do
+      td class: to_class("td-", field_name) do
+        text(to_string(dt))
+      end
     end
   end
 
   def handle_contents(%Ecto.Time{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
+    markup do
+      td class: to_class("td-", field_name) do
+        text(to_string(dt))
+      end
     end
   end
 
   def handle_contents(%Ecto.Date{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
+    markup do
+      td class: to_class("td-", field_name) do
+        text(to_string(dt))
+      end
     end
   end
 
   def handle_contents(%Time{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
+    markup do
+      td class: to_class("td-", field_name) do
+        text(to_string(dt))
+      end
     end
   end
 
   def handle_contents(%Date{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
+    markup do
+      td class: to_class("td-", field_name) do
+        text(to_string(dt))
+      end
     end
   end
 
   def handle_contents(%{}, _field_name), do: []
 
   def handle_contents(contents, field_name) when is_binary(contents) do
-    td to_class(".td-", field_name) do
-      text(contents)
+    markup do
+      td to_class(".td-", field_name) do
+        text(contents)
+      end
     end
   end
 
@@ -312,6 +341,10 @@ defmodule ExAdmin.Table do
   end
 
   def handle_contents(contents, field_name) do
-    td(to_class(".td-", field_name), contents)
+    markup do
+      td to_class(".td-", field_name) do
+        contents
+      end
+    end
   end
 end

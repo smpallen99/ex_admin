@@ -75,7 +75,12 @@ defmodule ExAdmin.Helpers do
   defp build_content_link(link?, conn, resource, contents) do
     if link? && ExAdmin.Utils.authorized_action?(conn, :show, resource) do
       path = admin_resource_path(resource, :show)
-      "<a href='#{path}'>#{contents}</a>"
+
+      markup do
+        a href: path do
+          contents
+        end
+      end
     else
       contents
     end
@@ -157,9 +162,9 @@ defmodule ExAdmin.Helpers do
       opts
       |> Map.delete(:fun)
       |> Map.delete(:image)
-      |> build_attributes
+      |> Enum.map(fn {key, value} -> {key, to_string(value)} end)
 
-    "<img src='#{fun.(resource)}'#{attributes} />"
+    Phoenix.HTML.Tag.content_tag(:img, nil, attributes ++ [src: fun.(resource)])
     |> build_link_for(conn, opts, resource, f_name)
   end
 
@@ -202,11 +207,8 @@ defmodule ExAdmin.Helpers do
   end
 
   def build_single_field(resource, conn, f_name, %{fun: fun} = opts) do
-    markup :nested do
-      case fun.(resource) do
-        [{_, list}] -> list
-        other -> other
-      end
+    markup do
+      fun.(resource)
     end
     |> build_link_for(conn, opts, resource, f_name)
   end

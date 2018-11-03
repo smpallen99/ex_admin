@@ -85,7 +85,7 @@ defmodule ExAdminTest.IndexTest do
     conn = setup_conn(defn, resource)
     {:safe, html} = Index.default_index_view(conn, page, [])
 
-    links = Floki.find(html, "td.td-actions a")
+    links = HtmlEntities.decode(html) |> Floki.find("td.td-actions a")
 
     assert Enum.count(links) == 3
     assert Enum.at(links, 0) |> Floki.text() == "View"
@@ -101,7 +101,7 @@ defmodule ExAdminTest.IndexTest do
     conn = setup_conn(defn, resource)
     {:safe, html} = TestExAdmin.SimpleIndexTest.index_view(conn, page, [])
 
-    links = Floki.find(html, "td.td-actions a")
+    links = HtmlEntities.decode(html) |> Floki.find("td.td-actions a")
 
     assert Enum.count(links) == 2
     assert Enum.at(links, 0) |> Floki.text() == "View"
@@ -113,7 +113,7 @@ defmodule ExAdminTest.IndexTest do
     conn = setup_conn(defn, resource)
     {:safe, html} = Index.default_index_view(conn, page, [])
 
-    links = Floki.find(html, "td.td-actions a")
+    links = HtmlEntities.decode(html) |> Floki.find("td.td-actions a")
 
     assert Enum.count(links) == 2
     assert Enum.at(links, 0) |> Floki.text() == "View"
@@ -125,7 +125,7 @@ defmodule ExAdminTest.IndexTest do
     defn = struct(defn, actions: [:new, :show, :delete])
     conn = setup_conn(defn, resource)
     {:safe, html} = TestExAdmin.SimpleIndexTest.index_view(conn, page, [])
-    links = Floki.find(html, "td.td-actions a")
+    links = HtmlEntities.decode(html) |> Floki.find("td.td-actions a")
 
     assert Enum.count(links) == 1
     assert Enum.at(links, 0) |> Floki.text() == "View"
@@ -136,7 +136,7 @@ defmodule ExAdminTest.IndexTest do
     conn = setup_conn(defn, resource)
     {:safe, html} = Index.default_index_view(conn, page, [])
 
-    links = Floki.find(html, "td.td-actions a")
+    links = HtmlEntities.decode(html) |> Floki.find("td.td-actions a")
 
     assert Enum.count(links) == 2
     assert Enum.at(links, 0) |> Floki.text() == "View"
@@ -148,7 +148,7 @@ defmodule ExAdminTest.IndexTest do
     conn = setup_conn(defn, resource)
     {:safe, html} = Index.default_index_view(conn, page, [])
 
-    links = Floki.find(html, "td.td-actions a")
+    links = HtmlEntities.decode(html) |> Floki.find("td.td-actions a")
 
     assert Enum.count(links) == 3
     assert Enum.at(links, 0) |> Floki.text() == "View"
@@ -162,7 +162,7 @@ defmodule ExAdminTest.IndexTest do
     conn = setup_conn(defn, resource)
     {:safe, html} = TestExAdmin.SimpleIndexTest.index_view(conn, page, [])
 
-    links = Floki.find(html, "td.td-actions a")
+    links = HtmlEntities.decode(html) |> Floki.find("td.td-actions a")
 
     assert Enum.count(links) == 2
     assert Enum.at(links, 0) |> Floki.text() == "View"
@@ -174,7 +174,7 @@ defmodule ExAdminTest.IndexTest do
     conn = setup_conn(defn, resource)
     {:safe, html} = Index.default_index_view(conn, page, [])
 
-    links = Floki.find(html, "td.td-actions a")
+    links = HtmlEntities.decode(html) |> Floki.find("td.td-actions a")
 
     assert Enum.count(links) == 1
     assert Enum.at(links, 0) |> Floki.text() == "View"

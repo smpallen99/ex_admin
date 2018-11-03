@@ -65,6 +65,7 @@ defmodule ExAdmin.Mixfile do
       {:postgrex, "~> 0.13", only: :test},
       {:floki, "~> 0.8", only: :test},
       {:cowboy, "~> 1.0"},
+      {:plug_cowboy, "~> 1.0"},
       {:inflex, "~> 1.7"},
       {:scrivener_ecto, "~> 1.1"},
       {:xain, "~> 0.6"},
@@ -75,6 +76,7 @@ defmodule ExAdmin.Mixfile do
       {:ex_queb, "~> 1.0"},
       {:excoveralls, "~> 0.5", only: :test},
       {:gettext, "~> 0.11"},
+      {:html_entities, "~> 0.4"},
       {:hound, "~> 1.0", only: :test}
     ]
   end

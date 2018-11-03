@@ -420,8 +420,10 @@ defmodule ExAdmin.Index do
 
   @doc false
   def download_links(conn, opts) do
-    div ".download_links " <> gettext("Download:") <> " " do
-      a("CSV", href: build_csv_href(conn, opts))
+    markup do
+      div ".download_links " <> gettext("Download:") <> " " do
+        a("CSV", href: build_csv_href(conn, opts))
+      end
     end
   end
 

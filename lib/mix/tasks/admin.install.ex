@@ -82,6 +82,7 @@ defmodule Mix.Tasks.Admin.Install do
 
   defp check_assets(%{assets: true, brunch: true} = config) do
     brunch_path = Path.join(~w(assets brunch-config.js))
+    IO.inspect(brunch_path)
 
     unless File.exists?(brunch_path) do
       Mix.raise("""

@@ -13,8 +13,17 @@ defmodule ExAdmin.FormTest do
     {:ok, conn: conn}
   end
 
+  def get_clean_html(html) do
+    html
+    |> Phoenix.HTML.safe_to_string()
+    |> HtmlEntities.decode()
+  end
+
   test "build_control string" do
-    res = ExAdmin.Form.build_control(:string, %Simple{}, %{}, "simple", :name, "simple_name")
+    res =
+      ExAdmin.Form.build_control(:string, %Simple{}, %{}, "simple", :name, "simple_name")
+      |> get_clean_html()
+
     assert res =~ "<input"
     assert res =~ "id='simple_name'"
     assert res =~ "type='text'"
@@ -31,6 +40,7 @@ defmodule ExAdmin.FormTest do
         :inserted_at,
         "simple_inserted_at"
       )
+      |> get_clean_html()
 
     select = Floki.find(res, "select[name='simple[inserted_at][year]']")
     refute select == []
@@ -53,6 +63,7 @@ defmodule ExAdmin.FormTest do
         :inserted_at,
         "simple_inserted_at"
       )
+      |> get_clean_html()
 
     select = Floki.find(res, "select[name='simple[inserted_at][year]']")
     refute select == []
@@ -75,6 +86,7 @@ defmodule ExAdmin.FormTest do
         :inserted_at,
         "simple_inserted_at"
       )
+      |> get_clean_html()
 
     select = Floki.find(res, "select[name='simple[inserted_at][year]']")
     refute select == []
@@ -92,6 +104,7 @@ defmodule ExAdmin.FormTest do
         :inserted_at,
         "simple_inserted_at"
       )
+      |> get_clean_html()
 
     year_prompt =
       res
@@ -122,6 +135,7 @@ defmodule ExAdmin.FormTest do
         :inserted_at,
         "simple_inserted_at"
       )
+      |> get_clean_html()
 
     select = Floki.find(res, "select[name='simple[inserted_at][hour]']")
     refute select == []
@@ -130,7 +144,10 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control :boolean" do
-    res = ExAdmin.Form.build_control(:boolean, %User{}, %{}, "user", :active, "user_active")
+    res =
+      ExAdmin.Form.build_control(:boolean, %User{}, %{}, "user", :active, "user_active")
+      |> get_clean_html()
+
     checkbox = Floki.find(res, "input#user_active[type=checkbox]")
     assert Floki.attribute(checkbox, "name") == ["user[active]"]
   end
@@ -138,7 +155,7 @@ defmodule ExAdmin.FormTest do
   test "build_item :input", %{conn: conn} do
     resource = %Simple{}
     item = %{type: :input, name: :name, opts: %{}, resource: resource}
-    res = ExAdmin.Form.build_item(conn, item, resource, "simple", nil)
+    res = ExAdmin.Form.build_item(conn, item, resource, "simple", nil) |> get_clean_html()
 
     label = Floki.find(res, "label")
     assert Floki.text(label) == "Name"
@@ -155,7 +172,7 @@ defmodule ExAdmin.FormTest do
       end
 
     item = %{type: :inputs, name: :roles, opts: %{as: :check_boxes, collection: roles}}
-    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
+    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil) |> get_clean_html()
     assert Floki.find(res, "div label") |> hd |> Floki.text() == "Roles"
     role_boxes = Floki.find(res, "div div.col-sm-10 input[type=checkbox]")
     assert Enum.count(role_boxes) == 2
@@ -167,7 +184,7 @@ defmodule ExAdmin.FormTest do
     end
 
     item = %{type: :inputs, name: :roles, opts: %{as: :check_boxes}}
-    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
+    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil) |> get_clean_html()
     assert Floki.find(res, "div label") |> hd |> Floki.text() == "Roles"
     role_boxes = Floki.find(res, "div div.col-sm-10 input[type=checkbox]")
     assert Enum.count(role_boxes) == 2
@@ -180,7 +197,7 @@ defmodule ExAdmin.FormTest do
       end
 
     item = %{type: :inputs, name: :roles, opts: %{collection: roles}}
-    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
+    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil) |> get_clean_html()
     assert Floki.find(res, "div label") |> hd |> Floki.text() == "Roles"
     options = Floki.find(res, "select[multiple=multiple] option")
     assert Enum.count(options) == 2

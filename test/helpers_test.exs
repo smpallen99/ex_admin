@@ -13,7 +13,7 @@ defmodule ExAdmin.HelpersTest do
         ExAdmin.Table.handle_contents(contents, field_name)
       end)
 
-    assert res == ~s(<td class='td-description'>desc</td>)
+    assert Phoenix.HTML.safe_to_string(res) == ~s(<td class='td-description'>desc</td>)
   end
 
   test "build_field Actions" do
@@ -46,7 +46,9 @@ defmodule ExAdmin.HelpersTest do
         end
       )
 
-    assert res == expected
+    decoded_html = Phoenix.HTML.safe_to_string(res) |> HtmlEntities.decode()
+
+    assert decoded_html == expected
   end
 
   test "build_field with complex map data" do
