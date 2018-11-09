@@ -25,11 +25,11 @@ defmodule ExAdmin.HelpersTest do
       |> Plug.Conn.assign(:defn, defn)
 
     expected =
-      "<td class='td-actions'><a href='/admin/simples/1' class='member_link view_link' title='View'>View</a>" <>
-        "<a href='/admin/simples/1/edit' class='member_link edit_link' title='Edit'>Edit</a>" <>
-        "<a href='/admin/simples/1' class='member_link delete_link'" <>
-        " data-confirm='Are you sure you want to delete this?'" <>
-        " data-remote='true' data-method='delete' data-params='page=1' rel='nofollow' title='Delete'>Delete</a></td>"
+      "<td class='td-actions'>" <>
+        "<a href=\"/admin/simples/1\" class=\"member_link view_link\" title=\"View\">View</a>" <>
+        "<a href=\"/admin/simples/1/edit\" class=\"member_link edit_link\" title=\"Edit\">Edit</a>" <>
+        "<a href=\"/admin/simples/1\" class=\"member_link delete_link\" " <>
+        "data-confirm=\"Are you sure you want to delete this?\" data-remote=\"true\" data-method=\"delete\" data-params=\"page=1\" rel=\"nofollow\" title=\"Delete\">Delete</a></td>"
 
     res =
       Helpers.build_field(
@@ -46,7 +46,7 @@ defmodule ExAdmin.HelpersTest do
         end
       )
 
-    decoded_html = Phoenix.HTML.safe_to_string(res) |> HtmlEntities.decode()
+    decoded_html = Phoenix.HTML.safe_to_string(res)
 
     assert decoded_html == expected
   end

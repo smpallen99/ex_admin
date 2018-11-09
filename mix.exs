@@ -58,14 +58,14 @@ defmodule ExAdmin.Mixfile do
   defp deps do
     [
       {:decimal, "~> 1.0"},
-      {:phoenix, "~> 1.2"},
+      {:phoenix, "~> 1.4"},
       {:phoenix_html, "~> 2.6"},
       {:ecto, "~> 2.1"},
       {:phoenix_ecto, "~> 3.2"},
       {:postgrex, "~> 0.13", only: :test},
       {:floki, "~> 0.8", only: :test},
-      {:cowboy, "~> 1.0"},
-      {:plug_cowboy, "~> 1.0"},
+      {:cowboy, "~> 2.0"},
+      {:plug_cowboy, "~> 2.0"},
       {:inflex, "~> 1.7"},
       {:scrivener_ecto, "~> 1.1"},
       {:xain, "~> 0.6"},
