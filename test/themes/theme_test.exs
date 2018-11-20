@@ -7,7 +7,7 @@ defmodule ExAdmin.ThemeTest do
 
   test "AdminLte2 wrap_item_type boolean not required no error" do
     contents = fn _ -> "" end
-    res = AdminLte2.wrap_item_type(:boolean, :name, "simple_name", contents, "", false)
+    {:safe, res} = AdminLte2.wrap_item_type(:boolean, :name, "simple_name", contents, "", false)
     label = Floki.find(res, "div div.checkbox label")
     refute label == []
     assert Floki.text(label) =~ "Name"
@@ -15,7 +15,7 @@ defmodule ExAdmin.ThemeTest do
 
   test "AdminLte2 wrap_item_type not required no error" do
     contents = fn _ -> "" end
-    res = AdminLte2.wrap_item_type(nil, :name, "simple_name", contents, "", false)
+    {:safe, res} = AdminLte2.wrap_item_type(nil, :name, "simple_name", contents, "", false)
     assert_label(res, "simple_name")
     refute_required(res)
     refute_error(res)
@@ -24,7 +24,7 @@ defmodule ExAdmin.ThemeTest do
 
   test "AdminLte2 wrap_item_type required no error" do
     contents = fn _ -> "" end
-    res = AdminLte2.wrap_item_type(nil, :name, "simple_name", contents, "", true)
+    {:safe, res} = AdminLte2.wrap_item_type(nil, :name, "simple_name", contents, "", true)
     assert_label(res, "simple_name")
     assert_required(res)
     refute_error(res)
@@ -33,7 +33,7 @@ defmodule ExAdmin.ThemeTest do
 
   test "AdminLte2 wrap_item_type not required error" do
     contents = fn _ -> "" end
-    res = AdminLte2.wrap_item_type(nil, :name, "simple_name", contents, "error ", false)
+    {:safe, res} = AdminLte2.wrap_item_type(nil, :name, "simple_name", contents, "error ", false)
     assert_label(res, "simple_name")
     refute_required(res)
     assert_error(res)
@@ -42,7 +42,7 @@ defmodule ExAdmin.ThemeTest do
 
   test "AdminLte2 wrap_item_type required error" do
     contents = fn _ -> "" end
-    res = AdminLte2.wrap_item_type(nil, :name, "simple_name", contents, "error ", true)
+    {:safe, res} = AdminLte2.wrap_item_type(nil, :name, "simple_name", contents, "error ", true)
     assert_label(res, "simple_name")
     assert_required(res)
     assert_error(res)
@@ -54,7 +54,7 @@ defmodule ExAdmin.ThemeTest do
 
   test "ActiveAdmin wrap_item_type not required no error" do
     contents = fn _ -> "" end
-    res = ActiveAdmin.wrap_item_type(nil, :name, "simple_name", contents, "", false)
+    {:safe, res} = ActiveAdmin.wrap_item_type(nil, :name, "simple_name", contents, "", false)
     assert_label(res, "simple_name")
     refute_required(res)
     refute_error(res)
@@ -63,7 +63,7 @@ defmodule ExAdmin.ThemeTest do
 
   test "ActiveAdmin wrap_item_type required no error" do
     contents = fn _ -> "" end
-    res = ActiveAdmin.wrap_item_type(nil, :name, "simple_name", contents, "", true)
+    {:safe, res} = ActiveAdmin.wrap_item_type(nil, :name, "simple_name", contents, "", true)
     assert_label(res, "simple_name")
     assert_required(res)
     refute_error(res)
@@ -72,7 +72,10 @@ defmodule ExAdmin.ThemeTest do
 
   test "ActiveAdmin wrap_item_type not required error" do
     contents = fn _ -> "" end
-    res = ActiveAdmin.wrap_item_type(nil, :name, "simple_name", contents, "error ", false)
+
+    {:safe, res} =
+      ActiveAdmin.wrap_item_type(nil, :name, "simple_name", contents, "error ", false)
+
     assert_label(res, "simple_name")
     refute_required(res)
     assert_error(res)
@@ -81,7 +84,7 @@ defmodule ExAdmin.ThemeTest do
 
   test "ActiveAdmin wrap_item_type required error" do
     contents = fn _ -> "" end
-    res = ActiveAdmin.wrap_item_type(nil, :name, "simple_name", contents, "error ", true)
+    {:safe, res} = ActiveAdmin.wrap_item_type(nil, :name, "simple_name", contents, "error ", true)
     assert_label(res, "simple_name")
     assert_required(res)
     assert_error(res)

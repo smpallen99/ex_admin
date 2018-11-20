@@ -94,13 +94,10 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
 
   def build_field({name, type}, q, defn)
       when type in [
-             Ecto.DateTime,
-             Ecto.Date,
-             Ecto.Time,
-             Timex.Ecto.DateTime,
-             Timex.Ecto.Date,
-             Timex.Ecto.Time,
-             Timex.Ecto.DateTimeWithTimezone,
+             Timex.DateTime,
+             Timex.Date,
+             Timex.Time,
+             Timex.DateTimeWithTimezone,
              NaiveDateTime,
              :naive_datetime,
              DateTime,

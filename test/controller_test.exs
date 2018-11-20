@@ -5,9 +5,6 @@ defmodule ExAdminTest.ControllerTest do
   import TestExAdmin.TestHelpers
   alias TestExAdmin.{Noid, User, Product, Simple}
 
-  @wrong_resource_id 100_500
-  @wrong_endpoint "/admin/not_existing"
-
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(TestExAdmin.Repo)
     user = insert_user()
@@ -52,7 +49,7 @@ defmodule ExAdminTest.ControllerTest do
   test "does not create resource and renders errors when data is invalid" do
     conn = post(build_conn(), admin_resource_path(Product, :create), product: @invalid_attrs)
     assert html_response(conn, 200) =~ "New Product"
-    assert String.contains?(conn.resp_body, "can't be blank")
+    assert String.contains?(conn.resp_body, "can&#39;t be blank")
   end
 
   test "does not create resource and sets changeset" do

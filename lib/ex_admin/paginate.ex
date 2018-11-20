@@ -54,9 +54,19 @@ defmodule ExAdmin.Paginate do
   end
 
   def pagination_information(name, record_number, last, record_count) do
+    nbsp = quote do: {:safe, "&nbsp;"}
+
     markup do
       text(gettext("Displaying %{name}", name: name) <> " ")
-      b("#{record_number}&nbsp;-&nbsp;#{last}")
+
+      b do
+        text(record_number)
+        nbsp
+        text("-")
+        nbsp
+        text(last)
+      end
+
       text(" " <> gettext("of") <> " ")
       b("#{record_count}")
       text(" " <> gettext("in total"))

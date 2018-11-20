@@ -175,12 +175,13 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
     {html, changes} =
       Enum.reduce(fun.(), {"", []}, fn item, {htmls, chgs} ->
         case item do
-          bin when is_binary(bin) -> {htmls <> bin, chgs}
-          {bin, change} -> {htmls <> bin, [change | chgs]}
+          {:safe, bin} when is_binary(bin) -> {htmls <> bin, chgs}
+          {{:safe, bin}, change} -> {htmls <> bin, [change | chgs]}
         end
       end)
 
     changes = Enum.reverse(changes)
+    html = {:safe, html}
 
     res =
       div ".box.box-primary" do
@@ -399,7 +400,10 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
         for {field, type} <- schema do
           error =
             if errors,
-              do: Enum.filter_map(errors, &(elem(&1, 0) == to_string(field)), &elem(&1, 1)),
+              do:
+                errors
+                |> Enum.filter(&(elem(&1, 0) == to_string(field)))
+                |> Enum.map(&elem(&1, 1)),
               else: nil
 
           ExAdmin.Form.build_input(conn, type, field, field_name, res, model_name, error, inx)

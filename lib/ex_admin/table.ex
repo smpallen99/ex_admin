@@ -81,11 +81,15 @@ defmodule ExAdmin.Table do
       for field <- columns do
         case field do
           {f_name, fun} when is_function(fun) ->
-            td(".td-#{parameterize(f_name)} #{fun.(resource)}")
+            td class: "td-#{parameterize(f_name)}" do
+              fun.(resource)
+            end
 
           {f_name, opts} ->
             build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn contents, f_name ->
-              td(".td-#{parameterize(f_name)} #{contents}")
+              td class: "td-#{parameterize(f_name)}" do
+                contents
+              end
             end)
         end
       end
@@ -99,11 +103,15 @@ defmodule ExAdmin.Table do
       for field <- columns do
         case field do
           {f_name, fun} when is_function(fun) ->
-            td(".td-#{parameterize(f_name)} #{fun.(resource)}")
+            td class: "td-#{parameterize(f_name)}" do
+              fun.(resource)
+            end
 
           {f_name, opts} ->
             build_field(resource, conn, {f_name, Enum.into(opts, %{})}, fn contents, f_name ->
-              td(".td-#{parameterize(f_name)} #{contents}")
+              td class: "td-#{parameterize(f_name)}" do
+                contents
+              end
             end)
         end
       end
@@ -111,7 +119,9 @@ defmodule ExAdmin.Table do
   end
 
   def do_panel(conn, columns \\ [], table_opts \\ [], output \\ [])
-  def do_panel(_conn, [], _table_opts, output), do: Enum.join(Enum.reverse(output))
+
+  def do_panel(_conn, [], _table_opts, output),
+    do: {:safe, Enum.join(Enum.reverse(Enum.map(output, fn {:safe, html} -> html end)))}
 
   def do_panel(
         conn,
@@ -257,12 +267,6 @@ defmodule ExAdmin.Table do
     end
   end
 
-  def handle_contents(%Ecto.DateTime{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
-    end
-  end
-
   def handle_contents(%DateTime{} = dt, field_name) do
     td class: to_class("td-", field_name) do
       text(to_string(dt))
@@ -270,18 +274,6 @@ defmodule ExAdmin.Table do
   end
 
   def handle_contents(%NaiveDateTime{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
-    end
-  end
-
-  def handle_contents(%Ecto.Time{} = dt, field_name) do
-    td class: to_class("td-", field_name) do
-      text(to_string(dt))
-    end
-  end
-
-  def handle_contents(%Ecto.Date{} = dt, field_name) do
     td class: to_class("td-", field_name) do
       text(to_string(dt))
     end
@@ -307,8 +299,10 @@ defmodule ExAdmin.Table do
     end
   end
 
-  def handle_contents({:safe, contents}, field_name) do
-    handle_contents(contents, field_name)
+  def handle_contents({:safe, _} = contents, field_name) do
+    td class: to_class("td-", field_name) do
+      contents
+    end
   end
 
   def handle_contents(contents, field_name) do

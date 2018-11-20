@@ -53,10 +53,10 @@ defmodule ExAdmin.Repo do
   # V2
   #
   def insert(changeset) do
-    repo.insert(changeset)
+    repo().insert(changeset)
   end
 
   def update(changeset) do
-    repo.update(changeset)
+    repo().update(changeset)
   end
 end
