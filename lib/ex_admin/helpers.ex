@@ -1,8 +1,6 @@
 Code.ensure_compiled(ExAdmin.Utils)
 
 defmodule ExAdmin.Helpers do
-  require IEx
-
   @moduledoc false
   require Logger
   require Integer
