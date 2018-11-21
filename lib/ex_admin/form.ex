@@ -281,7 +281,7 @@ defmodule ExAdmin.Form do
             )
           end
 
-        ~s/$('##{ext_name}_input').html("#{escape_javascript(view)}");/
+        Phoenix.HTML.raw(~s/$('##{ext_name}_input').html("#{escape_javascript(view)}");/)
       end
     end
   end
@@ -529,7 +529,7 @@ defmodule ExAdmin.Form do
   def put_script_block(script_block) do
     if script_block do
       Xain.script type: "text/javascript" do
-        text("\n" <> script_block <> "\n")
+        Phoenix.HTML.raw("\n" <> script_block <> "\n")
       end
     end
   end
@@ -698,7 +698,7 @@ defmodule ExAdmin.Form do
     Adminlog.debug("build_item 2:")
 
     script type: "javascript" do
-      text("\n" <> contents <> "\n")
+      Phoenix.HTML.raw("\n" <> contents <> "\n")
     end
   end
 
@@ -1415,11 +1415,11 @@ defmodule ExAdmin.Form do
   def build_array_control_select2_script({collection, options}, name) do
     script =
       Xain.script do
-        """
+        Phoenix.HTML.raw("""
         $(document).ready(function() {
           $(".#{name}").select2(#{options});
         })
-        """
+        """)
       end
 
     {collection, script}
