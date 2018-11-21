@@ -931,12 +931,12 @@ defmodule ExAdmin.Form do
   def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors)
       when is_binary(content) do
     Adminlog.debug("build_item 5.")
-    text(content)
+    Phoenix.HTML.html_escape(content)
   end
 
   def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors) do
     Adminlog.debug("build_item 6.")
-    text(elem(content, 1))
+    content
   end
 
   def build_item(

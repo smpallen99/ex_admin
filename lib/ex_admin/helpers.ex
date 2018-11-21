@@ -161,7 +161,7 @@ defmodule ExAdmin.Helpers do
       |> Map.delete(:image)
       |> build_attributes
 
-    img(Keyword.merge(attributes, src: fun.(resource)))
+    img(attributes, src: fun.(resource))
     |> build_link_for(conn, opts, resource, f_name)
   end
 
