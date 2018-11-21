@@ -714,10 +714,11 @@ defmodule ExAdmin.Form do
     schema = get_schema(item, field_name)
     data = Map.get(resource, field_name, model_name) || %{}
 
-    for {field, type} <- schema do
-      build_input(conn, type, field, field_name, data, model_name)
+    markup do
+      for {field, type} <- schema do
+        build_input(conn, type, field, field_name, data, model_name)
+      end
     end
-    |> Enum.join("\n")
   end
 
   def build_item(
