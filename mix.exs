@@ -59,7 +59,7 @@ defmodule ExAdmin.Mixfile do
     [
       {:decimal, "~> 1.0"},
       {:phoenix, "~> 1.4"},
-      {:phoenix_html, "~> 2.6"},
+      {:phoenix_html, "~> 2.12"},
       {:ecto, "~> 2.1"},
       {:phoenix_ecto, "~> 3.2"},
       {:postgrex, "~> 0.13", only: :test},
@@ -68,7 +68,7 @@ defmodule ExAdmin.Mixfile do
       {:plug_cowboy, "~> 2.0"},
       {:inflex, "~> 1.7"},
       {:scrivener_ecto, "~> 1.1"},
-      {:xain, "~> 0.6"},
+      {:xain, "~> 0.6.2"},
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~> 2.2.0"},
       {:ex_doc, "~> 0.11", only: :dev},
