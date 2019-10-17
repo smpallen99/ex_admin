@@ -1,4 +1,5 @@
 alias ExAdmin.Utils
+import Phoenix.HTML
 
 defprotocol ExAdmin.Render do
   # @fallback_to_any true
@@ -11,7 +12,7 @@ defimpl ExAdmin.Render, for: Atom do
 end
 
 defimpl ExAdmin.Render, for: BitString do
-  def to_string(data), do: data
+  def to_string(data), do: data |> html_escape |> safe_to_string
 end
 
 defimpl ExAdmin.Render, for: Integer do
