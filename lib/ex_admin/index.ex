@@ -360,10 +360,13 @@ defmodule ExAdmin.Index do
       else
         columns ++
           [
-            {"Actions", %{
-              fun: fn resource -> build_index_links(conn, resource, actions, page.page_number) end,
-              label: ExAdmin.Gettext.gettext("Actions")
-            }}
+            {"Actions",
+             %{
+               fun: fn resource ->
+                 build_index_links(conn, resource, actions, page.page_number)
+               end,
+               label: ExAdmin.Gettext.gettext("Actions")
+             }}
           ]
       end
 
@@ -417,8 +420,10 @@ defmodule ExAdmin.Index do
 
   @doc false
   def download_links(conn, opts) do
-    div ".download_links " <> gettext("Download:") <> " " do
-      a("CSV", href: build_csv_href(conn, opts))
+    markup do
+      div ".download_links " <> gettext("Download:") <> " " do
+        a("CSV", href: build_csv_href(conn, opts))
+      end
     end
   end
 

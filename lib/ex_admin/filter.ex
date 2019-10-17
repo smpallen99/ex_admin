@@ -81,7 +81,8 @@ defmodule ExAdmin.Filter do
 
   def filter_options(defn, field, key \\ nil)
 
-  def filter_options(%{index_filters: filters}, field, key) when is_list(filters) and is_atom(key) do
+  def filter_options(%{index_filters: filters}, field, key)
+      when is_list(filters) and is_atom(key) do
     filters
     |> List.flatten()
     |> Enum.map(fn
@@ -160,7 +161,7 @@ defmodule ExAdmin.Filter do
     end)
   end
 
-  def string_selected_name(name, nil), do: "#{name}_equals"
+  def string_selected_name(name, nil), do: "#{name}_contains"
 
   def string_selected_name(name, q) do
     Enum.reduce(string_options(), "#{name}_eq", fn {k, _}, acc ->

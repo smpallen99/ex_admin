@@ -11,11 +11,7 @@ Use the issues tracker for:
 * [bug reports](#bug-reports)
 * [submitting pull requests](#pull-requests)
 
-Please **do not** use the issue tracker for personal support requests nor feature requests. Support requests should be sent to:
-
-* [the exadmin-talk mailing list](https://groups.google.com/forum/#!forum/exadmin-talk)
-
-Development issues can also be discussed on [the exadmin-talk mailing list](http://groups.google.com/group/exadmin-talk).
+Please **do not** use the issue tracker for personal support requests nor feature requests.
 
 We do our best to keep the issue tracker tidy and organized, making it useful
 for everyone. For example, we classify open issues per perceived difficulty,
@@ -59,13 +55,6 @@ Example:
 > reported. This might include the lines of code that you have identified as
 > causing the bug, and potential solutions (and your opinions on their
 > merits).
-
-## Feature requests
-
-Feature requests are welcome and should be discussed on [the exadmin-talk mailing list](http://groups.google.com/group/exadmin-talk). But take a moment to find
-out whether your idea fits with the scope and aims of the project. It's up to *you*
-to make a strong case to convince the community of the merits of this feature.
-Please provide as much detail and context as possible.
 
 ## Contributing Documentation
 

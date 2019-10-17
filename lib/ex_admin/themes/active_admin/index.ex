@@ -11,27 +11,33 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
   alias ExAdmin.Schema
 
   def wrap_index_grid(fun) do
-    div ".box", style: "min-height: 400px" do
-      fun.()
+    markup do
+      div ".box", style: "min-height: 400px" do
+        fun.()
+      end
     end
   end
 
   def wrap_index_table(fun) do
-    div ".box", style: "min-height: 400px" do
-      fun.()
+    markup do
+      div ".box", style: "min-height: 400px" do
+        fun.()
+      end
     end
   end
 
   def blank_slate_page(conn, %{defn: defn, label: label}) do
-    div ".blank_slate_container" do
-      span ".blank_slate" do
-        unless is_nil(conn.params["q"]) and is_nil(conn.params["scope"]) do
-          text(gettext("No %{label} found.", label: humanize(label)))
-        else
-          text(gettext("There are no %{label} yet. ", label: humanize(label)))
+    markup do
+      div ".blank_slate_container" do
+        span ".blank_slate" do
+          unless is_nil(conn.params["q"]) and is_nil(conn.params["scope"]) do
+            text(gettext("No %{label} found.", label: humanize(label)))
+          else
+            text(gettext("There are no %{label} yet. ", label: humanize(label)))
 
-          if ExAdmin.has_action?(conn, defn, :new) do
-            a(gettext("Create one"), href: admin_resource_path(conn, :new))
+            if ExAdmin.has_action?(conn, defn, :new) do
+              a(gettext("Create one"), href: admin_resource_path(conn, :new))
+            end
           end
         end
       end
@@ -77,68 +83,71 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
     columns = opts[:columns]
     page = opts[:page]
 
-    div ".paginated_collection" do
-      div ".paginated_collection_contents" do
-        div ".index_content" do
-          div ".index_as_grid.index" do
-            table ".index_grid",
-              border: "0",
-              cellspacing: "0",
-              cellpadding: "0",
-              paginator: "true" do
-              tbody do
-                Enum.chunk(page.entries, columns, columns, [nil])
-                |> Enum.map(fn list ->
-                  tr do
-                    Enum.map(list, fn item ->
-                      td do
-                        if item do
-                          opts[:cell].(item)
+    markup do
+      div ".paginated_collection" do
+        div ".paginated_collection_contents" do
+          div ".index_content" do
+            div ".index_as_grid.index" do
+              table ".index_grid",
+                border: "0",
+                cellspacing: "0",
+                cellpadding: "0",
+                paginator: "true" do
+                tbody do
+                  Enum.chunk(page.entries, columns, columns, [nil])
+                  |> Enum.map(fn list ->
+                    tr do
+                      Enum.map(list, fn item ->
+                        td do
+                          if item do
+                            opts[:cell].(item)
+                          end
                         end
-                      end
-                    end)
-                  end
-                end)
+                      end)
+                    end
+                  end)
+                end
               end
             end
           end
+
+          # .index_content
         end
 
-        # .index_content
+        do_footer(conn, opts)
       end
-
-      do_footer(conn, opts)
     end
   end
 
   def do_footer(conn, opts) do
     page = opts[:page]
 
-    div ".box-footer.clearfix" do
-      opts[:href]
-      |> build_scope_href(conn.params["scope"])
-      |> build_order_href(opts[:order])
-      |> build_filter_href(conn.params["q"])
-      |> ExAdmin.Paginate.paginate(
-        page.page_number,
-        page.page_size,
-        page.total_pages,
-        opts[:count],
-        opts[:name]
-      )
+    markup do
+      div ".box-footer.clearfix" do
+        opts[:href]
+        |> build_scope_href(conn.params["scope"])
+        |> build_order_href(opts[:order])
+        |> build_filter_href(conn.params["q"])
+        |> ExAdmin.Paginate.paginate(
+          page.page_number,
+          page.page_size,
+          page.total_pages,
+          opts[:count],
+          opts[:name]
+        )
 
-      download_links(conn, opts)
+        download_links(conn, opts)
+      end
     end
   end
 
   def handle_action_links(list, resource, labels, page_num) do
     base_class = "member_link"
 
-    list
-    |> Enum.reduce([], fn item, acc ->
-      label = labels[item]
+    markup do
+      for item <- Enum.reverse(list) do
+        label = labels[item]
 
-      link =
         case item do
           :show ->
             link_text = label || gettext("View")
@@ -175,10 +184,8 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
               title: link_text
             )
         end
-
-      [link | acc]
-    end)
-    |> Enum.reverse()
+      end
+    end
   end
 
   def batch_action_form(conn, enabled?, scopes, name, scope_counts, fun) do
@@ -191,77 +198,79 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
     scopes = unless Application.get_env(:ex_admin, :scopes_index_page, true), do: [], else: scopes
 
     if enabled? or scopes != [] do
-      form "#collection_selection",
-        action: "/admin/#{name}/batch_action",
-        method: :post,
-        "accept-charset": "UTF-8" do
-        div style: "margin:0;padding:0;display:inline" do
-          csrf = Plug.CSRFProtection.get_csrf_token()
-          input(name: "utf8", type: :hidden, value: "✓")
-          input(type: :hidden, name: "_csrf_token", value: csrf)
-        end
+      markup do
+        form "#collection_selection",
+          action: "/admin/#{name}/batch_action",
+          method: :post,
+          "accept-charset": "UTF-8" do
+          div style: "margin:0;padding:0;display:inline" do
+            csrf = Plug.CSRFProtection.get_csrf_token()
+            input(name: "utf8", type: :hidden, value: "✓")
+            input(type: :hidden, name: "_csrf_token", value: csrf)
+          end
 
-        input("#batch_action", name: "batch_action", type: :hidden)
+          input("#batch_action", name: "batch_action", type: :hidden)
 
-        div ".box-header" do
-          div ".table_tools" do
-            if enabled? do
-              div "#batch_actions_selector.dropdown_menu" do
-                button ".disabled.dropdown_menu_button.btn.btn-xs.btn-default " <>
-                         gettext("Batch Actions") do
-                  span(".fa.fa-caret-down")
-                end
+          div ".box-header" do
+            div ".table_tools" do
+              if enabled? do
+                div "#batch_actions_selector.dropdown_menu" do
+                  button ".disabled.dropdown_menu_button.btn.btn-xs.btn-default " <>
+                           gettext("Batch Actions") do
+                    span(".fa.fa-caret-down")
+                  end
 
-                div ".dropdown_menu_list_wrapper", style: "display: none;" do
-                  div(".dropdown_menu_nipple")
+                  div ".dropdown_menu_list_wrapper", style: "display: none;" do
+                    div(".dropdown_menu_nipple")
 
-                  ul ".dropdown_menu_list" do
-                    li do
-                      a(
-                        ".batch_action " <> gettext("Delete Selected"),
-                        href: "#",
-                        "data-action": :destroy,
-                        "data-confirm": msg
-                      )
+                    ul ".dropdown_menu_list" do
+                      li do
+                        a(
+                          ".batch_action " <> gettext("Delete Selected"),
+                          href: "#",
+                          "data-action": :destroy,
+                          "data-confirm": msg
+                        )
+                      end
                     end
                   end
                 end
               end
-            end
 
-            if scopes != [] do
-              current_scope = ExAdmin.Query.get_scope(scopes, conn.params["scope"])
+              if scopes != [] do
+                current_scope = ExAdmin.Query.get_scope(scopes, conn.params["scope"])
 
-              ul ".scopes.table_tools_segmented_control",
-                style: "width: calc((100% - 10px) - 108px); float: right;" do
-                order_segment =
-                  case conn.params["order"] do
-                    nil -> ""
-                    order -> "&order=#{order}"
-                  end
+                ul ".scopes.table_tools_segmented_control",
+                  style: "width: calc((100% - 10px) - 108px); float: right;" do
+                  order_segment =
+                    case conn.params["order"] do
+                      nil -> ""
+                      order -> "&order=#{order}"
+                    end
 
-                for {name, _opts} <- scopes do
-                  count = scope_counts[name]
-                  selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
+                  for {name, _opts} <- scopes do
+                    count = scope_counts[name]
+                    selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
 
-                  li ".scope.#{name}#{selected}" do
-                    href =
-                      admin_resource_path(conn, :index, [[scope: name]])
-                      |> build_filter_href(conn.params["q"])
+                    li ".scope.#{name}#{selected}" do
+                      href =
+                        admin_resource_path(conn, :index, [[scope: name]])
+                        |> build_filter_href(conn.params["q"])
 
-                    a ".table_tools_button.btn-sm.btn.btn-default", href: href <> order_segment do
-                      text(ExAdmin.Utils.humanize("#{name} "))
-                      span(".badge.bg-blue #{count}")
+                      a ".table_tools_button.btn-sm.btn.btn-default", href: href <> order_segment do
+                        text(ExAdmin.Utils.humanize("#{name} "))
+                        span(".badge.bg-blue #{count}")
+                      end
                     end
                   end
                 end
               end
             end
           end
-        end
 
-        div ".box-body" do
-          fun.()
+          div ".box-body" do
+            fun.()
+          end
         end
       end
     else
@@ -279,35 +288,37 @@ defmodule ExAdmin.Theme.ActiveAdmin.Index do
     model_name = get_resource_model(resources)
     selectable = Map.get(opts, :selectable_column)
 
-    tbody do
-      Enum.with_index(resources)
-      |> Enum.map(fn {resource, inx} ->
-        odd_even = if Integer.is_even(inx), do: "even", else: "odd"
-        id = Map.get(resource, Schema.primary_key(resource))
+    markup do
+      tbody do
+        Enum.with_index(resources)
+        |> Enum.map(fn {resource, inx} ->
+          odd_even = if Integer.is_even(inx), do: "even", else: "odd"
+          id = Map.get(resource, Schema.primary_key(resource))
 
-        tr ".#{odd_even}##{model_name}_#{id}" do
-          if selectable do
-            td ".selectable" do
-              div ".resource_selection_cell" do
-                input(
-                  ".collection_selection#batch_action_item_#{id}",
-                  type: :checkbox,
-                  value: "#{id}",
-                  name: "collection_selection[]"
-                )
+          tr ".#{odd_even}##{model_name}_#{id}" do
+            if selectable do
+              td ".selectable" do
+                div ".resource_selection_cell" do
+                  input(
+                    ".collection_selection#batch_action_item_#{id}",
+                    type: :checkbox,
+                    value: "#{id}",
+                    name: "collection_selection[]"
+                  )
+                end
               end
+            end
+
+            for field <- columns do
+              build_field(resource, conn, field, fn contents, field_name ->
+                ExAdmin.Table.handle_contents(contents, field_name)
+              end)
             end
           end
 
-          for field <- columns do
-            build_field(resource, conn, field, fn contents, field_name ->
-              ExAdmin.Table.handle_contents(contents, field_name)
-            end)
-          end
-        end
-
-        # tr
-      end)
+          # tr
+        end)
+      end
     end
   end
 end

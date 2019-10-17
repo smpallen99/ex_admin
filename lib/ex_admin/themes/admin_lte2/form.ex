@@ -175,8 +175,14 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
     {html, changes} =
       Enum.reduce(fun.(), {"", []}, fn item, {htmls, chgs} ->
         case item do
-          bin when is_binary(bin) -> {htmls <> bin, chgs}
-          {bin, change} -> {htmls <> bin, [change | chgs]}
+          bin when is_binary(bin) ->
+            {htmls <> Phoenix.HTML.safe_to_string(Phoenix.HTML.html_escape(bin)), chgs}
+
+          {:safe, _} = escaped ->
+            {htmls <> Phoenix.HTML.safe_to_string(escaped), chgs}
+
+          {bin, change} ->
+            {htmls <> Phoenix.HTML.safe_to_string(Phoenix.HTML.html_escape(bin)), [change | chgs]}
         end
       end)
 
@@ -191,7 +197,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
         end
 
         div ".box-body" do
-          html
+          Phoenix.HTML.raw(html)
         end
       end
 
@@ -398,9 +404,13 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
       div ".box-body" do
         for {field, type} <- schema do
           error =
-            if errors,
-              do: Enum.filter_map(errors, &(elem(&1, 0) == to_string(field)), &elem(&1, 1)),
-              else: nil
+            if errors do
+              errors
+              |> Enum.filter(&(elem(&1, 0) == to_string(field)))
+              |> Enum.map(&elem(&1, 1))
+            else
+              nil
+            end
 
           ExAdmin.Form.build_input(conn, type, field, field_name, res, model_name, error, inx)
         end

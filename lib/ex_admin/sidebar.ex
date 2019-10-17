@@ -14,7 +14,7 @@ defmodule ExAdmin.Sidebar do
     end)
   end
 
-  def sidebar_view(_conn, %{sidebars: []}, _), do: ""
+  def sidebar_view(_conn, %{sidebars: []}, _), do: nil
 
   def sidebar_view(conn, %{sidebars: sidebars}, resource) do
     for sidebar <- sidebars do

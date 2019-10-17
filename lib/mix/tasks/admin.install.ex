@@ -14,7 +14,7 @@ defmodule Mix.Tasks.Admin.Install do
 
   ## Options:
 
-    * --no-brunch - Write assets to priv/static instead of web/static/
+    * --no-brunch - Write assets to priv/static instead of assets/static/
     * --no-assets - Skip the assets
     * --no-config - Skip the config
     * --no-dashboard - Skip the dashboard
@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Admin.Install do
   import Mix.ExAdmin.Utils
   import ExAdmin.Gettext
 
-  @boolean_switchs ~w(assets config route dashboard brunch)a
+  @boolean_switchs ~w(assets config route dashboard brunch)
   @switches Enum.map(@boolean_switchs, &{&1, :boolean})
 
   defmodule Config do
@@ -81,7 +81,10 @@ defmodule Mix.Tasks.Admin.Install do
   defp check_config(config), do: config
 
   defp check_assets(%{assets: true, brunch: true} = config) do
-    unless File.exists?("brunch-config.js") do
+    brunch_path = Path.join(~w(assets brunch-config.js))
+    IO.inspect(brunch_path)
+
+    unless File.exists?(brunch_path) do
       Mix.raise("""
       Can't find brunch-config.js
       """)
@@ -106,10 +109,11 @@ defmodule Mix.Tasks.Admin.Install do
 
   def do_assets(%Config{assets: true, brunch: true} = config) do
     base_path = Path.join(~w(priv static))
+    brunch_config_path = Path.join(~w{assets brunch-config.js})
 
-    File.mkdir_p(Path.join(~w{web static vendor}))
-    File.mkdir_p(Path.join(~w{web static assets fonts}))
-    File.mkdir_p(Path.join(~w{web static assets images ex_admin datepicker}))
+    File.mkdir_p(Path.join(~w{assets static vendor}))
+    File.mkdir_p(Path.join(~w{assets static assets fonts}))
+    File.mkdir_p(Path.join(~w{assets static assets images ex_admin datepicker}))
 
     status_msg("creating", "css files")
 
@@ -125,9 +129,9 @@ defmodule Mix.Tasks.Admin.Install do
     copy_vendor_r(base_path, "fonts")
     copy_vendor_r(base_path, "images")
 
-    case File.read("brunch-config.js") do
+    case File.read(brunch_config_path) do
       {:ok, file} ->
-        File.write!("brunch-config.js", file <> brunch_instructions())
+        File.write!(brunch_config_path, file <> brunch_instructions())
 
       error ->
         Mix.raise("""
@@ -141,10 +145,11 @@ defmodule Mix.Tasks.Admin.Install do
   def do_assets(%Config{assets: true} = config) do
     base = ~w(priv static)
     base_path = Path.join(base)
+    app_web_path = get_web_path()
 
     Enum.each(~w(fonts css js), &File.mkdir_p(Path.join(base ++ [&1])))
     File.mkdir_p(Path.join(~w{priv static images ex_admin datepicker}))
-    File.mkdir_p(Path.join(~w(web admin)))
+    File.mkdir_p(Path.join(["lib", app_web_path, "admin"]))
 
     status_msg("creating", "css files")
 
@@ -168,9 +173,11 @@ defmodule Mix.Tasks.Admin.Install do
   end
 
   def do_route(%Config{route: true} = config) do
+    app_web_path = get_web_path()
+
     Mix.shell().info("""
 
-    Add the admin routes to your web/router.ex:
+    Add the admin routes to your lib/#{app_web_path}/router.ex:
 
       use ExAdmin.Router
       # your app's routes
@@ -219,7 +226,8 @@ defmodule Mix.Tasks.Admin.Install do
   end
 
   def do_dashboard(%Config{dashboard: true} = config) do
-    dest_path = Path.join([File.cwd!() | ~w(web admin)])
+    app_web_path = get_web_path()
+    dest_path = Path.join([File.cwd!() | ["lib", app_web_path, "admin"]])
     dest_file_path = Path.join(dest_path, "dashboard.ex")
 
     source =
@@ -228,10 +236,11 @@ defmodule Mix.Tasks.Admin.Install do
         base: get_module(),
         title_txt: gettext("Dashboard"),
         welcome_txt: gettext("Welcome to ExAdmin. This is the default dashboard page."),
-        add_txt: gettext("To add dashboard sections, checkout 'web/admin/dashboards.ex'")
+        add_txt:
+          gettext("To add dashboard sections, checkout 'lib/my_app_web/admin/dashboards.ex'")
       )
 
-    file = Path.join(~w(web admin dashboard.ex))
+    file = Path.join(["lib", app_web_path, "admin", "dashboard.ex"])
 
     if File.exists?(file) do
       notice_msg("skipping", "#{file}. It already exists.")
@@ -264,14 +273,15 @@ defmodule Mix.Tasks.Admin.Install do
   end
 
   def do_paging(config) do
-    base = get_module()
+    module_name = get_module()
+    base = get_module_underscored_name()
 
     Mix.shell().info("""
 
     Add Scrivener paging to your Repo:
 
-      defmodule #{base}.Repo do
-        use Ecto.Repo, otp_app: :#{String.downcase(base)}
+      defmodule #{module_name}.Repo do
+        use Ecto.Repo, otp_app: :#{base}
         use Scrivener, page_size: 10  # <--- add this
       end
     """)
@@ -313,14 +323,14 @@ defmodule Mix.Tasks.Admin.Install do
   defp copy_vendor(from_path, path, filename) do
     File.cp(
       Path.join([get_package_path(), from_path, path, filename]),
-      Path.join([File.cwd!(), "web", "static", "vendor", filename])
+      Path.join([File.cwd!(), "assets", "static", "vendor", filename])
     )
   end
 
   defp copy_vendor_r(base_path, path) do
     File.cp_r(
       Path.join([get_package_path(), base_path, path]),
-      Path.join([File.cwd!(), "web", "static", "assets", path])
+      Path.join([File.cwd!(), "assets", "static", "assets", path])
     )
   end
 
@@ -339,10 +349,10 @@ defmodule Mix.Tasks.Admin.Install do
     //
     //     javascripts: {
     //       joinTo: {
-    //         "js/app.js": /^(web\\/static\\/js)|(node_modules)/,
-    //         "js/ex_admin_common.js": ["web/static/vendor/ex_admin_common.js"],
-    //         "js/admin_lte2.js": ["web/static/vendor/admin_lte2.js"],
-    //         "js/jquery.min.js": ["web/static/vendor/jquery.min.js"],
+    //         "js/app.js": /^(static\\/js)|(node_modules)/,
+    //         "js/ex_admin_common.js": ["vendor/ex_admin_common.js"],
+    //         "js/admin_lte2.js": ["vendor/admin_lte2.js"],
+    //         "js/jquery.min.js": ["vendor/jquery.min.js"],
     //       }
     //     },
     //
@@ -351,7 +361,7 @@ defmodule Mix.Tasks.Admin.Install do
     //     stylesheets: {
     //       joinTo: "css/app.css",
     //       order: {
-    //         after: ["web/static/css/app.css"] // concat app.css last
+    //         after: ["css/app.css"] // concat app.css last
     //       }
     //     },
     //
@@ -359,12 +369,12 @@ defmodule Mix.Tasks.Admin.Install do
     //
     //     stylesheets: {
     //       joinTo: {
-    //         "css/app.css": /^(web\\/static\\/css)/,
-    //         "css/admin_lte2.css": ["web/static/vendor/admin_lte2.css"],
-    //         "css/active_admin.css.css": ["web/static/vendor/active_admin.css.css"],
+    //         "css/app.css": /^(static\\/css)/,
+    //         "css/admin_lte2.css": ["vendor/admin_lte2.css"],
+    //         "css/active_admin.css.css": ["vendor/active_admin.css.css"],
     //       },
     //       order: {
-    //         after: ["web/static/css/app.css"] // concat app.css last
+    //         after: ["css/app.css"] // concat app.css last
     //       }
     //     },
     //

@@ -13,6 +13,14 @@ defmodule Mix.ExAdmin.Utils do
     |> Enum.at(1)
   end
 
+  def get_module_underscored_name do
+    get_module() |> Macro.underscore()
+  end
+
+  def get_web_path do
+    get_module_underscored_name() <> "_web"
+  end
+
   @doc "Print a status message to the console"
   def status_msg(status, message),
     do: IO.puts("#{IO.ANSI.green()}* #{status}#{IO.ANSI.reset()} #{message}")

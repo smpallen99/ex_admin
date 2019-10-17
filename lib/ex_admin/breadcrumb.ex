@@ -21,7 +21,8 @@ defmodule ExAdmin.BreadCrumb do
     end
   end
 
-  defp get_breadcrumbs(conn, _resource, defn, nil, action) when action in [:new, :show, :create] do
+  defp get_breadcrumbs(conn, _resource, defn, nil, action)
+       when action in [:new, :show, :create] do
     case conn.path_info do
       [admin, name | _] ->
         admin_link = admin_link(admin)

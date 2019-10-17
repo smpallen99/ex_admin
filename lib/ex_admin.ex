@@ -386,12 +386,13 @@ defmodule ExAdmin do
   end
 
   defp action_link(conn, name, :delete, _id) do
-    {name, [
-      href: admin_resource_path(conn, :destroy),
-      "data-confirm": Utils.confirm_message(),
-      "data-method": :delete,
-      rel: :nofollow
-    ]}
+    {name,
+     [
+       href: admin_resource_path(conn, :destroy),
+       "data-confirm": Utils.confirm_message(),
+       "data-method": :delete,
+       rel: :nofollow
+     ]}
   end
 
   defp action_link(conn, name, action, _id) do

@@ -1,7 +1,7 @@
 defmodule ExAdmin.Mixfile do
   use Mix.Project
 
-  @version "0.9.0-dev"
+  @version "0.10.0-dev"
 
   def project do
     [
@@ -58,16 +58,17 @@ defmodule ExAdmin.Mixfile do
   defp deps do
     [
       {:decimal, "~> 1.0"},
-      {:phoenix, "~> 1.2"},
-      {:phoenix_html, "~> 2.6"},
+      {:phoenix, "~> 1.4"},
+      {:phoenix_html, "~> 2.12"},
       {:ecto, "~> 2.1"},
       {:phoenix_ecto, "~> 3.2"},
       {:postgrex, "~> 0.13", only: :test},
       {:floki, "~> 0.8", only: :test},
-      {:cowboy, "~> 1.0"},
+      {:cowboy, "~> 2.0"},
+      {:plug_cowboy, "~> 2.0"},
       {:inflex, "~> 1.7"},
       {:scrivener_ecto, "~> 1.1"},
-      {:xain, "~> 0.6"},
+      {:xain, "~> 0.6.2"},
       {:csvlixir, "~> 1.0.0"},
       {:exactor, "~> 2.2.0"},
       {:ex_doc, "~> 0.11", only: :dev},
@@ -75,15 +76,16 @@ defmodule ExAdmin.Mixfile do
       {:ex_queb, "~> 1.0"},
       {:excoveralls, "~> 0.5", only: :test},
       {:gettext, "~> 0.11"},
+      {:html_entities, "~> 0.4"},
       {:hound, "~> 1.0", only: :test}
     ]
   end
 
   defp package do
     [
-      maintainers: ["Stephen Pallen", "Roman Smirnov"],
+      maintainers: ["Jared Smith"],
       licenses: ["MIT"],
-      links: %{"Github" => "https://github.com/smpallen99/ex_admin"},
+      links: %{"Github" => "https://github.com/sublimecoder/ex_admin"},
       files:
         ~w(lib priv web README.md package.json mix.exs LICENSE brunch-config.js AdminLte-LICENSE)
     ]

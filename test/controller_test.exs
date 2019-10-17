@@ -52,7 +52,8 @@ defmodule ExAdminTest.ControllerTest do
   test "does not create resource and renders errors when data is invalid" do
     conn = post(build_conn(), admin_resource_path(Product, :create), product: @invalid_attrs)
     assert html_response(conn, 200) =~ "New Product"
-    assert String.contains?(conn.resp_body, "can't be blank")
+    res = conn.resp_body |> HtmlEntities.decode()
+    assert String.contains?(res, "can't be blank")
   end
 
   test "does not create resource and sets changeset" do
