@@ -74,11 +74,11 @@ defmodule ExAdmin do
   ## Other Types
 
   To support other Ecto Types, implement the ExAdmin.Render protocol for the
-  desired type. Here is an example from the ExAdmin code for the `Ecto.Date` type:
+  desired type. Here is an example from the ExAdmin code for the `Date` type:
 
-      defimpl ExAdmin.Render, for: Ecto.Date do
+      defimpl ExAdmin.Render, for: Date do
         def to_string(dt) do
-          Ecto.Date.to_string dt
+          Date.to_string dt
         end
       end
 
@@ -386,12 +386,13 @@ defmodule ExAdmin do
   end
 
   defp action_link(conn, name, :delete, _id) do
-    {name, [
-      href: admin_resource_path(conn, :destroy),
-      "data-confirm": Utils.confirm_message(),
-      "data-method": :delete,
-      rel: :nofollow
-    ]}
+    {name,
+     [
+       href: admin_resource_path(conn, :destroy),
+       "data-confirm": Utils.confirm_message(),
+       "data-method": :delete,
+       rel: :nofollow
+     ]}
   end
 
   defp action_link(conn, name, action, _id) do

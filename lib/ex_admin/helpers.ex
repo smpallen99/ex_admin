@@ -49,33 +49,36 @@ defmodule ExAdmin.Helpers do
     end
   end
 
-  def build_link_for({:safe, _} = safe_contents, d, a, b, c) do
-    safe_contents
-    |> Phoenix.HTML.safe_to_string()
-    |> build_link_for(d, a, b, c)
+  def build_link_for({:safe, _} = safe_contents, conn, opts, resource, field_name) do
+    case Map.get(resource, field_name) do
+      nil ->
+        safe_contents
+
+      %{__meta__: _} = res ->
+        build_content_link(true, conn, res, safe_contents)
+
+      _ ->
+        build_content_link(opts[:link], conn, resource, safe_contents)
+    end
   end
 
   def build_link_for("", _, _, _, _), do: ""
   def build_link_for(nil, _, _, _, _), do: ""
   def build_link_for(contents, _, %{link: false}, _, _), do: contents
 
-  def build_link_for(contents, conn, opts, resource, field_name) do
-    case Map.get(resource, field_name) do
-      nil ->
-        contents
-
-      %{__meta__: _} = res ->
-        build_content_link(true, conn, res, contents)
-
-      _ ->
-        build_content_link(opts[:link], conn, resource, contents)
-    end
+  def build_link_for(contents, d, a, b, c) do
+    contents
+    |> Phoenix.HTML.html_escape()
+    |> build_link_for(d, a, b, c)
   end
 
   defp build_content_link(link?, conn, resource, contents) do
     if link? && ExAdmin.Utils.authorized_action?(conn, :show, resource) do
       path = admin_resource_path(resource, :show)
-      "<a href='#{path}'>#{contents}</a>"
+
+      a(href: path) do
+        contents
+      end
     else
       contents
     end
@@ -159,7 +162,7 @@ defmodule ExAdmin.Helpers do
       |> Map.delete(:image)
       |> build_attributes
 
-    "<img src='#{fun.(resource)}'#{attributes} />"
+    img(attributes, src: fun.(resource))
     |> build_link_for(conn, opts, resource, f_name)
   end
 
@@ -190,23 +193,34 @@ defmodule ExAdmin.Helpers do
                 )
       end
 
-    [
-      ~s(<a id="#{f_name}_true_#{resource.id}" class="toggle btn btn-sm #{yes_btn_css}" href="#{
-        path.(true)
-      }" data-remote="true" data-method="put" #{if !!current_value, do: "disabled"}>#{yes}</a>),
-      ~s(<a id="#{f_name}_false_#{resource.id}" class="toggle btn btn-sm #{no_btn_css}" href="#{
-        path.(false)
-      }" data-remote="true" data-method="put" #{if !current_value, do: "disabled"}>#{no}</a>)
-    ]
-    |> Enum.join()
+    markup do
+      a([
+        {:id, "#{f_name}_true_#{resource.id}"},
+        {:class, "toggle btn btn-sm #{yes_btn_css}"},
+        {:href, path.(true)},
+        {"data-remote", true},
+        {"data-method", "put"},
+        {:disabled, !!current_value}
+      ]) do
+        text(yes)
+      end
+
+      a([
+        {:id, "#{f_name}_false_#{resource.id}"},
+        {:class, "toggle btn btn-sm #{no_btn_css}"},
+        {:href, path.(false)},
+        {"data-remote", true},
+        {"data-method", "put"},
+        {:disabled, !current_value}
+      ]) do
+        text(no)
+      end
+    end
   end
 
   def build_single_field(resource, conn, f_name, %{fun: fun} = opts) do
     markup :nested do
-      case fun.(resource) do
-        [{_, list}] -> list
-        other -> other
-      end
+      fun.(resource)
     end
     |> build_link_for(conn, opts, resource, f_name)
   end

@@ -14,7 +14,9 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control string" do
-    res = ExAdmin.Form.build_control(:string, %Simple{}, %{}, "simple", :name, "simple_name")
+    {:safe, res} =
+      ExAdmin.Form.build_control(:string, %Simple{}, %{}, "simple", :name, "simple_name")
+
     assert res =~ "<input"
     assert res =~ "id='simple_name'"
     assert res =~ "type='text'"
@@ -22,10 +24,10 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control DateTime" do
-    res =
+    {:safe, res} =
       ExAdmin.Form.build_control(
-        Ecto.DateTime,
-        %Simple{inserted_at: Ecto.DateTime.utc()},
+        DateTime,
+        %Simple{inserted_at: DateTime.utc_now()},
         %{},
         "simple",
         :inserted_at,
@@ -44,7 +46,7 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control NativeDateTime" do
-    res =
+    {:safe, res} =
       ExAdmin.Form.build_control(
         DateTime,
         %Simple{inserted_at: DateTime.utc_now()},
@@ -66,10 +68,10 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control Date" do
-    res =
+    {:safe, res} =
       ExAdmin.Form.build_control(
-        Ecto.Date,
-        %Simple{inserted_at: Ecto.DateTime.utc()},
+        Date,
+        %Simple{inserted_at: DateTime.utc_now()},
         %{},
         "simple",
         :inserted_at,
@@ -83,10 +85,10 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control Date with prompts" do
-    res =
+    {:safe, res} =
       ExAdmin.Form.build_control(
-        Ecto.Date,
-        %Simple{inserted_at: Ecto.DateTime.utc()},
+        Date,
+        %Simple{inserted_at: DateTime.utc_now()},
         %{options: [year: [prompt: "year"], month: [prompt: "month"], day: [prompt: "day"]]},
         "simple",
         :inserted_at,
@@ -113,10 +115,10 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control Time" do
-    res =
+    {:safe, res} =
       ExAdmin.Form.build_control(
-        Ecto.Time,
-        %Simple{inserted_at: Ecto.DateTime.utc()},
+        Time,
+        %Simple{inserted_at: DateTime.utc_now()},
         %{},
         "simple",
         :inserted_at,
@@ -130,7 +132,9 @@ defmodule ExAdmin.FormTest do
   end
 
   test "build_control :boolean" do
-    res = ExAdmin.Form.build_control(:boolean, %User{}, %{}, "user", :active, "user_active")
+    {:safe, res} =
+      ExAdmin.Form.build_control(:boolean, %User{}, %{}, "user", :active, "user_active")
+
     checkbox = Floki.find(res, "input#user_active[type=checkbox]")
     assert Floki.attribute(checkbox, "name") == ["user[active]"]
   end
@@ -138,7 +142,7 @@ defmodule ExAdmin.FormTest do
   test "build_item :input", %{conn: conn} do
     resource = %Simple{}
     item = %{type: :input, name: :name, opts: %{}, resource: resource}
-    res = ExAdmin.Form.build_item(conn, item, resource, "simple", nil)
+    {:safe, res} = ExAdmin.Form.build_item(conn, item, resource, "simple", nil)
 
     label = Floki.find(res, "label")
     assert Floki.text(label) == "Name"
@@ -155,7 +159,7 @@ defmodule ExAdmin.FormTest do
       end
 
     item = %{type: :inputs, name: :roles, opts: %{as: :check_boxes, collection: roles}}
-    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
+    {:safe, res} = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
     assert Floki.find(res, "div label") |> hd |> Floki.text() == "Roles"
     role_boxes = Floki.find(res, "div div.col-sm-10 input[type=checkbox]")
     assert Enum.count(role_boxes) == 2
@@ -167,7 +171,7 @@ defmodule ExAdmin.FormTest do
     end
 
     item = %{type: :inputs, name: :roles, opts: %{as: :check_boxes}}
-    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
+    {:safe, res} = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
     assert Floki.find(res, "div label") |> hd |> Floki.text() == "Roles"
     role_boxes = Floki.find(res, "div div.col-sm-10 input[type=checkbox]")
     assert Enum.count(role_boxes) == 2
@@ -180,7 +184,7 @@ defmodule ExAdmin.FormTest do
       end
 
     item = %{type: :inputs, name: :roles, opts: %{collection: roles}}
-    res = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
+    {:safe, res} = ExAdmin.Form.build_item(conn, item, %User{}, "user", nil)
     assert Floki.find(res, "div label") |> hd |> Floki.text() == "Roles"
     options = Floki.find(res, "select[multiple=multiple] option")
     assert Enum.count(options) == 2
@@ -203,7 +207,7 @@ defmodule ExAdmin.FormTest do
   #     Repo.insert! ContactPhoneNumber.changeset(%ContactPhoneNumber{}, %{contact_id: resource.id, phone_number_id: pn.id})
   #   end
   #   item = %{type: :has_many, resource: nil, name: :phone_numbers, opts: %{fun: fun}}
-  #   res = ExAdmin.Form.build_item(conn, item, resource, "contact", nil)
+  #   {:safe, res} = ExAdmin.Form.build_item(conn, item, resource, "contact", nil)
   #   assert res == ""
   # end
 end

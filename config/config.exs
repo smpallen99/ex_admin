@@ -33,8 +33,7 @@ use Mix.Config
 #     Nested.ExAdmin.Dashboard,
 #   ]
 config :ex_admin,
-  repo: MyProject.Repo,
-  module: MyProject,
+  repo: ExAdmin.Repo,
   modules: [],
   module: ExAdmin
 

@@ -13,7 +13,7 @@ defmodule ExAdmin.HelpersTest do
         ExAdmin.Table.handle_contents(contents, field_name)
       end)
 
-    assert res == ~s(<td class='td-description'>desc</td>)
+    assert res == {:safe, ~s(<td class='td-description'>desc</td>)}
   end
 
   test "build_field Actions" do
@@ -35,17 +35,18 @@ defmodule ExAdmin.HelpersTest do
       Helpers.build_field(
         resource,
         conn,
-        {"Actions", %{
-          fun: fn res ->
-            ExAdmin.Index.build_index_links(conn, res, [:show, :edit, :delete])
-          end
-        }},
+        {"Actions",
+         %{
+           fun: fn res ->
+             ExAdmin.Index.build_index_links(conn, res, [:show, :edit, :delete])
+           end
+         }},
         fn contents, field_name ->
           ExAdmin.Table.handle_contents(contents, field_name)
         end
       )
 
-    assert res == expected
+    assert res == {:safe, expected}
   end
 
   test "build_field with complex map data" do

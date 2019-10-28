@@ -4,15 +4,15 @@
     <%= unless crumbs == [] do %>
       <ol class="breadcrumb">
         <%= for {link, name} <- crumbs do %>
-          <li> 
+          <li>
             <%= case name do %>
             <%=   "admin" -> %>
               <a href="<%= link %>"><i class="fa fa-dashboard"></i><%= name %></a>
-            <%=  _ -> %>
+            <%  _ -> %>
               <a href="<%= link %>"><%= truncate name , length: 15 %></a>
             <% end %>
-          </li>  
+          </li>
         <% end %>
       </ol>
-    <% end %> 
+    <% end %>
 </section>

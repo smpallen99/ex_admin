@@ -712,12 +712,12 @@ defmodule ExAdmin.Register do
         scope :all, default: true
 
         scope :available, fn(q) ->
-          now = Ecto.Date.utc
+          now = DateTime.utc_now()
           where(q, [p], p.available_on <= ^now)
         end
 
         scope :drafts, fn(q) ->
-          now = Ecto.Date.utc
+          now = DateTime.utc_now()
           where(q, [p], p.available_on > ^now)
         end
 

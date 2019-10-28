@@ -82,7 +82,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
           div ".container-fluid" do
             col_width = Kernel.div(12, columns)
 
-            Enum.chunk(page.entries, columns, columns, [nil])
+            Enum.chunk_every(page.entries, columns, columns, [nil])
             |> Enum.map(fn list ->
               div ".row" do
                 Enum.map(list, fn item ->

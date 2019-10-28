@@ -440,7 +440,7 @@ defmodule ExAdmin.Show do
       associations_path = ExAdmin.Utils.admin_association_path(resource, opts[:assoc_name])
 
       script type: "text/javascript" do
-        text("""
+        Phoenix.HTML.raw("""
         $(document).ready(function() {
           ExAdmin.association_filler_opts.ajax.url = "#{associations_path}";
           $(".association_filler").select2(ExAdmin.association_filler_opts);

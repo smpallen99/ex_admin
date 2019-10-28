@@ -3,7 +3,6 @@ defmodule ExAdmin.Utils do
   A collection of utility functions.
   """
   require Logger
-  import Ecto.DateTime.Utils, only: [zero_pad: 2]
   import ExAdmin.Gettext
   @module Application.get_env(:ex_admin, :module)
 
@@ -297,12 +296,6 @@ defmodule ExAdmin.Utils do
   @doc false
   def confirm_message, do: gettext("Are you sure you want to delete this?")
 
-  @doc false
-  def to_datetime(%Ecto.DateTime{} = dt) do
-    {:ok, {date, {h, m, s, _ms}}} = Ecto.DateTime.dump(dt)
-    {date, {h, m, s}}
-  end
-
   def to_datetime(%DateTime{} = dt) do
     DateTime.to_naive(dt)
     |> NaiveDateTime.to_erl()
@@ -310,17 +303,17 @@ defmodule ExAdmin.Utils do
 
   @doc false
   def format_time_difference({d, {h, m, s}}) do
-    h = d * 24 + h
-    zero_pad(h, 2) <> ":" <> zero_pad(m, 2) <> ":" <> zero_pad(s, 2)
+    duration =
+      Timex.Duration.from_days(d) + Timex.Duration.from_hours(h) + Timex.Duration.from_minutes(m) +
+        Timex.Duration.from_seconds(s)
+
+    Timex.Format.Duration.Formatter.format(duration)
   end
 
   @doc false
-  def format_datetime({{y, m, d}, {h, min, s}}) do
-    zero_pad(y, 4) <>
-      "-" <>
-      zero_pad(m, 2) <>
-      "-" <>
-      zero_pad(d, 2) <> " " <> zero_pad(h, 2) <> ":" <> zero_pad(min, 2) <> ":" <> zero_pad(s, 2)
+  def format_datetime(datetime) do
+    {:ok, string} = Timex.format(Timex.to_datetime(datetime), "%F %T", :strftime)
+    string
   end
 
   @doc """

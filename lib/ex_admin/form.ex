@@ -65,9 +65,6 @@ defmodule ExAdmin.Form do
 
       input user, :password, type: :password
 
-      # If you use :naive_datetime or :utc_datetime in your schema instead of Ecto.DateTime
-      input user, :register_datetime, type: DateTime
-
   ### Array field support
 
       # default  tag style
@@ -270,7 +267,7 @@ defmodule ExAdmin.Form do
         model_name = model_name(resource)
         ext_name = ext_name(model_name, field_name)
 
-        view =
+        {:safe, view} =
           markup safe: true do
             ExAdmin.Form.Fields.ajax_input_collection(
               resource,
@@ -284,7 +281,7 @@ defmodule ExAdmin.Form do
             )
           end
 
-        ~s/$('##{ext_name}_input').html("#{escape_javascript(view)}");/
+        Phoenix.HTML.raw(~s/$('##{ext_name}_input').html("#{escape_javascript(view)}");/)
       end
     end
   end
@@ -532,7 +529,7 @@ defmodule ExAdmin.Form do
   def put_script_block(script_block) do
     if script_block do
       Xain.script type: "text/javascript" do
-        text("\n" <> script_block <> "\n")
+        Phoenix.HTML.raw("\n" <> script_block <> "\n")
       end
     end
   end
@@ -701,7 +698,7 @@ defmodule ExAdmin.Form do
     Adminlog.debug("build_item 2:")
 
     script type: "javascript" do
-      text("\n" <> contents <> "\n")
+      Phoenix.HTML.raw("\n" <> contents <> "\n")
     end
   end
 
@@ -717,10 +714,11 @@ defmodule ExAdmin.Form do
     schema = get_schema(item, field_name)
     data = Map.get(resource, field_name, model_name) || %{}
 
-    for {field, type} <- schema do
-      build_input(conn, type, field, field_name, data, model_name)
+    markup do
+      for {field, type} <- schema do
+        build_input(conn, type, field, field_name, data, model_name)
+      end
     end
-    |> Enum.join("\n")
   end
 
   def build_item(
@@ -933,12 +931,12 @@ defmodule ExAdmin.Form do
   def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors)
       when is_binary(content) do
     Adminlog.debug("build_item 5.")
-    text(content)
+    Phoenix.HTML.html_escape(content)
   end
 
   def build_item(_conn, %{type: :content, content: content}, _resource, _model_name, _errors) do
     Adminlog.debug("build_item 6.")
-    text(elem(content, 1))
+    content
   end
 
   def build_item(
@@ -1118,44 +1116,13 @@ defmodule ExAdmin.Form do
     end)
   end
 
-  defp build_checkboxes(conn, name, collection, opts, resource, model_name, errors, name_ids) do
-    theme_module(conn, Form).wrap_collection_check_boxes(fn ->
-      for opt <- collection do
-        opt_id = Schema.get_id(opt)
-        name_str = "#{model_name}[#{name_ids}][#{opt_id}]"
-
-        selected =
-          cond do
-            errors != nil ->
-              # error and selected in params
-              request_params = Map.get(conn, :body_params, nil)
-
-              ids =
-                Map.get(request_params, model_name, %{})
-                |> Map.get(name_ids, [])
-                |> ExAdmin.EctoFormMappers.checkboxes_to_ids()
-
-              Integer.to_string(opt_id) in ids
-
-            true ->
-              assoc_ids = Enum.map(get_resource_field2(resource, name), &Schema.get_id(&1))
-              # select and no error
-              opt_id in assoc_ids
-          end
-
-        display_name = display_name(opt)
-        theme_module(conn, Form).collection_check_box(display_name, name_str, opt_id, selected)
-      end
-    end)
-  end
-
   @doc """
   Setups the default collection on a inputs dsl request and then calls
   build_item again with the collection added
   """
   def build_item(
         conn,
-        %{type: :inputs, name: name, opts: %{as: type}} = options,
+        %{type: :inputs, name: name, opts: %{as: _type}} = options,
         resource,
         model_name,
         errors
@@ -1199,32 +1166,36 @@ defmodule ExAdmin.Form do
     end)
   end
 
-  defp build_checkboxes(conn, name, collection, opts, resource, model_name, errors, name_ids) do
-    theme_module(conn, Form).wrap_collection_check_boxes fn ->
+  defp build_checkboxes(conn, name, collection, _opts, resource, model_name, errors, name_ids) do
+    theme_module(conn, Form).wrap_collection_check_boxes(fn ->
       for opt <- collection do
         opt_id = Schema.get_id(opt)
         name_str = "#{model_name}[#{name_ids}][#{opt_id}]"
-        selected = cond do
-          errors != nil ->
-            # error and selected in params
-            request_params = Map.get(conn, :body_params, nil)
-            ids = Map.get(request_params, model_name, %{}) |>
-                  Map.get(name_ids, []) |>
-                  ExAdmin.EctoFormMappers.checkboxes_to_ids
-            Integer.to_string(opt_id) in ids
-          true ->
-            assoc_ids = Enum.map(get_resource_field2(resource, name), &(Schema.get_id(&1)))
-            # select and no error
-            opt_id in assoc_ids
-        end
-        display_name = display_name opt
-        theme_module(conn, Form).collection_check_box display_name, name_str,
-          opt_id, selected
+
+        selected =
+          cond do
+            errors != nil ->
+              # error and selected in params
+              request_params = Map.get(conn, :body_params, nil)
+
+              ids =
+                Map.get(request_params, model_name, %{})
+                |> Map.get(name_ids, [])
+                |> ExAdmin.EctoFormMappers.checkboxes_to_ids()
+
+              Integer.to_string(opt_id) in ids
+
+            true ->
+              assoc_ids = Enum.map(get_resource_field2(resource, name), &Schema.get_id(&1))
+              # select and no error
+              opt_id in assoc_ids
+          end
+
+        display_name = display_name(opt)
+        theme_module(conn, Form).collection_check_box(display_name, name_str, opt_id, selected)
       end
-    end
+    end)
   end
-
-
 
   defp get_schema(item, field_name) do
     schema = item[:opts][:schema]
@@ -1288,11 +1259,6 @@ defmodule ExAdmin.Form do
     end
   end
 
-  def build_control(Ecto.DateTime, resource, opts, model_name, field_name, _ext_name) do
-    %{name: model_name, model: resource, id: model_name, class: "form-control"}
-    |> datetime_select(field_name, Map.get(opts, :options, []))
-  end
-
   def build_control(DateTime, resource, opts, model_name, field_name, _ext_name) do
     %{name: model_name, model: resource, id: model_name, class: "form-control"}
     |> datetime_select(field_name, Map.get(opts, :options, []))
@@ -1303,28 +1269,11 @@ defmodule ExAdmin.Form do
     |> datetime_select(field_name, Map.get(opts, :options, []))
   end
 
-  def build_control(Ecto.Date, resource, opts, model_name, field_name, _ext_name) do
-    %{name: model_name, model: resource, id: model_name, class: "form-control"}
-    |> date_select(field_name, Map.get(opts, :options, []))
-  end
-
-  def build_control(Ecto.Time, resource, opts, model_name, field_name, _ext_name) do
-    %{name: model_name, model: resource, id: model_name, class: "form-control"}
-    |> time_select(field_name, Map.get(opts, :options, []))
-  end
-
-  def build_control(Elixir.DateTime, resource, opts, model_name, field_name, _ext_name) do
-    %{name: model_name, model: resource, id: model_name, class: "form-control"}
-    |> datetime_select(field_name, Map.get(opts, :options, []))
-  end
-  def build_control(Elixir.NaiveDateTime, resource, opts, model_name, field_name, _ext_name) do
-    %{name: model_name, model: resource, id: model_name, class: "form-control"}
-    |> datetime_select(field_name, Map.get(opts, :options, []))
-  end
   def build_control(Elixir.Date, resource, opts, model_name, field_name, _ext_name) do
     %{name: model_name, model: resource, id: model_name, class: "form-control"}
     |> date_select(field_name, Map.get(opts, :options, []))
   end
+
   def build_control(Elixir.Time, resource, opts, model_name, field_name, _ext_name) do
     %{name: model_name, model: resource, id: model_name, class: "form-control"}
     |> time_select(field_name, Map.get(opts, :options, []))
@@ -1378,7 +1327,7 @@ defmodule ExAdmin.Form do
     |> build_array_control_block
   end
 
-  def build_control({:embed, e}, resource, opts, model_name, field_name, ext_name) do
+  def build_control({:embed, e}, resource, _opts, model_name, field_name, ext_name) do
     embed_content = Map.get(resource, field_name) || e.related.__struct__
     embed_module = e.related
 
@@ -1466,11 +1415,11 @@ defmodule ExAdmin.Form do
   def build_array_control_select2_script({collection, options}, name) do
     script =
       Xain.script do
-        """
+        Phoenix.HTML.raw("""
         $(document).ready(function() {
           $(".#{name}").select2(#{options});
         })
-        """
+        """)
       end
 
     {collection, script}
@@ -1494,7 +1443,7 @@ defmodule ExAdmin.Form do
 
   def date_select(form, field_name, opts \\ []) do
     value = Keyword.get(opts, :value, value_from(form, field_name) || Keyword.get(opts, :default))
-    builder = Keyword.get(opts, :builder) || &date_builder(&1, opts)
+    builder = Keyword.get(opts, :builder) || (&date_builder(&1, opts))
     builder.(datetime_builder(form, field_name, date_value(value), nil, opts))
   end
 
@@ -1522,7 +1471,7 @@ defmodule ExAdmin.Form do
 
   def time_select(form, field, opts \\ []) do
     value = Keyword.get(opts, :value, value_from(form, field) || Keyword.get(opts, :default))
-    builder = Keyword.get(opts, :builder) || &time_builder(&1, opts)
+    builder = Keyword.get(opts, :builder) || (&time_builder(&1, opts))
     builder.(datetime_builder(form, field, nil, time_value(value), opts))
   end
 
@@ -1587,7 +1536,7 @@ defmodule ExAdmin.Form do
   map =
     &Enum.map(&1, fn i ->
       i = Integer.to_string(i)
-      {String.rjust(i, 2, ?0), i}
+      {String.pad_leading(i, 2, "0"), i}
     end)
 
   @days map.(1..31)
@@ -1636,13 +1585,15 @@ defmodule ExAdmin.Form do
 
   defp build_select(_name, type, value, opts) do
     value =
-      if Range.range?(value) do
-        Enum.map(value, fn x ->
-          val = Integer.to_string(x)
-          {val, val}
-        end)
-      else
-        value
+      case value do
+        _first.._last ->
+          Enum.map(value, fn x ->
+            val = Integer.to_string(x)
+            {val, val}
+          end)
+
+        _ ->
+          value
       end
 
     select "", [{:class, "form-control date-time"} | opts] do
@@ -1808,11 +1759,9 @@ defmodule ExAdmin.Form do
   defp map_array_errors(nil, _, _), do: nil
 
   defp map_array_errors(errors, field_name, inx) do
-    Enum.filter_map(
-      errors || [],
-      fn {k, {_err, opts}} -> k == field_name and opts[:index] == inx end,
-      fn {_k, {err, opts}} -> {opts[:field], err} end
-    )
+    (errors || [])
+    |> Enum.filter(fn {k, {_err, opts}} -> k == field_name and opts[:index] == inx end)
+    |> Enum.map(fn {_k, {err, opts}} -> {opts[:field], err} end)
   end
 
   @doc false
