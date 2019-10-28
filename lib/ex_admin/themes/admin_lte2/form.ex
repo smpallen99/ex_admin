@@ -166,9 +166,10 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
     {contents, new_html}
   end
 
-  def has_many_insert_item(html, new_record_name_var) do
-    ~s|$(this).siblings("div.input").append("#{html}".replace(/#{new_record_name_var}/g,| <>
-      ~s|new Date().getTime())); return false;|
+  def has_many_insert_item({:safe, html}, new_record_name_var) do
+    {:safe,
+     ~s|$(this).siblings("div.input").append("#{html}".replace(/#{new_record_name_var}/g,| <>
+       ~s|new Date().getTime())); return false;|}
   end
 
   def form_box(item, _opts, fun) do

@@ -171,7 +171,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
     {contents, new_html}
   end
 
-  def has_many_insert_item(html, new_record_name_var) do
+  def has_many_insert_item({:safe, html}, new_record_name_var) do
     ~s|$(this).siblings("li.input").append("#{html}".replace(/#{new_record_name_var}/g,| <>
       ~s|new Date().getTime())); return false;|
   end
