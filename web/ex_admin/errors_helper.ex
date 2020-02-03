@@ -26,65 +26,83 @@ defmodule ExAdmin.ErrorsHelper do
   """
   def create_errors(changeset, schema) do
     assoc_prefixes = create_prefix_map(schema)
+
     flatten_errors(changeset, assoc_prefixes)
-    |> List.flatten
-    |> Enum.filter(fn(x) -> x != nil end)
+    |> List.flatten()
+    |> Enum.filter(fn x -> x != nil end)
   end
 
   defp flatten_errors(errors_array, assoc_prefixes, prefix \\ nil)
-  defp flatten_errors(%Ecto.Changeset{changes: changes, errors: errors}, assoc_prefixes, prefix) when errors == [] or is_nil(prefix) do
-    changes = Enum.reject(changes, fn({_,v}) -> is_struct(v) end)
-    |> Enum.into(%{})
+
+  defp flatten_errors(%Ecto.Changeset{changes: changes, errors: errors}, assoc_prefixes, prefix)
+       when errors == [] or is_nil(prefix) do
+    changes =
+      Enum.reject(changes, fn {_, v} -> is_struct(v) end)
+      |> Enum.into(%{})
+
     errors ++ flatten_errors(changes, assoc_prefixes, prefix)
   end
 
-  defp flatten_errors(%Ecto.Changeset{changes: changes, errors: errors}, assoc_prefixes, prefix)  do
-    Enum.map(errors, fn({k, v}) -> {concat_atoms(prefix, k), v} end) ++
+  defp flatten_errors(%Ecto.Changeset{changes: changes, errors: errors}, assoc_prefixes, prefix) do
+    Enum.map(errors, fn {k, v} -> {concat_atoms(prefix, k), v} end) ++
       flatten_errors(changes, assoc_prefixes, prefix)
   end
 
   defp flatten_errors(errors_array, assoc_prefixes, prefix) when is_list(errors_array) do
     Enum.with_index(errors_array)
-    |> Enum.map(fn({x, i}) ->
-     prefix = concat_atoms(prefix, String.to_atom(Integer.to_string(i)))
-     flatten_errors(x, assoc_prefixes, prefix)
+    |> Enum.map(fn {x, i} ->
+      prefix = concat_atoms(prefix, String.to_atom(Integer.to_string(i)))
+      flatten_errors(x, assoc_prefixes, prefix)
     end)
   end
 
   defp flatten_errors(%{__struct__: _struct}, _, _), do: nil
 
   defp flatten_errors(%{} = errors_map, assoc_prefixes, prefix) do
-    Enum.map(errors_map, fn({k, x}) ->
+    Enum.map(errors_map, fn {k, x} ->
       with k <- if(not is_atom(k), do: String.to_atom(k), else: k),
-        k <- if(Keyword.has_key?(assoc_prefixes, k), do: concat_atoms(k, assoc_prefixes[k]), else: k),
-        k <- if(prefix != nil, do: concat_atoms(prefix, k), else: k),
-      do: flatten_errors(x, assoc_prefixes, k)
+           k <-
+             if(Keyword.has_key?(assoc_prefixes, k),
+               do: concat_atoms(k, assoc_prefixes[k]),
+               else: k
+             ),
+           k <- if(prefix != nil, do: concat_atoms(prefix, k), else: k),
+           do: flatten_errors(x, assoc_prefixes, k)
     end)
   end
 
   defp flatten_errors(_, _, _), do: nil
 
   defp concat_atoms(first, second) do
-    "#{first}_#{second}" |> String.to_atom
+    "#{first}_#{second}" |> String.to_atom()
   end
 
   defp create_prefix_map(schema) do
     schema.__schema__(:associations)
-     |> Enum.map(&(schema.__schema__(:association, &1)))
-     |> Enum.map(fn(a) ->
+    |> Enum.map(&schema.__schema__(:association, &1))
+    |> Enum.map(fn a ->
       case a do
         %Ecto.Association.HasThrough{field: field} ->
-          { field, :attributes }
+          {field, :attributes}
+
         %Ecto.Association.Has{field: field} ->
-          { field, :attributes }
+          {field, :attributes}
+
         %Ecto.Association.ManyToMany{field: field} ->
-          { field, :attributes }
+          {field, :attributes}
+
         _ ->
           nil
       end
     end)
   end
 
-  defp is_struct(%{__struct__: _}), do: true
-  defp is_struct(_), do: false
+  case Version.compare(System.version(), "1.10.0") do
+    :lt ->
+      defp is_struct(%{__struct__: _}), do: true
+      defp is_struct(_), do: false
+
+    _ ->
+      :ok
+  end
 end
